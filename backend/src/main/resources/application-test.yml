@@ -1,0 +1,25 @@
+# Test profile. Datasource and Redis are supplied at runtime by Testcontainers via
+# @ServiceConnection, so no connection settings are declared here — the containers win.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+# Keep API docs off and logging quiet during tests.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+grossimarche:
+  jwt:
+    allow-ephemeral-key: true
+
+logging:
+  level:
+    com.grossimarche: DEBUG
+    org.testcontainers: INFO
+    org.hibernate.SQL: WARN

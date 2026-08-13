@@ -1,0 +1,63 @@
+# Local infrastructure for Grossimarché. Credentials match application-local.yml exactly
+# (non-secret local dev values). Ports are offset from the usual 5432/6379 so this stack
+# runs alongside any Postgres/Redis you already have.
+services:
+  app:
+    build:
+      context: .
+    container_name: grossimarche-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Run the local profile (ephemeral JWT key + seed data + Swagger), but point the
+      # datasource/redis at the compose services instead of localhost. Env vars override
+      # application-local.yml.
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/grossimarche
+      SPRING_DATASOURCE_USERNAME: grossimarche
+      SPRING_DATASOURCE_PASSWORD: grossimarche
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      # Host 8090 → container 8080 (host 8080/8081 are used by other local apps).
+      - "8090:8080"
+
+  postgres:
+    image: postgres:17
+    container_name: grossimarche-postgres
+    environment:
+      POSTGRES_DB: grossimarche
+      POSTGRES_USER: grossimarche
+      POSTGRES_PASSWORD: grossimarche
+    ports:
+      - "5433:5432"
+    volumes:
+      - grossimarche-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grossimarche -d grossimarche"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7
+    container_name: grossimarche-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - grossimarche-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  grossimarche-postgres-data:
+  grossimarche-redis-data:

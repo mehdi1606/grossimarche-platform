@@ -1,0 +1,33 @@
+# Production profile. Every value comes from the environment — no defaults, no secrets
+# committed. Swagger UI and api-docs stay disabled (inherited from application.yml).
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:false}
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+  endpoints:
+    web:
+      exposure:
+        # health (with liveness/readiness probe groups), plus metrics/prometheus for scraping.
+        include: health, info, metrics, prometheus
+
+# Structured JSON logs in production (traceId from MDC is included automatically).
+logging:
+  structured:
+    format:
+      console: ecs

@@ -1,0 +1,40 @@
+package com.grossimarche.security;
+
+import com.grossimarche.config.RequestTraceFilter;
+import com.grossimarche.dto.common.ApiError;
+import com.grossimarche.exception.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+
+/**
+ * Emits the uniform {@link ApiError} JSON (403) when an authenticated caller lacks the
+ * required role — never an HTML page.
+ */
+@Component
+public class RestAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
+
+    public RestAccessDeniedHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException {
+        ErrorCode code = ErrorCode.FORBIDDEN;
+        response.setStatus(code.getStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        ApiError body = ApiError.of(code.getStatus().value(), code.name(),
+                code.getDefaultMessage(), RequestTraceFilter.currentTraceId());
+        response.getWriter().write(objectMapper.writeValueAsString(body));
+    }
+}

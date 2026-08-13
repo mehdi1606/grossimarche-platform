@@ -1,0 +1,40 @@
+# Local development profile. Points at the docker-compose Postgres and Redis.
+# Credentials are hardcoded here (and mirrored in docker-compose.yml) — they are
+# non-secret local dev values, and pinning them avoids any env-var mismatch between the
+# app and the container. Ports are offset from the usual 5432/6379 to avoid clashes.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/grossimarche
+    username: grossimarche
+    password: grossimarche
+  data:
+    redis:
+      host: localhost
+      port: 6380
+  # Seed data (V2) loads only here, via the extra location.
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+# Full health detail locally so `GET /actuator/health` shows db + redis components.
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+# Swagger UI reachable at /swagger-ui.html in local only.
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+grossimarche:
+  jwt:
+    # No RS256 key configured locally → generate a throwaway one at startup.
+    allow-ephemeral-key: true
+
+logging:
+  level:
+    com.grossimarche: DEBUG

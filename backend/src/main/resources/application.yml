@@ -1,0 +1,92 @@
+# Shared configuration for all profiles. Environment-specific values and all secrets are
+# set per-profile below / from env vars (see .env.example). The active profile defaults
+# to "local" for developer convenience; production must set SPRING_PROFILES_ACTIVE=prod.
+spring:
+  application:
+    name: grossimarche
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  jpa:
+    # Flyway owns the schema; Hibernate only validates entities against it.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        # Map java.time.Instant to `timestamp with time zone` so entities validate
+        # against the timestamptz columns Flyway creates.
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP_UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  # Jackson 3 (shipped with Boot 4) already serialises java.time as ISO-8601 by default.
+  # Null-omission is applied per-DTO via @JsonInclude where wanted.
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# Trace id (set by RequestTraceFilter) is stamped on every log line.
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{traceId:-}] %logger{36} - %msg%n"
+
+# Actuator: only health is exposed here; the rest is locked down (opened to ADMIN in B3).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+      probes:
+        enabled: true
+
+# API docs are off by default; enabled only in the local profile.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# Resilience for outbound OTP delivery (only exercised by the live senders).
+resilience4j:
+  retry:
+    instances:
+      otp-sms:
+        max-attempts: 3
+        wait-duration: 500ms
+      otp-email:
+        max-attempts: 3
+        wait-duration: 500ms
+  circuitbreaker:
+    instances:
+      otp-sms:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+      otp-email:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+
+grossimarche:
+  api:
+    public-url: ${API_PUBLIC_URL:http://localhost:8080}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+  jwt:
+    issuer: ${JWT_ISSUER:https://api.grossimarche.ma}
+    key-id: ${JWT_KEY_ID:grossimarche-key-1}
+    # PEM contents (not file paths). Empty locally → an ephemeral dev key is generated.
+    private-key-pem: ${JWT_PRIVATE_KEY:}
+    public-key-pem: ${JWT_PUBLIC_KEY:}
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d
+    # Overridden to true only in local/test so dev works without configured keys.
+    allow-ephemeral-key: false
+  otp:
+    # 'logging' writes the code to the DEBUG log (dev); 'live' uses the HTTP providers.
+    provider: ${OTP_PROVIDER:logging}
