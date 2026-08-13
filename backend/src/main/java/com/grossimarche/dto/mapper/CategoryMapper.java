@@ -13,6 +13,6 @@ public class CategoryMapper {
 
     public CategoryResponse toResponse(Category category, long productCount) {
         return new CategoryResponse(category.getId(), category.getName(), category.getSlug(),
-                category.getIcon(), category.getDisplayOrder(), productCount);
+                category.getIcon(), category.getDisplayOrder(), category.isActive(), productCount);
     }
 }

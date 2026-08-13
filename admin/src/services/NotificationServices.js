@@ -1,33 +1,30 @@
-import requests from "@/services/httpService";
+import requests from "./httpService";
+import { adaptNotification } from "./adapters";
 
+// Back-office notification feed (backend /admin/notifications). Open to STORE_MANAGER + ADMIN.
 const NotificationServices = {
-  addNotification: async (body) => {
-    return requests.post("/notification/add", body);
+  getAllNotifications: async (page = 0, size = 20) => {
+    const res = await requests.get(
+      `/admin/notifications?page=${page}&size=${size}`
+    );
+    return {
+      notifications: (res.content || []).map(adaptNotification),
+      totalDoc: res.totalElements ?? 0,
+      totalUnreadDoc: undefined,
+    };
   },
 
-  getAllNotification: async (page) => {
-    return requests.get(`/notification?page=${page}`);
+  getUnreadCount: async () => {
+    const res = await requests.get("/admin/notifications/unread-count");
+    return res?.count ?? 0;
   },
 
-  updateStatusNotification: async (id, body) => {
-    return requests.put(`/notification/${id}`, body);
-  },
+  updateStatusNotification: async (id) =>
+    requests.patch(`/admin/notifications/${id}/read`, {}),
 
-  updateManyStatusNotification: async (body) => {
-    return requests.patch("/notification/update/many", body);
-  },
+  markAllRead: async () => requests.patch("/admin/notifications/read-all", {}),
 
-  deleteNotification: async (id) => {
-    return requests.delete(`/notification/${id}`);
-  },
-
-  deleteNotificationByProductId: async (id) => {
-    return requests.delete(`/notification/product-id/${id}`);
-  },
-
-  deleteManyNotification: async (body) => {
-    return requests.patch(`/notification/delete/many`, body);
-  },
+  deleteNotification: async (id) => requests.delete(`/admin/notifications/${id}`),
 };
 
 export default NotificationServices;

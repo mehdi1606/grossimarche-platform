@@ -1,266 +1,209 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Badge,
   Button,
   Card,
   CardBody,
   Input,
-  Pagination,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiEdit, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 
 //internal import
-
-import useAsync from "@/hooks/useAsync";
-import { SidebarContext } from "@/context/SidebarContext";
-import CategoryServices from "@/services/CategoryServices";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
-import useFilter from "@/hooks/useFilter";
-import DeleteModal from "@/components/modal/DeleteModal";
-import BulkActionDrawer from "@/components/drawer/BulkActionDrawer";
 import PageTitle from "@/components/Typography/PageTitle";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import CategoryDrawer from "@/components/drawer/CategoryDrawer";
-import UploadMany from "@/components/common/UploadMany";
-import SwitchToggleChildCat from "@/components/form/switch/SwitchToggleChildCat";
-import TableLoading from "@/components/preloader/TableLoading";
-import CheckBox from "@/components/form/others/CheckBox";
-import CategoryTable from "@/components/category/CategoryTable";
-import NotFound from "@/components/table/NotFound";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import CategoryServices from "@/services/CategoryServices";
+import { notifyError, notifySuccess } from "@/utils/toast";
+
+// Grossimarché categories are flat (name, slug, icon, order, active). This is a simple,
+// fully backend-driven management page — no nested sub-categories.
+const EMPTY = { id: null, name: "", slug: "", icon: "", displayOrder: 0 };
 
 const Category = () => {
-  const { toggleDrawer, lang } = useContext(SidebarContext);
-
-  const { data, loading, error } = useAsync(CategoryServices.getAllCategory);
-  const { data: getAllCategories } = useAsync(
-    CategoryServices.getAllCategories
-  );
-
-  const { handleDeleteMany, allId, handleUpdateMany, serviceId } =
-    useToggleDrawer();
-
   const { t } = useTranslation();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
 
-  const {
-    handleSubmitCategory,
-    categoryRef,
-    totalResults,
-    resultsPerPage,
-    dataTable,
-    serviceData,
-    handleChangePage,
-    filename,
-    isDisabled,
-    setCategoryType,
-    handleSelectFile,
-    handleUploadMultiple,
-    handleRemoveSelectFile,
-  } = useFilter(data[0]?.children ? data[0]?.children : data);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await CategoryServices.getAllCategory());
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // react hooks
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState([]);
-  const [showChild, setShowChild] = useState(false);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleSelectAll = () => {
-    setIsCheckAll(!isCheckAll);
-    setIsCheck(data[0]?.children.map((li) => li._id));
-    if (isCheckAll) {
-      setIsCheck([]);
+  const resetForm = () => setForm(EMPTY);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const body = {
+      name: form.name.trim(),
+      slug: form.slug.trim(),
+      icon: form.icon.trim(),
+      displayOrder: Number(form.displayOrder) || 0,
+      status: "show",
+    };
+    try {
+      if (form.id) {
+        await CategoryServices.updateCategory(form.id, body);
+        notifySuccess("Category updated.");
+      } else {
+        await CategoryServices.addCategory(body);
+        notifySuccess("Category added.");
+      }
+      resetForm();
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  // handle reset field function
-  const handleResetField = () => {
-    setCategoryType("");
-    categoryRef.current.value = "";
+  const edit = (row) =>
+    setForm({
+      id: row._id,
+      name: row.name?.en || "",
+      slug: row.slug || "",
+      icon: row.icon || "",
+      displayOrder: row.displayOrder ?? 0,
+    });
+
+  const toggle = async (row) => {
+    try {
+      await CategoryServices.updateStatus(row._id, {
+        status: row.status === "show" ? "hide" : "show",
+      });
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
   };
 
-  // console.log("serviceData", serviceData, "tableData", dataTable);
+  const remove = async (row) => {
+    try {
+      await CategoryServices.deleteCategory(row._id);
+      notifySuccess("Category deactivated.");
+      if (form.id === row._id) resetForm();
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
 
   return (
     <>
       <PageTitle>{t("Category")}</PageTitle>
-      <DeleteModal ids={allId} setIsCheck={setIsCheck} />
 
-      <BulkActionDrawer
-        ids={allId}
-        title="Categories"
-        lang={lang}
-        data={data}
-        isCheck={isCheck}
-      />
+      <Card className="mb-5 bg-white dark:bg-gray-800">
+        <CardBody>
+          <form onSubmit={handleSave} className="grid gap-3 md:grid-cols-5 items-end">
+            <Input
+              placeholder="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Slug (optional)"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+            />
+            <Input
+              placeholder="Icon (emoji)"
+              value={form.icon}
+              onChange={(e) => setForm({ ...form, icon: e.target.value })}
+            />
+            <Input
+              type="number"
+              placeholder="Order"
+              value={form.displayOrder}
+              onChange={(e) => setForm({ ...form, displayOrder: e.target.value })}
+            />
+            <div className="flex gap-2">
+              <Button type="submit" disabled={saving}>
+                {form.id ? "Update" : "Add"}
+              </Button>
+              {form.id && (
+                <Button layout="outline" type="button" onClick={resetForm}>
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardBody>
+      </Card>
 
-      <MainDrawer>
-        <CategoryDrawer id={serviceId} data={data} lang={lang} />
-      </MainDrawer>
-
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody className="">
-            {/* <div className="flex md:flex-row flex-col gap-3 justify-end items-end"> */}
-            <form
-              onSubmit={handleSubmitCategory}
-              className="py-3  grid gap-4 lg:gap-6 xl:gap-6  xl:flex"
-            >
-              {/* </div> */}
-              <div className="flex justify-start w-1/2 xl:w-1/2 md:w-full">
-                <UploadMany
-                  title="Categories"
-                  exportData={getAllCategories}
-                  filename={filename}
-                  isDisabled={isDisabled}
-                  handleSelectFile={handleSelectFile}
-                  handleUploadMultiple={handleUploadMultiple}
-                  handleRemoveSelectFile={handleRemoveSelectFile}
-                />
-              </div>
-
-              <div className="lg:flex  md:flex xl:justify-end xl:w-1/2  md:w-full md:justify-start flex-grow-0">
-                <div className="w-full md:w-40 lg:w-40 xl:w-40 mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleUpdateMany(isCheck)}
-                    className="w-full rounded-md h-12 text-gray-600 btn-gray"
-                  >
-                    <span className="mr-2">
-                      <FiEdit />
-                    </span>
-
-                    {t("BulkAction")}
-                  </Button>
-                </div>
-                <div className="w-full md:w-32 lg:w-32 xl:w-32  mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleDeleteMany(isCheck)}
-                    className="w-full rounded-md h-12 bg-red-500 disabled  btn-red"
-                  >
-                    <span className="mr-2">
-                      <FiTrash2 />
-                    </span>
-
-                    {t("Delete")}
-                  </Button>
-                </div>
-                <div className="w-full md:w-48 lg:w-48 xl:w-48">
-                  <Button
-                    onClick={toggleDrawer}
-                    className="rounded-md h-12 w-full"
-                  >
-                    <span className="mr-2">
-                      <FiPlus />
-                    </span>
-
-                    {t("AddCategory")}
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 rounded-t-lg rounded-0 mb-4">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitCategory}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={categoryRef}
-                  type="search"
-                  placeholder={t("SearchCategory")}
-                />
-              </div>
-              <div className="flex items-center gap-2 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full mx-1">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-2 h-12 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
-
-      <SwitchToggleChildCat
-        title=" "
-        handleProcess={setShowChild}
-        processOption={showChild}
-        name={showChild}
-      />
       {loading ? (
-        <TableLoading row={12} col={6} width={190} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
+        <p className="text-center text-gray-500">Loading…</p>
+      ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>
-                  <CheckBox
-                    type="checkbox"
-                    name="selectAll"
-                    id="selectAll"
-                    handleClick={handleSelectAll}
-                    isChecked={isCheckAll}
-                  />
-                </TableCell>
-
-                <TableCell>{t("catIdTbl")}</TableCell>
-                <TableCell>{t("catIconTbl")}</TableCell>
-                <TableCell>{t("CatTbName")}</TableCell>
-                <TableCell>{t("CatTbDescription")}</TableCell>
-                <TableCell className="text-center">
-                  {t("catPublishedTbl")}
-                </TableCell>
-                <TableCell className="text-right">
-                  {t("catActionsTbl")}
-                </TableCell>
+                <TableCell>Icon</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Slug</TableCell>
+                <TableCell>Products</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-
-            <CategoryTable
-              data={data}
-              lang={lang}
-              isCheck={isCheck}
-              categories={dataTable}
-              setIsCheck={setIsCheck}
-              showChild={showChild}
-            />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell className="text-xl">{row.icon}</TableCell>
+                  <TableCell className="font-semibold">{row.name?.en}</TableCell>
+                  <TableCell className="text-sm text-gray-500">{row.slug}</TableCell>
+                  <TableCell>{row.productCount}</TableCell>
+                  <TableCell>
+                    <Badge type={row.status === "show" ? "success" : "neutral"}>
+                      {row.status === "show" ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3">
+                      <button
+                        className="text-xs text-emerald-600 hover:underline"
+                        onClick={() => edit(row)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-xs text-gray-600 hover:underline dark:text-gray-300"
+                        onClick={() => toggle(row)}
+                      >
+                        {row.status === "show" ? "Disable" : "Enable"}
+                      </button>
+                      <button
+                        className="text-red-500"
+                        title="Delete"
+                        onClick={() => remove(row)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-
-          <TableFooter>
-            <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no categories right now." />
       )}
     </>
   );

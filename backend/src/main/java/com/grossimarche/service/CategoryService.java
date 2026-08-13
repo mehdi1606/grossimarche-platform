@@ -11,6 +11,7 @@ import com.grossimarche.repository.CategoryRepository;
 import com.grossimarche.repository.ProductRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,16 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryResponse> listActive() {
         return categoryRepository.findByActiveTrueOrderByDisplayOrderAsc().stream()
+                .map(c -> categoryMapper.toResponse(c,
+                        productRepository.countByCategoryIdAndActiveTrue(c.getId())))
+                .toList();
+    }
+
+    /** Admin listing: every category (active and inactive) ordered for management. */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> listAll() {
+        return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "displayOrder")).stream()
                 .map(c -> categoryMapper.toResponse(c,
                         productRepository.countByCategoryIdAndActiveTrue(c.getId())))
                 .toList();

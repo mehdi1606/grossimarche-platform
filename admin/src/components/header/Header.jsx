@@ -26,6 +26,7 @@ import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
 import NotificationServices from "@/services/NotificationServices";
 import SelectLanguage from "@/components/form/selectOption/SelectLanguage";
+import { notifyError } from "@/utils/toast";
 
 const Header = () => {
   const { toggleSidebar, handleLanguageChange, setNavBar, navBar, currLang } =
@@ -68,14 +69,8 @@ const Header = () => {
   // handle notification status change
   const handleNotificationStatusChange = async (id) => {
     try {
-      await NotificationServices.updateStatusNotification(id, {
-        status: "read",
-      });
-
-      const getAllRes = await NotificationServices.getAllNotification();
-      setData(getAllRes?.notifications);
-      setTotalUnreadDoc(getAllRes?.totalUnreadDoc);
-      window.location.reload(false);
+      await NotificationServices.updateStatusNotification(id);
+      await handleGetAllNotifications();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
     }
@@ -85,10 +80,7 @@ const Header = () => {
   const handleNotificationDelete = async (id) => {
     try {
       await NotificationServices.deleteNotification(id);
-      const getAllRes = await NotificationServices.getAllNotification();
-      setData(getAllRes?.notifications);
-      setTotalUnreadDoc(getAllRes?.totalUnreadDoc);
-      setTotalDoc(getAllRes?.totalDoc);
+      await handleGetAllNotifications();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
     }
@@ -97,10 +89,10 @@ const Header = () => {
   //handle get notifications
   const handleGetAllNotifications = async () => {
     try {
-      const res = await NotificationServices.getAllNotification();
-      // console.log("notifcation api called", res);
+      const res = await NotificationServices.getAllNotifications(0, 10);
+      const unread = await NotificationServices.getUnreadCount();
       setData(res?.notifications);
-      setTotalUnreadDoc(res?.totalUnreadDoc);
+      setTotalUnreadDoc(unread);
       setTotalDoc(res?.totalDoc);
       setUpdated(false);
     } catch (err) {
@@ -351,7 +343,11 @@ const Header = () => {
                     aria-hidden="true"
                   />
                 ) : (
-                  <span>{adminInfo.email[0].toUpperCase()}</span>
+                  <span>
+                    {(adminInfo?.name || adminInfo?.email || "?")
+                      .charAt(0)
+                      .toUpperCase()}
+                  </span>
                 )}
               </button>
 

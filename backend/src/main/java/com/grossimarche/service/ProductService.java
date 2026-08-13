@@ -26,6 +26,7 @@ import com.grossimarche.repository.ProductReviewRepository;
 import com.grossimarche.repository.spec.ProductSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -51,6 +52,9 @@ public class ProductService {
     private static final Set<String> ALLOWED_IMAGE_TYPES =
             Set.of("image/png", "image/jpeg", "image/webp", "image/avif");
 
+    /** A stock adjustment that lands at or below this level raises a LOW_STOCK notification. */
+    private static final int LOW_STOCK_THRESHOLD = 10;
+
     private final ProductRepository productRepository;
     private final ProductPriceTierRepository priceTierRepository;
     private final ProductAttributeRepository attributeRepository;
@@ -60,6 +64,7 @@ public class ProductService {
     private final AuditService auditService;
     private final com.grossimarche.integration.storage.StorageService storageService;
     private final com.grossimarche.config.StorageProperties storageProperties;
+    private final ApplicationEventPublisher events;
 
     public ProductService(ProductRepository productRepository,
                           ProductPriceTierRepository priceTierRepository,
@@ -67,7 +72,8 @@ public class ProductService {
                           ProductReviewRepository reviewRepository, ProductMapper productMapper,
                           CategoryService categoryService, AuditService auditService,
                           com.grossimarche.integration.storage.StorageService storageService,
-                          com.grossimarche.config.StorageProperties storageProperties) {
+                          com.grossimarche.config.StorageProperties storageProperties,
+                          ApplicationEventPublisher events) {
         this.productRepository = productRepository;
         this.priceTierRepository = priceTierRepository;
         this.attributeRepository = attributeRepository;
@@ -77,6 +83,7 @@ public class ProductService {
         this.auditService = auditService;
         this.storageService = storageService;
         this.storageProperties = storageProperties;
+        this.events = events;
     }
 
     // ---- Public reads -----------------------------------------------------------------
@@ -102,6 +109,28 @@ public class ProductService {
                 withTiers.contains(p.getId())));
     }
 
+    // ---- Admin reads ------------------------------------------------------------------
+
+    /**
+     * Back-office product listing: same structured filters as the public search but WITHOUT
+     * the active constraint, so inactive products are visible for management.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional(readOnly = true)
+    public Page<com.grossimarche.dto.catalog.AdminProductSummaryResponse> adminList(ProductFilter filter,
+                                                                                    Pageable pageable) {
+        List<Specification<Product>> specs = Stream.of(
+                        ProductSpecifications.inCategory(filter.categoryId()),
+                        ProductSpecifications.matchesText(filter.q()),
+                        ProductSpecifications.priceAtLeast(filter.minPrice()),
+                        ProductSpecifications.priceAtMost(filter.maxPrice()),
+                        ProductSpecifications.inStock(filter.inStock()))
+                .filter(Objects::nonNull)
+                .toList();
+        Specification<Product> spec = specs.stream().reduce(Specification::and).orElse(null);
+        return productRepository.findAll(spec, pageable).map(productMapper::toAdminSummary);
+    }
+
     @Cacheable(value = CacheConfig.PRODUCT_DETAIL, key = "#idOrSlug")
     @Transactional(readOnly = true)
     public ProductDetailResponse getDetail(String idOrSlug) {
@@ -110,6 +139,18 @@ public class ProductService {
         return productMapper.toDetail(product, productMapper.toTiers(tiers), loadAttributes(product.getId()),
                 reviewRepository.averageRating(product.getId()),
                 reviewRepository.countByProductIdAndApprovedTrue(product.getId()));
+    }
+
+    /** Back-office detail: resolves by id regardless of the active flag (so hidden products
+     *  remain editable and re-activatable). Not cached — admin edits must see fresh state. */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional(readOnly = true)
+    public ProductDetailResponse adminGetDetail(UUID id) {
+        Product product = getById(id);
+        List<ProductPriceTier> tiers = priceTierRepository.findByProductIdOrderByMinQuantityAsc(id);
+        return productMapper.toDetail(product, productMapper.toTiers(tiers), loadAttributes(id),
+                reviewRepository.averageRating(id),
+                reviewRepository.countByProductIdAndApprovedTrue(id));
     }
 
     // ---- Admin writes -----------------------------------------------------------------
@@ -173,6 +214,10 @@ public class ProductService {
         product.setStockQuantity(newStock);
         auditService.record(actorId, "STOCK_ADJUST", "Product", id.toString(), null, null,
                 "{\"delta\":" + delta + ",\"reason\":\"" + reason.replace("\"", "'") + "\"}");
+        // Warn staff when a decrease crosses into the low-stock zone (consumed AFTER_COMMIT).
+        if (delta < 0 && newStock <= LOW_STOCK_THRESHOLD) {
+            events.publishEvent(new LowStockEvent(product.getId(), product.getName(), newStock));
+        }
         List<ProductPriceTier> tiers = priceTierRepository.findByProductIdOrderByMinQuantityAsc(id);
         return productMapper.toDetail(product, productMapper.toTiers(tiers), loadAttributes(id),
                 reviewRepository.averageRating(id), reviewRepository.countByProductIdAndApprovedTrue(id));

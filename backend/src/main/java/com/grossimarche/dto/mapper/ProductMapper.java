@@ -1,5 +1,6 @@
 package com.grossimarche.dto.mapper;
 
+import com.grossimarche.dto.catalog.AdminProductSummaryResponse;
 import com.grossimarche.dto.catalog.PriceTierResponse;
 import com.grossimarche.dto.catalog.ProductAttributeResponse;
 import com.grossimarche.dto.catalog.ProductDetailResponse;
@@ -23,6 +24,14 @@ public class ProductMapper {
     public ProductSummaryResponse toSummary(Product product, boolean inStock, boolean hasQuantityDiscount) {
         return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
                 product.getPrice(), product.getUnit(), product.getImageUrl(), inStock, hasQuantityDiscount);
+    }
+
+    /** Back-office list row (exposes stock/active/category; called within a transaction). */
+    public AdminProductSummaryResponse toAdminSummary(Product product) {
+        return new AdminProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+                product.getDescription(), product.getPrice(), product.getUnit(), product.getImageUrl(),
+                product.getStockQuantity(), product.getMinOrderQuantity(), product.isActive(),
+                product.getCategory().getId(), product.getCategory().getName());
     }
 
     public ProductDetailResponse toDetail(Product product, List<PriceTierResponse> priceTiers,

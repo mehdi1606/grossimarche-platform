@@ -6,23 +6,24 @@ import {
   FiSettings,
   FiSlack,
   FiGlobe,
-  FiTarget,
+  FiGift,
+  FiBell,
 } from "react-icons/fi";
 
 /**
- * ⚠ These are used just to render the Sidebar!
- * You can include any link here, local or external.
+ * ⚠ These entries only render the Sidebar. Actual Router routes live in `routes/index.js`.
  *
- * If you're looking to actual Router routes, go to
- * `routes/index.js`
+ * Visibility is role-based: SidebarContent filters every entry (and sub-entry) against the
+ * signed-in user's access list (utils/access.js). ADMIN-only areas — Staff, Coupons,
+ * Settings (stores) and the International config — are therefore hidden from a STORE_MANAGER
+ * automatically; no per-item role flag is needed here.
  */
 const sidebar = [
   {
-    path: "/dashboard", // the url
-    icon: FiGrid, // icon
-    name: "Dashboard", // name that appear in Sidebar
+    path: "/dashboard",
+    icon: FiGrid,
+    name: "Dashboard",
   },
-
   {
     icon: FiSlack,
     name: "Catalog",
@@ -39,13 +40,8 @@ const sidebar = [
         path: "/attributes",
         name: "Attributes",
       },
-      {
-        path: "/coupons",
-        name: "Coupons",
-      },
     ],
   },
-
   {
     path: "/customers",
     icon: FiUsers,
@@ -56,15 +52,25 @@ const sidebar = [
     icon: FiCompass,
     name: "Orders",
   },
+  {
+    path: "/notifications",
+    icon: FiBell,
+    name: "Notifications",
+  },
 
+  // ---- ADMIN-only (hidden from STORE_MANAGER by the access-list filter) ----
+  {
+    path: "/coupons",
+    icon: FiGift,
+    name: "Coupons",
+  },
   {
     path: "/our-staff",
     icon: FiUser,
     name: "OurStaff",
   },
-
   {
-    path: "/settings?settingTab=common-settings",
+    path: "/settings",
     icon: FiSettings,
     name: "Settings",
   },
@@ -73,49 +79,12 @@ const sidebar = [
     name: "International",
     routes: [
       {
-        path: "/languages",
-        name: "Languages",
-      },
-      {
         path: "/currencies",
         name: "Currencies",
       },
-    ],
-  },
-  {
-    icon: FiTarget,
-    name: "OnlineStore",
-    routes: [
       {
-        name: "ViewStore",
-        path: "/store",
-        outside: "store",
-      },
-
-      {
-        path: "/store/customization",
-        name: "StoreCustomization",
-      },
-      {
-        path: "/store/store-settings",
-        name: "StoreSettings",
-      },
-    ],
-  },
-
-  {
-    icon: FiSlack,
-    name: "Pages",
-    routes: [
-      // submenu
-
-      {
-        path: "/404",
-        name: "404",
-      },
-      {
-        path: "/coming-soon",
-        name: "Coming Soon",
+        path: "/languages",
+        name: "Languages",
       },
     ],
   },

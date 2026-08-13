@@ -9,6 +9,7 @@ public record CategoryResponse(
         String slug,
         String icon,
         int displayOrder,
+        boolean active,
         long productCount
 ) {
 }

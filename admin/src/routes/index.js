@@ -21,8 +21,6 @@ const EditProfile = lazy(() => import("@/pages/EditProfile"));
 const Languages = lazy(() => import("@/pages/Languages"));
 const Currencies = lazy(() => import("@/pages/Currencies"));
 const Setting = lazy(() => import("@/pages/Setting"));
-const StoreHome = lazy(() => import("@/pages/StoreHome"));
-const StoreSetting = lazy(() => import("@/pages/StoreSetting"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
 /*
 //  * ⚠ These are internal routes!
@@ -98,14 +96,6 @@ const routes = [
     component: Coupons,
   },
   { path: "/settings", component: Setting },
-  {
-    path: "/store/customization",
-    component: StoreHome,
-  },
-  {
-    path: "/store/store-settings",
-    component: StoreSetting,
-  },
   {
     path: "/404",
     component: Page404,

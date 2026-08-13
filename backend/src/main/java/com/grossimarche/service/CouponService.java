@@ -130,14 +130,14 @@ public class CouponService {
 
     // ---- Admin CRUD -------------------------------------------------------------------
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public Page<AdminCouponResponse> list(Pageable pageable) {
         return couponRepository.findAll(pageable)
                 .map(c -> couponMapper.toAdmin(c, redemptionRepository.countByCouponId(c.getId())));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public AdminCouponResponse create(AdminCouponRequest req) {
         String code = req.code().trim().toUpperCase();
@@ -148,7 +148,7 @@ public class CouponService {
         return couponMapper.toAdmin(coupon, 0);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public AdminCouponResponse update(UUID id, AdminCouponRequest req) {
         Coupon coupon = getById(id);
@@ -162,7 +162,7 @@ public class CouponService {
         return couponMapper.toAdmin(coupon, redemptionRepository.countByCouponId(id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void deactivate(UUID id) {
         getById(id).setActive(false);

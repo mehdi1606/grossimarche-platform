@@ -112,6 +112,114 @@ export const adaptCategory = (g) => ({
   name: { en: g.name },
   slug: g.slug,
   icon: g.icon || "",
+  displayOrder: g.displayOrder ?? 0,
+  productCount: g.productCount ?? 0,
   status: g.active === false ? "hide" : "show",
   children: [],
+});
+
+/** Build a URL-safe slug from a free-text name. */
+export const slugify = (value) =>
+  (value || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // strip accents
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+/**
+ * Grossimarché AdminProductSummaryResponse / ProductDetailResponse -> the shape the admin
+ * product table + editor consume. The Kachabazar editor carries concepts the backend does not
+ * (variants, sale price, tags, SKU); those are given inert defaults so the UI stays stable.
+ */
+export const adaptAdminProduct = (g) => {
+  const price = Number(g.price ?? 0);
+  return {
+    _id: g.id,
+    productId: g.id,
+    title: { en: g.name },
+    slug: g.slug,
+    description: { en: g.description || "" },
+    prices: { price, originalPrice: price, discount: 0 },
+    image: g.imageUrl ? [g.imageUrl] : [],
+    stock: g.stockQuantity ?? 0,
+    unit: g.unit || "unité",
+    minOrderQuantity: g.minOrderQuantity ?? 1,
+    status: g.active === false ? "hide" : "show",
+    show: g.active !== false,
+    sku: "",
+    barcode: "",
+    tag: "[]",
+    isCombination: false,
+    variants: [],
+    category: g.categoryId
+      ? { _id: g.categoryId, name: { en: g.categoryName } }
+      : { _id: "", name: { en: "" } },
+    categories: g.categoryId
+      ? [{ _id: g.categoryId, name: { en: g.categoryName } }]
+      : [],
+  };
+};
+
+/** Grossimarché CurrencyResponse -> admin currency row. */
+export const adaptCurrency = (g) => ({
+  _id: g.id,
+  name: g.name,
+  symbol: g.symbol,
+  code: g.code,
+  conversionRate: g.exchangeRate,
+  status: g.enabled ? "show" : "hide",
+  isDefault: g.isDefault,
+});
+
+/** Grossimarché LanguageResponse -> admin language row. */
+export const adaptLanguage = (g) => ({
+  _id: g.id,
+  name: g.name,
+  iso_code: g.isoCode,
+  flag: g.flag || "",
+  status: g.enabled ? "show" : "hide",
+  isDefault: g.isDefault,
+});
+
+/** Grossimarché AttributeResponse -> admin attribute row. */
+export const adaptAttribute = (g) => ({
+  _id: g.id,
+  title: { en: g.name },
+  name: { en: g.name },
+  option: g.type === "CHECKBOX" ? "Checkbox" : "Dropdown",
+  type: g.type,
+  status: g.enabled ? "show" : "hide",
+  variants: (g.values || []).map((v) => ({
+    _id: v.id,
+    name: { en: v.name },
+    status: v.enabled ? "show" : "hide",
+  })),
+});
+
+/** Grossimarché NotificationResponse -> admin notification row. */
+export const adaptNotification = (g) => ({
+  _id: g.id,
+  type: g.type,
+  title: g.title,
+  message: g.message,
+  productId: g.referenceId,
+  orderId: g.type === "NEW_ORDER" ? g.referenceId : undefined,
+  status: g.read ? "read" : "unread",
+  read: g.read,
+  createdAt: g.createdAt,
+});
+
+/** Grossimarché StoreResponse -> admin store row. */
+export const adaptStore = (g) => ({
+  _id: g.id,
+  name: g.name,
+  city: g.city,
+  address: g.address,
+  phone: g.phone || "",
+  lat: g.lat,
+  lng: g.lng,
+  openingHours: g.openingHours || {},
 });

@@ -44,7 +44,7 @@ public class StoreService {
                 .toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public StoreResponse create(StoreRequest req) {
         Store store = Store.builder()
@@ -54,7 +54,7 @@ public class StoreService {
         return storeMapper.toResponse(storeRepository.save(store), null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public StoreResponse update(UUID id, StoreRequest req) {
         Store store = getById(id);
@@ -69,7 +69,7 @@ public class StoreService {
         return storeMapper.toResponse(store, null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void delete(UUID id) {
         getById(id).setActive(false);

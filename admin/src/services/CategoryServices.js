@@ -1,44 +1,73 @@
 import requests from "./httpService";
+import { adaptCategory, slugify } from "./adapters";
+
+// Grossimarché categories are flat (name, slug, icon, displayOrder, active). The Kachabazar
+// forms send a richer, multilingual shape; map it down to the backend CategoryRequest here.
+const toCategoryRequest = (body, existing) => {
+  const name =
+    typeof body.name === "object"
+      ? body.name?.en || Object.values(body.name || {})[0] || ""
+      : body.name || "";
+  const icon = body.icon || existing?.icon || "";
+  return {
+    name,
+    slug: body.slug || existing?.slug || slugify(name),
+    // The backend icon column is short (60 chars) — keep an icon name/emoji, not a long URL.
+    icon: icon.length > 60 ? "" : icon,
+    displayOrder: Number(body.displayOrder ?? existing?.displayOrder ?? 0),
+    active: body.status ? body.status === "show" : body.active !== false,
+  };
+};
 
 const CategoryServices = {
+  // Admin listing returns every category (active + inactive).
   getAllCategory: async () => {
-    return requests.get("/category");
+    const res = await requests.get("/admin/categories");
+    return (Array.isArray(res) ? res : res?.content ?? []).map(adaptCategory);
   },
 
   getAllCategories: async () => {
-    return requests.get("/category/all");
+    const res = await requests.get("/admin/categories");
+    return (Array.isArray(res) ? res : res?.content ?? []).map(adaptCategory);
   },
 
   getCategoryById: async (id) => {
-    return requests.get(`/category/${id}`);
+    const res = await requests.get("/admin/categories");
+    const match = (Array.isArray(res) ? res : res?.content ?? [])
+      .map(adaptCategory)
+      .find((c) => c._id === id);
+    // The submit hook reads name/description as language maps.
+    return match
+      ? { ...match, description: { en: "" }, parentId: undefined, parentName: "Home" }
+      : {};
   },
 
-  addCategory: async (body) => {
-    return requests.post("/category/add", body);
-  },
+  addCategory: async (body) =>
+    requests.post("/admin/categories", toCategoryRequest(body)),
 
-  addAllCategory: async (body) => {
-    return requests.post("/category/add/all", body);
-  },
+  addAllCategory: async (body) => requests.post("/admin/categories", body),
 
   updateCategory: async (id, body) => {
-    return requests.put(`/category/${id}`, body);
+    const current = await CategoryServices.getCategoryById(id);
+    return requests.put(`/admin/categories/${id}`, toCategoryRequest(body, current));
   },
 
   updateStatus: async (id, body) => {
-    return requests.put(`/category/status/${id}`, body);
+    const current = await CategoryServices.getCategoryById(id);
+    return requests.put(
+      `/admin/categories/${id}`,
+      toCategoryRequest({ ...current, status: body?.status }, current)
+    );
   },
 
-  deleteCategory: async (id, body) => {
-    return requests.delete(`/category/${id}`, body);
-  },
+  deleteCategory: async (id) => requests.delete(`/admin/categories/${id}`),
 
-  updateManyCategory: async (body) => {
-    return requests.patch("/category/update/many", body);
-  },
+  updateManyCategory: async () => ({ message: "Bulk update is not supported." }),
 
   deleteManyCategory: async (body) => {
-    return requests.patch("/category/delete/many", body);
+    const ids = body?.ids || [];
+    await Promise.all(ids.map((id) => requests.delete(`/admin/categories/${id}`)));
+    return { message: "Categories deleted" };
   },
 };
 

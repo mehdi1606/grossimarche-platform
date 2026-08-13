@@ -222,9 +222,12 @@ public class CheckoutService {
             payment = paymentGateway.createRedirect(order);
         }
 
-        // 10. Publish an event (the WebSocket layer consumes it AFTER_COMMIT).
+        // 10. Publish events (the WebSocket layer consumes them AFTER_COMMIT). The status
+        //     event drives live order tracking; OrderPlacedEvent drives the NEW_ORDER
+        //     back-office notification (fired once, only on creation).
         events.publishEvent(new OrderStatusChangedEvent(order.getId(), order.getOrderNumber(),
                 order.getStatus(), userId, "Commande " + order.getStatus()));
+        events.publishEvent(new OrderPlacedEvent(order.getId(), order.getOrderNumber()));
 
         return buildResponse(order, payment, pointsEarned);
     }

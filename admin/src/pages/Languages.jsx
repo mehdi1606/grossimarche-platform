@@ -1,181 +1,200 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Badge,
   Button,
   Card,
   CardBody,
   Input,
-  Pagination,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import { FiPlus } from "react-icons/fi";
-import React, { useState, useContext } from "react";
-import { useTranslation } from "react-i18next";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
+
 //internal import
-import BulkActionDrawer from "@/components/drawer/BulkActionDrawer";
-import CheckBox from "@/components/form/others/CheckBox";
-import LanguageTable from "@/components/language/LanguageTable";
-import DeleteModal from "@/components/modal/DeleteModal";
-import TableLoading from "@/components/preloader/TableLoading";
-import NotFound from "@/components/table/NotFound";
-import useAsync from "@/hooks/useAsync";
-import useFilter from "@/hooks/useFilter";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
-import LanguageServices from "@/services/LanguageServices";
 import PageTitle from "@/components/Typography/PageTitle";
-import { SidebarContext } from "@/context/SidebarContext";
-import LanguageDrawer from "@/components/drawer/LanguageDrawer";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import LanguageServices from "@/services/LanguageServices";
+import { notifyError, notifySuccess } from "@/utils/toast";
+
+const EMPTY = { name: "", isoCode: "", flag: "", enabled: true, isDefault: false };
 
 const Languages = () => {
-  const { toggleDrawer } = useContext(SidebarContext);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
 
-  const { allId, handleUpdateMany, handleDeleteMany } = useToggleDrawer();
-  const { data, loading, error } = useAsync(LanguageServices.getAllLanguages);
-  // console.log("data-language", data);
-  const {
-    totalResults,
-    resultsPerPage,
-    dataTable,
-    languageRef,
-    handleSubmitLanguage,
-    handleChangePage,
-  } = useFilter(data);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await LanguageServices.getAllLanguages());
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState([]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleSelectAll = () => {
-    setIsCheckAll(!isCheckAll);
-    setIsCheck(data?.map((li) => li._id));
-    if (isCheckAll) {
-      setIsCheck([]);
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await LanguageServices.addLanguage({
+        name: form.name.trim(),
+        isoCode: form.isoCode.trim().toLowerCase(),
+        flag: form.flag.trim(),
+        enabled: form.enabled,
+        isDefault: form.isDefault,
+      });
+      notifySuccess("Language added.");
+      setForm(EMPTY);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const { t } = useTranslation();
+  const persist = async (row, patch) => {
+    try {
+      await LanguageServices.updateLanguage(row._id, {
+        name: row.name,
+        isoCode: row.iso_code,
+        flag: row.flag,
+        enabled: row.status === "show",
+        isDefault: row.isDefault,
+        ...patch,
+      });
+      notifySuccess("Language updated.");
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const remove = async (row) => {
+    try {
+      await LanguageServices.deleteLanguage(row._id);
+      notifySuccess("Language deleted.");
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
 
   return (
     <>
       <PageTitle>Languages</PageTitle>
-      <MainDrawer>
-        <LanguageDrawer />
-      </MainDrawer>
 
-      <BulkActionDrawer ids={allId} title="Languages" />
-
-      <DeleteModal
-        ids={allId}
-        setIsCheck={setIsCheck}
-        title="Selected Currencies"
-      />
-
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitLanguage}
-              className="py-3 grid gap-3 md:flex xl:flex md:justify-between"
-            >
-              <div className="w-full">
-                <Input
-                  ref={languageRef}
-                  type="search"
-                  placeholder={t("SearchLanguage")}
-                />
-              </div>
-
-              <div className="w-full md:w-56 lg:w-56 xl:w-56">
-                <Button
-                  disabled={isCheck.length < 1}
-                  onClick={() => handleUpdateMany(isCheck)}
-                  className="w-full rounded-md h-12 btn-gray text-gray-600"
-                >
-                  <span className="mr-2">
-                    <FiEdit />
-                  </span>
-                  {t("BulkAction")}
-                </Button>
-              </div>
-
-              <div className="w-full md:w-32 lg:w-32 xl:w-32">
-                <Button
-                  disabled={isCheck.length < 1}
-                  onClick={() => handleDeleteMany(isCheck)}
-                  className="w-full rounded-md h-12 btn-red"
-                >
-                  <span className="mr-2">
-                    <FiTrash2 />
-                  </span>
-                  {t("Delete")}
-                </Button>
-              </div>
-              <Button onClick={toggleDrawer} className="rounded-md h-12 w-64">
-                <span className="mr-2">
-                  <FiPlus />
-                </span>
-                Add language
-              </Button>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+      <Card className="mb-5 bg-white dark:bg-gray-800">
+        <CardBody>
+          <form onSubmit={handleAdd} className="grid gap-3 md:grid-cols-5 items-end">
+            <Input
+              placeholder="Name (Français)"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="ISO code (fr)"
+              value={form.isoCode}
+              onChange={(e) => setForm({ ...form, isoCode: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Flag (emoji)"
+              value={form.flag}
+              onChange={(e) => setForm({ ...form, flag: e.target.value })}
+            />
+            <label className="flex items-center text-sm gap-2 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={form.isDefault}
+                onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
+              />
+              Default
+            </label>
+            <Button type="submit" disabled={saving}>
+              Add language
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
 
       {loading ? (
-        // <Loading loading={loading} />
-        <TableLoading row={12} col={7} width={163} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
+        <p className="text-center text-gray-500">Loading…</p>
       ) : (
-        data.length !== 0 && (
-          <TableContainer className="mb-8 rounded-b-lg">
-            <Table>
-              <TableHeader>
-                <tr>
+        <TableContainer className="mb-8">
+          <Table>
+            <TableHeader>
+              <tr>
+                <TableCell>Flag</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>ISO</TableCell>
+                <TableCell>Default</TableCell>
+                <TableCell>Enabled</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell className="text-xl">{row.flag}</TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell className="uppercase">{row.iso_code}</TableCell>
                   <TableCell>
-                    <CheckBox
-                      type="checkbox"
-                      name="selectAll"
-                      id="selectAll"
-                      handleClick={handleSelectAll}
-                      isChecked={isCheckAll}
-                    />
+                    {row.isDefault ? (
+                      <Badge type="success">Default</Badge>
+                    ) : (
+                      <button
+                        className="text-xs text-emerald-600 hover:underline"
+                        onClick={() => persist(row, { isDefault: true })}
+                      >
+                        Set default
+                      </button>
+                    )}
                   </TableCell>
-                  <TableCell>{t("LanguagesSr")}</TableCell>
-                  <TableCell>{t("LanguagesNname")}</TableCell>
-                  <TableCell>{t("LanguagesIsoCode")}</TableCell>
-                  <TableCell>{t("LanguagesFlag")}</TableCell>
-                  <TableCell className="text-center">
-                    {t("LanguagesPublished")}
+                  <TableCell>
+                    <Badge type={row.status === "show" ? "success" : "neutral"}>
+                      {row.status === "show" ? "Enabled" : "Disabled"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {t("LanguagesActions")}
+                    <div className="flex justify-end gap-2">
+                      {!row.isDefault && (
+                        <button
+                          className="text-xs text-gray-600 hover:underline dark:text-gray-300"
+                          onClick={() =>
+                            persist(row, { enabled: row.status !== "show" })
+                          }
+                        >
+                          {row.status === "show" ? "Disable" : "Enable"}
+                        </button>
+                      )}
+                      {!row.isDefault && (
+                        <button
+                          className="text-red-500"
+                          onClick={() => remove(row)}
+                          title="Delete"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      )}
+                    </div>
                   </TableCell>
-                </tr>
-              </TableHeader>
-              <LanguageTable
-                languages={dataTable}
-                isCheck={isCheck}
-                setIsCheck={setIsCheck}
-              />
-            </Table>
-            <TableFooter>
-              <Pagination
-                totalResults={totalResults}
-                resultsPerPage={resultsPerPage}
-                onChange={handleChangePage}
-                label="Table navigation"
-              />
-            </TableFooter>
-          </TableContainer>
-        )
-      )}
-      {!loading && data.length === 0 && !error && (
-        <NotFound title="Sorry, There are no languages right now." />
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </>
   );

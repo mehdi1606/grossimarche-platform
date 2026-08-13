@@ -42,7 +42,13 @@ const AdminServices = {
   deleteStaff: async (id) => {
     return requests.delete(`/admin/staff/${id}`);
   },
-  getStaffById: async () => ({}),
+  // The backend exposes no single-staff endpoint, so resolve the row from the list.
+  getStaffById: async (id) => {
+    if (!id) return {};
+    const res = await requests.get("/admin/staff?size=100");
+    const match = pageContent(res).map(adaptStaff).find((s) => s._id === id);
+    return match || {};
+  },
 };
 
 export default AdminServices;

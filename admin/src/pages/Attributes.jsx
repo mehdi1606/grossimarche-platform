@@ -1,246 +1,190 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Badge,
   Button,
   Card,
   CardBody,
   Input,
-  Pagination,
+  Select,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import React, { useContext, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { FiEdit, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 
 //internal import
-import AttributeTable from "@/components/attribute/AttributeTable";
-import UploadMany from "@/components/common/UploadMany";
-import AttributeDrawer from "@/components/drawer/AttributeDrawer";
-import BulkActionDrawer from "@/components/drawer/BulkActionDrawer";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import CheckBox from "@/components/form/others/CheckBox";
-import DeleteModal from "@/components/modal/DeleteModal";
-import TableLoading from "@/components/preloader/TableLoading";
-import NotFound from "@/components/table/NotFound";
 import PageTitle from "@/components/Typography/PageTitle";
-import { SidebarContext } from "@/context/SidebarContext";
-import useAsync from "@/hooks/useAsync";
-import useFilter from "@/hooks/useFilter";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
 import AttributeServices from "@/services/AttributeServices";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import { notifyError, notifySuccess } from "@/utils/toast";
 
-//internal import
+const EMPTY = { name: "", type: "OPTION", values: "" };
 
 const Attributes = () => {
-  const { toggleDrawer, lang } = useContext(SidebarContext);
-  const { data, loading, error } = useAsync(() =>
-    AttributeServices.getAllAttributes({
-      type: "attribute",
-      option: "Dropdown",
-      option1: "Radio",
-    })
-  );
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
 
-  const { handleDeleteMany, allId, handleUpdateMany } = useToggleDrawer();
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await AttributeServices.getAllAttributes());
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const { t } = useTranslation();
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const {
-    filename,
-    isDisabled,
-    dataTable,
-    serviceData,
-    totalResults,
-    attributeRef,
-    resultsPerPage,
-    handleSelectFile,
-    handleChangePage,
-    setAttributeTitle,
-    handleSubmitAttribute,
-    handleUploadMultiple,
-    handleRemoveSelectFile,
-  } = useFilter(data);
-
-  // react hooks
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState([]);
-
-  const handleSelectAll = () => {
-    setIsCheckAll(!isCheckAll);
-    setIsCheck(data.map((value) => value._id));
-    if (isCheckAll) {
-      setIsCheck([]);
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await AttributeServices.addAttribute({
+        name: form.name.trim(),
+        type: form.type,
+        enabled: true,
+        values: form.values
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean)
+          .map((v) => ({ name: v, enabled: true })),
+      });
+      notifySuccess("Attribute added.");
+      setForm(EMPTY);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
     }
   };
-  // handle reset field function
-  const handleResetField = () => {
-    setAttributeTitle("");
-    attributeRef.current.value = "";
+
+  const toggle = async (row) => {
+    try {
+      await AttributeServices.updateAttribute(row._id, {
+        name: row.title.en,
+        type: row.type,
+        enabled: row.status !== "show",
+        values: row.variants.map((v) => ({
+          name: v.name.en,
+          enabled: v.status === "show",
+        })),
+      });
+      notifySuccess("Attribute updated.");
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const remove = async (row) => {
+    try {
+      await AttributeServices.deleteAttribute(row._id);
+      notifySuccess("Attribute deleted.");
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
   };
 
   return (
     <>
-      <PageTitle>{t("AttributeTitle")}</PageTitle>
-      <DeleteModal
-        ids={allId}
-        setIsCheck={setIsCheck}
-        title="Selected Attributes"
-      />
-      <BulkActionDrawer ids={allId} title="Attributes" />
-      <MainDrawer>
-        <AttributeDrawer />
-      </MainDrawer>
+      <PageTitle>Attributes</PageTitle>
 
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitAttribute}
-              className="py-3  grid gap-4 lg:gap-6 xl:gap-6  xl:flex"
+      <Card className="mb-5 bg-white dark:bg-gray-800">
+        <CardBody>
+          <form onSubmit={handleAdd} className="grid gap-3 md:grid-cols-4 items-end">
+            <Input
+              placeholder="Name (Marque)"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+            <Select
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
             >
-              <div className="flex justify-start xl:w-1/2  md:w-full">
-                <UploadMany
-                  title="Attribute"
-                  exportData={data}
-                  filename={filename}
-                  isDisabled={isDisabled}
-                  handleSelectFile={handleSelectFile}
-                  handleUploadMultiple={handleUploadMultiple}
-                  handleRemoveSelectFile={handleRemoveSelectFile}
-                />
-              </div>
-
-              <div className="lg:flex  md:flex xl:justify-end xl:w-1/2  md:w-full md:justify-start flex-grow-0">
-                <div className="w-full md:w-40 lg:w-40 xl:w-40 mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleUpdateMany(isCheck)}
-                    className="w-full rounded-md h-12 btn-gray text-gray-600"
-                  >
-                    <span className="mr-2">
-                      <FiEdit />
-                    </span>
-
-                    {t("BulkAction")}
-                  </Button>
-                </div>
-                <div className="w-full md:w-32 lg:w-32 xl:w-32 mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleDeleteMany(isCheck)}
-                    className="w-full rounded-md h-12 bg-red-500 btn-red"
-                  >
-                    <span className="mr-2">
-                      <FiTrash2 />
-                    </span>
-                    {t("Delete")}
-                  </Button>
-                </div>
-                <div className="w-full md:w-48 lg:w-48 xl:w-48">
-                  <Button
-                    onClick={toggleDrawer}
-                    className="w-full rounded-md h-12 "
-                  >
-                    <span className="mr-2">
-                      <FiPlus />
-                    </span>
-                    {t("CouponsAddAttributeBtn")}
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitAttribute}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={attributeRef}
-                  type="search"
-                  placeholder={t("SearchAttributePlaceholder")}
-                />
-              </div>
-              <div className="flex items-center gap-2 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full mx-1">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-2 h-12 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+              <option value="OPTION">Dropdown (single)</option>
+              <option value="CHECKBOX">Checkbox (multiple)</option>
+            </Select>
+            <Input
+              placeholder="Values, comma separated"
+              value={form.values}
+              onChange={(e) => setForm({ ...form, values: e.target.value })}
+            />
+            <Button type="submit" disabled={saving}>
+              Add attribute
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
 
       {loading ? (
-        <TableLoading row={12} col={6} width={180} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
+        <p className="text-center text-gray-500">Loading…</p>
+      ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>
-                  <CheckBox
-                    type="checkbox"
-                    name="selectAll"
-                    id="selectAll"
-                    handleClick={handleSelectAll}
-                    isChecked={isCheckAll}
-                  />
-                </TableCell>
-                <TableCell> {t("Id")} </TableCell>
-                <TableCell> {t("AName")}</TableCell>
-                <TableCell> {t("ADisplayName")}</TableCell>
-                <TableCell>{t("AOption")}</TableCell>
-
-                <TableCell className="text-center">
-                  {t("catPublishedTbl")}
-                </TableCell>
-
-                <TableCell className="text-center">{t("Avalues")}</TableCell>
-
-                <TableCell className="text-right">{t("AAction")}</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Values</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-
-            <AttributeTable
-              lang={lang}
-              isCheck={isCheck}
-              setIsCheck={setIsCheck}
-              attributes={dataTable}
-            />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell className="font-semibold">{row.title.en}</TableCell>
+                  <TableCell>{row.option}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {row.variants.map((v) => (
+                        <span
+                          key={v._id}
+                          className="px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-700 dark:text-gray-200"
+                        >
+                          {v.name.en}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge type={row.status === "show" ? "success" : "neutral"}>
+                      {row.status === "show" ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3">
+                      <button
+                        className="text-xs text-gray-600 hover:underline dark:text-gray-300"
+                        onClick={() => toggle(row)}
+                      >
+                        {row.status === "show" ? "Disable" : "Enable"}
+                      </button>
+                      <button
+                        className="text-red-500"
+                        onClick={() => remove(row)}
+                        title="Delete"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-          <TableFooter>
-            <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no attributes right now." />
       )}
     </>
   );

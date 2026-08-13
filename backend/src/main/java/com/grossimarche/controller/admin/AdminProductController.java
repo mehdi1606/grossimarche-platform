@@ -1,18 +1,24 @@
 package com.grossimarche.controller.admin;
 
+import com.grossimarche.dto.catalog.AdminProductSummaryResponse;
 import com.grossimarche.dto.catalog.CsvImportReport;
 import com.grossimarche.dto.catalog.PriceTierRequest;
 import com.grossimarche.dto.catalog.PriceTierResponse;
 import com.grossimarche.dto.catalog.ProductAttributeRequest;
 import com.grossimarche.dto.catalog.ProductAttributeResponse;
 import com.grossimarche.dto.catalog.ProductDetailResponse;
+import com.grossimarche.dto.catalog.ProductFilter;
 import com.grossimarche.dto.catalog.ProductRequest;
 import com.grossimarche.dto.catalog.StockAdjustmentRequest;
+import com.grossimarche.dto.common.PageResponse;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.security.SecurityUtils;
 import com.grossimarche.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +50,27 @@ public class AdminProductController {
 
     public AdminProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+    /** Back-office product listing (includes inactive products). */
+    @GetMapping
+    public PageResponse<AdminProductSummaryResponse> list(
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(Math.max(size, 1), 100),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        ProductFilter filter = new ProductFilter(categoryId, q, minPrice, maxPrice, inStock);
+        return PageResponse.from(productService.adminList(filter, pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ProductDetailResponse detail(@PathVariable UUID id) {
+        return productService.adminGetDetail(id);
     }
 
     @PostMapping

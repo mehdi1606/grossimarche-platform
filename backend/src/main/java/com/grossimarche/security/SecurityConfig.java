@@ -75,11 +75,22 @@ public class SecurityConfig {
                     auth.requestMatchers("/ws/**").permitAll();
                     auth.requestMatchers("/api/v1/payments/cmi/callback").permitAll();
                     auth.requestMatchers(HttpMethod.GET,
-                            "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**")
+                            "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**",
+                            "/api/v1/currencies/**", "/api/v1/languages/**", "/api/v1/attributes/**")
                             .permitAll();
                     if (local) {
                         auth.requestMatchers(SWAGGER_PATHS).permitAll();
                     }
+                    // ADMIN-exclusive back-office areas: staff, coupons, settings (stores) and the
+                    // currency/language configuration. These matchers MUST precede the generic
+                    // /admin/** rule below (first match wins). Store managers are limited to the
+                    // core store operations (orders, products, categories, customers, …).
+                    auth.requestMatchers(
+                            "/api/v1/admin/staff/**",
+                            "/api/v1/admin/coupons/**",
+                            "/api/v1/admin/stores/**",
+                            "/api/v1/admin/currencies/**",
+                            "/api/v1/admin/languages/**").hasRole("ADMIN");
                     auth.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "STORE_MANAGER");
                     auth.requestMatchers("/actuator/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
