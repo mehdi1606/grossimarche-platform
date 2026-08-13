@@ -22,6 +22,24 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  # Outbound SMTP, used when grossimarche.otp.provider=smtp. Credentials come from the
+  # environment only (see .env.example) — Gmail requires an App Password, never the
+  # account password, and 2-Step Verification must be on for the account.
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   # Jackson 3 (shipped with Boot 4) already serialises java.time as ISO-8601 by default.
   # Null-omission is applied per-DTO via @JsonInclude where wanted.
 
@@ -88,5 +106,10 @@ grossimarche:
     # Overridden to true only in local/test so dev works without configured keys.
     allow-ephemeral-key: false
   otp:
-    # 'logging' writes the code to the DEBUG log (dev); 'live' uses the HTTP providers.
+    # 'logging' writes the code to the DEBUG log (dev); 'live' uses the HTTP providers;
+    # 'smtp' sends e-mail codes through spring.mail.* (SMS stays on the log).
     provider: ${OTP_PROVIDER:logging}
+    email:
+      # Empty → the SMTP sender falls back to the authenticated mailbox (what Gmail wants).
+      from: ${MAIL_FROM:}
+      from-name: ${MAIL_FROM_NAME:Grossimarché}

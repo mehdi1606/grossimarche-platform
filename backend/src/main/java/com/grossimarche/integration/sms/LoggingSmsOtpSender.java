@@ -4,17 +4,18 @@ import com.grossimarche.entity.enums.OtpChannel;
 import com.grossimarche.integration.OtpSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 /**
  * Local/test SMS sender: writes the code to the log at DEBUG only, so a developer can read
- * it without a real SMS account. Active when {@code grossimarche.otp.provider=logging}
- * (the default). The code must never be logged above DEBUG.
+ * it without a real SMS account. Active when {@code grossimarche.otp.provider} is
+ * {@code logging} (the default) or {@code smtp} — the latter configures real e-mail
+ * delivery only, so SMS stays on the log. The code must never be logged above DEBUG.
  */
 @Component
-@ConditionalOnProperty(prefix = "grossimarche.otp", name = "provider", havingValue = "logging",
-        matchIfMissing = true)
+@ConditionalOnExpression("'${grossimarche.otp.provider:logging}' == 'logging'"
+        + " or '${grossimarche.otp.provider:logging}' == 'smtp'")
 public class LoggingSmsOtpSender implements OtpSender {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingSmsOtpSender.class);

@@ -94,9 +94,12 @@ export default defineConfig({
       },
     }),
     compression(),
+    // Opening the report launches a browser via the `open` package, which crashes headless
+    // builds (in Docker it detects a WSL kernel and spawns a powershell.exe that isn't
+    // there). Opt in locally with ANALYZE=true npm run build.
     visualizer({
       filename: "statistics.html",
-      open: true,
+      open: process.env.ANALYZE === "true",
     }),
   ],
 
