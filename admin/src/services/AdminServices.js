@@ -14,7 +14,8 @@ const AdminServices = {
   // Staff (ADMIN only on the backend).
   getAllStaff: async () => {
     const res = await requests.get("/admin/staff?size=100");
-    return { staff: pageContent(res).map(adaptStaff) };
+    // The Staff page + useFilter expect a plain array (they call data.map).
+    return pageContent(res).map(adaptStaff);
   },
   addStaff: async (body) => {
     return requests.post("/admin/staff", {

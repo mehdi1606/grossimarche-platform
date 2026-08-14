@@ -1,159 +1,216 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  Card,
+  Avatar,
+  Badge,
   Button,
-  CardBody,
   Input,
-  Pagination,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import React from "react";
-import { useTranslation } from "react-i18next";
+import { FiEye, FiSearch, FiSlash, FiUsers, FiCheckCircle } from "react-icons/fi";
+import dayjs from "dayjs";
 
 //internal import
-import UploadMany from "@/components/common/UploadMany";
-import CustomerTable from "@/components/customer/CustomerTable";
-import TableLoading from "@/components/preloader/TableLoading";
-import NotFound from "@/components/table/NotFound";
 import PageTitle from "@/components/Typography/PageTitle";
-import useAsync from "@/hooks/useAsync";
-import useFilter from "@/hooks/useFilter";
 import CustomerServices from "@/services/CustomerServices";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import Modal from "@/components/common/Modal";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
+import useUtilsFunction from "@/hooks/useUtilsFunction";
+import { notifyError, notifySuccess } from "@/utils/toast";
 
 const Customers = () => {
-  const { data, loading, error } = useAsync(CustomerServices.getAllCustomers);
+  const { currency } = useUtilsFunction();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [detail, setDetail] = useState(null);
 
-  // console.log('customer',data)
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await CustomerServices.getAllCustomers({ searchText: query }));
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [query]);
 
-  const {
-    userRef,
-    dataTable,
-    serviceData,
-    filename,
-    isDisabled,
-    setSearchUser,
-    totalResults,
-    resultsPerPage,
-    handleSubmitUser,
-    handleSelectFile,
-    handleChangePage,
-    handleUploadMultiple,
-    handleRemoveSelectFile,
-  } = useFilter(data);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const { t } = useTranslation();
-  const handleResetField = () => {
-    setSearchUser("");
-    userRef.current.value = "";
+  const toggleBlock = async (row) => {
+    try {
+      await CustomerServices.updateCustomer(row._id, {
+        status: row.status === "Active" ? "Inactive" : "Active",
+      });
+      notifySuccess(row.status === "Active" ? "Customer blocked." : "Customer unblocked.");
+      setDetail(null);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
   };
 
   return (
     <>
-      <PageTitle>{t("CustomersPage")}</PageTitle>
+      <div className="flex items-center justify-between">
+        <PageTitle>Customers</PageTitle>
+      </div>
 
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitUser}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="items-center">
-                <UploadMany
-                  title="Customers"
-                  exportData={data}
-                  filename={filename}
-                  isDisabled={isDisabled}
-                  handleSelectFile={handleSelectFile}
-                  handleUploadMultiple={handleUploadMultiple}
-                  handleRemoveSelectFile={handleRemoveSelectFile}
-                />
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitUser}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={userRef}
-                  type="search"
-                  name="search"
-                  placeholder={t("CustomersPageSearchPlaceholder")}
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 top-0 mt-5 mr-1"
-                ></button>
-              </div>
-              <div className="flex items-center gap-2 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full mx-1">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-2 h-12 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+      <form
+        className="relative mb-5 max-w-md"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setQuery(search);
+        }}
+      >
+        <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Input
+          className="!pl-10 h-11 rounded-lg"
+          placeholder="Search by name, email or phone…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </form>
 
       {loading ? (
-        // <Loading loading={loading} />
-        <TableLoading row={12} col={6} width={190} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
+        <TableSkeleton rows={8} cols={6} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiUsers}
+          title="No customers yet"
+          description="Shoppers appear here after their first sign-in on the storefront."
+        />
+      ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>{t("CustomersId")}</TableCell>
-                <TableCell>{t("CustomersJoiningDate")}</TableCell>
-                <TableCell>{t("CustomersName")}</TableCell>
-                <TableCell>{t("CustomersEmail")}</TableCell>
-                <TableCell>{t("CustomersPhone")}</TableCell>
-                <TableCell className="text-right">
-                  {t("CustomersActions")}
-                </TableCell>
+                <TableCell>Customer</TableCell>
+                <TableCell>Contact</TableCell>
+                <TableCell>Orders</TableCell>
+                <TableCell>Total spent</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-            <CustomerTable customers={dataTable} />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="bg-emerald-100 text-emerald-600">
+                        <span className="grid h-full w-full place-items-center text-sm font-semibold">
+                          {(row.name || "?").charAt(0).toUpperCase()}
+                        </span>
+                      </Avatar>
+                      <span className="font-medium">{row.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">{row.email || "—"}</div>
+                    <div className="text-xs text-gray-400">{row.phone || ""}</div>
+                  </TableCell>
+                  <TableCell>{row.orderCount}</TableCell>
+                  <TableCell className="font-semibold">
+                    {currency}
+                    {Number(row.totalSpent || 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge type={row.status === "Active" ? "success" : "danger"}>
+                      {row.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3 text-gray-400">
+                      <button
+                        className="transition hover:text-emerald-600"
+                        onClick={() => setDetail(row)}
+                        title="View"
+                      >
+                        <FiEye />
+                      </button>
+                      <button
+                        className={
+                          row.status === "Active"
+                            ? "transition hover:text-red-500"
+                            : "transition hover:text-emerald-600"
+                        }
+                        onClick={() => toggleBlock(row)}
+                        title={row.status === "Active" ? "Block" : "Unblock"}
+                      >
+                        {row.status === "Active" ? <FiSlash /> : <FiCheckCircle />}
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-          <TableFooter>
-            <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no customers right now." />
       )}
+
+      {/* Customer detail modal */}
+      <Modal
+        isOpen={!!detail}
+        onClose={() => setDetail(null)}
+        title={detail?.name}
+        subtitle={detail?.email || detail?.phone}
+        icon={FiUsers}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setDetail(null)}>
+              Close
+            </Button>
+            <Button
+              className={detail?.status === "Active" ? "!bg-red-500 hover:!bg-red-600" : ""}
+              onClick={() => toggleBlock(detail)}
+            >
+              {detail?.status === "Active" ? "Block customer" : "Unblock"}
+            </Button>
+          </>
+        }
+      >
+        {detail && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Info label="Email" value={detail.email || "—"} />
+              <Info label="Phone" value={detail.phone || "—"} />
+              <Info label="Orders" value={detail.orderCount} />
+              <Info
+                label="Total spent"
+                value={`${currency}${Number(detail.totalSpent || 0).toFixed(2)}`}
+              />
+              <Info
+                label="Joined"
+                value={detail.createdAt ? dayjs(detail.createdAt).format("DD MMM YYYY") : "—"}
+              />
+              <Info label="Status" value={detail.status} />
+            </div>
+            <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-400 dark:bg-gray-700/40">
+              Customer accounts can be blocked but not deleted — account erasure is handled
+              under the right-to-erasure process (loi 09-08).
+            </p>
+          </div>
+        )}
+      </Modal>
     </>
   );
 };
+
+const Info = ({ label, value }) => (
+  <div>
+    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+    <p className="mt-0.5 text-sm font-medium text-gray-800 dark:text-gray-100">{value}</p>
+  </div>
+);
 
 export default Customers;

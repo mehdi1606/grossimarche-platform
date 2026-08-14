@@ -39,7 +39,9 @@ public class CustomerAdminService {
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional(readOnly = true)
     public Page<CustomerSummaryResponse> list(String q, Pageable pageable) {
-        String query = (q == null || q.isBlank()) ? null : q.trim();
+        // Empty string = no filter. Never null: a null bind is typed as bytea by PostgreSQL
+        // and breaks lower(...) in the search query.
+        String query = (q == null) ? "" : q.trim();
         return userRepository.searchByRole(Role.CLIENT, query, pageable).map(this::toSummary);
     }
 

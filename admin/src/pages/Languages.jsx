@@ -12,11 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiTrash2 } from "react-icons/fi";
+import { FiGlobe, FiTrash2 } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import LanguageServices from "@/services/LanguageServices";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
 const EMPTY = { name: "", isoCode: "", flag: "", enabled: true, isDefault: false };
@@ -130,7 +132,13 @@ const Languages = () => {
       </Card>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading…</p>
+        <TableSkeleton rows={4} cols={6} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiGlobe}
+          title="No languages yet"
+          description="Add the languages your storefront should offer. The default one is what shoppers see first."
+        />
       ) : (
         <TableContainer className="mb-8">
           <Table>

@@ -2,11 +2,10 @@ import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useState } from "react";
-import { IoLockOpenOutline } from "react-icons/io5";
+import React, { useContext, useEffect } from "react";
+import { IoLogOutOutline } from "react-icons/io5";
 import {
   FiCheck,
-  FiFileText,
   FiGrid,
   FiList,
   FiRefreshCw,
@@ -21,19 +20,23 @@ import { useQuery } from "@tanstack/react-query";
 //internal import
 import Layout from "@layout/Layout";
 import Card from "@components/order-card/Card";
+import { getUserSession } from "@lib/auth";
 import OrderServices from "@services/OrderServices";
 import RecentOrder from "@pages/user/recent-order";
 import { SidebarContext } from "@context/SidebarContext";
 import Loading from "@components/preloader/Loading";
-import useGetSetting from "@hooks/useGetSetting";
-import useUtilsFunction from "@hooks/useUtilsFunction";
+
+const SIDEBAR = [
+  { title: "Tableau de bord", href: "/user/dashboard", icon: FiGrid },
+  { title: "Mes commandes", href: "/user/my-orders", icon: FiList },
+  { title: "Mon compte", href: "/user/my-account", icon: FiUser },
+  { title: "Modifier le profil", href: "/user/update-profile", icon: FiSettings },
+];
 
 const Dashboard = ({ title, description, children }) => {
   const router = useRouter();
   const { isLoading, setIsLoading, currentPage } = useContext(SidebarContext);
-
-  const { storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const userInfo = getUserSession();
 
   const {
     data,
@@ -42,10 +45,7 @@ const Dashboard = ({ title, description, children }) => {
   } = useQuery({
     queryKey: ["orders", { currentPage }],
     queryFn: async () =>
-      await OrderServices.getOrderCustomer({
-        page: currentPage,
-        limit: 10,
-      }),
+      await OrderServices.getOrderCustomer({ page: currentPage, limit: 10 }),
   });
 
   const handleLogOut = () => {
@@ -58,129 +58,95 @@ const Dashboard = ({ title, description, children }) => {
     setIsLoading(false);
   }, []);
 
-  const userSidebar = [
-    {
-      title: showingTranslateValue(
-        storeCustomizationSetting?.dashboard?.dashboard_title
-      ),
-      href: "/user/dashboard",
-      icon: FiGrid,
-    },
-
-    {
-      title: showingTranslateValue(
-        storeCustomizationSetting?.dashboard?.my_order
-      ),
-      href: "/user/my-orders",
-      icon: FiList,
-    },
-    {
-      title: "My Account",
-      href: "/user/my-account",
-      icon: FiUser,
-    },
-
-    {
-      title: showingTranslateValue(
-        storeCustomizationSetting?.dashboard?.update_profile
-      ),
-      href: "/user/update-profile",
-      icon: FiSettings,
-    },
-    {
-      title: showingTranslateValue(
-        storeCustomizationSetting?.dashboard?.change_password
-      ),
-      href: "/user/change-password",
-      icon: FiFileText,
-    },
-  ];
-
   return (
     <>
       {isLoading ? (
         <Loading loading={isLoading} />
       ) : (
         <Layout
-          title={title ? title : "Dashboard"}
-          description={description ? description : "This is User Dashboard"}
+          title={title ? title : "Mon compte"}
+          description={description ? description : "Espace client Grossimarché"}
         >
           <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
-            <div className="py-10 lg:py-12 flex flex-col lg:flex-row w-full">
-              <div className="flex-shrink-0 w-full lg:w-80 mr-7 lg:mr-10  xl:mr-10 ">
-                <div className="bg-white p-4 sm:p-5 lg:p-8 rounded-md sticky top-32">
-                  {userSidebar?.map((item) => (
-                    <span
-                      key={item.title}
-                      className="p-2 my-2 flex font-serif items-center rounded-md hover:bg-gray-50 w-full hover:text-emerald-600"
-                    >
-                      <item.icon
-                        className="flex-shrink-0 h-4 w-4"
-                        aria-hidden="true"
-                      />
-                      <Link
-                        href={item.href}
-                        className="inline-flex items-center justify-between ml-2 text-sm font-medium w-full hover:text-emerald-600"
-                      >
-                        {item.title}
-                      </Link>
+            <div className="flex w-full flex-col py-10 lg:flex-row lg:py-12">
+              {/* Sidebar */}
+              <div className="w-full flex-shrink-0 lg:mr-8 lg:w-72">
+                <div className="sticky top-32 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                  {/* user */}
+                  <div className="mb-4 flex items-center gap-3 border-b border-gray-100 px-2 pb-4">
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-emerald-500 text-lg font-bold text-white">
+                      {(userInfo?.name || userInfo?.email || "?").charAt(0).toUpperCase()}
                     </span>
-                  ))}
-                  <span className="p-2 flex font-serif items-center rounded-md hover:bg-gray-50 w-full hover:text-emerald-600">
-                    <span className="mr-2">
-                      <IoLockOpenOutline />
-                    </span>{" "}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-800">
+                        {userInfo?.name || "Client"}
+                      </p>
+                      <p className="truncate text-xs text-gray-400">
+                        {userInfo?.email || userInfo?.phone}
+                      </p>
+                    </div>
+                  </div>
+
+                  <nav className="space-y-1">
+                    {SIDEBAR.map((item) => {
+                      const active = router.asPath.split("?")[0] === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                            active
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-emerald-600"
+                          }`}
+                        >
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          {item.title}
+                        </Link>
+                      );
+                    })}
                     <button
                       onClick={handleLogOut}
-                      className="inline-flex items-center justify-between text-sm font-medium w-full hover:text-emerald-600"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-red-50 hover:text-red-500"
                     >
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.navbar?.logout
-                      )}
+                      <IoLogOutOutline className="h-4 w-4 shrink-0" />
+                      Se déconnecter
                     </button>
-                  </span>
+                  </nav>
                 </div>
               </div>
-              <div className="w-full bg-white mt-4 lg:mt-0 p-4 sm:p-5 lg:p-8 rounded-md overflow-hidden">
+
+              {/* Content */}
+              <div className="mt-4 w-full overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 lg:mt-0 lg:p-8">
                 {!children && (
                   <div className="overflow-hidden">
-                    <h2 className="text-xl font-serif font-semibold mb-5">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.dashboard?.dashboard_title
-                      )}
+                    <h2 className="mb-6 font-serif text-xl font-semibold text-gray-800">
+                      Bonjour {userInfo?.name || "Client"} 👋
                     </h2>
-                    <div className="grid gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                       <Card
-                        title={showingTranslateValue(
-                          storeCustomizationSetting?.dashboard?.total_order
-                        )}
+                        title="Commandes totales"
                         Icon={FiShoppingCart}
-                        quantity={data?.totalDoc}
-                        className="text-red-600  bg-red-200"
+                        quantity={data?.totalDoc || 0}
+                        className="text-emerald-600 bg-emerald-100"
                       />
                       <Card
-                        title={showingTranslateValue(
-                          storeCustomizationSetting?.dashboard?.pending_order
-                        )}
+                        title="En attente"
                         Icon={FiRefreshCw}
-                        quantity={data?.pending}
-                        className="text-orange-600 bg-orange-200"
+                        quantity={data?.pending || 0}
+                        className="text-orange-600 bg-orange-100"
                       />
                       <Card
-                        title={showingTranslateValue(
-                          storeCustomizationSetting?.dashboard?.processing_order
-                        )}
+                        title="En préparation"
                         Icon={FiTruck}
-                        quantity={data?.processing}
-                        className="text-indigo-600 bg-indigo-200"
+                        quantity={data?.processing || 0}
+                        className="text-indigo-600 bg-indigo-100"
                       />
                       <Card
-                        title={showingTranslateValue(
-                          storeCustomizationSetting?.dashboard?.complete_order
-                        )}
+                        title="Livrées"
                         Icon={FiCheck}
-                        quantity={data?.delivered}
-                        className="text-emerald-600 bg-emerald-200"
+                        quantity={data?.delivered || 0}
+                        className="text-emerald-600 bg-emerald-100"
                       />
                     </div>
                     <RecentOrder data={data} loading={loading} error={error} />

@@ -1,25 +1,19 @@
 import Link from "next/link";
-// import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 import { IoLockOpenOutline } from "react-icons/io5";
-import { FiPhoneCall, FiUser } from "react-icons/fi";
+import { FiPhoneCall, FiUser, FiMail } from "react-icons/fi";
 import { signOut } from "next-auth/react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 
 //internal import
 import { getUserSession } from "@lib/auth";
-import useGetSetting from "@hooks/useGetSetting";
-import useUtilsFunction from "@hooks/useUtilsFunction";
 
 const NavBarTop = () => {
   const userInfo = getUserSession();
   const router = useRouter();
-
-  const { storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
 
   const handleLogOut = () => {
     signOut();
@@ -28,113 +22,77 @@ const NavBarTop = () => {
   };
 
   useEffect(() => {
-    if (userInfo) {
-      const decoded = jwtDecode(userInfo?.token);
-
-      const expireTime = new Date(decoded?.exp * 1000);
-      const currentTime = new Date();
-
-      // console.log(
-      //   // decoded,
-      //   "expire",
-      //   dayjs(expireTime).format("DD, MMM, YYYY, h:mm A"),
-      //   "currentTime",
-      //   dayjs(currentTime).format("DD, MMM, YYYY, h:mm A")
-      // );
-      if (currentTime >= expireTime) {
-        console.log("token expire, should sign out now..");
-        handleLogOut();
+    if (userInfo?.token) {
+      try {
+        const decoded = jwtDecode(userInfo.token);
+        if (new Date() >= new Date(decoded?.exp * 1000)) {
+          handleLogOut();
+        }
+      } catch (e) {
+        // ignore malformed token
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
   return (
-    <>
-      <div className="hidden lg:block bg-gray-100">
-        <div className="max-w-screen-2xl mx-auto px-3 sm:px-10">
-          <div className="text-gray-700 py-2 font-sans text-xs font-medium border-b flex justify-between items-center">
-            <span className="flex items-center">
-              <FiPhoneCall className="mr-2" />
-              {showingTranslateValue(
-                storeCustomizationSetting?.navbar?.help_text
-              )}
-              <a
-                href={`tel:${
-                  storeCustomizationSetting?.navbar?.phone || "+099949343"
-                }`}
-                className="font-bold text-emerald-500 ml-1"
-              >
-                {storeCustomizationSetting?.navbar?.phone || "+099949343"}
-              </a>
-            </span>
+    <div className="hidden lg:block bg-gray-50 border-b border-gray-100">
+      <div className="max-w-screen-2xl mx-auto px-3 sm:px-10">
+        <div className="text-gray-600 py-2 font-sans text-xs font-medium flex justify-between items-center">
+          {/* Left: contact */}
+          <div className="flex items-center gap-5">
+            <a
+              href="tel:+2125220000000"
+              className="flex items-center hover:text-emerald-600 transition"
+            >
+              <FiPhoneCall className="mr-1.5" />
+              +212 5 22 00 00 00
+            </a>
+            <a
+              href="mailto:contact@grossimarche.ma"
+              className="hidden xl:flex items-center hover:text-emerald-600 transition"
+            >
+              <FiMail className="mr-1.5" />
+              contact@grossimarche.ma
+            </a>
+          </div>
 
-            <div className="lg:text-right flex items-center navBar">
-              {storeCustomizationSetting?.navbar?.about_menu_status && (
-                <div>
-                  <Link
-                    href="/about-us"
-                    className="font-medium hover:text-emerald-600"
-                  >
-                    {showingTranslateValue(
-                      storeCustomizationSetting?.navbar?.about_us
-                    )}
-                  </Link>
-                  <span className="mx-2">|</span>
-                </div>
-              )}
-              {storeCustomizationSetting?.navbar?.contact_menu_status && (
-                <div>
-                  <Link
-                    href="/contact-us"
-                    className="font-medium hover:text-emerald-600"
-                  >
-                    {showingTranslateValue(
-                      storeCustomizationSetting?.navbar?.contact_us
-                    )}
-                  </Link>
-                  <span className="mx-2">|</span>
-                </div>
-              )}
-              <Link
-                href="/user/my-account"
-                className="font-medium hover:text-emerald-600"
-              >
-                {showingTranslateValue(
-                  storeCustomizationSetting?.navbar?.my_account
-                )}
-              </Link>
-              <span className="mx-2">|</span>
-              {userInfo?.email ? (
+          {/* Right: account */}
+          <div className="flex items-center gap-4">
+            <span className="hidden xl:inline text-gray-400">
+              Livraison partout au Maroc — Paiement à la livraison
+            </span>
+            {userInfo?.email ? (
+              <>
+                <Link
+                  href="/user/dashboard"
+                  className="flex items-center font-medium hover:text-emerald-600 transition"
+                >
+                  <FiUser className="mr-1" />
+                  Mon compte
+                </Link>
+                <span className="text-gray-300">|</span>
                 <button
                   onClick={handleLogOut}
-                  className="flex items-center font-medium hover:text-emerald-600"
+                  className="flex items-center font-medium hover:text-emerald-600 transition"
                 >
-                  <span className="mr-1">
-                    <IoLockOpenOutline />
-                  </span>
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.navbar?.logout
-                  )}
+                  <IoLockOpenOutline className="mr-1" />
+                  Se déconnecter
                 </button>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="flex items-center font-medium hover:text-emerald-600"
-                >
-                  <span className="mr-1">
-                    <FiUser />
-                  </span>
-
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.navbar?.login
-                  )}
-                </Link>
-              )}
-            </div>
+              </>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="flex items-center font-medium hover:text-emerald-600 transition"
+              >
+                <FiUser className="mr-1" />
+                Se connecter
+              </Link>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

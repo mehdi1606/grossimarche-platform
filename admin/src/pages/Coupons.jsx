@@ -1,244 +1,363 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Badge,
   Button,
-  Card,
-  CardBody,
   Input,
-  Pagination,
+  Select,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import { useContext, useState } from "react";
-import { FiEdit, FiPlus, FiTrash2 } from "react-icons/fi";
-import { useTranslation } from "react-i18next";
+import { FiEdit, FiGift, FiPlus, FiTrash2 } from "react-icons/fi";
+import dayjs from "dayjs";
 
 //internal import
-import { SidebarContext } from "@/context/SidebarContext";
-import CouponServices from "@/services/CouponServices";
-import useAsync from "@/hooks/useAsync";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
-import useFilter from "@/hooks/useFilter";
 import PageTitle from "@/components/Typography/PageTitle";
-import DeleteModal from "@/components/modal/DeleteModal";
-import BulkActionDrawer from "@/components/drawer/BulkActionDrawer";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import CouponDrawer from "@/components/drawer/CouponDrawer";
-import TableLoading from "@/components/preloader/TableLoading";
-import CheckBox from "@/components/form/others/CheckBox";
-import CouponTable from "@/components/coupon/CouponTable";
-import NotFound from "@/components/table/NotFound";
-import UploadMany from "@/components/common/UploadMany";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import CouponServices from "@/services/CouponServices";
+import Modal from "@/components/common/Modal";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
+import useUtilsFunction from "@/hooks/useUtilsFunction";
+import { notifyError, notifySuccess } from "@/utils/toast";
+
+const EMPTY = {
+  code: "",
+  type: "percentage",
+  value: "",
+  minimumAmount: "",
+  startTime: "",
+  endTime: "",
+  active: true,
+};
+
+const toDateInput = (v) => (v ? dayjs(v).format("YYYY-MM-DD") : "");
+const toIso = (d, end = false) =>
+  d ? new Date(`${d}T${end ? "23:59:59" : "00:00:00"}Z`).toISOString() : null;
 
 const Coupons = () => {
-  const { t } = useTranslation();
-  const { toggleDrawer, lang } = useContext(SidebarContext);
-  const { data, loading, error } = useAsync(CouponServices.getAllCoupons);
-  // console.log('data',data)
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState([]);
+  const { currency } = useUtilsFunction();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { allId, serviceId, handleDeleteMany, handleUpdateMany } =
-    useToggleDrawer();
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await CouponServices.getAllCoupons());
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const {
-    filename,
-    isDisabled,
-    couponRef,
-    dataTable,
-    serviceData,
-    totalResults,
-    resultsPerPage,
-    handleChangePage,
-    handleSelectFile,
-    setSearchCoupon,
-    handleSubmitCoupon,
-    handleUploadMultiple,
-    handleRemoveSelectFile,
-  } = useFilter(data);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleSelectAll = () => {
-    setIsCheckAll(!isCheckAll);
-    setIsCheck(data?.map((li) => li._id));
-    if (isCheckAll) {
-      setIsCheck([]);
+  const openAdd = () => {
+    setEditingId(null);
+    setForm(EMPTY);
+    setModalOpen(true);
+  };
+
+  const openEdit = (row) => {
+    setEditingId(row._id);
+    setForm({
+      code: row.couponCode || "",
+      type: row.discountType?.type === "fixed" ? "fixed" : "percentage",
+      value: row.discountType?.value ?? "",
+      minimumAmount: row.minimumAmount ?? "",
+      startTime: toDateInput(row.startTime),
+      endTime: toDateInput(row.endTime),
+      active: row.status !== "hide",
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const body = {
+      couponCode: form.code.trim().toUpperCase(),
+      discountType: { type: form.type, value: Number(form.value) || 0 },
+      minimumAmount: Number(form.minimumAmount) || 0,
+      startTime: toIso(form.startTime),
+      endTime: toIso(form.endTime, true),
+      status: form.active ? "show" : "hide",
+    };
+    try {
+      if (editingId) {
+        await CouponServices.updateCoupon(editingId, body);
+        notifySuccess("Coupon updated.");
+      } else {
+        await CouponServices.addCoupon(body);
+        notifySuccess("Coupon created.");
+      }
+      setModalOpen(false);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  // handle reset field function
-  const handleResetField = () => {
-    setSearchCoupon("");
-    couponRef.current.value = "";
+  const toggle = async (row) => {
+    try {
+      await CouponServices.updateStatus(row._id, {
+        ...couponToBody(row),
+        status: row.status === "show" ? "hide" : "show",
+      });
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
   };
+
+  const couponToBody = (row) => ({
+    couponCode: row.couponCode,
+    discountType: { type: row.discountType?.type, value: row.discountType?.value },
+    minimumAmount: row.minimumAmount,
+    startTime: row.startTime,
+    endTime: row.endTime,
+  });
+
+  const confirmDelete = async () => {
+    try {
+      await CouponServices.deleteCoupon(deleteTarget._id);
+      notifySuccess("Coupon deleted.");
+      setDeleteTarget(null);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const discountLabel = (row) =>
+    row.discountType?.type === "fixed"
+      ? `${currency}${row.discountType?.value}`
+      : `${row.discountType?.value}%`;
+
+  const inputCls =
+    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
 
   return (
     <>
-      <PageTitle>{t("CouponspageTitle")}</PageTitle>
-      <DeleteModal
-        ids={allId}
-        setIsCheck={setIsCheck}
-        title="Selected Coupon"
-      />
-      <BulkActionDrawer ids={allId} title="Coupons" />
-
-      <MainDrawer>
-        <CouponDrawer id={serviceId} />
-      </MainDrawer>
-
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitCoupon}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6  xl:flex"
-            >
-              <div className="flex justify-start xl:w-1/2  md:w-full">
-                <UploadMany
-                  title="Coupon"
-                  exportData={data}
-                  filename={filename}
-                  isDisabled={isDisabled}
-                  handleSelectFile={handleSelectFile}
-                  handleUploadMultiple={handleUploadMultiple}
-                  handleRemoveSelectFile={handleRemoveSelectFile}
-                />
-              </div>
-
-              <div className="lg:flex  md:flex xl:justify-end xl:w-1/2  md:w-full md:justify-start flex-grow-0">
-                <div className="w-full md:w-40 lg:w-40 xl:w-40 mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleUpdateMany(isCheck)}
-                    className="w-full rounded-md h-12 btn-gray text-gray-600"
-                  >
-                    <span className="mr-2">
-                      <FiEdit />
-                    </span>
-                    {t("BulkAction")}
-                  </Button>
-                </div>
-
-                <div className="w-full md:w-32 lg:w-32 xl:w-32 mr-3 mb-3 lg:mb-0">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleDeleteMany(isCheck)}
-                    className="w-full rounded-md h-12 bg-red-500 btn-red"
-                  >
-                    <span className="mr-2">
-                      <FiTrash2 />
-                    </span>
-
-                    {t("Delete")}
-                  </Button>
-                </div>
-
-                <div className="w-full md:w-48 lg:w-48 xl:w-48">
-                  <Button
-                    onClick={toggleDrawer}
-                    className="w-full rounded-md h-12"
-                  >
-                    <span className="mr-2">
-                      <FiPlus />
-                    </span>
-                    {t("AddCouponsBtn")}
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitCoupon}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={couponRef}
-                  type="search"
-                  placeholder={t("SearchCoupon")}
-                />
-              </div>
-              <div className="flex items-center gap-2 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full mx-1">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-2 h-12 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+      <div className="flex items-center justify-between">
+        <PageTitle>Coupons</PageTitle>
+        <Button onClick={openAdd} className="h-11 rounded-lg">
+          <FiPlus className="mr-2" /> Add coupon
+        </Button>
+      </div>
 
       {loading ? (
-        // <Loading loading={loading} />
-        <TableLoading row={12} col={8} width={140} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
+        <TableSkeleton rows={5} cols={6} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiGift}
+          title="No coupons yet"
+          description="Create your first discount code. Coupons are validated and applied server-side at checkout."
+          actionLabel="Add coupon"
+          onAction={openAdd}
+        />
+      ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>
-                  <CheckBox
-                    type="checkbox"
-                    name="selectAll"
-                    id="selectAll"
-                    handleClick={handleSelectAll}
-                    isChecked={isCheckAll}
-                  />
-                </TableCell>
-                <TableCell>{t("CoupTblCampaignsName")}</TableCell>
-                <TableCell>{t("CoupTblCode")}</TableCell>
-                <TableCell>{t("Discount")}</TableCell>
-
-                <TableCell className="text-center">
-                  {t("catPublishedTbl")}
-                </TableCell>
-                <TableCell>{t("CoupTblStartDate")}</TableCell>
-                <TableCell>{t("CoupTblEndDate")}</TableCell>
-                <TableCell>{t("CoupTblStatus")}</TableCell>
-                <TableCell className="text-right">
-                  {t("CoupTblActions")}
-                </TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Discount</TableCell>
+                <TableCell>Min. order</TableCell>
+                <TableCell>Starts</TableCell>
+                <TableCell>Expires</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-            <CouponTable
-              lang={lang}
-              isCheck={isCheck}
-              coupons={dataTable}
-              setIsCheck={setIsCheck}
-            />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell className="font-semibold uppercase">{row.couponCode}</TableCell>
+                  <TableCell className="font-medium text-emerald-600">
+                    {discountLabel(row)}
+                  </TableCell>
+                  <TableCell>
+                    {row.minimumAmount ? `${currency}${row.minimumAmount}` : "—"}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {row.startTime ? dayjs(row.startTime).format("DD MMM YYYY") : "—"}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {row.endTime ? dayjs(row.endTime).format("DD MMM YYYY") : "—"}
+                  </TableCell>
+                  <TableCell>
+                    <button onClick={() => toggle(row)}>
+                      <Badge type={row.status === "show" ? "success" : "neutral"}>
+                        {row.status === "show" ? "Active" : "Hidden"}
+                      </Badge>
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3 text-gray-400">
+                      <button
+                        className="transition hover:text-emerald-600"
+                        onClick={() => openEdit(row)}
+                        title="Edit"
+                      >
+                        <FiEdit />
+                      </button>
+                      <button
+                        className="transition hover:text-red-500"
+                        onClick={() => setDeleteTarget(row)}
+                        title="Delete"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-          <TableFooter>
-            <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no coupons right now." />
       )}
+
+      {/* Add / edit modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingId ? "Edit coupon" : "New coupon"}
+        subtitle="Discounts are computed server-side at checkout."
+        icon={FiGift}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving…" : editingId ? "Save changes" : "Create coupon"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSave} className="grid grid-cols-2 gap-4">
+          <label className="col-span-2 text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Code
+            </span>
+            <Input
+              className={inputCls}
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+              placeholder="BIENVENUE10"
+              required
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Type
+            </span>
+            <Select
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+            >
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed ({currency})</option>
+            </Select>
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Value
+            </span>
+            <Input
+              type="number"
+              step="0.01"
+              className={inputCls}
+              value={form.value}
+              onChange={(e) => setForm({ ...form, value: e.target.value })}
+              required
+            />
+          </label>
+          <label className="col-span-2 text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Minimum order amount
+            </span>
+            <Input
+              type="number"
+              step="0.01"
+              className={inputCls}
+              value={form.minimumAmount}
+              onChange={(e) => setForm({ ...form, minimumAmount: e.target.value })}
+              placeholder="0"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Starts
+            </span>
+            <Input
+              type="date"
+              className={inputCls}
+              value={form.startTime}
+              onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Expires
+            </span>
+            <Input
+              type="date"
+              className={inputCls}
+              value={form.endTime}
+              onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+            />
+          </label>
+          <label className="col-span-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={form.active}
+              onChange={(e) => setForm({ ...form, active: e.target.checked })}
+            />
+            Active
+          </label>
+        </form>
+      </Modal>
+
+      {/* Delete confirm */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete coupon"
+        icon={FiTrash2}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="!bg-red-500 hover:!bg-red-600"
+              onClick={confirmDelete}
+            >
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Delete coupon{" "}
+          <span className="font-semibold uppercase">{deleteTarget?.couponCode}</span>? This
+          can't be undone.
+        </p>
+      </Modal>
     </>
   );
 };

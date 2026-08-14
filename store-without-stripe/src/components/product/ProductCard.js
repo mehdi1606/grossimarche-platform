@@ -65,8 +65,8 @@ const ProductCard = ({ product, attributes }) => {
         />
       )}
 
-      <div className="group box-border overflow-hidden flex rounded-md shadow-sm pe-0 flex-col items-center bg-white relative">
-        <div className="w-full flex justify-between">
+      <div className="group relative box-border flex flex-col items-center overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-1 hover:border-emerald-100 hover:shadow-lg">
+        <div className="absolute inset-x-0 top-0 z-10 flex justify-between p-2">
           <Stock product={product} stock={product.stock} card />
           <Discount product={product} />
         </div>
@@ -78,22 +78,17 @@ const ProductCard = ({ product, attributes }) => {
               `opened ${showingTranslateValue(product?.title)} product modal`
             );
           }}
-          className="relative flex justify-center cursor-pointer pt-2 w-full h-44"
+          className="relative flex h-44 w-full cursor-pointer justify-center bg-gray-50/60 pt-2"
         >
-          <div className="relative w-full h-full p-2">
+          <div className="relative h-full w-full p-3">
             {product.image[0] ? (
               <ImageWithFallback src={product.image[0]} alt="product" />
             ) : (
-              <Image
-                src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-                fill
-                style={{
-                  objectFit: "contain",
-                }}
-                sizes="100%"
-                alt="product"
-                className="object-contain transition duration-150 ease-linear transform group-hover:scale-105"
-              />
+              <div className="flex h-full w-full items-center justify-center">
+                <span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-2xl text-emerald-400 shadow-sm">
+                  <IoBagAddSharp />
+                </span>
+              </div>
             )}
           </div>
         </div>

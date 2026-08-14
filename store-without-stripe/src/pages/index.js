@@ -1,231 +1,157 @@
-import { SidebarContext } from "@context/SidebarContext";
-import { useContext, useEffect } from "react";
-import { useRouter } from "next/router";
+import Link from "next/link";
+import {
+  FiArrowRight,
+  FiTruck,
+  FiCreditCard,
+  FiTag,
+  FiPackage,
+  FiShoppingBag,
+} from "react-icons/fi";
 
 //internal import
 import Layout from "@layout/Layout";
-import Banner from "@components/banner/Banner";
-import useGetSetting from "@hooks/useGetSetting";
-import CardTwo from "@components/cta-card/CardTwo";
-import OfferCard from "@components/offer/OfferCard";
 import StickyCart from "@components/cart/StickyCart";
-import Loading from "@components/preloader/Loading";
-import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
-import MainCarousel from "@components/carousel/MainCarousel";
-import FeatureCategory from "@components/category/FeatureCategory";
+import ProductServices from "@services/ProductServices";
+import CategoryServices from "@services/CategoryServices";
 import AttributeServices from "@services/AttributeServices";
-import CMSkeleton from "@components/preloader/CMSkeleton";
+import useUtilsFunction from "@hooks/useUtilsFunction";
+import { categoryEmoji } from "@utils/categoryIcon";
 
-const Home = ({ popularProducts, discountProducts, attributes }) => {
-  const router = useRouter();
-  const { isLoading, setIsLoading } = useContext(SidebarContext);
-  const { loading, error, storeCustomizationSetting } = useGetSetting();
+const VALUE_PROPS = [
+  { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
+  { Icon: FiTruck, title: "Livraison rapide", text: "Partout au Maroc" },
+  { Icon: FiCreditCard, title: "Paiement à la livraison", text: "Payez en toute confiance" },
+  { Icon: FiPackage, title: "Large catalogue", text: "Des milliers de références" },
+];
 
-  // console.log("storeCustomizationSetting", storeCustomizationSetting);
-
-  useEffect(() => {
-    if (router.asPath === "/") {
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
-  }, [router]);
+const Home = ({ popularProducts, categories, attributes }) => {
+  const { showingTranslateValue } = useUtilsFunction();
+  const cats = categories?.[0]?.children || [];
+  const products = popularProducts || [];
 
   return (
-    <>
-      {isLoading ? (
-        <Loading loading={isLoading} />
-      ) : (
-        <Layout>
-          <div className="min-h-screen">
-            <StickyCart />
-            <div className="bg-white">
-              <div className="mx-auto py-5 max-w-screen-2xl px-3 sm:px-10">
-                <div className="flex w-full">
-                  <div className="flex-shrink-0 xl:pr-6 lg:block w-full lg:w-3/5">
-                    <MainCarousel />
-                  </div>
-                  <div className="w-full hidden lg:flex">
-                    <OfferCard />
-                  </div>
-                </div>
-                {storeCustomizationSetting?.home?.promotion_banner_status && (
-                  <div className="bg-orange-100 px-10 py-6 rounded-lg mt-6">
-                    <Banner />
-                  </div>
-                )}
+    <Layout>
+      <StickyCart />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-500">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-white/5" />
+        <div className="relative mx-auto max-w-screen-2xl px-4 py-16 sm:px-10 lg:py-24">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+              <FiShoppingBag /> Marché de gros en ligne
+            </span>
+            <h1 className="mt-5 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
+              Le gros, livré chez vous.
+            </h1>
+            <p className="mt-4 max-w-xl text-base leading-7 text-emerald-50">
+              Achetez en gros aux meilleurs prix — produits alimentaires, boissons et
+              essentiels, avec des tarifs dégressifs et le paiement à la livraison.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                Découvrir les produits <FiArrowRight />
+              </Link>
+              {cats[0] && (
+                <Link
+                  href={`/search?category=${cats[0].slug}&_id=${cats[0]._id}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Parcourir les catégories
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Value props */}
+      <section className="mx-auto max-w-screen-2xl px-4 sm:px-10">
+        <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {VALUE_PROPS.map(({ Icon, title, text }) => (
+            <div
+              key={title}
+              className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md"
+            >
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-500">
+                <Icon className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{title}</p>
+                <p className="text-xs text-gray-500">{text}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            {/* feature category's */}
-            {storeCustomizationSetting?.home?.featured_status && (
-              <div className="bg-gray-100 lg:py-16 py-10">
-                <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
-                  <div className="mb-10 flex justify-center">
-                    <div className="text-center w-full lg:w-2/5">
-                      <h2 className="text-xl lg:text-2xl mb-2 font-serif font-semibold">
-                        <CMSkeleton
-                          count={1}
-                          height={30}
-                          loading={loading}
-                          data={storeCustomizationSetting?.home?.feature_title}
-                        />
-                      </h2>
-                      <p className="text-base font-sans text-gray-600 leading-6">
-                        <CMSkeleton
-                          count={4}
-                          height={10}
-                          error={error}
-                          loading={loading}
-                          data={
-                            storeCustomizationSetting?.home?.feature_description
-                          }
-                        />
-                      </p>
-                    </div>
-                  </div>
-
-                  <FeatureCategory />
-                </div>
-              </div>
-            )}
-
-            {/* popular products */}
-            {storeCustomizationSetting?.home?.popular_products_status && (
-              <div className="bg-gray-50 lg:py-16 py-10 mx-auto max-w-screen-2xl px-3 sm:px-10">
-                <div className="mb-10 flex justify-center">
-                  <div className="text-center w-full lg:w-2/5">
-                    <h2 className="text-xl lg:text-2xl mb-2 font-serif font-semibold">
-                      <CMSkeleton
-                        count={1}
-                        height={30}
-                        loading={loading}
-                        data={storeCustomizationSetting?.home?.popular_title}
-                      />
-                    </h2>
-                    <p className="text-base font-sans text-gray-600 leading-6">
-                      <CMSkeleton
-                        count={5}
-                        height={10}
-                        error={error}
-                        loading={loading}
-                        data={
-                          storeCustomizationSetting?.home?.popular_description
-                        }
-                      />
-                    </p>
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="w-full">
-                    {loading ? (
-                      <CMSkeleton
-                        count={20}
-                        height={20}
-                        error={error}
-                        loading={loading}
-                      />
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 md:gap-3 lg:gap-3">
-                        {popularProducts
-                          ?.slice(
-                            0,
-                            storeCustomizationSetting?.home
-                              ?.popular_product_limit
-                          )
-                          .map((product) => (
-                            <ProductCard
-                              key={product._id}
-                              product={product}
-                              attributes={attributes}
-                            />
-                          ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* promotional banner card */}
-            {storeCustomizationSetting?.home?.delivery_status && (
-              <div className="block mx-auto max-w-screen-2xl">
-                <div className="mx-auto max-w-screen-2xl px-4 sm:px-10">
-                  <div className="lg:p-16 p-6 bg-emerald-500 shadow-sm border rounded-lg">
-                    <CardTwo />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* discounted products */}
-            {storeCustomizationSetting?.home?.discount_product_status &&
-              discountProducts?.length > 0 && (
-                <div
-                  id="discount"
-                  className="bg-gray-50 lg:py-16 py-10 mx-auto max-w-screen-2xl px-3 sm:px-10"
-                >
-                  <div className="mb-10 flex justify-center">
-                    <div className="text-center w-full lg:w-2/5">
-                      <h2 className="text-xl lg:text-2xl mb-2 font-serif font-semibold">
-                        <CMSkeleton
-                          count={1}
-                          height={30}
-                          loading={loading}
-                          data={
-                            storeCustomizationSetting?.home
-                              ?.latest_discount_title
-                          }
-                        />
-                      </h2>
-                      <p className="text-base font-sans text-gray-600 leading-6">
-                        <CMSkeleton
-                          count={5}
-                          height={20}
-                          loading={loading}
-                          data={
-                            storeCustomizationSetting?.home
-                              ?.latest_discount_description
-                          }
-                        />
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex">
-                    <div className="w-full">
-                      {loading ? (
-                        <CMSkeleton
-                          count={20}
-                          height={20}
-                          error={error}
-                          loading={loading}
-                        />
-                      ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 md:gap-3 lg:gap-3">
-                          {discountProducts
-                            ?.slice(
-                              0,
-                              storeCustomizationSetting?.home
-                                ?.latest_discount_product_limit
-                            )
-                            .map((product) => (
-                              <ProductCard
-                                key={product._id}
-                                product={product}
-                                attributes={attributes}
-                              />
-                            ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* Categories */}
+      {cats.length > 0 && (
+        <section className="mx-auto max-w-screen-2xl px-4 py-14 sm:px-10">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-gray-800">Catégories</h2>
+              <p className="mt-1 text-sm text-gray-500">Trouvez ce qu'il vous faut en un clic.</p>
+            </div>
+            <Link
+              href="/search"
+              className="hidden items-center gap-1 text-sm font-medium text-emerald-600 hover:underline sm:flex"
+            >
+              Tout voir <FiArrowRight />
+            </Link>
           </div>
-        </Layout>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {cats.map((c) => (
+              <Link
+                key={c._id}
+                href={`/search?category=${c.slug}&_id=${c._id}`}
+                className="group flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md"
+              >
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-2xl transition group-hover:bg-emerald-100">
+                  {categoryEmoji(c.icon)}
+                </span>
+                <span className="line-clamp-1 text-sm font-medium text-gray-700">
+                  {showingTranslateValue(c.name)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
-    </>
+
+      {/* Products */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-screen-2xl px-4 py-14 sm:px-10">
+          <div className="mb-8">
+            <h2 className="font-serif text-2xl font-bold text-gray-800">Nos produits</h2>
+            <p className="mt-1 text-sm text-gray-500">Sélection disponible à la commande.</p>
+          </div>
+
+          {products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-16 text-center">
+              <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-500">
+                <FiShoppingBag className="text-2xl" />
+              </span>
+              <h3 className="text-lg font-semibold text-gray-800">Catalogue en préparation</h3>
+              <p className="mt-1 max-w-sm text-sm text-gray-500">
+                De nouveaux produits arrivent très bientôt. Revenez d'ici peu !
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
+              {products.map((product) => (
+                <ProductCard key={product._id} product={product} attributes={attributes} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </Layout>
   );
 };
 
@@ -233,21 +159,21 @@ export const getServerSideProps = async (context) => {
   const { cookies } = context.req;
   const { query, _id } = context.query;
 
-  const [data, attributes] = await Promise.all([
+  const [data, categories, attributes] = await Promise.all([
     ProductServices.getShowingStoreProducts({
       category: _id ? _id : "",
       title: query ? query : "",
     }),
-
+    CategoryServices.getShowingCategory(),
     AttributeServices.getShowingAttributes(),
   ]);
 
   return {
     props: {
-      attributes,
-      cookies: cookies,
+      cookies: cookies || null,
       popularProducts: data.popularProducts,
-      discountProducts: data.discountedProducts,
+      categories,
+      attributes,
     },
   };
 };

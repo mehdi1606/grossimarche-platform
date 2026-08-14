@@ -58,22 +58,15 @@ const Navbar = () => {
           <div className="top-bar h-16 lg:h-auto flex items-center justify-between py-4 mx-auto">
             <Link
               href="/"
-              className="mr-3 lg:mr-12 xl:mr-12 hidden md:hidden lg:block"
+              aria-label="Grossimarché"
+              className="mr-3 lg:mr-12 xl:mr-12 hidden shrink-0 items-center gap-2 lg:flex"
             >
-              <div className="relative w-32 h-10">
-                <Image
-                  width="0"
-                  height="0"
-                  sizes="100vw"
-                  className="w-full h-auto"
-                  priority
-                  src={
-                    storeCustomizationSetting?.navbar?.logo ||
-                    "/logo/logo-light.svg"
-                  }
-                  alt="logo"
-                />
-              </div>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-white text-emerald-600 shadow-sm">
+                <FiShoppingCart className="h-5 w-5" />
+              </span>
+              <span className="font-serif text-xl font-bold tracking-tight text-white">
+                Grossi<span className="text-emerald-100">marché</span>
+              </span>
             </Link>
             <div className="w-full transition-all duration-200 ease-in-out lg:flex lg:max-w-[520px] xl:max-w-[750px] 2xl:max-w-[900px] md:mx-12 lg:mx-4 xl:mx-0">
               <div className="w-full flex flex-col justify-center flex-shrink-0 relative z-30">
@@ -87,7 +80,7 @@ const Navbar = () => {
                         onChange={(e) => setSearchText(e.target.value)}
                         value={searchText}
                         className="form-input w-full pl-5 appearance-none transition ease-in-out border text-input text-sm font-sans rounded-md min-h-10 h-10 duration-200 bg-white focus:ring-0 outline-none border-none focus:outline-none placeholder-gray-500 placeholder-opacity-75"
-                        placeholder={t("search-placeholder")}
+                        placeholder="Rechercher un produit, une marque…"
                       />
                     </label>
                     <button
@@ -103,15 +96,9 @@ const Navbar = () => {
             </div>
             <div className="hidden md:hidden md:items-center lg:flex xl:block absolute inset-y-0 right-0 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <button
-                className="pr-5 text-white text-2xl font-bold"
-                aria-label="Alert"
-              >
-                <FiBell className="w-6 h-6 drop-shadow-xl" />
-              </button>
-              <button
                 aria-label="Total"
                 onClick={toggleCartDrawer}
-                className="relative px-5 text-white text-2xl font-bold"
+                className="relative px-5 text-white text-2xl font-bold transition hover:scale-105"
               >
                 <span className="absolute z-10 top-0 right-0 inline-flex items-center justify-center p-1 h-5 w-5 text-xs font-medium leading-none text-red-100 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
                   {totalItems}

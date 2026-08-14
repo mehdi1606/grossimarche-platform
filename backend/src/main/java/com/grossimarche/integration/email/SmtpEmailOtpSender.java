@@ -63,17 +63,20 @@ public class SmtpEmailOtpSender implements OtpSender {
     public void send(String destination, String code) {
         MimeMessage message = mailSender.createMimeMessage();
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, false,
+            // multipart=true so we can send an HTML body with a plain-text alternative.
+            MimeMessageHelper helper = new MimeMessageHelper(message, true,
                     StandardCharsets.UTF_8.name());
             helper.setFrom(new InternetAddress(from, fromName, StandardCharsets.UTF_8.name()));
             helper.setTo(destination);
             helper.setSubject("Votre code Grossimarché");
-            helper.setText("""
+            String plain = """
                     Votre code de connexion Grossimarché est : %s
 
                     Ce code expire dans 5 minutes et ne peut être utilisé qu'une seule fois.
                     Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.
-                    """.formatted(code));
+                    """.formatted(code);
+            // Plain-text fallback + branded HTML (EmailTemplates).
+            helper.setText(plain, EmailTemplates.otpEmail(code));
         } catch (Exception e) {
             // Message construction failed (bad address / encoding) — surface it through the
             // same fallback as a delivery failure.

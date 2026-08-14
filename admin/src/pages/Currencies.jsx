@@ -12,11 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiTrash2 } from "react-icons/fi";
+import { FiDollarSign, FiTrash2 } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import CurrencyServices from "@/services/CurrencyServices";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
 const EMPTY = { code: "", name: "", symbol: "", exchangeRate: 1, enabled: true, isDefault: false };
@@ -143,7 +145,13 @@ const Currencies = () => {
       </Card>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading…</p>
+        <TableSkeleton rows={5} cols={7} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiDollarSign}
+          title="No currencies yet"
+          description="Add your first currency above. The default currency drives the prices shown across the storefront."
+        />
       ) : (
         <TableContainer className="mb-8">
           <Table>

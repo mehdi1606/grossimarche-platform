@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +8,7 @@ import CategoryServices from "@services/CategoryServices";
 import CMSkeleton from "@components/preloader/CMSkeleton";
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { categoryEmoji } from "@utils/categoryIcon";
 
 const FeatureCategory = () => {
   const router = useRouter();
@@ -45,22 +45,8 @@ const FeatureCategory = () => {
             <li className="group" key={i + 1}>
               <div className="flex w-full h-full border border-gray-100 shadow-sm bg-white p-4 cursor-pointer transition duration-200 ease-linear transform group-hover:shadow-lg">
                 <div className="flex items-center">
-                  <div>
-                    {category.icon ? (
-                      <Image
-                        src={category?.icon}
-                        alt="category"
-                        width={35}
-                        height={35}
-                      />
-                    ) : (
-                      <Image
-                        src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-                        alt="category"
-                        width={35}
-                        height={35}
-                      />
-                    )}
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-xl leading-none">
+                    {categoryEmoji(category?.icon)}
                   </div>
 
                   <div className="pl-4">

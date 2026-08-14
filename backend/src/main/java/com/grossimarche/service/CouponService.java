@@ -168,6 +168,14 @@ public class CouponService {
         getById(id).setActive(false);
     }
 
+    /** Hard delete a coupon (its redemption rows cascade). Used by the admin delete action. */
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void delete(UUID id) {
+        Coupon coupon = getById(id);
+        couponRepository.delete(coupon);
+    }
+
     private Coupon apply(Coupon coupon, AdminCouponRequest req, String code) {
         coupon.setCode(code);
         coupon.setType(req.type());

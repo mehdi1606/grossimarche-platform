@@ -30,9 +30,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Page<User> findByRoleInOrderByCreatedAtDesc(Collection<Role> roles, Pageable pageable);
 
-    /** Customers filtered by role, optionally matching a free-text query on name/phone/email. */
+    /**
+     * Customers filtered by role, optionally matching a free-text query on name/phone/email.
+     * {@code q} is always a non-null string ("" = no filter); a null bind would be typed as
+     * bytea by PostgreSQL and blow up {@code lower(...)}.
+     */
     @Query("select u from User u where u.role = :role and ("
-            + ":q is null or lower(u.fullName) like lower(concat('%', :q, '%')) "
+            + ":q = '' or lower(u.fullName) like lower(concat('%', :q, '%')) "
             + "or u.phone like concat('%', :q, '%') "
             + "or lower(u.email) like lower(concat('%', :q, '%')))")
     Page<User> searchByRole(Role role, String q, Pageable pageable);

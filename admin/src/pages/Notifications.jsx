@@ -11,13 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiCheck, FiTrash2 } from "react-icons/fi";
+import { FiBell, FiCheck, FiTrash2 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import NotificationServices from "@/services/NotificationServices";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
 const TYPE_BADGE = {
@@ -90,13 +92,13 @@ const Notifications = () => {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading…</p>
+        <TableSkeleton rows={5} cols={5} />
       ) : rows.length === 0 ? (
-        <Card className="bg-white dark:bg-gray-800">
-          <CardBody>
-            <p className="text-center text-gray-500">No notifications yet.</p>
-          </CardBody>
-        </Card>
+        <EmptyState
+          icon={FiBell}
+          title="You're all caught up"
+          description="New orders and low-stock alerts will appear here in real time as they happen."
+        />
       ) : (
         <TableContainer className="mb-8">
           <Table>

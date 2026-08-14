@@ -1,176 +1,319 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Avatar,
+  Badge,
   Button,
-  Card,
-  CardBody,
   Input,
-  Pagination,
   Select,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import { useContext } from "react";
-import { useTranslation } from "react-i18next";
-import { FiPlus } from "react-icons/fi";
+import { FiEdit, FiPlus, FiTrash2, FiUser } from "react-icons/fi";
+import dayjs from "dayjs";
 
 //internal import
-
-import useAsync from "@/hooks/useAsync";
-import useFilter from "@/hooks/useFilter";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import StaffDrawer from "@/components/drawer/StaffDrawer";
-import TableLoading from "@/components/preloader/TableLoading";
-import StaffTable from "@/components/staff/StaffTable";
-import NotFound from "@/components/table/NotFound";
 import PageTitle from "@/components/Typography/PageTitle";
-import { AdminContext } from "@/context/AdminContext";
-import { SidebarContext } from "@/context/SidebarContext";
 import AdminServices from "@/services/AdminServices";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import Modal from "@/components/common/Modal";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
+import { notifyError, notifySuccess } from "@/utils/toast";
+
+const EMPTY = { name: "", email: "", phone: "", role: "Store Manager" };
+
+const nameOf = (row) =>
+  typeof row?.name === "object" ? row?.name?.en || "—" : row?.name || "—";
 
 const Staff = () => {
-  const { state } = useContext(AdminContext);
-  const { adminInfo } = state;
-  const { toggleDrawer, lang } = useContext(SidebarContext);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { data, loading, error } = useAsync(() =>
-    AdminServices.getAllStaff({ email: adminInfo.email })
-  );
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await AdminServices.getAllStaff());
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const {
-    userRef,
-    setRole,
-    totalResults,
-    resultsPerPage,
-    dataTable,
-    serviceData,
-    handleChangePage,
-    handleSubmitUser,
-  } = useFilter(data);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const { t } = useTranslation();
-
-  // handle reset filed
-  const handleResetField = () => {
-    setRole("");
-    userRef.current.value = "";
+  const openAdd = () => {
+    setEditing(null);
+    setForm(EMPTY);
+    setModalOpen(true);
   };
+
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      name: nameOf(row),
+      email: row.email || "",
+      phone: row.phone || "",
+      role: row.role === "Admin" ? "Admin" : "Store Manager",
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editing) {
+        await AdminServices.updateStaff(editing._id, { role: form.role });
+        notifySuccess("Staff updated.");
+      } else {
+        await AdminServices.addStaff({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          role: form.role,
+        });
+        notifySuccess("Staff member added.");
+      }
+      setModalOpen(false);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggle = async (row) => {
+    try {
+      await AdminServices.updateStaffStatus(row._id, {
+        status: row.status === "Active" ? "Blocked" : "Active",
+      });
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await AdminServices.deleteStaff(deleteTarget._id);
+      notifySuccess("Staff member removed.");
+      setDeleteTarget(null);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const inputCls =
+    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
 
   return (
     <>
-      <PageTitle>{t("StaffPageTitle")} </PageTitle>
-      <MainDrawer>
-        <StaffDrawer />
-      </MainDrawer>
-
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitUser}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={userRef}
-                  type="search"
-                  name="search"
-                  placeholder={t("StaffSearchBy")}
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 top-0 mt-5 mr-1"
-                ></button>
-              </div>
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Select onChange={(e) => setRole(e.target.value)}>
-                  <option value="All" defaultValue hidden>
-                    {t("StaffRole")}
-                  </option>
-                  <option value="Admin">{t("StaffRoleAdmin")}</option>
-                  <option value="Cashier">{t("SelectCashiers")}</option>
-                  <option value="Super Admin">{t("SelectSuperAdmin")}</option>
-                </Select>
-              </div>
-
-              <div className="w-full md:w-56 lg:w-56 xl:w-56">
-                <Button
-                  onClick={toggleDrawer}
-                  className="w-full rounded-md h-12"
-                >
-                  <span className="mr-3">
-                    <FiPlus />
-                  </span>
-                  {t("AddStaff")}
-                </Button>
-              </div>
-              <div className="mt-2 md:mt-0 flex items-center xl:gap-x-4 gap-x-1 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-3 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+      <div className="flex items-center justify-between">
+        <PageTitle>Staff</PageTitle>
+        <Button onClick={openAdd} className="h-11 rounded-lg">
+          <FiPlus className="mr-2" /> Add staff
+        </Button>
+      </div>
 
       {loading ? (
-        // <Loading loading={loading} />
-        <TableLoading row={12} col={7} width={163} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
-        <TableContainer className="mb-8 rounded-b-lg">
+        <TableSkeleton rows={4} cols={5} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiUser}
+          title="No staff yet"
+          description="Invite your team. Staff sign in with a one-time code — access is decided by their role."
+          actionLabel="Add staff"
+          onAction={openAdd}
+        />
+      ) : (
+        <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>{t("StaffNameTbl")}</TableCell>
-                <TableCell>{t("StaffEmailTbl")}</TableCell>
-                <TableCell>{t("StaffContactTbl")}</TableCell>
-                <TableCell>{t("StaffJoiningDateTbl")}</TableCell>
-                <TableCell>{t("StaffRoleTbl")}</TableCell>
-                <TableCell className="text-center">
-                  {t("OderStatusTbl")}
-                </TableCell>
-                <TableCell className="text-center">
-                  {t("PublishedTbl")}
-                </TableCell>
-
-                <TableCell className="text-center">
-                  {t("StaffActionsTbl")}
-                </TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Contact</TableCell>
+                <TableCell>Role</TableCell>
+                <TableCell>Joined</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-
-            <StaffTable staffs={dataTable} lang={lang} />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        className="bg-emerald-100 text-emerald-600"
+                        aria-hidden="true"
+                      >
+                        <span className="grid h-full w-full place-items-center text-sm font-semibold">
+                          {nameOf(row).charAt(0).toUpperCase()}
+                        </span>
+                      </Avatar>
+                      <span className="font-medium">{nameOf(row)}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">{row.email || "—"}</div>
+                    <div className="text-xs text-gray-400">{row.phone || ""}</div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge type={row.role === "Admin" ? "success" : "neutral"}>
+                      {row.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY") : "—"}
+                  </TableCell>
+                  <TableCell>
+                    <button onClick={() => toggle(row)}>
+                      <Badge type={row.status === "Active" ? "success" : "danger"}>
+                        {row.status}
+                      </Badge>
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3 text-gray-400">
+                      <button
+                        className="transition hover:text-emerald-600"
+                        onClick={() => openEdit(row)}
+                        title="Edit role"
+                      >
+                        <FiEdit />
+                      </button>
+                      <button
+                        className="transition hover:text-red-500"
+                        onClick={() => setDeleteTarget(row)}
+                        title="Remove"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-          <TableFooter>
-            <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no staff right now." />
       )}
+
+      {/* Add / edit modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Edit staff" : "Add staff"}
+        subtitle="Passwordless — they sign in with a one-time code."
+        icon={FiUser}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving…" : editing ? "Save changes" : "Add staff"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          {!editing && (
+            <>
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Full name
+                </span>
+                <Input
+                  className={inputCls}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Jane Doe"
+                  required
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block text-sm">
+                  <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                    Email
+                  </span>
+                  <Input
+                    className={inputCls}
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="jane@store.ma"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                    Phone
+                  </span>
+                  <Input
+                    className={inputCls}
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    placeholder="+2126…"
+                  />
+                </label>
+              </div>
+            </>
+          )}
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Role
+            </span>
+            <Select
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+            >
+              <option value="Admin">Admin — full access</option>
+              <option value="Store Manager">
+                Store Manager — orders, products, categories, customers
+              </option>
+            </Select>
+          </label>
+          {editing && (
+            <p className="text-xs text-gray-400">
+              Name, email and phone are set when the account is created.
+            </p>
+          )}
+        </form>
+      </Modal>
+
+      {/* Delete confirm */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Remove staff member"
+        icon={FiTrash2}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
+              Remove
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Remove <span className="font-semibold">{nameOf(deleteTarget)}</span> from the
+          back-office? They'll lose access immediately.
+        </p>
+      </Modal>
     </>
   );
 };

@@ -6,6 +6,8 @@ import {
   IoArrowForward,
   IoBagHandle,
   IoWalletSharp,
+  IoLocationOutline,
+  IoAddCircleOutline,
 } from "react-icons/io5";
 import { useQuery } from "@tanstack/react-query";
 import { ImCreditCard } from "react-icons/im";
@@ -24,7 +26,7 @@ import InputPayment from "@components/form/InputPayment";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
-import SwitchToggle from "@components/form/SwitchToggle";
+import AddressModal from "@components/modal/AddressModal";
 
 const Checkout = () => {
   const { t } = useTranslation();
@@ -57,10 +59,13 @@ const Checkout = () => {
     discountAmount,
     shippingCost,
     isCheckoutSubmit,
-    useExistingAddress,
     hasShippingAddress,
     isCouponAvailable,
-    handleDefaultShippingAddress,
+    selectedAddress,
+    addressModalOpen,
+    setAddressModalOpen,
+    saveAddress,
+    savingAddress,
   } = useCheckoutSubmit();
 
   return (
@@ -71,16 +76,6 @@ const Checkout = () => {
             <div className="md:w-full lg:w-3/5 flex h-full flex-col order-2 sm:order-1 lg:order-1">
               <div className="mt-5 md:mt-0 md:col-span-2">
                 <form onSubmit={handleSubmit(submitHandler)}>
-                  {hasShippingAddress && (
-                    <div className="flex justify-end my-2">
-                      <SwitchToggle
-                        id="shipping-address"
-                        title="Use Default Shipping Address"
-                        processOption={useExistingAddress}
-                        handleProcess={handleDefaultShippingAddress}
-                      />
-                    </div>
-                  )}
                   <div className="form-group">
                     <h2 className="font-semibold font-serif text-base text-gray-700 pb-3">
                       01.{" "}
@@ -155,58 +150,43 @@ const Checkout = () => {
                       )}
                     </h2>
 
-                    <div className="grid grid-cols-6 gap-6 mb-8">
-                      <div className="col-span-6">
-                        <InputArea
-                          register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.street_address
-                          )}
-                          name="address"
-                          type="text"
-                          placeholder="123 Boulevard Rd, Beverley Hills"
-                        />
-                        <Error errorName={errors.address} />
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-6 lg:col-span-2">
-                        <InputArea
-                          register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.city
-                          )}
-                          name="city"
-                          type="text"
-                          placeholder="Los Angeles"
-                        />
-                        <Error errorName={errors.city} />
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-3 lg:col-span-2">
-                        <InputArea
-                          register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.country
-                          )}
-                          name="country"
-                          type="text"
-                          placeholder="United States"
-                        />
-                        <Error errorName={errors.country} />
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-3 lg:col-span-2">
-                        <InputArea
-                          register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.zip_code
-                          )}
-                          name="zipCode"
-                          type="text"
-                          placeholder="2345"
-                        />
-                        <Error errorName={errors.zipCode} />
-                      </div>
+                    <div className="mb-8">
+                      {selectedAddress ? (
+                        <div className="flex items-start justify-between gap-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                          <div className="flex items-start gap-3">
+                            <span className="mt-0.5 grid h-9 w-9 place-items-center rounded-full bg-white text-emerald-500 shadow-sm">
+                              <IoLocationOutline />
+                            </span>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-800">
+                                Deliver to
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {selectedAddress.addressLine}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {selectedAddress.city}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setAddressModalOpen(true)}
+                            className="shrink-0 text-sm font-medium text-emerald-600 transition hover:text-emerald-700 hover:underline"
+                          >
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setAddressModalOpen(true)}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white px-4 py-6 text-sm font-medium text-gray-600 transition hover:border-emerald-300 hover:text-emerald-600"
+                        >
+                          <IoAddCircleOutline className="text-lg" />
+                          Add delivery address
+                        </button>
+                      )}
                     </div>
 
                     <Label
@@ -455,6 +435,21 @@ const Checkout = () => {
             </div>
           </div>
         </div>
+
+        <AddressModal
+          isOpen={addressModalOpen}
+          onClose={() => setAddressModalOpen(false)}
+          onSave={saveAddress}
+          saving={savingAddress}
+          defaultValues={
+            selectedAddress
+              ? {
+                  address: selectedAddress.addressLine,
+                  city: selectedAddress.city,
+                }
+              : {}
+          }
+        />
       </Layout>
     </>
   );

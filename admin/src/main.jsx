@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import { registerSW } from "virtual:pwa-register";
 import { Provider } from "react-redux";
 import { Windmill } from "@windmill/react-ui";
 import { PersistGate } from "redux-persist/integration/react";
@@ -20,13 +19,18 @@ import ThemeSuspense from "@/components/theme/ThemeSuspense";
 import store from "@/reduxStore/store";
 import "@/i18n";
 
-const updateSW = registerSW({
-  onNeedRefresh() {
-    if (confirm("New content available. Reload?")) {
-      updateSW(true);
-    }
-  },
-});
+// The PWA service worker was removed: it aggressively cached the app shell and kept serving
+// stale bundles after every deploy. Actively unregister any service worker a previous build
+// left behind and drop its caches, so returning browsers always load the latest build.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs.forEach((reg) => reg.unregister());
+  });
+  if (window.caches?.keys) {
+    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+  }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -185,7 +185,7 @@ const Header = () => {
 
             <li className="flex">
               <button
-                className="rounded-md focus:outline-none"
+                className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
                 onClick={toggleMode}
                 aria-label="Toggle color mode"
               >
@@ -200,21 +200,29 @@ const Header = () => {
             {/* <!-- Notifications menu --> */}
             <li className="relative inline-block text-left" ref={nRef}>
               <button
-                className="relative align-middle rounded-md focus:outline-none"
+                className="relative rounded-full p-2 text-gray-500 transition hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
                 onClick={handleNotificationOpen}
               >
-                <FiBell
-                  className="w-5 h-5 text-emerald-500"
-                  aria-hidden="true"
-                />
-
-                <span className="absolute z-10 top-0 right-0 inline-flex items-center justify-center p-1 h-5 w-5 text-xs font-medium leading-none text-red-100 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                  {totalUnreadDoc}
-                </span>
+                <FiBell className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+                {totalUnreadDoc > 0 && (
+                  <span className="absolute right-0.5 top-0.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white dark:ring-gray-800">
+                    {totalUnreadDoc}
+                  </span>
+                )}
               </button>
 
               {notificationOpen && (
-                <div className="origin-top-right absolute md:right-0 -right-3 top-2 rounded-md shadow-lg bg-white dark:bg-gray-800  focus:outline-none">
+                <div className="origin-top-right absolute md:right-0 -right-3 top-full mt-2 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl focus:outline-none dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                      Notifications
+                    </span>
+                    {totalUnreadDoc > 0 && (
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10">
+                        {totalUnreadDoc} new
+                      </span>
+                    )}
+                  </div>
                   <div
                     className={`${
                       data?.length === 0
@@ -228,7 +236,17 @@ const Header = () => {
                   >
                     <Scrollbars>
                       {data?.length === 0 ? (
-                        <NotFoundTwo title="No new notification" />
+                        <div className="flex h-full flex-col items-center justify-center px-6 py-10 text-center">
+                          <span className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10">
+                            <FiBell className="text-xl" />
+                          </span>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            You&apos;re all caught up
+                          </p>
+                          <p className="mt-1 text-xs text-gray-400">
+                            New orders and low-stock alerts show up here.
+                          </p>
+                        </div>
                       ) : (
                         <ul className="block text-sm border-t border-gray-100 dark:border-gray-700 rounded-md">
                           {data?.map((value, index) => {

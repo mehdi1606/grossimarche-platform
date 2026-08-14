@@ -224,6 +224,11 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
   const { t } = useTranslation();
 
+  const shareUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : `/product/${router.query.slug}`;
+
   // category name slug
   const category_name = showingTranslateValue(product?.category?.name)
     .toLowerCase()
@@ -245,7 +250,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               <div className="flex items-center pb-4">
                 <ol className="flex items-center w-full overflow-hidden font-serif">
                   <li className="text-sm pr-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold">
-                    <Link href="/">Home</Link>
+                    <Link href="/">Accueil</Link>
                   </li>
                   <li className="text-sm mt-[1px]">
                     {" "}
@@ -286,12 +291,9 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                         priority
                       />
                     ) : (
-                      <Image
-                        src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-                        width={650}
-                        height={650}
-                        alt="product Image"
-                      />
+                      <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-gray-50">
+                        <span className="text-6xl text-emerald-300">🛒</span>
+                      </div>
                     )}
 
                     {product?.image?.length > 1 && (
@@ -312,14 +314,16 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             {showingTranslateValue(product?.title)}
                           </h1>
 
-                          <p className="uppercase font-serif font-medium text-gray-500 text-sm">
-                            SKU :{" "}
-                            <span className="font-bold text-gray-600">
-                              {product.sku}
-                            </span>
-                          </p>
+                          {product?.unit && (
+                            <p className="font-serif text-sm font-medium text-gray-500">
+                              Unité :{" "}
+                              <span className="font-semibold text-gray-700">
+                                {product.unit}
+                              </span>
+                            </p>
+                          )}
 
-                          <div className="relative">
+                          <div className="relative mt-1">
                             <Stock stock={stock} />
                           </div>
                         </div>
@@ -329,6 +333,30 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           currency={currency}
                           originalPrice={originalPrice}
                         />
+
+                        {product?.priceTiers?.length > 0 && (
+                          <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+                            <p className="mb-2 text-sm font-semibold text-emerald-700">
+                              Tarifs dégressifs
+                            </p>
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                              {product.priceTiers.map((tier, i) => (
+                                <div
+                                  key={i}
+                                  className="rounded-lg bg-white px-3 py-2 text-center shadow-sm"
+                                >
+                                  <p className="text-xs text-gray-500">
+                                    dès {tier.minQuantity} {product.unit || "u."}
+                                  </p>
+                                  <p className="text-sm font-bold text-emerald-600">
+                                    {currency}
+                                    {Number(tier.unitPrice).toFixed(2)}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         <div className="mb-4">
                           {variantTitle?.map((a, i) => (
@@ -411,7 +439,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </div>
                               <button
                                 onClick={() => handleAddToCart(product)}
-                                className={`bg-gray-800 hover:text-white hover:bg-gray-900 text-white text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold  text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 w-full h-12`}
+                                className={`bg-emerald-500 hover:bg-emerald-600 text-white text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border-0 border-transparent rounded-lg shadow-lg shadow-emerald-500/25 focus-visible:outline-none focus:outline-none px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 w-full h-12`}
                               >
                                 {t("common:addToCart")}
                               </button>
@@ -438,15 +466,6 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <Tags product={product} />
                           </div>
 
-                          <div className="mt-8">
-                            <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                              Call Us To Order By Mobile Number :{" "}
-                              <span className="text-emerald-700 font-semibold">
-                                +0044235234
-                              </span>{" "}
-                            </p>
-                          </div>
-
                           {/* social share */}
                           <div className="mt-2">
                             <h3 className="text-base font-semibold mb-1 font-serif">
@@ -458,7 +477,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <ul className="flex mt-4">
                               <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
                                 <FacebookShareButton
-                                  url={`https://kachabazar-store-nine.vercel.app/product/${router.query.slug}`}
+                                  url={shareUrl}
                                   quote=""
                                 >
                                   <FacebookIcon size={32} round />
@@ -466,7 +485,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </li>
                               <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
                                 <TwitterShareButton
-                                  url={`https://kachabazar-store-nine.vercel.app/product/${router.query.slug}`}
+                                  url={shareUrl}
                                   quote=""
                                 >
                                   <TwitterIcon size={32} round />
@@ -474,7 +493,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </li>
                               <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
                                 <RedditShareButton
-                                  url={`https://kachabazar-store-nine.vercel.app/product/${router.query.slug}`}
+                                  url={shareUrl}
                                   quote=""
                                 >
                                   <RedditIcon size={32} round />
@@ -482,7 +501,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </li>
                               <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
                                 <WhatsappShareButton
-                                  url={`https://kachabazar-store-nine.vercel.app/product/${router.query.slug}`}
+                                  url={shareUrl}
                                   quote=""
                                 >
                                   <WhatsappIcon size={32} round />
@@ -490,7 +509,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </li>
                               <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
                                 <LinkedinShareButton
-                                  url={`https://kachabazar-store-nine.vercel.app/product/${router.query.slug}`}
+                                  url={shareUrl}
                                   quote=""
                                 >
                                   <LinkedinIcon size={32} round />

@@ -136,12 +136,11 @@ const Login = () => {
                   </div>
                 </form>
 
-                <BottomNavigation
-                  or={true}
-                  route={"/auth/signup"}
-                  pageName={"Créer un compte"}
-                  loginTitle="Connexion"
-                />
+                <p className="mt-6 text-center text-sm text-gray-500">
+                  Pas encore de compte ? Saisissez simplement votre téléphone ou e-mail
+                  ci-dessus — votre compte est créé automatiquement lors de la première
+                  connexion.
+                </p>
               </div>
             </div>
           </div>

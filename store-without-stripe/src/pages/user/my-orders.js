@@ -55,7 +55,7 @@ const MyOrders = () => {
           <div className="overflow-hidden rounded-md font-serif">
             <div className="flex flex-col">
               <h2 className="text-xl font-serif font-semibold mb-5">
-                My Orders
+                Mes commandes
               </h2>
               <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="align-middle inline-block border border-gray-100 rounded-md min-w-full pb-2 sm:px-6 lg:px-8">
@@ -68,13 +68,22 @@ const MyOrders = () => {
                         loading={loading}
                       />
                     ) : data?.orders?.length === 0 ? (
-                      <div className="text-center">
-                        <span className="flex justify-center my-30 pt-16 text-emerald-500 font-semibold text-6xl">
+                      <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+                        <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-3xl text-emerald-500">
                           <IoBagHandle />
                         </span>
-                        <h2 className="font-medium text-md my-4 text-gray-600">
-                          You Have no order Yet!
+                        <h2 className="text-lg font-semibold text-gray-800">
+                          Aucune commande pour le moment
                         </h2>
+                        <p className="mt-1 max-w-sm text-sm text-gray-500">
+                          Vos commandes apparaîtront ici dès votre premier achat.
+                        </p>
+                        <Link
+                          href="/search"
+                          className="mt-6 rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-600"
+                        >
+                          Découvrir les produits
+                        </Link>
                       </div>
                     ) : (
                       <table className="table-auto min-w-full border border-gray-100 divide-y divide-gray-200">
@@ -128,7 +137,7 @@ const MyOrders = () => {
                                   className="px-3 py-1 bg-emerald-100 text-xs text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all font-semibold rounded-full"
                                   href={`/order/${order._id}`}
                                 >
-                                  Details
+                                  Détails
                                 </Link>
                               </td>
                             </tr>

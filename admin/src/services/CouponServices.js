@@ -18,7 +18,8 @@ const toGmCoupon = (body) => ({
 const CouponServices = {
   getAllCoupons: async () => {
     const res = await requests.get("/admin/coupons?size=100");
-    return { coupons: pageContent(res).map(adaptCoupon) };
+    // The Coupons page + useFilter expect a plain array (they call data.map).
+    return pageContent(res).map(adaptCoupon);
   },
   addCoupon: async (body) => requests.post("/admin/coupons", toGmCoupon(body)),
   addAllCoupon: async () => ({}), // bulk import not supported

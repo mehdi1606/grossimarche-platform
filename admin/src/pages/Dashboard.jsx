@@ -1,389 +1,397 @@
+import React, { useEffect, useState } from "react";
 import {
-  Pagination,
   Table,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHeader,
-  WindmillContext,
 } from "@windmill/react-ui";
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-import isToday from "dayjs/plugin/isToday";
-import isYesterday from "dayjs/plugin/isYesterday";
-import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiCheck, FiRefreshCw, FiShoppingCart, FiTruck } from "react-icons/fi";
-import { ImCreditCard, ImStack } from "react-icons/im";
+import {
+  FiShoppingBag,
+  FiUsers,
+  FiTrendingUp,
+  FiPackage,
+  FiArrowUpRight,
+} from "react-icons/fi";
+import "chart.js/auto";
+import { Line, Doughnut } from "react-chartjs-2";
+import dayjs from "dayjs";
 
 //internal import
 import useAsync from "@/hooks/useAsync";
-import useFilter from "@/hooks/useFilter";
-import LineChart from "@/components/chart/LineChart/LineChart";
-import PieChart from "@/components/chart/Pie/PieChart";
-import CardItem from "@/components/dashboard/CardItem";
-import CardItemTwo from "@/components/dashboard/CardItemTwo";
-import ChartCard from "@/components/chart/ChartCard";
-import OrderTable from "@/components/order/OrderTable";
-import TableLoading from "@/components/preloader/TableLoading";
-import NotFound from "@/components/table/NotFound";
-import PageTitle from "@/components/Typography/PageTitle";
-import { SidebarContext } from "@/context/SidebarContext";
+import useUtilsFunction from "@/hooks/useUtilsFunction";
 import OrderServices from "@/services/OrderServices";
+import OrderTable from "@/components/order/OrderTable";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
+import PageTitle from "@/components/Typography/PageTitle";
 import AnimatedContent from "@/components/common/AnimatedContent";
+
+/* ------------------------------------------------------------------ *
+ * Small helpers
+ * ------------------------------------------------------------------ */
+
+// Ease-out count-up so the KPI numbers animate in on load.
+const useCountUp = (end, duration = 900) => {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    const to = Number(end) || 0;
+    let raf;
+    const start = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      setVal(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [end, duration]);
+  return val;
+};
+
+const StatCard = ({ icon: Icon, label, value, money, currency, sub, gradient, delay = 0 }) => {
+  const v = useCountUp(value);
+  const display = money
+    ? `${currency}${v.toFixed(2)}`
+    : Math.round(v).toLocaleString();
+  return (
+    <div
+      className="gm-fade-in-up relative overflow-hidden rounded-2xl p-5 text-white shadow-lg transition-transform duration-300 hover:-translate-y-1"
+      style={{ background: gradient, animationDelay: `${delay}ms` }}
+    >
+      <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute -bottom-12 -left-6 h-24 w-24 rounded-full bg-white/5" />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-white/80">{label}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight">{display}</p>
+          {sub && <p className="mt-1 text-xs text-white/70">{sub}</p>}
+        </div>
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 backdrop-blur-sm">
+          <Icon className="text-xl" />
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const SectionCard = ({ title, action, children, className = "" }) => (
+  <div
+    className={`gm-fade-in-up rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${className}`}
+  >
+    <div className="mb-4 flex items-center justify-between">
+      <h3 className="font-serif text-base font-semibold text-gray-800 dark:text-gray-100">
+        {title}
+      </h3>
+      {action}
+    </div>
+    {children}
+  </div>
+);
+
+const KpiSkeleton = () => (
+  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <div key={i} className="gm-skeleton h-28 rounded-2xl" />
+    ))}
+  </div>
+);
+
+/* ------------------------------------------------------------------ *
+ * Dashboard
+ * ------------------------------------------------------------------ */
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { mode } = useContext(WindmillContext);
+  const { currency } = useUtilsFunction();
 
-  dayjs.extend(isBetween);
-  dayjs.extend(isToday);
-  dayjs.extend(isYesterday);
-
-  const { currentPage, handleChangePage } = useContext(SidebarContext);
-
-  // react hook
-  const [todayOrderAmount, setTodayOrderAmount] = useState(0);
-  const [yesterdayOrderAmount, setYesterdayOrderAmount] = useState(0);
-  const [salesReport, setSalesReport] = useState([]);
-  const [todayCashPayment, setTodayCashPayment] = useState(0);
-  const [todayCardPayment, setTodayCardPayment] = useState(0);
-  const [todayCreditPayment, setTodayCreditPayment] = useState(0);
-  const [yesterdayCashPayment, setYesterdayCashPayment] = useState(0);
-  const [yesterdayCardPayment, setYesterdayCardPayment] = useState(0);
-  const [yesterdayCreditPayment, setYesterdayCreditPayment] = useState(0);
-
-  const {
-    data: bestSellerProductChart,
-    loading: loadingBestSellerProduct,
-    error,
-  } = useAsync(OrderServices.getBestSellerProductChart);
-
-  const { data: dashboardRecentOrder, loading: loadingRecentOrder } = useAsync(
-    () => OrderServices.getDashboardRecentOrder({ page: currentPage, limit: 8 })
-  );
-
-  const { data: dashboardOrderCount, loading: loadingOrderCount } = useAsync(
-    OrderServices.getDashboardCount
-  );
-
-  const { data: dashboardOrderAmount, loading: loadingOrderAmount } = useAsync(
+  // 100% backend-driven — every figure below comes from these endpoints.
+  const { data: summary, loading: loadingSummary } = useAsync(
     OrderServices.getDashboardAmount
   );
+  const { data: sales, loading: loadingSales } = useAsync(() =>
+    OrderServices.getDashboardSales(30)
+  );
+  const { data: bestSellers, loading: loadingBest } = useAsync(
+    OrderServices.getBestSellerProductChart
+  );
+  const { data: recent, loading: loadingRecent } = useAsync(() =>
+    OrderServices.getDashboardRecentOrder({ limit: 8 })
+  );
 
-  // console.log("dashboardOrderCount", dashboardOrderCount);
+  const money = (v) => `${currency}${Number(v || 0).toFixed(2)}`;
+  const salesPoints = Array.isArray(sales) ? sales : [];
+  const bestList = Array.isArray(bestSellers) ? bestSellers : [];
+  const recentOrders = recent?.orders || [];
 
-  const { dataTable, serviceData } = useFilter(dashboardRecentOrder?.orders);
+  // ---- Sales line chart (revenue over the last 30 days) ----
+  const lineData = {
+    labels: salesPoints.map((p) => dayjs(p.date).format("DD/MM")),
+    datasets: [
+      {
+        label: "Revenue",
+        data: salesPoints.map((p) => Number(p.revenue || 0)),
+        borderColor: "#10b981",
+        backgroundColor: (ctx) => {
+          const { chart } = ctx;
+          const { ctx: c, chartArea } = chart;
+          if (!chartArea) return "rgba(16,185,129,0.15)";
+          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0, "rgba(16,185,129,0.35)");
+          g.addColorStop(1, "rgba(16,185,129,0)");
+          return g;
+        },
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: "#10b981",
+      },
+    ],
+  };
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { mode: "index", intersect: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8, color: "#9ca3af" } },
+      y: { grid: { color: "rgba(148,163,184,0.15)" }, ticks: { color: "#9ca3af" }, beginAtZero: true },
+    },
+    interaction: { mode: "index", intersect: false },
+  };
 
-  useEffect(() => {
-    // today orders show
-    const todayOrder = dashboardOrderAmount?.ordersData?.filter((order) =>
-      dayjs(order.updatedAt).isToday()
-    );
-    //  console.log('todayOrder',dashboardOrderAmount.ordersData)
-    const todayReport = todayOrder?.reduce((pre, acc) => pre + acc.total, 0);
-    setTodayOrderAmount(todayReport);
-
-    // yesterday orders
-    const yesterdayOrder = dashboardOrderAmount?.ordersData?.filter((order) =>
-      dayjs(order.updatedAt).set(-1, "day").isYesterday()
-    );
-
-    const yesterdayReport = yesterdayOrder?.reduce(
-      (pre, acc) => pre + acc.total,
-      0
-    );
-    setYesterdayOrderAmount(yesterdayReport);
-
-    // sales orders chart data
-    const salesOrderChartData = dashboardOrderAmount?.ordersData?.filter(
-      (order) =>
-        dayjs(order.updatedAt).isBetween(
-          new Date().setDate(new Date().getDate() - 7),
-          new Date()
-        )
-    );
-
-    salesOrderChartData?.reduce((res, value) => {
-      let onlyDate = value.updatedAt.split("T")[0];
-
-      if (!res[onlyDate]) {
-        res[onlyDate] = { date: onlyDate, total: 0, order: 0 };
-        salesReport.push(res[onlyDate]);
-      }
-      res[onlyDate].total += value.total;
-      res[onlyDate].order += 1;
-      return res;
-    }, {});
-
-    setSalesReport(salesReport);
-
-    const todayPaymentMethodData = [];
-    const yesterDayPaymentMethodData = [];
-
-    // today order payment method
-    dashboardOrderAmount?.ordersData?.filter((item, value) => {
-      if (dayjs(item.updatedAt).isToday()) {
-        if (item.paymentMethod === "Cash") {
-          let cashMethod = {
-            paymentMethod: "Cash",
-            total: item.total,
-          };
-          todayPaymentMethodData.push(cashMethod);
-        }
-
-        if (item.paymentMethod === "Credit") {
-          const cashMethod = {
-            paymentMethod: "Credit",
-            total: item.total,
-          };
-
-          todayPaymentMethodData.push(cashMethod);
-        }
-
-        if (item.paymentMethod === "Card") {
-          const cashMethod = {
-            paymentMethod: "Card",
-            total: item.total,
-          };
-
-          todayPaymentMethodData.push(cashMethod);
-        }
-      }
-
-      return item;
-    });
-    // yesterday order payment method
-    dashboardOrderAmount?.ordersData?.filter((item, value) => {
-      if (dayjs(item.updatedAt).set(-1, "day").isYesterday()) {
-        if (item.paymentMethod === "Cash") {
-          let cashMethod = {
-            paymentMethod: "Cash",
-            total: item.total,
-          };
-          yesterDayPaymentMethodData.push(cashMethod);
-        }
-
-        if (item.paymentMethod === "Credit") {
-          const cashMethod = {
-            paymentMethod: "Credit",
-            total: item?.total,
-          };
-
-          yesterDayPaymentMethodData.push(cashMethod);
-        }
-
-        if (item.paymentMethod === "Card") {
-          const cashMethod = {
-            paymentMethod: "Card",
-            total: item?.total,
-          };
-
-          yesterDayPaymentMethodData.push(cashMethod);
-        }
-      }
-
-      return item;
-    });
-
-    const todayCsCdCit = Object.values(
-      todayPaymentMethodData.reduce((r, { paymentMethod, total }) => {
-        if (!r[paymentMethod]) {
-          r[paymentMethod] = { paymentMethod, total: 0 };
-        }
-        r[paymentMethod].total += total;
-
-        return r;
-      }, {})
-    );
-    const today_cash_payment = todayCsCdCit.find(
-      (el) => el.paymentMethod === "Cash"
-    );
-    setTodayCashPayment(today_cash_payment?.total);
-    const today_card_payment = todayCsCdCit.find(
-      (el) => el.paymentMethod === "Card"
-    );
-    setTodayCardPayment(today_card_payment?.total);
-    const today_credit_payment = todayCsCdCit.find(
-      (el) => el.paymentMethod === "Credit"
-    );
-    setTodayCreditPayment(today_credit_payment?.total);
-
-    const yesterDayCsCdCit = Object.values(
-      yesterDayPaymentMethodData.reduce((r, { paymentMethod, total }) => {
-        if (!r[paymentMethod]) {
-          r[paymentMethod] = { paymentMethod, total: 0 };
-        }
-        r[paymentMethod].total += total;
-
-        return r;
-      }, {})
-    );
-    const yesterday_cash_payment = yesterDayCsCdCit.find(
-      (el) => el.paymentMethod === "Cash"
-    );
-    setYesterdayCashPayment(yesterday_cash_payment?.total);
-    const yesterday_card_payment = yesterDayCsCdCit.find(
-      (el) => el.paymentMethod === "Card"
-    );
-    setYesterdayCardPayment(yesterday_card_payment?.total);
-    const yesterday_credit_payment = yesterDayCsCdCit.find(
-      (el) => el.paymentMethod === "Credit"
-    );
-    setYesterdayCreditPayment(yesterday_credit_payment?.total);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dashboardOrderAmount]);
+  // ---- Order-status doughnut ----
+  const statusEntries = [
+    { key: "pendingOrders", label: t("OrderPending"), color: "#f59e0b" },
+    { key: "processingOrders", label: t("OrderProcessing"), color: "#3b82f6" },
+    { key: "deliveredOrders", label: t("OrderDelivered"), color: "#10b981" },
+    { key: "cancelledOrders", label: "Cancelled", color: "#ef4444" },
+  ];
+  const doughnutData = {
+    labels: statusEntries.map((s) => s.label),
+    datasets: [
+      {
+        data: statusEntries.map((s) => Number(summary?.[s.key] || 0)),
+        backgroundColor: statusEntries.map((s) => s.color),
+        borderWidth: 0,
+        hoverOffset: 6,
+      },
+    ],
+  };
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "70%",
+    plugins: { legend: { display: false } },
+  };
+  const totalStatus = statusEntries.reduce(
+    (s, e) => s + Number(summary?.[e.key] || 0),
+    0
+  );
 
   return (
     <>
-      <PageTitle>{t("DashboardOverview")}</PageTitle>
+      <div className="flex items-center justify-between">
+        <PageTitle>{t("DashboardOverview")}</PageTitle>
+        <span className="hidden items-center gap-2 text-xs font-medium text-gray-400 sm:flex">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          Live data · {dayjs().format("DD MMM YYYY")}
+        </span>
+      </div>
 
       <AnimatedContent>
-        <div className="grid gap-2 mb-8 xl:grid-cols-5 md:grid-cols-2">
-          <CardItemTwo
-            mode={mode}
-            title="Today Order"
-            title2="TodayOrder"
-            Icon={ImStack}
-            cash={todayCashPayment || 0}
-            card={todayCardPayment || 0}
-            credit={todayCreditPayment || 0}
-            price={todayOrderAmount || 0}
-            className="text-white dark:text-emerald-100 bg-teal-600"
-            loading={loadingOrderAmount}
-          />
+        {/* KPI cards */}
+        {loadingSummary ? (
+          <KpiSkeleton />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              icon={FiTrendingUp}
+              label="Revenue today"
+              value={summary?.revenueToday}
+              money
+              currency={currency}
+              sub={`This month: ${money(summary?.revenueMonth)}`}
+              gradient="linear-gradient(135deg,#059669,#10b981)"
+              delay={0}
+            />
+            <StatCard
+              icon={FiShoppingBag}
+              label="Orders today"
+              value={summary?.ordersToday}
+              currency={currency}
+              sub={`This month: ${summary?.ordersMonth ?? 0}`}
+              gradient="linear-gradient(135deg,#2563eb,#3b82f6)"
+              delay={80}
+            />
+            <StatCard
+              icon={FiUsers}
+              label="Customers"
+              value={summary?.totalCustomers}
+              currency={currency}
+              sub="Registered shoppers"
+              gradient="linear-gradient(135deg,#7c3aed,#a855f7)"
+              delay={160}
+            />
+            <StatCard
+              icon={FiPackage}
+              label="Total orders"
+              value={summary?.totalOrders}
+              currency={currency}
+              sub={`${summary?.deliveredOrders ?? 0} delivered`}
+              gradient="linear-gradient(135deg,#ea580c,#f97316)"
+              delay={240}
+            />
+          </div>
+        )}
 
-          <CardItemTwo
-            mode={mode}
-            title="Yesterday Order"
-            title2="YesterdayOrder"
-            Icon={ImStack}
-            cash={yesterdayCashPayment || 0}
-            card={yesterdayCardPayment || 0}
-            credit={yesterdayCreditPayment || 0}
-            price={yesterdayOrderAmount || 0}
-            className="text-white dark:text-orange-100 bg-orange-400"
-            loading={loadingOrderAmount}
-          />
+        {/* Sales chart + order status */}
+        <div className="mt-6 grid gap-4 xl:grid-cols-3">
+          <SectionCard
+            title="Revenue · last 30 days"
+            className="xl:col-span-2"
+            action={
+              <span className="text-xs font-medium text-emerald-600">
+                {money(summary?.revenueWeek)} this week
+              </span>
+            }
+          >
+            <div className="h-72">
+              {loadingSales ? (
+                <div className="gm-skeleton h-full w-full rounded-xl" />
+              ) : salesPoints.length === 0 ? (
+                <div className="grid h-full place-items-center text-sm text-gray-400">
+                  No sales data yet.
+                </div>
+              ) : (
+                <Line data={lineData} options={lineOptions} />
+              )}
+            </div>
+          </SectionCard>
 
-          <CardItemTwo
-            mode={mode}
-            title2="ThisMonth"
-            Icon={FiShoppingCart}
-            price={dashboardOrderAmount?.thisMonthlyOrderAmount || 0}
-            className="text-white dark:text-emerald-100 bg-blue-500"
-            loading={loadingOrderAmount}
-          />
-
-          <CardItemTwo
-            mode={mode}
-            title2="LastMonth"
-            Icon={ImCreditCard}
-            loading={loadingOrderAmount}
-            price={dashboardOrderAmount?.lastMonthOrderAmount || 0}
-            className="text-white dark:text-teal-100 bg-cyan-600"
-          />
-
-          <CardItemTwo
-            mode={mode}
-            title2="AllTimeSales"
-            Icon={ImCreditCard}
-            price={dashboardOrderAmount?.totalAmount || 0}
-            className="text-white dark:text-emerald-100 bg-emerald-600"
-            loading={loadingOrderAmount}
-          />
+          <SectionCard title="Orders by status">
+            <div className="relative mx-auto h-44 w-44">
+              {loadingSummary ? (
+                <div className="gm-skeleton h-full w-full rounded-full" />
+              ) : (
+                <>
+                  <Doughnut data={doughnutData} options={doughnutOptions} />
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                      {totalStatus}
+                    </span>
+                    <span className="text-xs text-gray-400">orders</span>
+                  </div>
+                </>
+              )}
+            </div>
+            <ul className="mt-5 space-y-2">
+              {statusEntries.map((s) => (
+                <li key={s.key} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ background: s.color }}
+                    />
+                    {s.label}
+                  </span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-100">
+                    {summary?.[s.key] ?? 0}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </SectionCard>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <CardItem
-            title="Total Order"
-            Icon={FiShoppingCart}
-            loading={loadingOrderCount}
-            quantity={dashboardOrderCount?.totalOrder || 0}
-            className="text-orange-600 dark:text-orange-100 bg-orange-100 dark:bg-orange-500"
-          />
-          <CardItem
-            title={t("OrderPending")}
-            Icon={FiRefreshCw}
-            loading={loadingOrderCount}
-            quantity={dashboardOrderCount?.totalPendingOrder?.count || 0}
-            amount={dashboardOrderCount?.totalPendingOrder?.total || 0}
-            className="text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-500"
-          />
-          <CardItem
-            title={t("OrderProcessing")}
-            Icon={FiTruck}
-            loading={loadingOrderCount}
-            quantity={dashboardOrderCount?.totalProcessingOrder || 0}
-            className="text-teal-600 dark:text-teal-100 bg-teal-100 dark:bg-teal-500"
-          />
-          <CardItem
-            title={t("OrderDelivered")}
-            Icon={FiCheck}
-            loading={loadingOrderCount}
-            quantity={dashboardOrderCount?.totalDeliveredOrder || 0}
-            className="text-emerald-600 dark:text-emerald-100 bg-emerald-100 dark:bg-emerald-500"
-          />
-        </div>
+        {/* Best sellers + recent orders */}
+        <div className="mt-6 grid gap-4 xl:grid-cols-3">
+          <SectionCard title="Best sellers">
+            {loadingBest ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="gm-skeleton h-10 rounded-lg" />
+                ))}
+              </div>
+            ) : bestList.length === 0 ? (
+              <p className="py-8 text-center text-sm text-gray-400">
+                No sales recorded yet.
+              </p>
+            ) : (
+              <ul className="space-y-1">
+                {bestList.map((p, i) => (
+                  <li
+                    key={p.productId || i}
+                    className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span
+                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                        i === 0
+                          ? "bg-amber-100 text-amber-600"
+                          : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 truncate text-sm font-medium text-gray-700 dark:text-gray-200">
+                      {p.name}
+                    </span>
+                    <span className="text-xs text-gray-400">×{p.quantitySold}</span>
+                    <span className="w-20 text-right text-sm font-semibold text-gray-800 dark:text-gray-100">
+                      {money(p.revenue)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
 
-        <div className="grid gap-4 md:grid-cols-2 my-8">
-          <ChartCard
-            mode={mode}
-            loading={loadingOrderAmount}
-            title={t("WeeklySales")}
+          <SectionCard
+            title={t("RecentOrder")}
+            className="xl:col-span-2"
+            action={
+              <a
+                href="/orders"
+                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline"
+              >
+                View all <FiArrowUpRight />
+              </a>
+            }
           >
-            <LineChart salesReport={salesReport} />
-          </ChartCard>
-
-          <ChartCard
-            mode={mode}
-            loading={loadingBestSellerProduct}
-            title={t("BestSellingProducts")}
-          >
-            <PieChart data={bestSellerProductChart} />
-          </ChartCard>
+            {loadingRecent ? (
+              <TableSkeleton rows={6} cols={5} />
+            ) : recentOrders.length === 0 ? (
+              <EmptyState
+                icon={FiShoppingBag}
+                title="No orders yet"
+                description="When customers place orders, the latest ones will appear here."
+              />
+            ) : (
+              <TableContainer className="rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <tr>
+                      <TableCell>{t("InvoiceNo")}</TableCell>
+                      <TableCell>{t("TimeTbl")}</TableCell>
+                      <TableCell>{t("CustomerName")}</TableCell>
+                      <TableCell>{t("MethodTbl")}</TableCell>
+                      <TableCell>{t("AmountTbl")}</TableCell>
+                      <TableCell>{t("OderStatusTbl")}</TableCell>
+                      <TableCell>{t("ActionTbl")}</TableCell>
+                      <TableCell className="text-right">{t("InvoiceTbl")}</TableCell>
+                    </tr>
+                  </TableHeader>
+                  <OrderTable orders={recentOrders} />
+                </Table>
+              </TableContainer>
+            )}
+          </SectionCard>
         </div>
       </AnimatedContent>
-
-      <PageTitle>{t("RecentOrder")}</PageTitle>
-
-      {/* <Loading loading={loading} /> */}
-
-      {loadingRecentOrder ? (
-        <TableLoading row={5} col={4} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
-        <TableContainer className="mb-8">
-          <Table>
-            <TableHeader>
-              <tr>
-                <TableCell>{t("InvoiceNo")}</TableCell>
-                <TableCell>{t("TimeTbl")}</TableCell>
-                <TableCell>{t("CustomerName")} </TableCell>
-                <TableCell> {t("MethodTbl")} </TableCell>
-                <TableCell> {t("AmountTbl")} </TableCell>
-                <TableCell>{t("OderStatusTbl")}</TableCell>
-                <TableCell>{t("ActionTbl")}</TableCell>
-                <TableCell className="text-right">{t("InvoiceTbl")}</TableCell>
-              </tr>
-            </TableHeader>
-
-            <OrderTable orders={dataTable} />
-          </Table>
-          <TableFooter>
-            <Pagination
-              totalResults={dashboardRecentOrder?.totalOrder}
-              resultsPerPage={8}
-              onChange={handleChangePage}
-              label="Table navigation"
-            />
-          </TableFooter>
-        </TableContainer>
-      ) : (
-        <NotFound title="Sorry, There are no orders right now." />
-      )}
     </>
   );
 };

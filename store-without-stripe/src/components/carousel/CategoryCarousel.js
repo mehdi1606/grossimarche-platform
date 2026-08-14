@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useContext, useRef } from "react";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
@@ -14,6 +13,7 @@ import { SidebarContext } from "@context/SidebarContext";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import Loading from "@components/preloader/Loading";
+import { categoryEmoji } from "@utils/categoryIcon";
 
 const CategoryCarousel = () => {
   const router = useRouter();
@@ -123,19 +123,8 @@ const CategoryCarousel = () => {
                   }
                   className="text-center cursor-pointer p-3 bg-white rounded-lg"
                 >
-                  <div className="bg-white p-2 mx-auto w-10 h-10 rounded-full shadow-md">
-                    <div className="relative w-6 h-8">
-                      <Image
-                        src={
-                          category?.icon ||
-                          "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-                        }
-                        alt="category"
-                        width={40}
-                        height={40}
-                        className="object-fill"
-                      />
-                    </div>
+                  <div className="bg-white mx-auto w-10 h-10 rounded-full shadow-md grid place-items-center text-xl leading-none">
+                    {categoryEmoji(category?.icon)}
                   </div>
 
                   <h3 className="text-xs text-gray-600 mt-2 font-serif group-hover:text-emerald-500">

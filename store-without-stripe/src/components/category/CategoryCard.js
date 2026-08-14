@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import {
@@ -10,6 +9,7 @@ import {
 //internal import
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { categoryEmoji } from "@utils/categoryIcon";
 
 const CategoryCard = ({ title, icon, nested, id }) => {
   const router = useRouter();
@@ -59,16 +59,9 @@ const CategoryCard = ({ title, icon, nested, id }) => {
         className="p-2 flex items-center rounded-md hover:bg-gray-50 w-full hover:text-emerald-600"
         role="button"
       >
-        {icon ? (
-          <Image src={icon} width={18} height={18} alt="Category" />
-        ) : (
-          <Image
-            src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-            width={18}
-            height={18}
-            alt="category"
-          />
-        )}
+        <span className="grid h-6 w-6 shrink-0 place-items-center text-lg leading-none">
+          {categoryEmoji(icon)}
+        </span>
 
         <div className="inline-flex items-center justify-between ml-3 text-sm font-medium w-full hover:text-emerald-600">
           {title}

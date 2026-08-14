@@ -61,6 +61,13 @@ const ProductServices = {
   addProduct: async (body) =>
     adaptAdminProduct(await requests.post("/admin/products", toProductRequest(body))),
 
+  // Upload a product image (multipart). The backend stores it and sets product.imageUrl.
+  uploadImage: async (id, file) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return requests.post(`/admin/products/${id}/image`, fd);
+  },
+
   addAllProducts: async (body) => requests.post("/admin/products/import", body),
 
   updateProduct: async (id, body) =>

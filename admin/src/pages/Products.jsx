@@ -1,288 +1,483 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Table,
-  TableHeader,
-  TableCell,
-  TableFooter,
-  TableContainer,
-  Select,
-  Input,
+  Badge,
   Button,
-  Card,
-  CardBody,
+  Input,
   Pagination,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHeader,
+  TableRow,
 } from "@windmill/react-ui";
-import { useTranslation } from "react-i18next";
-import { FiPlus } from "react-icons/fi";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiBox, FiEdit, FiImage, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
 
 //internal import
-
-import useAsync from "@/hooks/useAsync";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
-import UploadMany from "@/components/common/UploadMany";
-import NotFound from "@/components/table/NotFound";
-import ProductServices from "@/services/ProductServices";
 import PageTitle from "@/components/Typography/PageTitle";
-import { SidebarContext } from "@/context/SidebarContext";
-import ProductTable from "@/components/product/ProductTable";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
-import CheckBox from "@/components/form/others/CheckBox";
-import useProductFilter from "@/hooks/useProductFilter";
-import DeleteModal from "@/components/modal/DeleteModal";
-import BulkActionDrawer from "@/components/drawer/BulkActionDrawer";
-import TableLoading from "@/components/preloader/TableLoading";
-import SelectCategory from "@/components/form/selectOption/SelectCategory";
-import AnimatedContent from "@/components/common/AnimatedContent";
+import ProductServices from "@/services/ProductServices";
+import CategoryServices from "@/services/CategoryServices";
+import Modal from "@/components/common/Modal";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
+import useUtilsFunction from "@/hooks/useUtilsFunction";
+import { notifyError, notifySuccess } from "@/utils/toast";
+
+const LIMIT = 10;
+const EMPTY = {
+  name: "",
+  categoryId: "",
+  price: "",
+  unit: "unité",
+  stock: 0,
+  minOrderQuantity: 1,
+  description: "",
+  imageUrl: "",
+  active: true,
+};
 
 const Products = () => {
-  const { title, allId, serviceId, handleDeleteMany, handleUpdateMany } =
-    useToggleDrawer();
+  const { currency } = useUtilsFunction();
+  const [rows, setRows] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalDoc, setTotalDoc] = useState(0);
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
-  const { t } = useTranslation();
-  const {
-    toggleDrawer,
-    lang,
-    currentPage,
-    handleChangePage,
-    searchText,
-    category,
-    setCategory,
-    searchRef,
-    handleSubmitForAll,
-    sortedField,
-    setSortedField,
-    limitData,
-  } = useContext(SidebarContext);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(EMPTY);
+  const [imageFile, setImageFile] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { data, loading, error } = useAsync(() =>
-    ProductServices.getAllProducts({
-      page: currentPage,
-      limit: limitData,
-      category: category,
-      title: searchText,
-      price: sortedField,
-    })
-  );
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await ProductServices.getAllProducts({
+        page,
+        limit: LIMIT,
+        category: categoryFilter,
+        title: query,
+      });
+      setRows(res.products || []);
+      setTotalDoc(res.totalDoc || 0);
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, categoryFilter, query]);
 
-  // console.log("product page", data);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  // react hooks
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState([]);
+  useEffect(() => {
+    CategoryServices.getAllCategory()
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
 
-  const handleSelectAll = () => {
-    setIsCheckAll(!isCheckAll);
-    setIsCheck(data?.products.map((li) => li._id));
-    if (isCheckAll) {
-      setIsCheck([]);
+  const openAdd = () => {
+    setEditingId(null);
+    setForm(EMPTY);
+    setImageFile(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (row) => {
+    setEditingId(row._id);
+    setImageFile(null);
+    setForm({
+      name: row.title?.en || "",
+      categoryId: row.category?._id || "",
+      price: row.prices?.price ?? "",
+      unit: row.unit || "unité",
+      stock: row.stock ?? 0,
+      minOrderQuantity: row.minOrderQuantity ?? 1,
+      description: row.description?.en || "",
+      imageUrl: row.image?.[0] || "",
+      active: row.status !== "hide",
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = async (e) => {
+    e?.preventDefault();
+    if (!form.categoryId) return notifyError("Please choose a category.");
+    setSaving(true);
+    const body = {
+      name: form.name,
+      category: form.categoryId,
+      description: form.description,
+      price: form.price,
+      unit: form.unit,
+      stock: form.stock,
+      minOrderQuantity: form.minOrderQuantity,
+      image: form.imageUrl ? [form.imageUrl] : [],
+      status: form.active ? "show" : "hide",
+    };
+    try {
+      const saved = editingId
+        ? await ProductServices.updateProduct(editingId, body)
+        : await ProductServices.addProduct(body);
+      if (imageFile && saved?._id) {
+        await ProductServices.uploadImage(saved._id, imageFile);
+      }
+      notifySuccess(editingId ? "Product updated." : "Product created.");
+      setModalOpen(false);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSaving(false);
     }
   };
-  // handle reset field
-  const handleResetField = () => {
-    setCategory("");
-    setSortedField("");
-    searchRef.current.value = "";
+
+  const toggle = async (row) => {
+    try {
+      await ProductServices.updateStatus(row._id, {
+        status: row.status === "show" ? "hide" : "show",
+      });
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
   };
 
-  // console.log('productss',products)
-  const {
-    serviceData,
-    filename,
-    isDisabled,
-    handleSelectFile,
-    handleUploadMultiple,
-    handleRemoveSelectFile,
-  } = useProductFilter(data?.products);
+  const confirmDelete = async () => {
+    try {
+      await ProductServices.deleteProduct(deleteTarget._id);
+      notifySuccess("Product deactivated.");
+      setDeleteTarget(null);
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    }
+  };
+
+  const preview = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : form.imageUrl),
+    [imageFile, form.imageUrl]
+  );
+
+  const inputCls =
+    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
 
   return (
     <>
-      <PageTitle>{t("ProductsPage")}</PageTitle>
-      <DeleteModal ids={allId} setIsCheck={setIsCheck} title={title} />
-      <BulkActionDrawer ids={allId} title="Products" />
-      <MainDrawer>
-        <ProductDrawer id={serviceId} />
-      </MainDrawer>
-      <AnimatedContent>
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
-          <CardBody className="">
-            <form
-              onSubmit={handleSubmitForAll}
-              className="py-3 md:pb-0 grid gap-4 lg:gap-6 xl:gap-6 xl:flex"
-            >
-              <div className="flex-grow-0 sm:flex-grow md:flex-grow lg:flex-grow xl:flex-grow">
-                <UploadMany
-                  title="Products"
-                  filename={filename}
-                  isDisabled={isDisabled}
-                  totalDoc={data?.totalDoc}
-                  handleSelectFile={handleSelectFile}
-                  handleUploadMultiple={handleUploadMultiple}
-                  handleRemoveSelectFile={handleRemoveSelectFile}
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                  <Button
-                    disabled={isCheck.length < 1}
-                    onClick={() => handleUpdateMany(isCheck)}
-                    className="w-full rounded-md h-12 btn-gray text-gray-600"
-                  >
-                    <span className="mr-2">
-                      <FiEdit />
-                    </span>
-                    {t("BulkAction")}
-                  </Button>
-                </div>
-                <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                  <Button
-                    disabled={isCheck?.length < 1}
-                    onClick={() => handleDeleteMany(isCheck, data.products)}
-                    className="w-full rounded-md h-12 bg-red-300 disabled btn-red"
-                  >
-                    <span className="mr-2">
-                      <FiTrash2 />
-                    </span>
+      <div className="flex items-center justify-between">
+        <PageTitle>Products</PageTitle>
+        <Button onClick={openAdd} className="h-11 rounded-lg">
+          <FiPlus className="mr-2" /> Add product
+        </Button>
+      </div>
 
-                    {t("Delete")}
-                  </Button>
-                </div>
-                <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                  <Button
-                    onClick={toggleDrawer}
-                    className="w-full rounded-md h-12"
-                  >
-                    <span className="mr-2">
-                      <FiPlus />
-                    </span>
-                    {t("AddProduct")}
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-
-        <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 rounded-t-lg rounded-0 mb-4">
-          <CardBody>
-            <form
-              onSubmit={handleSubmitForAll}
-              className="py-3 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex"
-            >
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Input
-                  ref={searchRef}
-                  type="search"
-                  name="search"
-                  placeholder="Search Product"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 top-0 mt-5 mr-1"
-                ></button>
-              </div>
-
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <SelectCategory setCategory={setCategory} lang={lang} />
-              </div>
-
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <Select onChange={(e) => setSortedField(e.target.value)}>
-                  <option value="All" defaultValue hidden>
-                    {t("Price")}
-                  </option>
-                  <option value="low">{t("LowtoHigh")}</option>
-                  <option value="high">{t("HightoLow")}</option>
-                  <option value="published">{t("Published")}</option>
-                  <option value="unPublished">{t("Unpublished")}</option>
-                  <option value="status-selling">{t("StatusSelling")}</option>
-                  <option value="status-out-of-stock">
-                    {t("StatusStock")}
-                  </option>
-                  <option value="date-added-asc">{t("DateAddedAsc")}</option>
-                  <option value="date-added-desc">{t("DateAddedDesc")}</option>
-                  <option value="date-updated-asc">
-                    {t("DateUpdatedAsc")}
-                  </option>
-                  <option value="date-updated-desc">
-                    {t("DateUpdatedDesc")}
-                  </option>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2 flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <div className="w-full mx-1">
-                  <Button type="submit" className="h-12 w-full bg-emerald-700">
-                    Filter
-                  </Button>
-                </div>
-
-                <div className="w-full mx-1">
-                  <Button
-                    layout="outline"
-                    onClick={handleResetField}
-                    type="reset"
-                    className="px-4 md:py-1 py-2 h-12 text-sm dark:bg-gray-700"
-                  >
-                    <span className="text-black dark:text-gray-200">Reset</span>
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </AnimatedContent>
+      {/* filters */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        <form
+          className="relative flex-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPage(1);
+            setQuery(search);
+          }}
+        >
+          <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Input
+            className="!pl-10 h-11 rounded-lg"
+            placeholder="Search products…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </form>
+        <div className="w-full sm:w-56">
+          <Select
+            className="h-11"
+            value={categoryFilter}
+            onChange={(e) => {
+              setPage(1);
+              setCategoryFilter(e.target.value);
+            }}
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name?.en}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
 
       {loading ? (
-        <TableLoading row={12} col={7} width={160} height={20} />
-      ) : error ? (
-        <span className="text-center mx-auto text-red-500">{error}</span>
-      ) : serviceData?.length !== 0 ? (
-        <TableContainer className="mb-8 rounded-b-lg">
+        <TableSkeleton rows={8} cols={6} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiBox}
+          title="No products yet"
+          description="Add your first product to start building the catalogue."
+          actionLabel="Add product"
+          onAction={openAdd}
+        />
+      ) : (
+        <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>
-                  <CheckBox
-                    type="checkbox"
-                    name="selectAll"
-                    id="selectAll"
-                    isChecked={isCheckAll}
-                    handleClick={handleSelectAll}
-                  />
-                </TableCell>
-                <TableCell>{t("ProductNameTbl")}</TableCell>
-                <TableCell>{t("CategoryTbl")}</TableCell>
-                <TableCell>{t("PriceTbl")}</TableCell>
-                <TableCell>Sale Price</TableCell>
-                <TableCell>{t("StockTbl")}</TableCell>
-                <TableCell>{t("StatusTbl")}</TableCell>
-                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
-                <TableCell className="text-center">
-                  {t("PublishedTbl")}
-                </TableCell>
-                <TableCell className="text-right">{t("ActionsTbl")}</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell>Stock</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
-            <ProductTable
-              lang={lang}
-              isCheck={isCheck}
-              products={data?.products}
-              setIsCheck={setIsCheck}
-            />
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      {row.image?.[0] ? (
+                        <img
+                          src={row.image[0]}
+                          alt=""
+                          className="h-11 w-11 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="grid h-11 w-11 place-items-center rounded-lg bg-gray-100 text-gray-400 dark:bg-gray-700">
+                          <FiImage />
+                        </span>
+                      )}
+                      <span className="font-medium">{row.title?.en}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">{row.category?.name?.en || "—"}</TableCell>
+                  <TableCell className="font-semibold">
+                    {currency}
+                    {Number(row.prices?.price || 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <span className={row.stock > 0 ? "" : "text-red-500"}>{row.stock}</span>
+                  </TableCell>
+                  <TableCell>
+                    <button onClick={() => toggle(row)}>
+                      <Badge type={row.status === "show" ? "success" : "neutral"}>
+                        {row.status === "show" ? "Active" : "Hidden"}
+                      </Badge>
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-3 text-gray-400">
+                      <button
+                        className="transition hover:text-emerald-600"
+                        onClick={() => openEdit(row)}
+                        title="Edit"
+                      >
+                        <FiEdit />
+                      </button>
+                      <button
+                        className="transition hover:text-red-500"
+                        onClick={() => setDeleteTarget(row)}
+                        title="Delete"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
           <TableFooter>
             <Pagination
-              totalResults={data?.totalDoc}
-              resultsPerPage={limitData}
-              onChange={handleChangePage}
-              label="Product Page Navigation"
+              totalResults={totalDoc}
+              resultsPerPage={LIMIT}
+              onChange={setPage}
+              label="Products navigation"
             />
           </TableFooter>
         </TableContainer>
-      ) : (
-        <NotFound title="Product" />
       )}
+
+      {/* Add / edit product modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingId ? "Edit product" : "Add product"}
+        subtitle="Fields marked required feed the storefront catalogue."
+        icon={FiBox}
+        size="lg"
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving…" : editingId ? "Save changes" : "Add product"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            {/* image */}
+            <div className="sm:w-40">
+              <span className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300">
+                Image
+              </span>
+              <label className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400 transition hover:border-emerald-300 dark:border-gray-600 dark:bg-gray-700/40">
+                {preview ? (
+                  <img src={preview} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <>
+                    <FiImage className="text-2xl" />
+                    <span className="px-2 text-center text-xs">Upload image</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  className="hidden"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                />
+              </label>
+            </div>
+
+            {/* main fields */}
+            <div className="flex-1 space-y-4">
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Product name
+                </span>
+                <Input
+                  className={inputCls}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Huile d'olive 5L"
+                  required
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Category
+                </span>
+                <Select
+                  value={form.categoryId}
+                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                >
+                  <option value="">Select a category…</option>
+                  {categories.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name?.en}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+            </div>
+          </div>
+
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Description
+            </span>
+            <textarea
+              className={`${inputCls} h-24 py-2`}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Short description shown on the product page…"
+            />
+          </label>
+
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Price ({currency})
+              </span>
+              <Input
+                type="number"
+                step="0.01"
+                className={inputCls}
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                required
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Unit
+              </span>
+              <Input
+                className={inputCls}
+                value={form.unit}
+                onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                placeholder="kg, L, unité…"
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Stock
+              </span>
+              <Input
+                type="number"
+                className={inputCls}
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: e.target.value })}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Min. order
+              </span>
+              <Input
+                type="number"
+                min="1"
+                className={inputCls}
+                value={form.minOrderQuantity}
+                onChange={(e) => setForm({ ...form, minOrderQuantity: e.target.value })}
+              />
+            </label>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={form.active}
+              onChange={(e) => setForm({ ...form, active: e.target.checked })}
+            />
+            Active — visible in the storefront
+          </label>
+        </form>
+      </Modal>
+
+      {/* Delete confirm */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete product"
+        icon={FiTrash2}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Delete <span className="font-semibold">{deleteTarget?.title?.en}</span>? It will be
+          removed from the storefront.
+        </p>
+      </Modal>
     </>
   );
 };

@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Badge,
   Button,
-  Card,
-  CardBody,
   Input,
   Table,
   TableBody,
@@ -12,29 +9,26 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiMapPin, FiPlus, FiTrash2 } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import StoreServices from "@/services/StoreServices";
+import Modal from "@/components/common/Modal";
+import EmptyState from "@/components/common/EmptyState";
+import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
 // The admin "Settings" panel manages the physical stores / magasins (backend /admin/stores).
-const EMPTY = {
-  id: null,
-  name: "",
-  city: "",
-  address: "",
-  phone: "",
-  lat: "",
-  lng: "",
-};
+const EMPTY = { id: null, name: "", city: "", address: "", phone: "", lat: "", lng: "" };
 
 const Setting = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,10 +45,26 @@ const Setting = () => {
     load();
   }, [load]);
 
-  const resetForm = () => setForm(EMPTY);
+  const openAdd = () => {
+    setForm(EMPTY);
+    setModalOpen(true);
+  };
+
+  const openEdit = (row) => {
+    setForm({
+      id: row._id,
+      name: row.name,
+      city: row.city,
+      address: row.address,
+      phone: row.phone,
+      lat: row.lat,
+      lng: row.lng,
+    });
+    setModalOpen(true);
+  };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     setSaving(true);
     const body = {
       name: form.name.trim(),
@@ -74,7 +84,7 @@ const Setting = () => {
         await StoreServices.addStore(body);
         notifySuccess("Store added.");
       }
-      resetForm();
+      setModalOpen(false);
       await load();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
@@ -83,91 +93,39 @@ const Setting = () => {
     }
   };
 
-  const edit = (row) =>
-    setForm({
-      id: row._id,
-      name: row.name,
-      city: row.city,
-      address: row.address,
-      phone: row.phone,
-      lat: row.lat,
-      lng: row.lng,
-    });
-
-  const remove = async (row) => {
+  const confirmDelete = async () => {
     try {
-      await StoreServices.deleteStore(row._id);
+      await StoreServices.deleteStore(deleteTarget._id);
       notifySuccess("Store removed.");
-      if (form.id === row._id) resetForm();
+      setDeleteTarget(null);
       await load();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
     }
   };
 
+  const inputCls =
+    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
+
   return (
     <>
-      <PageTitle>Settings — Stores</PageTitle>
-
-      <Card className="mb-5 bg-white dark:bg-gray-800">
-        <CardBody>
-          <form onSubmit={handleSave} className="grid gap-3 md:grid-cols-3">
-            <Input
-              placeholder="Store name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-            />
-            <Input
-              placeholder="City"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              required
-            />
-            <Input
-              placeholder="Phone"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            />
-            <Input
-              className="md:col-span-3"
-              placeholder="Address"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              required
-            />
-            <Input
-              type="number"
-              step="any"
-              placeholder="Latitude"
-              value={form.lat}
-              onChange={(e) => setForm({ ...form, lat: e.target.value })}
-              required
-            />
-            <Input
-              type="number"
-              step="any"
-              placeholder="Longitude"
-              value={form.lng}
-              onChange={(e) => setForm({ ...form, lng: e.target.value })}
-              required
-            />
-            <div className="flex gap-2">
-              <Button type="submit" disabled={saving}>
-                {form.id ? "Update store" : "Add store"}
-              </Button>
-              {form.id && (
-                <Button layout="outline" type="button" onClick={resetForm}>
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardBody>
-      </Card>
+      <div className="flex items-center justify-between">
+        <PageTitle>Settings — Stores</PageTitle>
+        <Button onClick={openAdd} className="h-11 rounded-lg">
+          <FiPlus className="mr-2" /> Add store
+        </Button>
+      </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading…</p>
+        <TableSkeleton rows={4} cols={5} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={FiMapPin}
+          title="No stores yet"
+          description="Add your first magasin — name, city, address and map coordinates. These power the store locator."
+          actionLabel="Add store"
+          onAction={openAdd}
+        />
       ) : (
         <TableContainer className="mb-8">
           <Table>
@@ -188,17 +146,18 @@ const Setting = () => {
                   <TableCell className="text-sm">{row.address}</TableCell>
                   <TableCell>{row.phone || "—"}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-end gap-3 text-gray-400">
                       <button
-                        className="text-xs text-emerald-600 hover:underline"
-                        onClick={() => edit(row)}
+                        className="transition hover:text-emerald-600"
+                        onClick={() => openEdit(row)}
+                        title="Edit"
                       >
-                        Edit
+                        <FiEdit />
                       </button>
                       <button
-                        className="text-red-500"
+                        className="transition hover:text-red-500"
+                        onClick={() => setDeleteTarget(row)}
                         title="Delete"
-                        onClick={() => remove(row)}
                       >
                         <FiTrash2 />
                       </button>
@@ -206,17 +165,126 @@ const Setting = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {rows.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan="5" className="text-center text-gray-500">
-                    No stores yet. Add your first magasin above.
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
       )}
+
+      {/* Add / edit modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={form.id ? "Edit store" : "New store"}
+        subtitle="Physical magasin shown in the storefront locator."
+        icon={FiMapPin}
+        size="lg"
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving…" : form.id ? "Save changes" : "Add store"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSave} className="grid grid-cols-2 gap-4">
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Store name
+            </span>
+            <Input
+              className={inputCls}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              City
+            </span>
+            <Input
+              className={inputCls}
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              required
+            />
+          </label>
+          <label className="col-span-2 block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Address
+            </span>
+            <Input
+              className={inputCls}
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              required
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Phone
+            </span>
+            <Input
+              className={inputCls}
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Latitude
+              </span>
+              <Input
+                type="number"
+                step="any"
+                className={inputCls}
+                value={form.lat}
+                onChange={(e) => setForm({ ...form, lat: e.target.value })}
+                required
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                Longitude
+              </span>
+              <Input
+                type="number"
+                step="any"
+                className={inputCls}
+                value={form.lng}
+                onChange={(e) => setForm({ ...form, lng: e.target.value })}
+                required
+              />
+            </label>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete confirm */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Remove store"
+        icon={FiTrash2}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
+              Remove
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Remove <span className="font-semibold">{deleteTarget?.name}</span> from the locator?
+        </p>
+      </Modal>
     </>
   );
 };

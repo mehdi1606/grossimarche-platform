@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCart } from "react-use-cart";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 //internal import
 import { getUserSession } from "@lib/auth";
@@ -38,8 +38,12 @@ const useCheckoutSubmit = () => {
   const [isCouponApplied, setIsCouponApplied] = useState(false);
   const [useExistingAddress, setUseExistingAddress] = useState(false);
   const [isCouponAvailable, setIsCouponAvailable] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
 
   const router = useRouter();
+  const queryClient = useQueryClient();
   const couponRef = useRef("");
   const { isEmpty, emptyCart, items, cartTotal } = useCart();
 
@@ -54,17 +58,28 @@ const useCheckoutSubmit = () => {
   } = useForm();
 
   // Existing saved addresses (GET /me/addresses -> array).
-  const { data: addresses } = useQuery({
+  const { data: addresses, isLoading: addressLoading } = useQuery({
     queryKey: ["shippingAddress", { id: userInfo?.id }],
     queryFn: async () => await CustomerServices.getShippingAddress(),
     enabled: !!userInfo?.id,
   });
 
   const hasShippingAddress = Array.isArray(addresses) && addresses.length > 0;
+  const selectedAddress =
+    (Array.isArray(addresses) &&
+      addresses.find((a) => a.id === selectedAddressId)) ||
+    (hasShippingAddress ? addresses[0] : null);
 
   useEffect(() => {
     setValue("email", userInfo?.email);
   }, [userInfo?.email, setValue]);
+
+  // Default-select the saved address so the shopper never re-enters it.
+  useEffect(() => {
+    if (hasShippingAddress && !selectedAddressId) {
+      setSelectedAddressId(addresses[0].id);
+    }
+  }, [hasShippingAddress, addresses, selectedAddressId]);
 
   // total = goods + shipping estimate - coupon discount (server is authoritative at checkout).
   useEffect(() => {
@@ -91,22 +106,42 @@ const useCheckoutSubmit = () => {
     };
   };
 
-  const submitHandler = async (data) => {
+  // Persist a new delivery address (from the modal), then select it and continue the flow.
+  const saveAddress = async (data) => {
+    setSavingAddress(true);
     try {
-      setIsCheckoutSubmit(true);
-      setError("");
-
-      // 1) Delivery address -> addressId
-      const address = await CustomerServices.addShippingAddress({
+      const created = await CustomerServices.addShippingAddress({
         shippingAddressData: buildAddress(data),
       });
-      const addressId = address?.id;
-      if (!addressId) throw new Error("Adresse de livraison invalide.");
+      await queryClient.invalidateQueries({ queryKey: ["shippingAddress"] });
+      if (created?.id) setSelectedAddressId(created.id);
+      setAddressModalOpen(false);
+      notifySuccess("Adresse enregistrée.");
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setSavingAddress(false);
+    }
+  };
 
-      // 2) Sync the local cart to the server cart (checkout reads the server cart)
+  const submitHandler = async (data) => {
+    try {
+      setError("");
+
+      // A delivery address is required. If the shopper has none saved, guide them into the
+      // modal instead of failing — no re-entry when an address already exists.
+      const addressId = selectedAddressId || selectedAddress?.id;
+      if (!addressId) {
+        setAddressModalOpen(true);
+        return;
+      }
+
+      setIsCheckoutSubmit(true);
+
+      // Sync the local cart to the server cart (checkout reads the server cart)
       await CartServices.syncFromLocal(items);
 
-      // 3) Place the order (COD), idempotent
+      // Place the order (COD), idempotent
       const orderPayload = {
         addressId,
         paymentMethod: "COD",
@@ -214,6 +249,16 @@ const useCheckoutSubmit = () => {
     hasShippingAddress,
     isCouponAvailable,
     handleDefaultShippingAddress,
+    // address modal + selection
+    addresses,
+    addressLoading,
+    selectedAddress,
+    selectedAddressId,
+    setSelectedAddressId,
+    addressModalOpen,
+    setAddressModalOpen,
+    saveAddress,
+    savingAddress,
   };
 };
 
