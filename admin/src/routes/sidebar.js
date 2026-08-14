@@ -5,7 +5,6 @@ import {
   FiCompass,
   FiSettings,
   FiSlack,
-  FiGlobe,
   FiGift,
   FiBell,
 } from "react-icons/fi";
@@ -74,20 +73,18 @@ const sidebar = [
     icon: FiSettings,
     name: "Settings",
   },
-  {
-    icon: FiGlobe,
-    name: "International",
-    routes: [
-      {
-        path: "/currencies",
-        name: "Currencies",
-      },
-      {
-        path: "/languages",
-        name: "Languages",
-      },
-    ],
-  },
+  // ---- Hidden from the menu ----
+  // "International" (Currencies + Languages) is not shown in the sidebar. The routes still
+  // exist and stay reachable at /currencies and /languages for an ADMIN (see utils/access.js);
+  // restore the entry below to bring the menu section back.
+  // {
+  //   icon: FiGlobe,
+  //   name: "International",
+  //   routes: [
+  //     { path: "/currencies", name: "Currencies" },
+  //     { path: "/languages", name: "Languages" },
+  //   ],
+  // },
 ];
 
 export default sidebar;

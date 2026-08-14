@@ -2,14 +2,11 @@ import { Fragment, useContext } from "react";
 import Link from "next/link";
 import { Transition, Popover } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import Cookies from "js-cookie";
 import { FiGrid } from "react-icons/fi";
-import { useQuery } from "@tanstack/react-query";
 
 //internal import
-import SettingServices from "@services/SettingServices";
-import useGetSetting from "@hooks/useGetSetting";
 import Category from "@components/category/Category";
+import LanguageMenu from "@components/common/LanguageMenu";
 import { SidebarContext } from "@context/SidebarContext";
 
 const NAV_LINKS = [
@@ -21,33 +18,7 @@ const NAV_LINKS = [
 ];
 
 const NavbarPromo = () => {
-  const { lang } = useGetSetting();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
-
-  const handleLanguage = (language) => {
-    Cookies.set("_lang", language?.iso_code, { sameSite: "None", secure: true });
-    Cookies.set("_curr_lang", JSON.stringify(language), {
-      sameSite: "None",
-      secure: true,
-    });
-  };
-
-  const { data: languages } = useQuery({
-    queryKey: ["languages"],
-    queryFn: async () => await SettingServices.getShowingLanguage(),
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-  });
-
-  const currentLanguageCookie = Cookies.get("_curr_lang");
-  let currentLang = null;
-  if (currentLanguageCookie && currentLanguageCookie !== "undefined") {
-    try {
-      currentLang = JSON.parse(currentLanguageCookie);
-    } catch (error) {
-      currentLang = null;
-    }
-  }
 
   return (
     <div className="hidden lg:block bg-white border-b border-gray-100">
@@ -94,29 +65,8 @@ const NavbarPromo = () => {
           ))}
         </Popover.Group>
 
-        {/* Right: language selector (only when more than one language) */}
-        {languages?.length > 1 && (
-          <div className="dropdown">
-            <div className={`flot-l flag ${currentLang?.flag?.toLowerCase()}`}></div>
-            <button className="dropbtn text-sm font-medium text-gray-700">
-              {currentLang?.name || lang?.toUpperCase()}
-              &nbsp;<i className="fas fa-angle-down"></i>
-            </button>
-            <div className="dropdown-content">
-              {languages?.map((language, i) => (
-                <Link
-                  onClick={() => handleLanguage(language)}
-                  key={i + 1}
-                  href="/"
-                  locale={`${language.iso_code}`}
-                >
-                  <div className={`flot-l flag ${language?.flag?.toLowerCase()}`}></div>
-                  {language?.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Right: language selector (renders itself only when there is a real choice) */}
+        <LanguageMenu />
       </div>
     </div>
   );

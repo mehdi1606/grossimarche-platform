@@ -4,7 +4,6 @@ import {
   Button,
   Input,
   Pagination,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -13,13 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiBox, FiEdit, FiImage, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
+import { FiBox, FiEdit, FiImage, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import ProductServices from "@/services/ProductServices";
 import CategoryServices from "@/services/CategoryServices";
 import Modal from "@/components/common/Modal";
+import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
@@ -78,10 +78,25 @@ const Products = () => {
     load();
   }, [load]);
 
+  // Debounced search: the table follows what you type instead of waiting for Enter (the
+  // form submit below still fires it immediately).
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setPage(1);
+      setQuery(search.trim());
+    }, 350);
+    return () => clearTimeout(id);
+  }, [search]);
+
   useEffect(() => {
     CategoryServices.getAllCategory()
       .then(setCategories)
-      .catch(() => {});
+      // A silent catch here left the filter showing only "All categories" with no clue why.
+      .catch((err) =>
+        notifyError(
+          err?.response?.data?.message || "Categories could not be loaded."
+        )
+      );
   }, []);
 
   const openAdd = () => {
@@ -170,6 +185,18 @@ const Products = () => {
   const inputCls =
     "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
 
+  // Filter-bar controls are plain elements: the Windmill Input/Select theme base forces
+  // h-12 / px-3 / bg-gray-100, which fights any utility passed via className (that clash is
+  // what pushed the search icon on top of the placeholder).
+  const controlCls =
+    "w-full h-11 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:hover:border-gray-500";
+
+  const clearSearch = () => {
+    setSearch("");
+    setPage(1);
+    setQuery("");
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -189,31 +216,40 @@ const Products = () => {
             setQuery(search);
           }}
         >
-          <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input
-            className="!pl-10 h-11 rounded-lg"
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
             placeholder="Search products…"
+            aria-label="Search products"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {search && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX className="h-4 w-4" />
+            </button>
+          )}
         </form>
-        <div className="w-full sm:w-56">
-          <Select
-            className="h-11"
-            value={categoryFilter}
-            onChange={(e) => {
-              setPage(1);
-              setCategoryFilter(e.target.value);
-            }}
-          >
-            <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name?.en}
-              </option>
-            ))}
-          </Select>
-        </div>
+        <FilterDropdown
+          className="w-full sm:w-60"
+          ariaLabel="Filter by category"
+          allLabel="All categories"
+          value={categoryFilter}
+          onChange={(next) => {
+            setPage(1);
+            setCategoryFilter(next);
+          }}
+          options={categories.map((c) => ({
+            value: c._id,
+            label: c.name?.en || "—",
+          }))}
+        />
       </div>
 
       {loading ? (
@@ -364,22 +400,23 @@ const Products = () => {
                   required
                 />
               </label>
-              <label className="block text-sm">
+              {/* A <div>, not a <label>: a label forwards its click to the button inside,
+                  which would toggle the dropdown twice and leave it closed. */}
+              <div className="text-sm">
                 <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
                   Category
                 </span>
-                <Select
+                <FilterDropdown
+                  ariaLabel="Category"
+                  allLabel="Select a category…"
                   value={form.categoryId}
-                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                >
-                  <option value="">Select a category…</option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name?.en}
-                    </option>
-                  ))}
-                </Select>
-              </label>
+                  onChange={(next) => setForm({ ...form, categoryId: next })}
+                  options={categories.map((c) => ({
+                    value: c._id,
+                    label: c.name?.en || "—",
+                  }))}
+                />
+              </div>
             </div>
           </div>
 

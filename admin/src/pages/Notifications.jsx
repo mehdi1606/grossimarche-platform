@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Badge,
-  Button,
-  Card,
-  CardBody,
   Table,
   TableBody,
   TableCell,
@@ -84,11 +81,18 @@ const Notifications = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <PageTitle>Notifications</PageTitle>
-        <Button layout="outline" size="small" onClick={markAll} className="h-10">
+        {/* Plain button: the Windmill theme's `outline` variant carries w-full/h-12/mr-3
+            (myTheme.js), which stretched this across the whole row. */}
+        <button
+          type="button"
+          onClick={markAll}
+          className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
+        >
+          <FiCheck className="h-4 w-4" />
           Mark all read
-        </Button>
+        </button>
       </div>
 
       {loading ? (

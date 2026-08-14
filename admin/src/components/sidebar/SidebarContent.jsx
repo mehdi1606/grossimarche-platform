@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 import { Button } from "@windmill/react-ui";
 import { IoLogOutOutline } from "react-icons/io5";
-import { FiShoppingBag } from "react-icons/fi";
+import { FiChevronsLeft, FiShoppingBag } from "react-icons/fi";
 
 //internal import
 import sidebar from "@/routes/sidebar";
@@ -12,7 +12,7 @@ import { AdminContext } from "@/context/AdminContext";
 import SidebarSubMenu from "@/components/sidebar/SidebarSubMenu";
 import useGetCData from "@/hooks/useGetCData";
 
-const SidebarContent = () => {
+const SidebarContent = ({ onToggle }) => {
   const { t } = useTranslation();
   const { dispatch } = useContext(AdminContext);
   const { accessList } = useGetCData();
@@ -41,15 +41,29 @@ const SidebarContent = () => {
 
   return (
     <div className="flex h-full min-h-screen flex-col py-5 text-gray-500 dark:text-gray-400">
-      {/* Brand */}
-      <a href="/dashboard" className="flex items-center gap-2.5 px-6">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30">
-          <FiShoppingBag className="text-lg" />
-        </span>
-        <span className="font-serif text-lg font-bold tracking-tight text-gray-800 dark:text-gray-100">
-          Grossi<span className="text-emerald-500">marché</span>
-        </span>
-      </a>
+      {/* Brand + collapse toggle (the toggle only exists on the desktop rail, where
+          onToggle is passed; the mobile drawer closes via its backdrop). */}
+      <div className="flex items-center justify-between gap-2 px-6">
+        <a href="/dashboard" className="flex items-center gap-2.5">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30">
+            <FiShoppingBag className="text-lg" />
+          </span>
+          <span className="font-serif text-lg font-bold tracking-tight text-gray-800 dark:text-gray-100">
+            Grossi<span className="text-emerald-500">marché</span>
+          </span>
+        </a>
+        {onToggle && (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Collapse menu"
+            title="Collapse menu"
+            className="-mr-1 shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-emerald-600 dark:hover:bg-gray-700 dark:hover:text-emerald-400"
+          >
+            <FiChevronsLeft className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
       <ul className="mt-8 flex-1 space-y-1 px-3">
         {updatedSidebar?.map((route) =>

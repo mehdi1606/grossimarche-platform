@@ -52,8 +52,9 @@ const AboutUs = () => {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="mx-auto max-w-screen-2xl px-4 sm:px-10">
+      {/* Stats — same overlap as the home page: `relative z-10` keeps the cards above the
+          positioned hero they are pulled onto with -mt-8. */}
+      <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
         <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {STATS.map((s) => (
             <div

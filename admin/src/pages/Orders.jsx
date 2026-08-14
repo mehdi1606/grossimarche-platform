@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   Pagination,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -19,6 +18,7 @@ import dayjs from "dayjs";
 import PageTitle from "@/components/Typography/PageTitle";
 import OrderServices from "@/services/OrderServices";
 import Modal from "@/components/common/Modal";
+import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
@@ -34,6 +34,14 @@ const STATUS_BADGE = {
   Cancelled: "danger",
 };
 const STATUS_OPTIONS = ["Processing", "Out for Delivery", "Delivered", "Cancel"];
+// Filter entries; the "All statuses" row is added by FilterDropdown itself.
+const STATUS_FILTERS = [
+  { value: "Pending", label: "Pending" },
+  { value: "Processing", label: "Processing" },
+  { value: "Out for Delivery", label: "Out for Delivery" },
+  { value: "Delivered", label: "Delivered" },
+  { value: "Cancel", label: "Cancelled" },
+];
 const LIMIT = 10;
 
 const Orders = () => {
@@ -103,16 +111,14 @@ const Orders = () => {
     <>
       <div className="flex items-center justify-between">
         <PageTitle>Orders</PageTitle>
-        <div className="w-48">
-          <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">All statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Cancel">Cancelled</option>
-          </Select>
-        </div>
+        <FilterDropdown
+          className="w-52"
+          ariaLabel="Filter by status"
+          allLabel="All statuses"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={STATUS_FILTERS}
+        />
       </div>
 
       {loading ? (
@@ -189,18 +195,20 @@ const Orders = () => {
         footer={
           <div className="flex w-full items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Select
-                className="h-11"
+              {/* opens upward: the modal card is overflow-hidden, a downward panel from the
+                  footer would be cut off */}
+              <FilterDropdown
+                className="w-52"
+                placement="top"
+                ariaLabel="Change status"
+                allLabel="Change status…"
                 value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-              >
-                <option value="">Change status…</option>
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {s === "Cancel" ? "Cancel order" : s}
-                  </option>
-                ))}
-              </Select>
+                onChange={setNewStatus}
+                options={STATUS_OPTIONS.map((s) => ({
+                  value: s,
+                  label: s === "Cancel" ? "Cancel order" : s,
+                }))}
+              />
               <Button disabled={!newStatus || updating} onClick={updateStatus}>
                 {updating ? "Updating…" : "Update"}
               </Button>

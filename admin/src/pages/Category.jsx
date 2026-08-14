@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Badge,
   Button,
@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@windmill/react-ui";
 import { useTranslation } from "react-i18next";
-import { FiEdit, FiLayers, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiLayers, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
@@ -41,6 +41,7 @@ const Category = () => {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [search, setSearch] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -124,6 +125,22 @@ const Category = () => {
   const inputCls =
     "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
 
+  // Same control styling as the products list (a plain input: the Windmill Input theme base
+  // forces h-12/px-3/bg-gray-100 and would fight these utilities).
+  const controlCls =
+    "w-full h-11 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:hover:border-gray-500";
+
+  // The whole list comes back in one call, so the filter is client-side and instant.
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (row) =>
+        (row.name?.en || "").toLowerCase().includes(q) ||
+        (row.slug || "").toLowerCase().includes(q)
+    );
+  }, [rows, search]);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -131,6 +148,31 @@ const Category = () => {
         <Button onClick={openAdd} className="h-11 rounded-lg">
           <FiPlus className="mr-2" /> Add category
         </Button>
+      </div>
+
+      {/* filters — mirrors the products list */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
+            placeholder="Search categories…"
+            aria-label="Search categories"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -143,13 +185,20 @@ const Category = () => {
           actionLabel="Add category"
           onAction={openAdd}
         />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={FiSearch}
+          title="No categories match"
+          description={`Nothing found for “${search}”. Try another name or slug.`}
+          actionLabel="Clear search"
+          onAction={() => setSearch("")}
+        />
       ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Icon</TableCell>
-                <TableCell>Name</TableCell>
+                <TableCell>Category</TableCell>
                 <TableCell>Slug</TableCell>
                 <TableCell>Products</TableCell>
                 <TableCell>Status</TableCell>
@@ -157,10 +206,17 @@ const Category = () => {
               </tr>
             </TableHeader>
             <TableBody>
-              {rows.map((row) => (
+              {filtered.map((row) => (
                 <TableRow key={row._id}>
-                  <TableCell className="text-2xl">{row.icon}</TableCell>
-                  <TableCell className="font-semibold">{row.name?.en}</TableCell>
+                  {/* icon tile + name in one cell, like the product thumbnail + title */}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-emerald-50 text-xl dark:bg-emerald-500/10">
+                        {row.icon || "🛒"}
+                      </span>
+                      <span className="font-medium">{row.name?.en}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-sm text-gray-500">{row.slug}</TableCell>
                   <TableCell>{row.productCount}</TableCell>
                   <TableCell>

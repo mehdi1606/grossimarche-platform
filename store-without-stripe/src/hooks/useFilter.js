@@ -52,6 +52,7 @@ const useFilter = (data) => {
     pending,
     processing,
     delivered,
+    sortedField,
     setSortedField,
   };
 };

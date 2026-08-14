@@ -15,8 +15,7 @@ import ProductCard from "@components/product/ProductCard";
 import ProductServices from "@services/ProductServices";
 import CategoryServices from "@services/CategoryServices";
 import AttributeServices from "@services/AttributeServices";
-import useUtilsFunction from "@hooks/useUtilsFunction";
-import { categoryEmoji } from "@utils/categoryIcon";
+import CategoryRail from "@components/category/CategoryRail";
 
 const VALUE_PROPS = [
   { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
@@ -26,7 +25,6 @@ const VALUE_PROPS = [
 ];
 
 const Home = ({ popularProducts, categories, attributes }) => {
-  const { showingTranslateValue } = useUtilsFunction();
   const cats = categories?.[0]?.children || [];
   const products = popularProducts || [];
 
@@ -70,8 +68,10 @@ const Home = ({ popularProducts, categories, attributes }) => {
         </div>
       </section>
 
-      {/* Value props */}
-      <section className="mx-auto max-w-screen-2xl px-4 sm:px-10">
+      {/* Value props — `relative z-10` is what keeps these on top: the cards are pulled onto
+          the hero with -mt-8, and the hero is positioned, so a static section here would be
+          painted underneath it and lose its titles behind the green. */}
+      <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
         <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {VALUE_PROPS.map(({ Icon, title, text }) => (
             <div
@@ -90,39 +90,8 @@ const Home = ({ popularProducts, categories, attributes }) => {
         </div>
       </section>
 
-      {/* Categories */}
-      {cats.length > 0 && (
-        <section className="mx-auto max-w-screen-2xl px-4 py-14 sm:px-10">
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <h2 className="font-serif text-2xl font-bold text-gray-800">Catégories</h2>
-              <p className="mt-1 text-sm text-gray-500">Trouvez ce qu'il vous faut en un clic.</p>
-            </div>
-            <Link
-              href="/search"
-              className="hidden items-center gap-1 text-sm font-medium text-emerald-600 hover:underline sm:flex"
-            >
-              Tout voir <FiArrowRight />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {cats.map((c) => (
-              <Link
-                key={c._id}
-                href={`/search?category=${c.slug}&_id=${c._id}`}
-                className="group flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md"
-              >
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-2xl transition group-hover:bg-emerald-100">
-                  {categoryEmoji(c.icon)}
-                </span>
-                <span className="line-clamp-1 text-sm font-medium text-gray-700">
-                  {showingTranslateValue(c.name)}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Categories — one scrollable row with arrow controls */}
+      <CategoryRail categories={cats} />
 
       {/* Products */}
       <section className="bg-white">

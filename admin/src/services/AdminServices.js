@@ -43,6 +43,11 @@ const AdminServices = {
   deleteStaff: async (id) => {
     return requests.delete(`/admin/staff/${id}`);
   },
+  // Signed-in user's own profile. PATCH /me only accepts fullName — changing the e-mail or
+  // the phone goes through an OTP verification of the new destination, not this call.
+  getProfile: async () => requests.get("/me"),
+  updateProfile: async (body) => requests.patch("/me", body),
+
   // The backend exposes no single-staff endpoint, so resolve the row from the list.
   getStaffById: async (id) => {
     if (!id) return {};

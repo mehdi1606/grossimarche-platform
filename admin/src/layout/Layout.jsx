@@ -11,7 +11,7 @@ import { routes } from "@/routes";
 const Page404 = lazy(() => import("@/pages/404"));
 
 const Layout = () => {
-  const { isSidebarOpen, closeSidebar, navBar } = useContext(SidebarContext);
+  const { isSidebarOpen, closeSidebar } = useContext(SidebarContext);
   let location = useLocation();
 
   const isOnline = navigator.onLine;
@@ -35,7 +35,8 @@ const Layout = () => {
           isSidebarOpen && "overflow-hidden"
         }`}
       >
-        {navBar && <Sidebar />}
+        {/* Always mounted: DesktopSidebar animates itself open/closed from `navBar`. */}
+        <Sidebar />
 
         <div className="flex flex-col flex-1 w-full">
           <Header />

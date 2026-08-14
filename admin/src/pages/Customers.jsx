@@ -3,7 +3,6 @@ import {
   Avatar,
   Badge,
   Button,
-  Input,
   Table,
   TableBody,
   TableCell,
@@ -11,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiEye, FiSearch, FiSlash, FiUsers, FiCheckCircle } from "react-icons/fi";
+import { FiEye, FiSearch, FiSlash, FiUsers, FiCheckCircle, FiX } from "react-icons/fi";
 import dayjs from "dayjs";
 
 //internal import
@@ -46,6 +45,23 @@ const Customers = () => {
     load();
   }, [load]);
 
+  // Debounced search, like the products list: the table follows what you type (Enter still
+  // fires it immediately).
+  useEffect(() => {
+    const id = setTimeout(() => setQuery(search.trim()), 350);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  // Same control styling as the products list — a plain input, because the Windmill Input
+  // theme base forces h-12/px-3/bg-gray-100 and overrides any utility passed in className.
+  const controlCls =
+    "w-full h-11 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:hover:border-gray-500";
+
+  const clearSearch = () => {
+    setSearch("");
+    setQuery("");
+  };
+
   const toggleBlock = async (row) => {
     try {
       await CustomerServices.updateCustomer(row._id, {
@@ -65,21 +81,36 @@ const Customers = () => {
         <PageTitle>Customers</PageTitle>
       </div>
 
-      <form
-        className="relative mb-5 max-w-md"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setQuery(search);
-        }}
-      >
-        <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <Input
-          className="!pl-10 h-11 rounded-lg"
-          placeholder="Search by name, email or phone…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </form>
+      {/* filters — same control as the products list */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        <form
+          className="relative flex-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setQuery(search.trim());
+          }}
+        >
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
+            placeholder="Search by name, email or phone…"
+            aria-label="Search customers"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX className="h-4 w-4" />
+            </button>
+          )}
+        </form>
+      </div>
 
       {loading ? (
         <TableSkeleton rows={8} cols={6} />

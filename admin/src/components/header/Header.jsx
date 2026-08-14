@@ -25,11 +25,11 @@ import useNotification from "@/hooks/useNotification";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
 import NotificationServices from "@/services/NotificationServices";
-import SelectLanguage from "@/components/form/selectOption/SelectLanguage";
+import LanguageMenu from "@/components/header/LanguageMenu";
 import { notifyError } from "@/utils/toast";
 
 const Header = () => {
-  const { toggleSidebar, handleLanguageChange, setNavBar, navBar, currLang } =
+  const { toggleSidebar } =
     useContext(SidebarContext);
   const { state, dispatch } = useContext(AdminContext);
   const { adminInfo } = state;
@@ -129,26 +129,7 @@ const Header = () => {
     <>
       <header className="z-30 py-4 bg-white shadow-sm dark:bg-gray-800">
         <div className="container flex items-center justify-between h-full px-6 mx-auto text-emerald-500 dark:text-emerald-500">
-          <button
-            type="button"
-            onClick={() => setNavBar(!navBar)}
-            className="hidden lg:block outline-0 focus:outline-none"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              ></path>
-            </svg>
-          </button>
+          {/* The desktop collapse toggle lives in the sidebar itself, next to the logo. */}
 
           {/* <!-- Mobile hamburger --> */}
           <button
@@ -161,24 +142,8 @@ const Header = () => {
           <span></span>
 
           <ul className="flex justify-end items-center flex-shrink-0 space-x-6">
-            <li className="changeLanguage">
-              <div className="dropdown">
-                <button className="dropbtn focus:outline-none flex">
-                  <div
-                    className={`text-sm flag ${currLang?.flag?.toLowerCase()}`}
-                  ></div>{" "}
-                  <span className="md:inline-block hidden text-gray-900 dark:text-gray-300">
-                    {/* {currentLanguageCode === "de" ? "GERMAN" : "ENGLISH"} */}
-                    {currLang?.name}
-                  </span>
-                  <span className="md:hidden uppercase">
-                    {/* {currentLanguageCode === "de" ? "DE" : "EN"} */}
-                    {currLang?.iso_code}
-                  </span>
-                </button>
-
-                <SelectLanguage handleLanguageChange={handleLanguageChange} />
-              </div>
+            <li className="flex">
+              <LanguageMenu />
             </li>
 
             {/* <!-- Theme toggler --> */}

@@ -8,10 +8,13 @@ import useFilter from "@hooks/useFilter";
 import Loading from "@components/preloader/Loading";
 import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
+import ProductFilters from "@components/product/ProductFilters";
+import FilterDropdown from "@components/common/FilterDropdown";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
+import CategoryServices from "@services/CategoryServices";
 
-const Search = ({ products, attributes }) => {
+const Search = ({ products, attributes, categories }) => {
   const router = useRouter();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
   const [visibleProduct, setVisibleProduct] = useState(18);
@@ -20,7 +23,7 @@ const Search = ({ products, attributes }) => {
     setIsLoading(false);
   }, [products]);
 
-  const { setSortedField, productData } = useFilter(products);
+  const { sortedField, setSortedField, productData } = useFilter(products);
   const queryText = router.query?.query;
 
   return (
@@ -40,51 +43,60 @@ const Search = ({ products, attributes }) => {
             )}
           </div>
           {productData?.length > 0 && (
-            <select
-              onChange={(e) => setSortedField(e.target.value)}
-              className="h-11 rounded-lg border border-gray-200 bg-white px-4 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-            >
-              <option value="All" defaultValue hidden>
-                Trier par prix
-              </option>
-              <option value="Low">Prix croissant</option>
-              <option value="High">Prix décroissant</option>
-            </select>
+            <FilterDropdown
+              className="w-full sm:w-44"
+              ariaLabel="Trier les produits"
+              placeholder="Trier par prix"
+              value={sortedField}
+              onChange={setSortedField}
+              options={[
+                { value: "Low", label: "Prix croissant" },
+                { value: "High", label: "Prix décroissant" },
+              ]}
+            />
           )}
         </div>
 
-        {isLoading ? (
-          <Loading loading={isLoading} />
-        ) : productData?.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-20 text-center">
-            <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-gray-100 text-gray-400">
-              <FiSearch className="text-2xl" />
-            </span>
-            <h2 className="text-lg font-semibold text-gray-800">Aucun produit trouvé</h2>
-            <p className="mt-1 max-w-sm text-sm text-gray-500">
-              Essayez un autre mot-clé ou parcourez une catégorie différente.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
-              {productData?.slice(0, visibleProduct).map((product, i) => (
-                <ProductCard key={i + 1} product={product} attributes={attributes} />
-              ))}
-            </div>
+        {/* Filters column + results */}
+        <div className="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
+          <ProductFilters categories={categories?.[0]?.children || []} />
 
-            {productData?.length > visibleProduct && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  onClick={() => setVisibleProduct((pre) => pre + 12)}
-                  className="rounded-full border border-emerald-200 px-8 py-3 text-sm font-medium text-emerald-600 transition hover:bg-emerald-500 hover:text-white"
-                >
-                  Voir plus
-                </button>
+          <div>
+            {isLoading ? (
+              <Loading loading={isLoading} />
+            ) : productData?.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-20 text-center">
+                <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-gray-100 text-gray-400">
+                  <FiSearch className="text-2xl" />
+                </span>
+                <h2 className="text-lg font-semibold text-gray-800">Aucun produit trouvé</h2>
+                <p className="mt-1 max-w-sm text-sm text-gray-500">
+                  Essayez un autre mot-clé, élargissez la fourchette de prix ou
+                  réinitialisez les filtres.
+                </p>
               </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  {productData?.slice(0, visibleProduct).map((product, i) => (
+                    <ProductCard key={i + 1} product={product} attributes={attributes} />
+                  ))}
+                </div>
+
+                {productData?.length > visibleProduct && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      onClick={() => setVisibleProduct((pre) => pre + 12)}
+                      className="rounded-full border border-emerald-200 px-8 py-3 text-sm font-medium text-emerald-600 transition hover:bg-emerald-500 hover:text-white"
+                    >
+                      Voir plus
+                    </button>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </Layout>
   );
@@ -93,19 +105,24 @@ const Search = ({ products, attributes }) => {
 export default Search;
 
 export const getServerSideProps = async (context) => {
-  const { query, _id } = context.query;
+  const { query, _id, min, max, stock } = context.query;
 
-  const [data, attributes] = await Promise.all([
+  const [data, categories, attributes] = await Promise.all([
     ProductServices.getShowingStoreProducts({
       category: _id ? _id : "",
       title: query ? encodeURIComponent(query) : "",
+      minPrice: min || "",
+      maxPrice: max || "",
+      inStock: stock === "1",
     }),
+    CategoryServices.getShowingCategory(),
     AttributeServices.getShowingAttributes({}),
   ]);
 
   return {
     props: {
       attributes,
+      categories,
       products: data?.products,
     },
   };

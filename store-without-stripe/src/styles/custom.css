@@ -1525,3 +1525,12 @@ p:not(:last-of-type) {
   opacity: 1;
   color: var(--PhoneInputCountrySelectArrow-color--focus);
 } */
+
+/* Horizontal rails (category carousel): native scrolling, no visible scrollbar. */
+.gm-rail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.gm-rail::-webkit-scrollbar {
+  display: none;
+}
