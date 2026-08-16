@@ -73,6 +73,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
                     // WebSocket handshake is public; the STOMP CONNECT frame authenticates.
                     auth.requestMatchers("/ws/**").permitAll();
+                    // Public storefront translation (FR -> AR/EN) via LibreTranslate.
+                    auth.requestMatchers("/api/v1/translate").permitAll();
                     auth.requestMatchers("/api/v1/payments/cmi/callback").permitAll();
                     auth.requestMatchers(HttpMethod.GET,
                             "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**",

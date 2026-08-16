@@ -8,6 +8,7 @@ import { getUserSession } from "@lib/auth";
 import CartItem from "@components/cart/CartItem";
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import ProductSuggestions from "@components/product/ProductSuggestions";
 
 const Cart = () => {
   const router = useRouter();
@@ -71,13 +72,53 @@ const Cart = () => {
             </button>
           </div>
         ) : (
-          items.map((item, i) => <CartItem key={i + 1} item={item} />)
+          <>
+            {items.map((item, i) => (
+              <CartItem key={i + 1} item={item} currency={currency} />
+            ))}
+
+            {/* Cross-sell: relevant add-ons based on what's in the cart */}
+            <div className="border-t border-gray-100 p-4">
+              <ProductSuggestions
+                title="Ajoutez aussi"
+                subtitle="Souvent commandés ensemble"
+                limit={8}
+              />
+            </div>
+          </>
         )}
       </div>
 
       {/* Footer */}
       {!isEmpty && (
         <div className="border-t border-gray-100 p-5">
+          {/* Free-shipping progress nudge (threshold kept in step with checkout: 1000 MAD) */}
+          {(() => {
+            const THRESHOLD = 1000;
+            const remaining = Math.max(0, THRESHOLD - cartTotal);
+            return remaining > 0 ? (
+              <div className="mb-3">
+                <p className="mb-1.5 text-xs text-gray-600">
+                  Plus que{" "}
+                  <span className="font-semibold text-emerald-600">
+                    {currency}
+                    {remaining.toFixed(2)}
+                  </span>{" "}
+                  pour la <span className="font-semibold">livraison offerte</span> 🎉
+                </p>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (cartTotal / THRESHOLD) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="mb-3 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-2 text-xs font-medium text-emerald-700">
+                🎉 Livraison offerte débloquée !
+              </p>
+            );
+          })()}
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="text-gray-500">Sous-total</span>
             <span className="text-lg font-bold text-gray-800">

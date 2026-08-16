@@ -16,6 +16,7 @@ import { handlePageView } from "@lib/analytics";
 import { UserProvider } from "@context/UserContext";
 import DefaultSeo from "@components/common/DefaultSeo";
 import { SidebarProvider } from "@context/SidebarContext";
+import { TranslationProvider } from "@context/TranslationContext";
 import SettingServices from "@services/SettingServices";
 
 let persistor = persistStore(store);
@@ -82,8 +83,10 @@ function MyApp({ Component, pageProps }) {
               <PersistGate loading={null} persistor={persistor}>
                 <SidebarProvider>
                   <CartProvider>
-                    <DefaultSeo />
-                    <Component {...pageProps} />
+                    <TranslationProvider>
+                      <DefaultSeo />
+                      <Component {...pageProps} />
+                    </TranslationProvider>
                   </CartProvider>
                 </SidebarProvider>
               </PersistGate>

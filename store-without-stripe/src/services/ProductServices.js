@@ -76,6 +76,14 @@ const ProductServices = {
   getProductBySlug: async (slug) => {
     return adaptProduct(await requests.get(`/products/${slug}`));
   },
+
+  // Cross-sell / upsell suggestions: prefer the same category as what's in the cart, fall
+  // back to the general catalogue when no category is known.
+  getRelatedProducts: async (categoryId = "") => {
+    return categoryId
+      ? await searchProducts({ category: categoryId, size: 12 })
+      : await searchProducts({ size: 12 });
+  },
 };
 
 export default ProductServices;

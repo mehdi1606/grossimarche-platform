@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
-import Cookies from "js-cookie";
 import useGetSetting from "./useGetSetting";
+import { useTranslate } from "@context/TranslationContext";
 
 const useUtilsFunction = () => {
-  const lang = Cookies.get("_lang");
+  const { translateValue, t, locale, isRTL } = useTranslate();
+  const lang = locale;
 
   const { globalSetting } = useGetSetting();
 
@@ -32,12 +33,8 @@ const useUtilsFunction = () => {
     return parseFloat(value || 0).toFixed(globalSetting?.floating_number || 2);
   };
 
-  //for translation
-  const showingTranslateValue = (data) => {
-    return data !== undefined && Object?.keys(data).includes(lang)
-      ? data[lang]
-      : data?.en;
-  };
+  //for translation — routed through the FR->AR engine (see TranslationContext)
+  const showingTranslateValue = (data) => translateValue(data);
 
   const showingImage = (data) => {
     return data !== undefined && data;
@@ -49,6 +46,9 @@ const useUtilsFunction = () => {
 
   return {
     lang,
+    locale,
+    isRTL,
+    t,
     currency,
     getNumber,
     getNumberTwo,

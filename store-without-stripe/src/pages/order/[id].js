@@ -39,15 +39,11 @@ const Order = ({ params }) => {
         <div className="max-w-screen-2xl mx-auto py-10 px-3 sm:px-6">
           <div className="bg-emerald-100 rounded-md mb-5 px-4 py-3">
             <label>
-              {showingTranslateValue(
-                storeCustomizationSetting?.dashboard?.invoice_message_first
-              )}{" "}
+              Merci{" "}
               <span className="font-bold text-emerald-600">
-                {data?.user_info?.name},
+                {data?.user_info?.name}
               </span>{" "}
-              {showingTranslateValue(
-                storeCustomizationSetting?.dashboard?.invoice_message_last
-              )}
+              — votre commande a bien été reçue !
             </label>
           </div>
           <div className="bg-white rounded-lg shadow-sm">
@@ -68,16 +64,16 @@ const Order = ({ params }) => {
                       getNumberTwo={getNumberTwo}
                     />
                   }
-                  fileName="Invoice"
+                  fileName={`Facture-${data?.invoice || "commande"}.pdf`}
                 >
                   {({ blob, url, loading, error }) =>
                     loading ? (
-                      "Loading..."
+                      <button className="mb-3 sm:mb-0 flex items-center justify-center bg-emerald-500/70 text-white font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md">
+                        Génération…
+                      </button>
                     ) : (
-                      <button className="mb-3 sm:mb-0 md:mb-0 lg:mb-0 flex items-center justify-center bg-emerald-500  text-white transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md">
-                        {showingTranslateValue(
-                          storeCustomizationSetting?.dashboard?.download_button
-                        )}{" "}
+                      <button className="mb-3 sm:mb-0 md:mb-0 lg:mb-0 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 text-white transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md">
+                        Télécharger la facture{" "}
                         <span className="ml-2 text-base">
                           <IoCloudDownloadOutline />
                         </span>
@@ -88,10 +84,8 @@ const Order = ({ params }) => {
 
                 <ReactToPrint
                   trigger={() => (
-                    <button className="mb-3 sm:mb-0 md:mb-0 lg:mb-0 flex items-center justify-center bg-emerald-500  text-white transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.dashboard?.print_button
-                      )}{" "}
+                    <button className="mb-3 sm:mb-0 md:mb-0 lg:mb-0 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 text-white transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md">
+                      Imprimer{" "}
                       <span className="ml-2">
                         <IoPrintOutline />
                       </span>

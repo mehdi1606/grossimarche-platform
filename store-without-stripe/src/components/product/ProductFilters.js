@@ -4,7 +4,7 @@ import { FiFilter, FiX } from "react-icons/fi";
 
 //internal import
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import { categoryEmoji } from "@utils/categoryIcon";
+import CategoryIcon from "@components/category/CategoryIcon";
 
 /**
  * Left-hand product filters for the search page.
@@ -90,8 +90,8 @@ const ProductFilters = ({ categories = [] }) => {
               onClick={() => selectCategory(c)}
               className={rowCls(activeCategory === c._id)}
             >
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-emerald-50 text-sm">
-                {categoryEmoji(c.icon)}
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-emerald-50 text-emerald-600">
+                <CategoryIcon icon={c.icon} className="h-4 w-4" />
               </span>
               <span className="flex-1 truncate">{showingTranslateValue(c.name)}</span>
             </button>

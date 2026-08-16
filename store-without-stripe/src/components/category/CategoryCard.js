@@ -9,7 +9,7 @@ import {
 //internal import
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import { categoryEmoji } from "@utils/categoryIcon";
+import CategoryIcon from "@components/category/CategoryIcon";
 
 const CategoryCard = ({ title, icon, nested, id }) => {
   const router = useRouter();
@@ -59,8 +59,8 @@ const CategoryCard = ({ title, icon, nested, id }) => {
         className="p-2 flex items-center rounded-md hover:bg-gray-50 w-full hover:text-emerald-600"
         role="button"
       >
-        <span className="grid h-6 w-6 shrink-0 place-items-center text-lg leading-none">
-          {categoryEmoji(icon)}
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
+          <CategoryIcon icon={icon} className="h-4 w-4" />
         </span>
 
         <div className="inline-flex items-center justify-between ml-3 text-sm font-medium w-full hover:text-emerald-600">

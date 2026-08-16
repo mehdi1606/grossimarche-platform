@@ -47,6 +47,13 @@ public class OrderService {
             OrderStatus.DELIVERED, Set.of(),
             OrderStatus.CANCELLED, Set.of());
 
+    // The linear happy path. The admin collapses CONFIRMED + PREPARING into a single
+    // "Processing" step, so an operator may legitimately jump e.g. CONFIRMED -> OUT_FOR_DELIVERY.
+    // advanceStatus() walks each intermediate step in order rather than rejecting the jump.
+    private static final List<OrderStatus> HAPPY_PATH = List.of(
+            OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
+            OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED);
+
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
@@ -125,6 +132,24 @@ public class OrderService {
         if (target == OrderStatus.CANCELLED) {
             return cancel(orderId, actorId, note);
         }
+
+        int from = HAPPY_PATH.indexOf(order.getStatus());
+        int to = HAPPY_PATH.indexOf(target);
+
+        // Forward move along the happy path: walk every intermediate step so a legitimate jump
+        // (e.g. CONFIRMED -> OUT_FOR_DELIVERY) advances through PREPARING instead of failing.
+        // Each step is recorded for the audit trail; the live event is published once at the end.
+        if (from >= 0 && to > from) {
+            for (int i = from + 1; i <= to; i++) {
+                OrderStatus next = HAPPY_PATH.get(i);
+                order.setStatus(next);
+                recordHistory(order, next, actorId, note);
+            }
+            publish(order, actorId);
+            return detail(order);
+        }
+
+        // Anything else (backward, or off the happy path) stays strictly validated.
         if (!TRANSITIONS.getOrDefault(order.getStatus(), Set.of()).contains(target)) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED,
                     "Transition invalide : " + order.getStatus() + " → " + target + ".");

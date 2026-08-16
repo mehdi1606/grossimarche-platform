@@ -65,7 +65,8 @@ export const adaptOrder = (g) => ({
     : {},
   cart: (g.items || []).map((it) => ({
     id: it.productId,
-    title: it.productNameSnapshot,
+    title: it.productName,
+    unit: it.unit,
     quantity: it.quantity,
     price: it.unitPrice,
     itemTotal: it.lineTotal,

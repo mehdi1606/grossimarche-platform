@@ -15,6 +15,10 @@ const CustomerServices = {
   },
 
   // Profile & addresses (mapped to /me — request/response field mapping refined in FE-4).
+  getCustomer: async () => {
+    return requests.get("/me");
+  },
+
   updateCustomer: async (id, body) => {
     return requests.patch("/me", body);
   },

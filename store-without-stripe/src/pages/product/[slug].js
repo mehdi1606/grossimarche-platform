@@ -540,7 +540,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               {relatedProducts?.length >= 2 && (
                 <div className="pt-10 lg:pt-20 lg:pb-10">
                   <h3 className="leading-7 text-lg lg:text-xl mb-3 font-semibold font-serif hover:text-gray-600">
-                    {t("common:relatedProducts")}
+                    Produits similaires
                   </h3>
                   <div className="flex">
                     <div className="w-full">

@@ -94,49 +94,55 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-            <div className="hidden md:hidden md:items-center lg:flex xl:block absolute inset-y-0 right-0 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="hidden shrink-0 items-center gap-1 lg:flex sm:ml-6">
+              {/* Cart */}
               <button
-                aria-label="Total"
+                aria-label="Panier"
                 onClick={toggleCartDrawer}
-                className="relative px-5 text-white text-2xl font-bold transition hover:scale-105"
+                className="relative grid h-10 w-10 place-items-center rounded-full text-white transition hover:bg-white/10"
               >
-                <span className="absolute z-10 top-0 right-0 inline-flex items-center justify-center p-1 h-5 w-5 text-xs font-medium leading-none text-red-100 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                  {totalItems}
-                </span>
-                <FiShoppingCart className="w-6 h-6 drop-shadow-xl" />
-              </button>
-              {/* Profile dropdown */}
-
-              <button
-                className="pl-5 text-white text-2xl font-bold"
-                aria-label="Login"
-              >
-                {userInfo?.image ? (
-                  <Link
-                    href="/user/dashboard"
-                    className="relative top-1 w-6 h-6"
-                  >
-                    <Image
-                      width={29}
-                      height={29}
-                      src={userInfo?.image}
-                      alt="user"
-                      className="bg-white rounded-full"
-                    />
-                  </Link>
-                ) : userInfo?.name ? (
-                  <Link
-                    href="/user/dashboard"
-                    className="leading-none font-bold font-serif block"
-                  >
-                    {userInfo?.name[0]}
-                  </Link>
-                ) : (
-                  <Link href="/auth/login">
-                    <FiUser className="w-6 h-6 drop-shadow-xl" />
-                  </Link>
+                <FiShoppingCart className="h-6 w-6" />
+                {totalItems > 0 && (
+                  <span className="absolute right-0.5 top-0.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-emerald-500">
+                    {totalItems}
+                  </span>
                 )}
               </button>
+
+              {/* Account */}
+              {userInfo ? (
+                // Logged in — always go to the account area, regardless of whether a name or
+                // photo has been set (phone/email sign-ups start with neither).
+                <Link
+                  href="/user/dashboard"
+                  aria-label="Mon compte"
+                  className="grid h-10 w-10 place-items-center rounded-full text-white transition hover:bg-white/10"
+                >
+                  {userInfo?.image ? (
+                    <Image
+                      width={28}
+                      height={28}
+                      src={userInfo.image}
+                      alt="user"
+                      className="rounded-full bg-white"
+                    />
+                  ) : userInfo?.name ? (
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-sm font-bold uppercase">
+                      {userInfo.name[0]}
+                    </span>
+                  ) : (
+                    <FiUser className="h-6 w-6" />
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  aria-label="Se connecter"
+                  className="grid h-10 w-10 place-items-center rounded-full text-white transition hover:bg-white/10"
+                >
+                  <FiUser className="h-6 w-6" />
+                </Link>
+              )}
             </div>
           </div>
         </div>

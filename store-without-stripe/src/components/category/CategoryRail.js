@@ -4,7 +4,29 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 //internal import
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import { categoryEmoji } from "@utils/categoryIcon";
+import useTilt from "@hooks/useTilt";
+import CategoryIcon from "@components/category/CategoryIcon";
+
+/** A single category tile with a cursor-following 3D tilt (premium hover feel). */
+const RailCard = ({ category, title }) => {
+  const tilt = useTilt(12);
+  return (
+    <div className="gm-tilt shrink-0 grow-0 basis-[calc((100%-0.75rem)/2)] snap-start sm:basis-[calc((100%-1.5rem)/3)] md:basis-[calc((100%-2.25rem)/4)]">
+      <Link
+        href={`/search?category=${category.slug}&_id=${category._id}`}
+        ref={tilt.ref}
+        onMouseMove={tilt.onMouseMove}
+        onMouseLeave={tilt.onMouseLeave}
+        className="gm-tilt-inner group flex h-full flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-shadow hover:border-emerald-200 hover:shadow-xl"
+      >
+        <span className="gm-tilt-pop grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-100">
+          <CategoryIcon icon={category.icon} className="h-7 w-7" />
+        </span>
+        <span className="line-clamp-1 text-sm font-medium text-gray-700">{title}</span>
+      </Link>
+    </div>
+  );
+};
 
 /**
  * Category carousel: one row that scrolls sideways instead of wrapping onto a second line.
@@ -89,22 +111,10 @@ const CategoryRail = ({ categories = [] }) => {
         ref={trackRef}
         className="gm-rail flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2"
       >
+        {/* Cards are sized as a fraction of the track (see RailCard basis), so exactly 4 fill
+            the row on desktop and the rest sit off-screen; 2 then 3 on smaller widths. */}
         {categories.map((c) => (
-          <Link
-            key={c._id}
-            href={`/search?category=${c.slug}&_id=${c._id}`}
-            /* Cards are sized as a fraction of the track, not a fixed width, so exactly 4
-               fill the row on desktop (3 gaps of 0.75rem to subtract) and the rest sit
-               off-screen. Below md that would give unreadable 90px cards, hence 2 then 3. */
-            className="group flex shrink-0 grow-0 basis-[calc((100%-0.75rem)/2)] snap-start flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md sm:basis-[calc((100%-1.5rem)/3)] md:basis-[calc((100%-2.25rem)/4)]"
-          >
-            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-2xl transition group-hover:bg-emerald-100">
-              {categoryEmoji(c.icon)}
-            </span>
-            <span className="line-clamp-1 text-sm font-medium text-gray-700">
-              {showingTranslateValue(c.name)}
-            </span>
-          </Link>
+          <RailCard key={c._id} category={c} title={showingTranslateValue(c.name)} />
         ))}
       </div>
     </section>

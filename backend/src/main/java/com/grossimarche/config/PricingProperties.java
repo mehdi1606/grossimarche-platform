@@ -14,6 +14,6 @@ import java.math.BigDecimal;
 @ConfigurationProperties(prefix = "grossimarche.pricing")
 public record PricingProperties(
         @DefaultValue("30.00") BigDecimal deliveryFee,
-        @DefaultValue("500.00") BigDecimal freeDeliveryThreshold
+        @DefaultValue("1000.00") BigDecimal freeDeliveryThreshold
 ) {
 }

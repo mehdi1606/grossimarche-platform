@@ -1,29 +1,29 @@
-import useTranslation from "next-translate/useTranslation";
+/**
+ * Premium stock indicator. Never exposes raw counts or i18n keys to the customer — just a
+ * clean status pill: in stock (green), limited (amber, scarcity nudge) or out of stock (red).
+ */
+const LOW_THRESHOLD = 5;
 
 const Stock = ({ stock, card }) => {
-  const { t } = useTranslation();
+  const out = !stock || stock <= 0;
+  const low = !out && stock <= LOW_THRESHOLD;
+
+  const label = out ? "Rupture" : low ? "Stock limité" : "En stock";
+  const tone = out
+    ? { chip: "bg-red-50 text-red-600", dot: "bg-red-500" }
+    : low
+    ? { chip: "bg-amber-50 text-amber-600", dot: "bg-amber-500" }
+    : { chip: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-500" };
 
   return (
-    <>
-      {stock <= 0 ? (
-        <span className="bg-red-100 absolute z-10 text-red-700 rounded-full inline-flex items-center justify-center px-2 py-0 text-xs font-medium font-serif">
-          {t("common:stockOut")}
-        </span>
-      ) : (
-        <>
-          <span
-            className={`${
-              card
-                ? "bg-gray-100 absolute z-10 text-green-500 rounded-full text-xs px-2 py-0 font-medium"
-                : "bg-green-100 text-green-500 rounded-full inline-flex items-center justify-center px-2 py-0 text-xs font-semibold font-serif"
-            }`}
-          >
-            {t("common:stock")} :
-            <span className="text-orange-700 pl-1 font-bold">{stock} </span>
-          </span>
-        </>
-      )}
-    </>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${tone.chip} ${
+        card ? "shadow-sm backdrop-blur-sm" : ""
+      }`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${tone.dot} ${out ? "" : "animate-pulse"}`} />
+      {label}
+    </span>
   );
 };
 

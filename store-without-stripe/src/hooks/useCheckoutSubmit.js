@@ -18,7 +18,11 @@ import CustomerServices from "@services/CustomerServices";
 // COD-only checkout against Grossimarché: sync the local cart to the server cart, create a
 // delivery address, then POST /orders (idempotent). Card payment (CMI) exists in the
 // backend but is hidden for launch. All totals are recomputed server-side; the amounts
-// shown here are estimates until the order confirmation.
+// shown here mirror the backend rules (flat delivery fee, waived above the free threshold)
+// so the estimate matches the confirmed order.
+const FREE_SHIPPING_THRESHOLD = 1000; // MAD — keep in step with backend grossimarche.pricing
+const FLAT_DELIVERY_FEE = 30; // MAD
+
 const useCheckoutSubmit = () => {
   const { dispatch } = useContext(UserContext);
 
@@ -28,7 +32,6 @@ const useCheckoutSubmit = () => {
     Cookies.get("couponInfo") ? JSON.parse(Cookies.get("couponInfo")) : {}
   );
   const [showCard, setShowCard] = useState(false);
-  const [shippingCost, setShippingCost] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(
     Cookies.get("couponInfo")
       ? JSON.parse(Cookies.get("couponInfo"))?.discountAmount || 0
@@ -64,15 +67,33 @@ const useCheckoutSubmit = () => {
     enabled: !!userInfo?.id,
   });
 
+  // The saved profile (GET /me -> { fullName, phone, email }) so a returning customer never
+  // retypes their identity. Phone/email are read-only login identities here; changing them
+  // needs a fresh OTP (backend /me/contact/*), so we only persist the name.
+  const { data: profile } = useQuery({
+    queryKey: ["profile", { id: userInfo?.id }],
+    queryFn: async () => await CustomerServices.getCustomer(),
+    enabled: !!userInfo?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const hasShippingAddress = Array.isArray(addresses) && addresses.length > 0;
   const selectedAddress =
     (Array.isArray(addresses) &&
       addresses.find((a) => a.id === selectedAddressId)) ||
     (hasShippingAddress ? addresses[0] : null);
 
+  // Prefill the whole identity block from the saved profile (falling back to the session).
+  // Split fullName into first/last for the two-field form; leave anything the user has
+  // already typed untouched by only setting empty fields.
   useEffect(() => {
-    setValue("email", userInfo?.email);
-  }, [userInfo?.email, setValue]);
+    const fullName = (profile?.fullName || "").trim();
+    const [firstName, ...rest] = fullName.split(/\s+/).filter(Boolean);
+    setValue("email", profile?.email || userInfo?.email || "");
+    if (firstName) setValue("firstName", firstName);
+    if (rest.length) setValue("lastName", rest.join(" "));
+    if (profile?.phone) setValue("contact", profile.phone);
+  }, [profile, userInfo?.email, setValue]);
 
   // Default-select the saved address so the shopper never re-enters it.
   useEffect(() => {
@@ -81,7 +102,17 @@ const useCheckoutSubmit = () => {
     }
   }, [hasShippingAddress, addresses, selectedAddressId]);
 
-  // total = goods + shipping estimate - coupon discount (server is authoritative at checkout).
+  // Delivery mirrors the backend rule: a flat fee, waived once the goods subtotal reaches the
+  // free-delivery threshold. Derived (not user-selected) so the shown total matches the order.
+  const qualifiesFreeShipping = Number(cartTotal) >= FREE_SHIPPING_THRESHOLD;
+  const shippingCost =
+    Number(cartTotal) > 0 && !qualifiesFreeShipping ? FLAT_DELIVERY_FEE : 0;
+  const freeShippingRemaining = Math.max(
+    0,
+    FREE_SHIPPING_THRESHOLD - Number(cartTotal)
+  );
+
+  // total = goods + shipping - coupon discount (server is authoritative at checkout).
   useEffect(() => {
     const value = Number(cartTotal) + Number(shippingCost) - Number(discountAmount);
     setTotal(value > 0 ? value : 0);
@@ -138,6 +169,22 @@ const useCheckoutSubmit = () => {
 
       setIsCheckoutSubmit(true);
 
+      // Remember the customer's name on their account so it's prefilled next time. Best-effort:
+      // a failure here must never block the order. (Phone/email are OTP-guarded identities and
+      // are not changed from checkout.)
+      const fullName = [data.firstName, data.lastName]
+        .map((s) => (s || "").trim())
+        .filter(Boolean)
+        .join(" ");
+      if (fullName && fullName !== (profile?.fullName || "").trim()) {
+        try {
+          await CustomerServices.updateCustomer(userInfo?.id, { fullName });
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+        } catch (_) {
+          /* non-blocking */
+        }
+      }
+
       // Sync the local cart to the server cart (checkout reads the server cart)
       await CartServices.syncFromLocal(items);
 
@@ -164,10 +211,6 @@ const useCheckoutSubmit = () => {
       notifyError(msg);
       setIsCheckoutSubmit(false);
     }
-  };
-
-  const handleShippingCost = (value) => {
-    setShippingCost(Number(value));
   };
 
   const handleCouponCode = async (e) => {
@@ -238,11 +281,13 @@ const useCheckoutSubmit = () => {
     globalSetting,
     handleSubmit,
     submitHandler,
-    handleShippingCost,
     handleCouponCode,
     discountPercentage: 0,
     discountAmount,
     shippingCost,
+    qualifiesFreeShipping,
+    freeShippingRemaining,
+    freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
     isCheckoutSubmit,
     isCouponApplied,
     useExistingAddress,

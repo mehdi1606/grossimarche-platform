@@ -8,6 +8,7 @@ import { FiGrid } from "react-icons/fi";
 import Category from "@components/category/Category";
 import LanguageMenu from "@components/common/LanguageMenu";
 import { SidebarContext } from "@context/SidebarContext";
+import { useTranslate } from "@context/TranslationContext";
 
 const NAV_LINKS = [
   { href: "/search", label: "Tous les produits" },
@@ -19,6 +20,7 @@ const NAV_LINKS = [
 
 const NavbarPromo = () => {
   const { isLoading, setIsLoading } = useContext(SidebarContext);
+  const { t } = useTranslate();
 
   return (
     <div className="hidden lg:block bg-white border-b border-gray-100">
@@ -29,7 +31,7 @@ const NavbarPromo = () => {
           <Popover className="relative">
             <Popover.Button className="group inline-flex items-center py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 focus:outline-none">
               <FiGrid className="mr-2 h-4 w-4" />
-              <span>Catégories</span>
+              <span>{t("Catégories")}</span>
               <ChevronDownIcon
                 className="ml-1 h-3 w-3 group-hover:text-emerald-600"
                 aria-hidden="true"
@@ -60,7 +62,7 @@ const NavbarPromo = () => {
               onClick={() => setIsLoading(!isLoading)}
               className="py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition"
             >
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </Popover.Group>

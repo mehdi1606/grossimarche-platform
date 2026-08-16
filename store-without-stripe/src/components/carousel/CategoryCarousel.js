@@ -13,7 +13,7 @@ import { SidebarContext } from "@context/SidebarContext";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import Loading from "@components/preloader/Loading";
-import { categoryEmoji } from "@utils/categoryIcon";
+import CategoryIcon from "@components/category/CategoryIcon";
 
 const CategoryCarousel = () => {
   const router = useRouter();
@@ -123,8 +123,8 @@ const CategoryCarousel = () => {
                   }
                   className="text-center cursor-pointer p-3 bg-white rounded-lg"
                 >
-                  <div className="bg-white mx-auto w-10 h-10 rounded-full shadow-md grid place-items-center text-xl leading-none">
-                    {categoryEmoji(category?.icon)}
+                  <div className="bg-white mx-auto w-10 h-10 rounded-full shadow-md grid place-items-center text-emerald-600">
+                    <CategoryIcon icon={category?.icon} className="h-5 w-5" />
                   </div>
 
                   <h3 className="text-xs text-gray-600 mt-2 font-serif group-hover:text-emerald-500">

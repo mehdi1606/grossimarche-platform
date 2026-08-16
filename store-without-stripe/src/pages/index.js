@@ -16,6 +16,7 @@ import ProductServices from "@services/ProductServices";
 import CategoryServices from "@services/CategoryServices";
 import AttributeServices from "@services/AttributeServices";
 import CategoryRail from "@components/category/CategoryRail";
+import Reveal from "@components/common/Reveal";
 
 const VALUE_PROPS = [
   { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
@@ -34,26 +35,37 @@ const Home = ({ popularProducts, categories, attributes }) => {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-500">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-white/5" />
+        <div className="gm-float pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
+        <div className="gm-float-slow pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-white/5 blur-2xl" />
+        <div className="gm-float pointer-events-none absolute right-1/4 top-1/2 h-40 w-40 rounded-full bg-teal-300/10 blur-2xl" />
         <div className="relative mx-auto max-w-screen-2xl px-4 py-16 sm:px-10 lg:py-24">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <div className="max-w-2xl" style={{ animation: "gmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both" }}>
+            <span className="gm-shimmer inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm ring-1 ring-white/20">
               <FiShoppingBag /> Marché de gros en ligne
             </span>
-            <h1 className="mt-5 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
+            <h1
+              className="mt-5 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
+              style={{ animation: "gmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.08s both" }}
+            >
               Le gros, livré chez vous.
             </h1>
-            <p className="mt-4 max-w-xl text-base leading-7 text-emerald-50">
+            <p
+              className="mt-4 max-w-xl text-base leading-7 text-emerald-50"
+              style={{ animation: "gmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.16s both" }}
+            >
               Achetez en gros aux meilleurs prix — produits alimentaires, boissons et
               essentiels, avec des tarifs dégressifs et le paiement à la livraison.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div
+              className="mt-8 flex flex-wrap gap-3"
+              style={{ animation: "gmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.24s both" }}
+            >
               <Link
                 href="/search"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
               >
-                Découvrir les produits <FiArrowRight />
+                Découvrir les produits{" "}
+                <FiArrowRight className="transition-transform group-hover:translate-x-1" />
               </Link>
               {cats[0] && (
                 <Link
@@ -73,19 +85,20 @@ const Home = ({ popularProducts, categories, attributes }) => {
           painted underneath it and lose its titles behind the green. */}
       <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
         <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {VALUE_PROPS.map(({ Icon, title, text }) => (
-            <div
+          {VALUE_PROPS.map(({ Icon, title, text }, i) => (
+            <Reveal
               key={title}
-              className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md"
+              delay={i * 90}
+              className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-100 hover:shadow-lg"
             >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-500">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-500 transition duration-300 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white">
                 <Icon className="h-5 w-5" />
               </span>
               <div>
                 <p className="text-sm font-semibold text-gray-800">{title}</p>
                 <p className="text-xs text-gray-500">{text}</p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -96,10 +109,18 @@ const Home = ({ popularProducts, categories, attributes }) => {
       {/* Products */}
       <section className="bg-white">
         <div className="mx-auto max-w-screen-2xl px-4 py-14 sm:px-10">
-          <div className="mb-8">
-            <h2 className="font-serif text-2xl font-bold text-gray-800">Nos produits</h2>
-            <p className="mt-1 text-sm text-gray-500">Sélection disponible à la commande.</p>
-          </div>
+          <Reveal className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-gray-800">Nos produits</h2>
+              <p className="mt-1 text-sm text-gray-500">Sélection disponible à la commande.</p>
+            </div>
+            <Link
+              href="/search"
+              className="hidden items-center gap-1 text-sm font-medium text-emerald-600 hover:underline sm:flex"
+            >
+              Tout voir <FiArrowRight />
+            </Link>
+          </Reveal>
 
           {products.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-16 text-center">
@@ -113,8 +134,10 @@ const Home = ({ popularProducts, categories, attributes }) => {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} attributes={attributes} />
+              {products.map((product, i) => (
+                <Reveal key={product._id} delay={Math.min(i, 8) * 60}>
+                  <ProductCard product={product} attributes={attributes} />
+                </Reveal>
               ))}
             </div>
           )}

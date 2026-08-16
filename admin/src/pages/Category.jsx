@@ -20,18 +20,9 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import { CATEGORY_ICONS, CategoryIcon } from "@/utils/categoryIcons";
 
-// A curated icon set relevant to a wholesale grocery catalogue. Stored as a short string in
-// the category `icon` column (emoji fits; long image URLs would not).
-const ICONS = [
-  "🛒", "📦", "🥫", "🍚", "🫒", "🧴", "🧻", "🥤", "🧀", "🥩",
-  "🐟", "🍞", "🍫", "🍬", "🧂", "🌶️", "🧄", "🧅", "🥔", "🍅",
-  "🥕", "🍎", "🍊", "🍌", "🍇", "🥦", "🥬", "🫑", "🥚", "🥛",
-  "☕", "🍵", "🧊", "🍺", "🍷", "🧼", "🧽", "🪣", "🏷️", "🥜",
-  "🌰", "🫘", "🍯", "🧺", "🥖", "🧈", "🍝", "🍜", "🫙", "🥗",
-];
-
-const EMPTY = { id: null, name: "", slug: "", icon: "🛒", displayOrder: 0, active: true };
+const EMPTY = { id: null, name: "", slug: "", icon: "cart", displayOrder: 0, active: true };
 
 const Category = () => {
   const { t } = useTranslation();
@@ -68,7 +59,7 @@ const Category = () => {
       id: row._id,
       name: row.name?.en || "",
       slug: row.slug || "",
-      icon: row.icon || "🛒",
+      icon: row.icon || "cart",
       displayOrder: row.displayOrder ?? 0,
       active: row.status !== "hide",
     }) || setModalOpen(true);
@@ -211,8 +202,8 @@ const Category = () => {
                   {/* icon tile + name in one cell, like the product thumbnail + title */}
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-emerald-50 text-xl dark:bg-emerald-500/10">
-                        {row.icon || "🛒"}
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <CategoryIcon icon={row.icon} className="h-5 w-5" />
                       </span>
                       <span className="font-medium">{row.name?.en}</span>
                     </div>
@@ -271,8 +262,8 @@ const Category = () => {
       >
         <form onSubmit={handleSave} className="space-y-5">
           <div className="flex items-center gap-4">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-3xl dark:bg-emerald-500/10">
-              {form.icon}
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+              <CategoryIcon icon={form.icon} className="h-8 w-8" />
             </span>
             <div className="flex-1">
               <label className="block text-sm">
@@ -296,18 +287,20 @@ const Category = () => {
               Icon
             </span>
             <div className="grid grid-cols-8 gap-1.5 rounded-xl border border-gray-100 p-2 dark:border-gray-700 sm:grid-cols-10">
-              {ICONS.map((ic) => (
+              {CATEGORY_ICONS.map(({ key, label, Icon }) => (
                 <button
                   type="button"
-                  key={ic}
-                  onClick={() => setForm({ ...form, icon: ic })}
-                  className={`grid h-9 w-9 place-items-center rounded-lg text-lg transition ${
-                    form.icon === ic
-                      ? "bg-emerald-100 ring-2 ring-emerald-400 dark:bg-emerald-500/20"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  key={key}
+                  title={label}
+                  aria-label={label}
+                  onClick={() => setForm({ ...form, icon: key })}
+                  className={`grid h-9 w-9 place-items-center rounded-lg transition ${
+                    form.icon === key
+                      ? "bg-emerald-100 text-emerald-600 ring-2 ring-emerald-400 dark:bg-emerald-500/20 dark:text-emerald-300"
+                      : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
                   }`}
                 >
-                  {ic}
+                  <Icon className="h-5 w-5" />
                 </button>
               ))}
             </div>

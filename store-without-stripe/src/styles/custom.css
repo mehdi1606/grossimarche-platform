@@ -1534,3 +1534,85 @@ p:not(:last-of-type) {
 .gm-rail::-webkit-scrollbar {
   display: none;
 }
+
+/* ============================================================================
+   Premium motion — scroll reveals, floating accents, shimmer, 3D tilt.
+   Kept dependency-free (pure CSS + a tiny IntersectionObserver in <Reveal/>).
+   Respects prefers-reduced-motion.
+   ========================================================================== */
+
+@keyframes gmFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gmFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+@keyframes gmShimmer {
+  100% { transform: translateX(100%); }
+}
+@keyframes gmPopIn {
+  0%   { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Scroll reveal: hidden until <Reveal/> adds .is-visible when it enters the viewport. */
+.gm-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.gm-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Floating hero accents. */
+.gm-float      { animation: gmFloat 6s ease-in-out infinite; }
+.gm-float-slow { animation: gmFloat 9s ease-in-out infinite; }
+
+/* Shimmering sweep used on the hero badge / CTA. */
+.gm-shimmer { position: relative; overflow: hidden; }
+.gm-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  animation: gmShimmer 2.6s infinite;
+}
+
+/* 3D tilt card: perspective wrapper + inner plane that lifts on hover. The mouse-follow
+   rotation is driven inline via CSS custom properties (--rx/--ry) set by useTilt. */
+.gm-tilt { perspective: 900px; }
+.gm-tilt-inner {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.gm-tilt-inner .gm-tilt-pop {
+  transform: translateZ(38px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-reveal,
+  .gm-float,
+  .gm-float-slow,
+  .gm-shimmer::after,
+  .gm-tilt-inner {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

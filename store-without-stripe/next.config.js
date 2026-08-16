@@ -46,6 +46,11 @@ module.exports = withPWA({
   //   ],
   // },
   images: {
+    // Product images are served same-origin by the gateway at /files/**, which the Next
+    // image optimizer (running inside the store container) cannot reach. Serving them
+    // unoptimized makes the browser load them straight from the gateway. Remote hosts are
+    // still allowed for any external imagery.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
