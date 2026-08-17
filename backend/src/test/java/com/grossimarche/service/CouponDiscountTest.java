@@ -5,6 +5,7 @@ import com.grossimarche.entity.enums.CouponType;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CouponDiscountTest {
 
     private final PricingService pricing = new PricingService(
-            new PricingProperties(new BigDecimal("30.00"), new BigDecimal("500.00")));
+            new PricingProperties(new BigDecimal("30.00"), new BigDecimal("500.00"), Map.of()));
 
     @Test
     void percentage_takesPercentOfSubtotal() {

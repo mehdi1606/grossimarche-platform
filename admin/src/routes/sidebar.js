@@ -7,6 +7,7 @@ import {
   FiSlack,
   FiGift,
   FiBell,
+  FiPercent,
 } from "react-icons/fi";
 
 /**
@@ -51,22 +52,29 @@ const sidebar = [
     icon: FiCompass,
     name: "Orders",
   },
-  {
-    path: "/notifications",
-    icon: FiBell,
-    name: "Notifications",
-  },
-
-  // ---- ADMIN-only (hidden from STORE_MANAGER by the access-list filter) ----
+  // ---- Commercial + administration ----
+  // Visibility is per entry, not per block: SidebarContent filters each path against the
+  // signed-in role (utils/access.js). Coupons, OurStaff and Settings are ADMIN-only there;
+  // Offers and Notifications are also open to a STORE_MANAGER.
   {
     path: "/coupons",
     icon: FiGift,
     name: "Coupons",
   },
   {
+    path: "/offers",
+    icon: FiPercent,
+    name: "Offers",
+  },
+  {
     path: "/our-staff",
     icon: FiUser,
     name: "OurStaff",
+  },
+  {
+    path: "/notifications",
+    icon: FiBell,
+    name: "Notifications",
   },
   {
     path: "/settings",

@@ -21,6 +21,7 @@ const STORE_MANAGER_ROUTES = [
   "customer-order", // a customer's order detail
   "orders",
   "order", // order invoice detail
+  "offers", // quantity-discount tiers — part of catalogue pricing
   "notifications",
   "edit-profile",
 ];

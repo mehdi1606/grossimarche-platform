@@ -14,6 +14,7 @@ import useUtilsFunction from "./useUtilsFunction";
 import CouponServices from "@services/CouponServices";
 import { notifyError, notifySuccess } from "@utils/toast";
 import CustomerServices from "@services/CustomerServices";
+import { deliveryFeeForCity } from "@utils/delivery";
 
 // COD-only checkout against Grossimarché: sync the local cart to the server cart, create a
 // delivery address, then POST /orders (idempotent). Card payment (CMI) exists in the
@@ -102,11 +103,13 @@ const useCheckoutSubmit = () => {
     }
   }, [hasShippingAddress, addresses, selectedAddressId]);
 
-  // Delivery mirrors the backend rule: a flat fee, waived once the goods subtotal reaches the
-  // free-delivery threshold. Derived (not user-selected) so the shown total matches the order.
+  // Delivery mirrors the backend rule: the destination city sets the fee, the free-delivery
+  // threshold waives it whatever the city. Derived (never user-selected) so the total shown
+  // here matches the one the server recomputes at checkout.
   const qualifiesFreeShipping = Number(cartTotal) >= FREE_SHIPPING_THRESHOLD;
+  const cityDeliveryFee = deliveryFeeForCity(selectedAddress?.city, FLAT_DELIVERY_FEE);
   const shippingCost =
-    Number(cartTotal) > 0 && !qualifiesFreeShipping ? FLAT_DELIVERY_FEE : 0;
+    Number(cartTotal) > 0 && !qualifiesFreeShipping ? cityDeliveryFee : 0;
   const freeShippingRemaining = Math.max(
     0,
     FREE_SHIPPING_THRESHOLD - Number(cartTotal)

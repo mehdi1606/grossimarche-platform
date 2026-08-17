@@ -53,7 +53,7 @@ public class ProductMapper {
     }
 
     public PriceTierResponse toTier(ProductPriceTier tier) {
-        return new PriceTierResponse(tier.getMinQuantity(), tier.getUnitPrice());
+        return new PriceTierResponse(tier.getId(), tier.getMinQuantity(), tier.getUnitPrice());
     }
 
     public List<PriceTierResponse> toTiers(List<ProductPriceTier> tiers) {

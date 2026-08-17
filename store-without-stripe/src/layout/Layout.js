@@ -12,7 +12,15 @@ import FeatureCard from "@components/feature-card/FeatureCard";
 const Layout = ({ title, description, children }) => {
   return (
     <>
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="light"
+      />
 
       <div className="font-sans">
         <Head>

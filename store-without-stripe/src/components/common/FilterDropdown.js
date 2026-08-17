@@ -17,6 +17,9 @@ const FilterDropdown = ({
   resetValue = "",
   ariaLabel,
   className = "",
+  // Height as a prop rather than a className override: two Tailwind height utilities on the
+  // same element resolve by stylesheet order, not by the order they are written in.
+  heightCls = "h-11",
 }) => {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -54,7 +57,7 @@ const FilterDropdown = ({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
-        className="flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm text-gray-700 transition hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+        className={`flex ${heightCls} w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm text-gray-700 transition hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100`}
       >
         <span className={`truncate ${isPlaceholder ? "text-gray-500" : ""}`}>
           {selected.label}
@@ -70,7 +73,7 @@ const FilterDropdown = ({
         <ul
           role="listbox"
           aria-label={ariaLabel}
-          className="absolute right-0 z-30 mt-2 w-full overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+          className="gm-thin-scroll absolute right-0 z-30 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
         >
           {items.map((option) => {
             const isSelected = option.value === selected.value;

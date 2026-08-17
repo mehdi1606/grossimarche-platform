@@ -5,8 +5,8 @@ import { Button } from "@windmill/react-ui";
 import Error from "@/components/form/others/Error";
 import LabelArea from "@/components/form/selectOption/LabelArea";
 import InputArea from "@/components/form/input/InputArea";
-import ImageLight from "@/assets/img/login-office.jpeg";
-import ImageDark from "@/assets/img/login-office-dark.jpeg";
+// The file is saved with a double extension (login-img.JPG.jpeg) — import it as it is on disk.
+import LoginImage from "@/assets/img/login-img.JPG.jpeg";
 import useLoginSubmit from "@/hooks/useLoginSubmit";
 import CMButton from "@/components/form/button/CMButton";
 
@@ -30,19 +30,18 @@ const Login = () => {
     <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
         <div className="flex flex-col overflow-y-auto md:flex-row">
-          <div className="h-32 md:h-auto md:w-1/2">
+          {/* Brand panel: the trolley photo, in place of the stock office picture that came
+              with the template (it showed a Kachabazar dashboard on the laptop screen). */}
+          <div className="relative h-40 overflow-hidden bg-emerald-50 md:h-auto md:w-1/2">
             <img
               aria-hidden="true"
-              className="object-cover w-full h-full dark:hidden"
-              src={ImageLight}
-              alt="Office"
+              className="h-full w-full object-cover"
+              src={LoginImage}
+              alt=""
             />
-            <img
-              aria-hidden="true"
-              className="hidden object-cover w-full h-full dark:block"
-              src={ImageDark}
-              alt="Office"
-            />
+            {/* Light emerald wash so the photo sits in the brand palette; drop this span to
+                show it untouched. */}
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-emerald-900/20 via-transparent to-transparent" />
           </div>
           <main className="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
             <div className="w-full">

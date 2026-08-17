@@ -1,12 +1,15 @@
 package com.grossimarche.websocket;
 
 import com.grossimarche.entity.enums.NotificationType;
+import com.grossimarche.entity.enums.PaymentMethod;
 import com.grossimarche.service.LowStockEvent;
 import com.grossimarche.service.NotificationService;
 import com.grossimarche.service.OrderPlacedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+
+import java.util.Locale;
 
 /**
  * Turns domain events into persisted back-office notifications (and a live STOMP push, done
@@ -24,9 +27,25 @@ public class NotificationEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderPlaced(OrderPlacedEvent event) {
+        // Everything the back-office needs to triage the order without opening it: who, how
+        // much, how many lines, where, and how it will be paid.
+        String message = String.format(Locale.FRANCE,
+                "%s — %d article%s (%d unité%s), %.2f DH — %s (%s) — %s.",
+                event.orderNumber(),
+                event.itemCount(),
+                event.itemCount() > 1 ? "s" : "",
+                event.unitCount(),
+                event.unitCount() > 1 ? "s" : "",
+                event.total(),
+                event.customerName(),
+                event.city(),
+                event.paymentMethod() == PaymentMethod.COD
+                        ? "paiement à la livraison"
+                        : "paiement par carte");
+
         notificationService.record(NotificationType.NEW_ORDER,
                 "Nouvelle commande",
-                "Commande " + event.orderNumber() + " reçue.",
+                message,
                 event.orderId());
     }
 

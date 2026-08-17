@@ -1,46 +1,56 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-// import io from "socket.io-client";
+import Cookies from "js-cookie";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
+const TOPIC = "/topic/admin/notifications";
+
+/**
+ * Live back-office notifications. The backend already pushes every NEW_ORDER / LOW_STOCK
+ * event on the STOMP topic above (NotificationService.record); until now nothing listened,
+ * so the bell only updated on a page reload.
+ *
+ * `updated` flips to true on each push — the header re-fetches the list and the unread count
+ * from that flag, so the transport stays out of the rendering logic. The subscription needs
+ * the JWT: the WebSocket interceptor authenticates the CONNECT frame and only lets
+ * ADMIN/STORE_MANAGER subscribe to this topic.
+ */
 const useNotification = () => {
-  const dispatch = useDispatch();
-  const [socket, setSocket] = useState(null);
   const [updated, setUpdated] = useState(false);
 
-  // useEffect(() => {
-  //   setSocket(io(import.meta.env.VITE_APP_API_SOCKET_URL));
-  //   // setSocket(io("https://kachabazar-backend-theta.vercel.app"));
-  // }, []);
+  useEffect(() => {
+    const cookie = Cookies.get("adminInfo");
+    if (!cookie) return undefined;
 
-  // useEffect(() => {
-  //   // Listen for the 'notification' event from the server
-  //   socket?.on("notification", (notification) => {
-  //     // Update data in real-time here
-  //     console.log("notification", notification);
-  //     if (notification?.option === "globalSetting") {
-  //       dispatch(removeSetting("globalSetting"));
-  //       const globalSettingData = {
-  //         ...notification.globalSetting,
-  //         name: "globalSetting",
-  //       };
-  //       dispatch(addSetting(globalSettingData));
-  //     }
-  //     // if(notification?.option === 'storeCustomizationSetting'){
+    let token;
+    try {
+      token = JSON.parse(cookie)?.token;
+    } catch {
+      return undefined;
+    }
+    if (!token) return undefined;
 
-  //     // }
-  //   });
+    const client = new Client({
+      // The gateway serves the backend at the same origin, so a relative path is enough and
+      // the socket follows whatever host the back-office is opened on.
+      webSocketFactory: () => new SockJS("/ws"),
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 5000,
+      onConnect: () => {
+        client.subscribe(TOPIC, () => setUpdated(true));
+      },
+      // Silent by default: a dropped socket must never spam the console of a live back-office.
+      onStompError: () => {},
+      onWebSocketError: () => {},
+    });
 
-  //   return () => {
-  //     // Disconnect the socket when the component unmounts
-  //     socket?.disconnect();
-  //   };
-  // }, [socket]);
+    client.activate();
+    return () => {
+      client.deactivate();
+    };
+  }, []);
 
-  return {
-    socket,
-    updated,
-    setUpdated,
-  };
+  return { updated, setUpdated };
 };
 
 export default useNotification;

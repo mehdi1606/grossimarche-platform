@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { IoClose, IoLocationOutline } from "react-icons/io5";
+
+//internal import
+import FilterDropdown from "@components/common/FilterDropdown";
+import { DELIVERY_CITIES } from "@utils/delivery";
 
 // Premium, responsive address modal. Opens only when the shopper has no saved delivery
 // address (or wants to add a new one). Validated with react-hook-form; on save it hands the
@@ -8,6 +12,7 @@ import { IoClose, IoLocationOutline } from "react-icons/io5";
 const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -85,21 +90,39 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
               )}
             </div>
 
-            <div className="col-span-6 sm:col-span-3">
+            {/* Delivery is only served in these cities, and each has its own fee — a free
+                text field would let a shopper enter a place we cannot deliver to. Full row:
+                "Casablanca — livraison 20 DH" does not fit in a half-width field. */}
+            <div className="col-span-6">
               <label className="mb-1.5 block text-sm font-medium text-gray-600">
                 City
               </label>
-              <input
-                {...register("city", { required: "City is required" })}
-                className={field}
-                placeholder="Casablanca"
+              <Controller
+                name="city"
+                control={control}
+                rules={{ required: "City is required" }}
+                render={({ field: { value, onChange } }) => (
+                  <FilterDropdown
+                    heightCls="h-12"
+                    ariaLabel="Ville de livraison"
+                    placeholder="Choisissez une ville…"
+                    value={value || ""}
+                    onChange={onChange}
+                    options={DELIVERY_CITIES.map(({ city, fee }) => ({
+                      value: city,
+                      label: `${city} — ${
+                        fee === 0 ? "livraison offerte" : `livraison ${fee} DH`
+                      }`,
+                    }))}
+                  />
+                )}
               />
               {errors.city && (
                 <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>
               )}
             </div>
 
-            <div className="col-span-3 sm:col-span-2">
+            <div className="col-span-3 sm:col-span-4">
               <label className="mb-1.5 block text-sm font-medium text-gray-600">
                 Country
               </label>
@@ -110,7 +133,7 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
               />
             </div>
 
-            <div className="col-span-3 sm:col-span-1">
+            <div className="col-span-3 sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-600">
                 Zip
               </label>

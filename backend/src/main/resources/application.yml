@@ -97,6 +97,15 @@ resilience4j:
         failure-rate-threshold: 50
 
 grossimarche:
+  pricing:
+    # Delivery: per-city rates for the area actually served, the flat fee for anywhere else,
+    # and free delivery above the threshold whatever the city. Keys are lowercase, unaccented.
+    delivery-fee: ${DELIVERY_FEE:30.00}
+    free-delivery-threshold: ${FREE_DELIVERY_THRESHOLD:1000.00}
+    city-fees:
+      mohammedia: 0.00
+      casablanca: 20.00
+      benslimane: 30.00
   api:
     public-url: ${API_PUBLIC_URL:http://localhost:8080}
   cors:

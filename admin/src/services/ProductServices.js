@@ -70,6 +70,18 @@ const ProductServices = {
 
   addAllProducts: async (body) => requests.post("/admin/products/import", body),
 
+  // Quantity-discount tiers: from `minQuantity` units, `unitPrice` replaces the base price.
+  getTiers: async (productId) => requests.get(`/admin/products/${productId}/tiers`),
+
+  addTier: async (productId, { minQuantity, unitPrice }) =>
+    requests.post(`/admin/products/${productId}/tiers`, {
+      minQuantity: Number(minQuantity),
+      unitPrice: Number(unitPrice),
+    }),
+
+  deleteTier: async (productId, tierId) =>
+    requests.delete(`/admin/products/${productId}/tiers/${tierId}`),
+
   updateProduct: async (id, body) =>
     adaptAdminProduct(await requests.put(`/admin/products/${id}`, toProductRequest(body))),
 

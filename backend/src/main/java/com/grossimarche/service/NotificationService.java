@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -79,8 +80,13 @@ public class NotificationService {
      * Persist a notification and push it to staff subscribers. Intended for internal callers
      * (event listeners), so it carries no authorization annotation — never expose it to a
      * request-driven path.
+     *
+     * REQUIRES_NEW is essential, not decorative: the callers are {@code AFTER_COMMIT}
+     * transactional listeners, where the surrounding transaction is already committed. With
+     * the default propagation the insert joins that finished transaction and is silently
+     * dropped — the row never reaches the database and no error is raised.
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void record(NotificationType type, String title, String message, UUID referenceId) {
         Notification notification = notificationRepository.save(Notification.builder()
                 .type(type)

@@ -218,8 +218,12 @@ const Checkout = () => {
                             <p className="text-sm font-semibold text-gray-800">
                               Livraison standard
                             </p>
+                            {/* The fee depends on the destination, so name it rather than
+                                promising "partout au Maroc". */}
                             <p className="text-xs text-gray-500">
-                              Partout au Maroc — paiement à la livraison
+                              {selectedAddress?.city
+                                ? `${selectedAddress.city} — paiement à la livraison`
+                                : "Choisissez une ville — paiement à la livraison"}
                             </p>
                           </div>
                         </div>

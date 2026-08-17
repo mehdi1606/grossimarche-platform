@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +14,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PricingServiceTest {
 
     private final PricingService pricing = new PricingService(
-            new PricingProperties(new BigDecimal("30.00"), new BigDecimal("500.00")));
+            new PricingProperties(new BigDecimal("30.00"), new BigDecimal("500.00"),
+                    Map.of("mohammedia", new BigDecimal("0.00"),
+                            "casablanca", new BigDecimal("20.00"))));
 
     private ProductPriceTier tier(int minQty, String price) {
         return ProductPriceTier.builder().minQuantity(minQty).unitPrice(new BigDecimal(price)).build();
@@ -38,6 +41,21 @@ class PricingServiceTest {
         assertThat(pricing.deliveryFee(new BigDecimal("499.99"))).isEqualByComparingTo("30.00");
         assertThat(pricing.deliveryFee(new BigDecimal("500.00"))).isEqualByComparingTo("0.00");
         assertThat(pricing.deliveryFee(new BigDecimal("650.00"))).isEqualByComparingTo("0.00");
+    }
+
+    @Test
+    void deliveryFee_usesTheCityRate() {
+        BigDecimal under = new BigDecimal("100.00");
+        assertThat(pricing.deliveryFee(under, "Mohammedia")).isEqualByComparingTo("0.00");
+        assertThat(pricing.deliveryFee(under, "casablanca")).isEqualByComparingTo("20.00");
+        // Casing and stray spacing must not change the rate.
+        assertThat(pricing.deliveryFee(under, "  CASABLANCA ")).isEqualByComparingTo("20.00");
+        // A city with no configured rate falls back to the flat fee.
+        assertThat(pricing.deliveryFee(under, "Marrakech")).isEqualByComparingTo("30.00");
+        assertThat(pricing.deliveryFee(under, null)).isEqualByComparingTo("30.00");
+        // The free-delivery threshold still wins over any city rate.
+        assertThat(pricing.deliveryFee(new BigDecimal("500.00"), "casablanca"))
+                .isEqualByComparingTo("0.00");
     }
 
     @Test

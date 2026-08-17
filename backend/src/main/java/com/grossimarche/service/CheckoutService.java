@@ -171,7 +171,8 @@ public class CheckoutService {
         }
 
         // 5. Recompute totals server-side.
-        PricingService.Totals totals = pricingService.computeTotals(pricingLines);
+        // Delivery is priced from the destination city of the address chosen above.
+        PricingService.Totals totals = pricingService.computeTotals(pricingLines, address.getCity());
 
         // 5b. Apply an optional coupon: validated server-side against the fresh subtotal,
         //     snapshotted on the order. An invalid/expired code aborts checkout (no order).
@@ -227,7 +228,10 @@ public class CheckoutService {
         //     back-office notification (fired once, only on creation).
         events.publishEvent(new OrderStatusChangedEvent(order.getId(), order.getOrderNumber(),
                 order.getStatus(), userId, "Commande " + order.getStatus()));
-        events.publishEvent(new OrderPlacedEvent(order.getId(), order.getOrderNumber()));
+        events.publishEvent(new OrderPlacedEvent(order.getId(), order.getOrderNumber(),
+                customerLabel(userId), address.getCity(), orderItems.size(),
+                orderItems.stream().mapToInt(OrderItem::getQuantity).sum(),
+                order.getTotal(), order.getPaymentMethod()));
 
         return buildResponse(order, payment, pointsEarned);
     }
@@ -237,6 +241,22 @@ public class CheckoutService {
         List<OrderStatusHistory> history = statusHistoryRepository.findByOrderIdOrderByCreatedAtAsc(order.getId());
         OrderDetailResponse detail = orderMapper.toDetail(order, items, history);
         return new OrderCreatedResponse(detail, payment, points);
+    }
+
+    /**
+     * How the buyer is named in the back-office notification. Accounts are passwordless, so a
+     * shopper who never filled a profile has only a phone or an e-mail — fall back to those
+     * rather than showing an empty name.
+     */
+    private String customerLabel(UUID userId) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    if (user.getFullName() != null && !user.getFullName().isBlank()) {
+                        return user.getFullName();
+                    }
+                    return user.getPhone() != null ? user.getPhone() : user.getEmail();
+                })
+                .orElse("Client");
     }
 
     private String serializeAddress(Address address) {

@@ -45,15 +45,43 @@ public class PricingService {
         return money(unitPrice.multiply(BigDecimal.valueOf(quantity)));
     }
 
-    /** Flat delivery fee, waived at or above the free-delivery threshold. */
+    /** Delivery fee with no known destination yet (cart preview): the flat rate. */
     public BigDecimal deliveryFee(BigDecimal subtotal) {
-        return subtotal.compareTo(props.freeDeliveryThreshold()) >= 0
-                ? money(BigDecimal.ZERO)
-                : money(props.deliveryFee());
+        return deliveryFee(subtotal, null);
     }
 
-    /** Compute the order-level totals from the priced lines. */
+    /**
+     * Delivery fee for a destination. The free-delivery threshold still wins — it can only
+     * ever lower the bill — then the city's own rate applies, and any city without a
+     * configured rate falls back to the flat fee.
+     */
+    public BigDecimal deliveryFee(BigDecimal subtotal, String city) {
+        if (subtotal.compareTo(props.freeDeliveryThreshold()) >= 0) {
+            return money(BigDecimal.ZERO);
+        }
+        BigDecimal cityFee = props.cityFees().get(normalizeCity(city));
+        return money(cityFee != null ? cityFee : props.deliveryFee());
+    }
+
+    /**
+     * City keys are configuration, typed by hand on both sides — match them on a normalized
+     * form so "Casablanca", " casablanca " and "CASABLANCA" all resolve.
+     */
+    private String normalizeCity(String city) {
+        if (city == null) {
+            return "";
+        }
+        return java.text.Normalizer.normalize(city.trim().toLowerCase(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+    }
+
+    /** Compute the order-level totals from the priced lines (flat delivery, no destination). */
     public Totals computeTotals(List<LinePricing> lines) {
+        return computeTotals(lines, null);
+    }
+
+    /** Compute the order-level totals from the priced lines, delivered to {@code city}. */
+    public Totals computeTotals(List<LinePricing> lines, String city) {
         BigDecimal subtotal = BigDecimal.ZERO;
         BigDecimal discount = BigDecimal.ZERO;
         for (LinePricing line : lines) {
@@ -63,7 +91,7 @@ public class PricingService {
         }
         subtotal = money(subtotal);
         discount = money(discount);
-        BigDecimal delivery = deliveryFee(subtotal);
+        BigDecimal delivery = deliveryFee(subtotal, city);
         BigDecimal total = money(subtotal.add(delivery));
         return new Totals(subtotal, discount, delivery, total);
     }

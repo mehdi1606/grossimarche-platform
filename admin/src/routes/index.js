@@ -14,6 +14,7 @@ const CustomerOrder = lazy(() => import("@/pages/CustomerOrder"));
 const Orders = lazy(() => import("@/pages/Orders"));
 const OrderInvoice = lazy(() => import("@/pages/OrderInvoice"));
 const Coupons = lazy(() => import("@/pages/Coupons"));
+const Offers = lazy(() => import("@/pages/Offers"));
 // const Setting = lazy(() => import("@/pages/Setting"));
 const Page404 = lazy(() => import("@/pages/404"));
 const ComingSoon = lazy(() => import("@/pages/ComingSoon"));
@@ -94,6 +95,10 @@ const routes = [
   {
     path: "/coupons",
     component: Coupons,
+  },
+  {
+    path: "/offers",
+    component: Offers,
   },
   { path: "/settings", component: Setting },
   {
