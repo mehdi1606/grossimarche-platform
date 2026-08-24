@@ -17,12 +17,12 @@ const RailCard = ({ category, title }) => {
         ref={tilt.ref}
         onMouseMove={tilt.onMouseMove}
         onMouseLeave={tilt.onMouseLeave}
-        className="gm-tilt-inner group flex h-full flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-shadow hover:border-emerald-200 hover:shadow-xl"
+        className="gm-tilt-inner group flex h-full flex-col items-center gap-3 rounded-2xl border border-line bg-white p-6 text-center shadow-luxe transition-shadow hover:border-emerald-200 hover:shadow-luxe-lg"
       >
         <span className="gm-tilt-pop grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-100">
           <CategoryIcon icon={category.icon} className="h-7 w-7" />
         </span>
-        <span className="line-clamp-1 text-sm font-medium text-gray-700">{title}</span>
+        <span className="line-clamp-1 text-sm font-medium text-ink-700">{title}</span>
       </Link>
     </div>
   );

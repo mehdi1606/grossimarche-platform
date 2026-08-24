@@ -11,9 +11,13 @@ import SettingServices from "@services/SettingServices";
  * Storefront language switcher, same shape as the back-office one: a globe button that opens
  * a panel listing each language with its ISO badge and a check on the active one.
  *
- * The list is filtered against the locales Next actually routes (i18n.json). The API can
- * advertise a language the site has no translations for — Arabic today — and offering it
- * would push the visitor to a route that does not exist.
+ * The list is filtered against the locales Next actually routes (`i18n.locales` in
+ * next.config.js). The API can advertise a language the site does not route, and offering it
+ * would push the visitor to a URL that does not exist.
+ *
+ * There is no per-language translation work behind a locale: picking one switches the route,
+ * and TranslationContext machine-translates the page from French. Adding a language is a
+ * one-line change in next.config.js.
  */
 const LanguageMenu = () => {
   const router = useRouter();
@@ -75,8 +79,8 @@ const LanguageMenu = () => {
         title={current?.name}
         className={`grid h-9 w-9 place-items-center rounded-full transition-colors focus:outline-none ${
           open
-            ? "bg-gray-100 text-emerald-600"
-            : "text-gray-500 hover:bg-gray-100 hover:text-emerald-600"
+            ? "bg-sand text-emerald-700"
+            : "text-ink-500 hover:bg-sand hover:text-emerald-700"
         }`}
       >
         <FiGlobe className="h-5 w-5" aria-hidden="true" />
@@ -86,7 +90,7 @@ const LanguageMenu = () => {
         <ul
           role="listbox"
           aria-label="Langue"
-          className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+          className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-luxe-lg"
         >
           {routable.map((language) => {
             const isActive = language.iso_code === current?.iso_code;
@@ -99,15 +103,16 @@ const LanguageMenu = () => {
                   onClick={() => pick(language)}
                   className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${
                     isActive
-                      ? "bg-emerald-50 font-medium text-emerald-700"
-                      : "text-gray-600 hover:bg-gray-50"
+                      ? "bg-emerald-50 font-medium text-emerald-800"
+                      : "text-ink-600 hover:bg-sand"
                   }`}
                 >
                   <span
+                    data-no-translate
                     className={`grid h-6 w-8 shrink-0 place-items-center rounded-md text-[11px] font-semibold uppercase tracking-wide ${
                       isActive
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-sand text-ink-500"
                     }`}
                   >
                     {language.iso_code}

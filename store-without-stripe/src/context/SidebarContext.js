@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createContext } from "react";
+import React, { useState, useMemo, useCallback, createContext } from "react";
 
 // create context
 export const SidebarContext = createContext();
@@ -10,8 +10,11 @@ export const SidebarProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const toggleCartDrawer = () => setCartDrawerOpen(!cartDrawerOpen);
-  const closeCartDrawer = () => setCartDrawerOpen(false);
+  const toggleCartDrawer = useCallback(() => setCartDrawerOpen((open) => !open), []);
+  const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
+  // Explicit open (as opposed to toggle) — adding to the cart must always *show* the cart,
+  // never close it because the drawer happened to be open already.
+  const openCartDrawer = useCallback(() => setCartDrawerOpen(true), []);
 
   const toggleCategoryDrawer = () => setCategoryDrawerOpen(!categoryDrawerOpen);
   const closeCategoryDrawer = () => setCategoryDrawerOpen(false);
@@ -28,6 +31,7 @@ export const SidebarProvider = ({ children }) => {
       cartDrawerOpen,
       toggleCartDrawer,
       closeCartDrawer,
+      openCartDrawer,
       setCartDrawerOpen,
       categoryDrawerOpen,
       toggleCategoryDrawer,
@@ -42,7 +46,16 @@ export const SidebarProvider = ({ children }) => {
       setIsLoading,
     }),
 
-    [cartDrawerOpen, categoryDrawerOpen, isModalOpen, currentPage, isLoading]
+    [
+      cartDrawerOpen,
+      categoryDrawerOpen,
+      isModalOpen,
+      currentPage,
+      isLoading,
+      toggleCartDrawer,
+      closeCartDrawer,
+      openCartDrawer,
+    ]
   );
 
   return (

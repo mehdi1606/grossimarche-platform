@@ -5,6 +5,8 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Attributes = lazy(() => import("@/pages/Attributes"));
 const ChildAttributes = lazy(() => import("@/pages/ChildAttributes"));
 const Products = lazy(() => import("@/pages/Products"));
+const Bundles = lazy(() => import("@/pages/Bundles"));
+const Reviews = lazy(() => import("@/pages/Reviews"));
 const ProductDetails = lazy(() => import("@/pages/ProductDetails"));
 const Category = lazy(() => import("@/pages/Category"));
 const ChildCategory = lazy(() => import("@/pages/ChildCategory"));
@@ -100,6 +102,14 @@ const routes = [
     path: "/offers",
     component: Offers,
   },
+  {
+    path: "/bundles",
+    component: Bundles,
+  },
+  {
+    path: "/reviews",
+    component: Reviews,
+  },
   { path: "/settings", component: Setting },
   {
     path: "/404",
@@ -129,6 +139,8 @@ const routeAccessList = [
   { label: "Categories", value: "categories" },
   { label: "Attributes", value: "attributes" },
   { label: "Coupons", value: "coupons" },
+  { label: "Bundles", value: "bundles" },
+  { label: "Reviews", value: "reviews" },
   { label: "Customers", value: "customers" },
   { label: "Orders", value: "orders" },
   { label: "Staff", value: "our-staff" },

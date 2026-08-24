@@ -8,6 +8,8 @@ import {
   FiGift,
   FiBell,
   FiPercent,
+  FiPackage,
+  FiStar,
 } from "react-icons/fi";
 
 /**
@@ -65,6 +67,16 @@ const sidebar = [
     path: "/offers",
     icon: FiPercent,
     name: "Offers",
+  },
+  {
+    path: "/bundles",
+    icon: FiPackage,
+    name: "Bundles",
+  },
+  {
+    path: "/reviews",
+    icon: FiStar,
+    name: "Reviews",
   },
   {
     path: "/our-staff",

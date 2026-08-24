@@ -10,45 +10,31 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 
 const STAFF_ROLES = ["ADMIN", "STORE_MANAGER"];
 
-// Passwordless OTP login for the back-office. Only ADMIN/STORE_MANAGER accounts are allowed
-// in — a CLIENT who verifies a code is rejected here (and would 403 on every admin call).
+/**
+ * Back-office sign-in: e-mail + password.
+ *
+ * Staff open the back-office many times a day, and a one-time code each time was friction
+ * that bought no extra safety for an account already restricted by role. Customers are
+ * unaffected — the storefront still signs in with a one-time code.
+ *
+ * The role is checked here as well as on the server: a CLIENT that somehow reached this
+ * endpoint would 403 on every admin call anyway, and failing at the door gives a clear
+ * message instead of a dashboard full of errors.
+ */
 const useLoginSubmit = () => {
   const [loading, setLoading] = useState(false);
-  const [channel, setChannel] = useState("EMAIL"); // "SMS" | "EMAIL"
-  const [codeSent, setCodeSent] = useState(false);
-  const [destination, setDestination] = useState("");
   const { dispatch } = useContext(AdminContext);
   const history = useHistory();
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors },
   } = useForm();
 
-  const resetFlow = () => {
-    setCodeSent(false);
-    setDestination("");
-  };
-
-  const sendCode = async (dest) => {
+  const onSubmit = async ({ email, password }) => {
     setLoading(true);
     try {
-      const res = await AdminServices.requestOtp({ channel, destination: dest });
-      setDestination(dest);
-      setCodeSent(true);
-      notifySuccess(res?.message || `Code envoyé (${res?.maskedDestination || dest}).`);
-    } catch (err) {
-      notifyError(err?.response?.data?.message || err?.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyCode = async (code) => {
-    setLoading(true);
-    try {
-      const res = await AdminServices.verifyOtp({ channel, destination, code });
+      const res = await AdminServices.login({ email, password });
       const user = res?.user || {};
       if (!STAFF_ROLES.includes(user.role)) {
         return notifyError("Accès réservé au personnel (admin / gérant).");
@@ -61,6 +47,9 @@ const useLoginSubmit = () => {
         role: user.role,
         token: res.accessToken,
         refreshToken: res.refreshToken,
+        // True while the account is still on the password that was generated for it; the
+        // password screen uses this to insist on a change before anything else.
+        mustChangePassword: !!user.mustChangePassword,
       };
       dispatch({ type: "USER_LOGIN", payload: adminInfo });
       Cookies.set("adminInfo", JSON.stringify(adminInfo), {
@@ -68,6 +57,12 @@ const useLoginSubmit = () => {
         sameSite: "None",
         secure: true,
       });
+
+      if (adminInfo.mustChangePassword) {
+        notifySuccess("Connexion réussie. Choisissez un nouveau mot de passe.");
+        history.replace("/edit-profile");
+        return;
+      }
       notifySuccess("Connexion réussie.");
       history.replace("/dashboard");
     } catch (err) {
@@ -77,24 +72,12 @@ const useLoginSubmit = () => {
     }
   };
 
-  const onSubmit = async ({ destination: dest, code }) => {
-    if (!codeSent) return sendCode(dest);
-    return verifyCode(code);
-  };
-
-  const resendCode = () => sendCode(getValues("destination") || destination);
-
   return {
     onSubmit,
     register,
     handleSubmit,
     errors,
     loading,
-    channel,
-    setChannel,
-    codeSent,
-    resetFlow,
-    resendCode,
   };
 };
 

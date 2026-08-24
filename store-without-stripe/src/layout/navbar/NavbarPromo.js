@@ -23,17 +23,17 @@ const NavbarPromo = () => {
   const { t } = useTranslate();
 
   return (
-    <div className="hidden lg:block bg-white border-b border-gray-100">
+    <div className="hidden border-b border-line bg-white lg:block">
       <div className="max-w-screen-2xl mx-auto px-3 sm:px-10 h-12 flex justify-between items-center">
         {/* Left: navigation */}
         <Popover.Group as="nav" className="flex items-center space-x-8">
           {/* Categories mega-dropdown */}
           <Popover className="relative">
-            <Popover.Button className="group inline-flex items-center py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 focus:outline-none">
+            <Popover.Button className="group inline-flex items-center py-2 text-sm font-medium text-ink-700 transition hover:text-emerald-700 focus:outline-none">
               <FiGrid className="mr-2 h-4 w-4" />
               <span>{t("Catégories")}</span>
               <ChevronDownIcon
-                className="ml-1 h-3 w-3 group-hover:text-emerald-600"
+                className="ml-1 h-3 w-3 transition group-hover:text-emerald-700"
                 aria-hidden="true"
               />
             </Popover.Button>
@@ -60,7 +60,7 @@ const NavbarPromo = () => {
               key={item.href}
               href={item.href}
               onClick={() => setIsLoading(!isLoading)}
-              className="py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition"
+              className="py-2 text-sm font-medium text-ink-700 transition hover:text-emerald-700"
             >
               {t(item.label)}
             </Link>

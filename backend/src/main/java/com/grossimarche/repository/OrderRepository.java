@@ -33,6 +33,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     long countByUserId(UUID userId);
 
+    /**
+     * One row per status for a customer's orders. Used by the account dashboard counters,
+     * which would otherwise need one COUNT round-trip per status.
+     */
+    @Query("select o.status as status, count(o) as count from Order o "
+            + "where o.user.id = :userId group by o.status")
+    List<StatusCount> countByUserGroupedByStatus(UUID userId);
+
     /** Revenue (excluding cancelled orders) placed at or after {@code since}. */
     @Query("select coalesce(sum(o.total), 0) from Order o "
             + "where o.status <> com.grossimarche.entity.enums.OrderStatus.CANCELLED "
@@ -50,6 +58,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             + "where o.status <> com.grossimarche.entity.enums.OrderStatus.CANCELLED "
             + "and o.createdAt >= :since")
     List<RevenueRow> revenueRowsSince(Instant since);
+
+    /** JPQL projection for the per-status customer counters. */
+    interface StatusCount {
+        OrderStatus getStatus();
+
+        long getCount();
+    }
 
     /** JPQL projection for the sales series. */
     interface RevenueRow {

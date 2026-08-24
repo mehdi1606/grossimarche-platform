@@ -6,20 +6,20 @@ import { useQuery } from "@tanstack/react-query";
 
 //internal import
 import Dashboard from "@pages/user/dashboard";
-import useGetSetting from "@hooks/useGetSetting";
 import OrderServices from "@services/OrderServices";
 import Loading from "@components/preloader/Loading";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import OrderHistory from "@components/order/OrderHistory";
+import OrderCard from "@components/order/OrderCard";
 import { SidebarContext } from "@context/SidebarContext";
 import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
+
+const PAGE_SIZE = 10;
 
 const MyOrders = () => {
   const { currentPage, handleChangePage, isLoading, setIsLoading } =
     useContext(SidebarContext);
 
-  const { storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const { currency } = useUtilsFunction();
 
   const {
     data,
@@ -29,150 +29,85 @@ const MyOrders = () => {
     queryKey: ["orders", { currentPage }],
     queryFn: async () =>
       await OrderServices.getOrderCustomer({
-        limit: 10,
+        limit: PAGE_SIZE,
         page: currentPage,
       }),
   });
 
-  const pageCount = Math.ceil(data?.totalDoc / 8);
+  // Paginate on the page size actually requested — this used to divide by 8 while asking the
+  // API for 10, so the last page(s) of a long history were unreachable.
+  const pageCount = Math.ceil((data?.totalDoc || 0) / PAGE_SIZE);
 
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
-  // console.log("data?.orders?.length", data?.totalDoc);
   return (
     <>
       {isLoading ? (
         <Loading loading={isLoading} />
       ) : (
         <Dashboard
-          title={showingTranslateValue(
-            storeCustomizationSetting?.dashboard?.my_order
-          )}
-          description="This is user order history page"
+          title="Mes commandes"
+          description="Suivez et retrouvez toutes vos commandes Grossimarché"
         >
-          <div className="overflow-hidden rounded-md font-serif">
-            <div className="flex flex-col">
-              <h2 className="text-xl font-serif font-semibold mb-5">
-                Mes commandes
-              </h2>
-              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="align-middle inline-block border border-gray-100 rounded-md min-w-full pb-2 sm:px-6 lg:px-8">
-                  <div className="overflow-hidden border-b last:border-b-0 border-gray-100 rounded-md">
-                    {loading ? (
-                      <CMSkeletonTwo
-                        count={20}
-                        width={100}
-                        error={error}
-                        loading={loading}
-                      />
-                    ) : data?.orders?.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-                        <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-3xl text-emerald-500">
-                          <IoBagHandle />
-                        </span>
-                        <h2 className="text-lg font-semibold text-gray-800">
-                          Aucune commande pour le moment
-                        </h2>
-                        <p className="mt-1 max-w-sm text-sm text-gray-500">
-                          Vos commandes apparaîtront ici dès votre premier achat.
-                        </p>
-                        <Link
-                          href="/search"
-                          className="mt-6 rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-600"
-                        >
-                          Découvrir les produits
-                        </Link>
-                      </div>
-                    ) : (
-                      <table className="table-auto min-w-full border border-gray-100 divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr className="bg-gray-100">
-                            <th
-                              scope="col"
-                              className="text-left text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              ID
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-center text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              OrderTime
-                            </th>
+          <div className="overflow-hidden">
+            <h2 className="mb-6 font-display text-xl font-semibold text-ink-900">
+              Mes commandes
+            </h2>
 
-                            <th
-                              scope="col"
-                              className="text-center text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              Method
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-center text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              Status
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-center text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              Total
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-right text-xs font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider"
-                            >
-                              Action
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {data?.orders?.map((order) => (
-                            <tr key={order._id}>
-                              <OrderHistory order={order} />
-                              <td className="px-5 py-3 whitespace-nowrap text-right text-sm">
-                                <Link
-                                  className="px-3 py-1 bg-emerald-100 text-xs text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all font-semibold rounded-full"
-                                  href={`/order/${order._id}`}
-                                >
-                                  Détails
-                                </Link>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    )}
-                    {data?.totalDoc > 10 && (
-                      <div className="paginationOrder">
-                        <ReactPaginate
-                          breakLabel="..."
-                          nextLabel="Next"
-                          onPageChange={(e) => handleChangePage(e.selected + 1)}
-                          pageRangeDisplayed={3}
-                          pageCount={pageCount}
-                          previousLabel="Previous"
-                          renderOnZeroPageCount={null}
-                          pageClassName="page--item"
-                          pageLinkClassName="page--link"
-                          previousClassName="page-item"
-                          previousLinkClassName="page-previous-link"
-                          nextClassName="page-item"
-                          nextLinkClassName="page-next-link"
-                          breakClassName="page--item"
-                          breakLinkClassName="page--link"
-                          containerClassName="pagination"
-                          activeClassName="activePagination"
-                          forcePage={currentPage - 1} // Sync UI with currentPage
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
+            {loading ? (
+              <CMSkeletonTwo count={20} width={100} error={error} loading={loading} />
+            ) : data?.orders?.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-white px-6 py-16 text-center">
+                <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-3xl text-emerald-500">
+                  <IoBagHandle />
+                </span>
+                <h2 className="font-display text-lg font-semibold text-ink-800">
+                  Aucune commande pour le moment
+                </h2>
+                <p className="mt-1 max-w-sm text-sm text-ink-500">
+                  Vos commandes apparaîtront ici dès votre premier achat.
+                </p>
+                <Link
+                  href="/search"
+                  className="mt-6 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700"
+                >
+                  Découvrir les produits
+                </Link>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {data?.orders?.map((order) => (
+                  <OrderCard key={order._id} order={order} currency={currency} />
+                ))}
+              </div>
+            )}
+
+            {pageCount > 1 && (
+              <div className="paginationOrder mt-6">
+                <ReactPaginate
+                  breakLabel="..."
+                  nextLabel="Suivant"
+                  onPageChange={(e) => handleChangePage(e.selected + 1)}
+                  pageRangeDisplayed={3}
+                  pageCount={pageCount}
+                  previousLabel="Précédent"
+                  renderOnZeroPageCount={null}
+                  pageClassName="page--item"
+                  pageLinkClassName="page--link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-previous-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-next-link"
+                  breakClassName="page--item"
+                  breakLinkClassName="page--link"
+                  containerClassName="pagination"
+                  activeClassName="activePagination"
+                  forcePage={currentPage - 1} // Sync UI with currentPage
+                />
+              </div>
+            )}
           </div>
         </Dashboard>
       )}

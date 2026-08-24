@@ -1,7 +1,0 @@
-{
-  "locales": ["fr", "ar", "en"],
-  "defaultLocale": "fr",
-  "pages": {
-    "*": ["common"]
-  }
-}

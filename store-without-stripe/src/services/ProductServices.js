@@ -77,6 +77,12 @@ const ProductServices = {
     return adaptProduct(await requests.get(`/products/${slug}`));
   },
 
+  // Same endpoint — it accepts an id or a slug. Named separately because reordering looks
+  // products up by the id stored on the order line, and reads better saying so.
+  getProductById: async (id) => {
+    return adaptProduct(await requests.get(`/products/${id}`));
+  },
+
   // Cross-sell / upsell suggestions: prefer the same category as what's in the cart, fall
   // back to the general catalogue when no category is known.
   getRelatedProducts: async (categoryId = "") => {

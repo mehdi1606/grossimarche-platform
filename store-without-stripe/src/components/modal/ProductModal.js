@@ -1,4 +1,3 @@
-import useTranslation from "next-translate/useTranslation";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,6 +12,8 @@ import { notifyError } from "@utils/toast";
 import useAddToCart from "@hooks/useAddToCart";
 import MainModal from "@components/modal/MainModal";
 import Discount from "@components/common/Discount";
+import ProductImage from "@components/product/ProductImage";
+import PriceTiers from "@components/product/PriceTiers";
 import VariantList from "@components/variants/VariantList";
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
@@ -27,9 +28,12 @@ const ProductModal = ({
 }) => {
   const router = useRouter();
   const { setIsLoading, isLoading } = useContext(SidebarContext);
-  const { t } = useTranslation("ns1");
 
-  const { handleAddItem, setItem, item } = useAddToCart();
+  const { handleAddItem, setItem, item, minOf } = useAddToCart();
+
+  // Same wholesale minimum as the product page — the modal is a full add-to-cart surface,
+  // not a preview, so it has to honour the same rule.
+  const minQuantity = minOf(product);
   const { lang, showingTranslateValue, getNumber, getNumberTwo } =
     useUtilsFunction();
 
@@ -149,11 +153,21 @@ const ProductModal = ({
     setVariantTitle(varTitle?.sort());
   }, [variants, attributes]);
 
+  // Open the stepper on the minimum order quantity, so the number shown is the number that
+  // will actually be added.
+  useEffect(() => {
+    setItem(minQuantity);
+  }, [minQuantity, setItem]);
+
   const handleAddToCart = (p) => {
     if (p.variants.length === 1 && p.variants[0].quantity < 1)
-      return notifyError("Insufficient stock");
+      return notifyError("Stock insuffisant.");
 
-    if (stock <= 0) return notifyError("Insufficient stock");
+    if (stock <= 0) return notifyError("Article en rupture de stock.");
+    if (stock < minQuantity)
+      return notifyError(
+        `Commande minimum de ${minQuantity} — stock actuel insuffisant.`
+      );
 
     if (
       product?.variants.map(
@@ -199,7 +213,7 @@ const ProductModal = ({
 
       handleAddItem(newItem);
     } else {
-      return notifyError("Please select all variant first!");
+      return notifyError("Veuillez d'abord choisir toutes les options.");
     }
   };
 
@@ -228,21 +242,13 @@ const ProductModal = ({
                 className="flex-shrink-0 flex items-center justify-center h-auto cursor-pointer"
               >
                 <Discount product={product} discount={discount} modal />
-                {product.image[0] ? (
-                  <Image
-                    src={img || product.image[0]}
-                    width={420}
-                    height={420}
-                    alt="product"
-                  />
-                ) : (
-                  <Image
-                    src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
-                    width={420}
-                    height={420}
-                    alt="product Image"
-                  />
-                )}
+                <ProductImage
+                  src={img || product.image?.[0]}
+                  alt={showingTranslateValue(product?.title)}
+                  unit={product?.unit}
+                  zoom={false}
+                  className="aspect-square w-full sm:w-[380px]"
+                />
               </div>
             </Link>
 
@@ -299,12 +305,29 @@ const ProductModal = ({
                 ))}
               </div>
 
+              {product?.priceTiers?.length > 0 && (
+                <div className="mt-4">
+                  <PriceTiers
+                    product={product}
+                    basePrice={product?.prices?.price}
+                    quantity={item}
+                    compact
+                  />
+                </div>
+              )}
+
+              {minQuantity > 1 && (
+                <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sand px-3 py-2 text-xs font-medium text-ink-600">
+                  Commande minimum : {minQuantity} {product.unit || "u."}
+                </p>
+              )}
+
               <div className="flex items-center mt-4">
                 <div className="flex items-center justify-between space-s-3 sm:space-s-4 w-full">
-                  <div className="group flex items-center justify-between rounded-md overflow-hidden flex-shrink-0 border h-11 md:h-12 border-gray-300">
+                  <div className="group flex h-11 flex-shrink-0 items-center justify-between overflow-hidden rounded-xl border border-line md:h-12">
                     <button
-                      onClick={() => setItem(item - 1)}
-                      disabled={item === 1}
+                      onClick={() => setItem(Math.max(minQuantity, item - 1))}
+                      disabled={item <= minQuantity}
                       className="flex items-center justify-center flex-shrink-0 h-full transition ease-in-out duration-300 focus:outline-none w-8 md:w-12 text-heading border-e border-gray-300 hover:text-gray-500"
                     >
                       <span className="text-dark text-base">
@@ -329,31 +352,31 @@ const ProductModal = ({
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={product.quantity < 1}
-                    className="text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold font-serif text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none text-white px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 hover:text-white bg-emerald-500 hover:bg-emerald-600 w-full h-12"
+                    className="ml-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                   >
-                    {t("common:addToCart")}
+                    Ajouter au panier
                   </button>
                 </div>
               </div>
               <div className="flex items-center mt-4">
                 <div className="flex items-center justify-between space-s-3 sm:space-s-4 w-full">
                   <div>
-                    <span className="font-serif font-semibold py-1 text-sm d-block">
-                      <span className="text-gray-700">
-                        {t("common:category")}:
-                      </span>{" "}
-                      <Link
-                        href={`/search?category=${category_name}&_id=${product?.category?._id}`}
-                      >
-                        <button
-                          type="button"
-                          className="text-gray-600 font-serif font-medium underline ml-2 hover:text-teal-600"
-                          onClick={() => setIsLoading(!isLoading)}
+                    {product?.category?._id && (
+                      <span className="d-block py-1 text-sm font-semibold">
+                        <span className="text-ink-600">Catégorie :</span>{" "}
+                        <Link
+                          href={`/search?category=${category_name}&_id=${product?.category?._id}`}
                         >
-                          {category_name}
-                        </button>
-                      </Link>
-                    </span>
+                          <button
+                            type="button"
+                            className="ml-1 font-medium text-emerald-700 underline transition hover:text-emerald-800"
+                            onClick={() => setIsLoading(!isLoading)}
+                          >
+                            {category_name}
+                          </button>
+                        </Link>
+                      </span>
+                    )}
 
                     <Tags product={product} />
                   </div>
@@ -363,18 +386,10 @@ const ProductModal = ({
                       onClick={() => handleMoreInfo(product.slug)}
                       className="font-sans font-medium text-sm text-orange-500"
                     >
-                      {t("common:moreInfo")}
+                      Voir le produit
                     </button>
                   </div>
                 </div>
-              </div>
-              <div className="flex justify-end mt-2">
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Call Us To Order By Mobile Number :{" "}
-                  <span className="text-emerald-700 font-semibold">
-                    +0044235234
-                  </span>{" "}
-                </p>
               </div>
             </div>
           </div>

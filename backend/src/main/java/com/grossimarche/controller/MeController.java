@@ -1,5 +1,6 @@
 package com.grossimarche.controller;
 
+import com.grossimarche.dto.auth.ChangePasswordRequest;
 import com.grossimarche.dto.auth.OtpRequestRequest;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.OtpVerifyRequest;
@@ -51,6 +52,14 @@ public class MeController {
     @GetMapping("/export")
     public Map<String, Object> export() {
         return profileService.exportMe(SecurityUtils.currentUserId());
+    }
+
+    /** Change one's own back-office password (staff accounts only). */
+    @PostMapping("/password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest body) {
+        profileService.changePassword(SecurityUtils.currentUserId(), body.currentPassword(),
+                body.newPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/contact/request")

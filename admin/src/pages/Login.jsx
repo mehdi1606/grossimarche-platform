@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@windmill/react-ui";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 //internal import
 import Error from "@/components/form/others/Error";
@@ -11,20 +12,8 @@ import useLoginSubmit from "@/hooks/useLoginSubmit";
 import CMButton from "@/components/form/button/CMButton";
 
 const Login = () => {
-  const {
-    onSubmit,
-    register,
-    handleSubmit,
-    errors,
-    loading,
-    channel,
-    setChannel,
-    codeSent,
-    resetFlow,
-    resendCode,
-  } = useLoginSubmit();
-
-  const isSms = channel === "SMS";
+  const { onSubmit, register, handleSubmit, errors, loading } = useLoginSubmit();
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
@@ -49,99 +38,78 @@ const Login = () => {
                 Back-office
               </h1>
               <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-                Connexion par code à usage unique — réservé au personnel.
+                Connexion réservée au personnel.
               </p>
 
-              {!codeSent && (
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setChannel("EMAIL")}
-                    className={`py-2 rounded border text-sm font-medium ${
-                      !isSms
-                        ? "bg-emerald-500 text-white border-emerald-500"
-                        : "bg-white text-gray-600 border-gray-300 dark:bg-gray-700 dark:text-gray-200"
-                    }`}
-                  >
-                    Email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChannel("SMS")}
-                    className={`py-2 rounded border text-sm font-medium ${
-                      isSms
-                        ? "bg-emerald-500 text-white border-emerald-500"
-                        : "bg-white text-gray-600 border-gray-300 dark:bg-gray-700 dark:text-gray-200"
-                    }`}
-                  >
-                    Téléphone
-                  </button>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit(onSubmit)}>
-                <LabelArea label={isSms ? "Téléphone" : "Email"} />
+                <LabelArea label="Email" />
                 <InputArea
                   required={true}
                   register={register}
-                  label={isSms ? "Téléphone" : "Email"}
-                  name="destination"
-                  type={isSms ? "tel" : "email"}
-                  disabled={codeSent}
-                  placeholder={isSms ? "+2126XXXXXXXX" : "admin@grossimarche.ma"}
+                  label="Email"
+                  name="email"
+                  type="email"
+                  autoComplete="username"
+                  placeholder="admin@grossimarche.ma"
                 />
-                <Error errorName={errors.destination} />
+                <Error errorName={errors.email} />
 
-                {codeSent && (
-                  <>
-                    <div className="mt-4"></div>
-                    <LabelArea label="Code à 6 chiffres" />
-                    <InputArea
-                      required={true}
-                      register={register}
-                      label="Code"
-                      name="code"
-                      type="text"
-                      placeholder="______"
-                    />
-                    <Error errorName={errors.code} />
-                    <div className="flex justify-between mt-2 text-sm">
-                      <button
-                        type="button"
-                        onClick={resetFlow}
-                        className="text-gray-500 underline"
-                      >
-                        Changer
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resendCode}
-                        className="text-emerald-600 underline"
-                      >
-                        Renvoyer le code
-                      </button>
-                    </div>
-                  </>
-                )}
+                <div className="mt-4" />
+                <LabelArea label="Mot de passe" />
+                {/* A reveal toggle: a generated password is retyped from an e-mail, and being
+                    unable to check what was typed is where those sign-ins go wrong. */}
+                <div className="relative">
+                  <InputArea
+                    required={true}
+                    register={register}
+                    label="Mot de passe"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword
+                        ? "Masquer le mot de passe"
+                        : "Afficher le mot de passe"
+                    }
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-emerald-600 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <Error errorName={errors.password} />
 
                 {loading ? (
                   <CMButton
                     disabled={loading}
                     type="submit"
-                    className="bg-emerald-600 rounded-md mt-4 h-12 w-full"
+                    className="bg-emerald-600 rounded-md mt-6 h-12 w-full"
                     to="/dashboard"
                   />
                 ) : (
                   <Button
                     disabled={loading}
                     type="submit"
-                    className="mt-4 h-12 w-full"
+                    className="mt-6 h-12 w-full"
                     to="/dashboard"
                   >
-                    {codeSent ? "Vérifier & se connecter" : "Envoyer le code"}
+                    Se connecter
                   </Button>
                 )}
               </form>
+
+              <p className="mt-6 text-xs text-gray-400 dark:text-gray-500">
+                Mot de passe oublié ? Demandez à un administrateur de vous en
+                envoyer un nouveau par e-mail.
+              </p>
             </div>
           </main>
         </div>

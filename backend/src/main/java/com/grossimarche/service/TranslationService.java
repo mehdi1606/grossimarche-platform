@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -30,6 +31,20 @@ public class TranslationService {
     private static final Logger log = LoggerFactory.getLogger(TranslationService.class);
     private static final Duration CACHE_TTL = Duration.ofDays(30);
     private static final int MAX_CHARS = 5000; // guard against oversized inputs
+
+    /**
+     * Scripts we can verify an answer against. LibreTranslate has no direct fr->ar model and
+     * pivots through English; when the second leg does not run, it returns the English
+     * intermediate. That is not a failure it reports — the text simply comes back in the wrong
+     * language — so for languages with their own script we check the output actually uses it.
+     */
+    private static final Map<String, Character.UnicodeScript> TARGET_SCRIPT = Map.of(
+            "ar", Character.UnicodeScript.ARABIC,
+            "he", Character.UnicodeScript.HEBREW,
+            "el", Character.UnicodeScript.GREEK,
+            "ru", Character.UnicodeScript.CYRILLIC,
+            "zh", Character.UnicodeScript.HAN,
+            "ko", Character.UnicodeScript.HANGUL);
 
     private final TranslationProperties props;
     private final StringRedisTemplate redis;
@@ -87,10 +102,13 @@ public class TranslationService {
                 int idx = missIdx.get(j);
                 String src = missText.get(j);
                 String tr = (ok && j < translated.size()) ? translated.get(j) : src;
-                result[idx] = tr;
-                // Only cache genuine translations; skip no-ops (identical output usually means
-                // the target model wasn't reached) so they aren't frozen in the cache.
-                if (ok && tr != null && !tr.equals(src)) {
+                // Only cache genuine translations. An identical output usually means the
+                // target model wasn't reached; an output in the wrong script means the pivot
+                // stopped at English. Neither is frozen in the cache, so both are retried
+                // later — once the model finishes loading, the answer corrects itself.
+                boolean genuine = ok && tr != null && !tr.equals(src) && inTargetScript(tr, target);
+                result[idx] = genuine ? tr : src;
+                if (genuine) {
                     safeSet(cacheKey(source, target, src), tr);
                 }
             }
@@ -130,6 +148,24 @@ public class TranslationService {
             log.warn("LibreTranslate unavailable ({}); returning source text.", e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Whether {@code text} is written in the target language's script. Languages that share
+     * the Latin alphabet cannot be told apart this way, so they always pass.
+     */
+    private boolean inTargetScript(String text, String target) {
+        if (target == null) {
+            return true;
+        }
+        Character.UnicodeScript expected =
+                TARGET_SCRIPT.get(target.toLowerCase(Locale.ROOT).split("[-_]")[0]);
+        if (expected == null) {
+            return true;
+        }
+        return text.codePoints()
+                .filter(Character::isLetter)
+                .anyMatch(cp -> Character.UnicodeScript.of(cp) == expected);
     }
 
     private String cacheKey(String source, String target, String text) {

@@ -15,6 +15,7 @@ import store from "@redux/store";
 import { handlePageView } from "@lib/analytics";
 import { UserProvider } from "@context/UserContext";
 import DefaultSeo from "@components/common/DefaultSeo";
+import AutoTranslate from "@components/common/AutoTranslate";
 import { SidebarProvider } from "@context/SidebarContext";
 import { TranslationProvider } from "@context/TranslationContext";
 import SettingServices from "@services/SettingServices";
@@ -84,6 +85,9 @@ function MyApp({ Component, pageProps }) {
                 <SidebarProvider>
                   <CartProvider>
                     <TranslationProvider>
+                      {/* Translates the rendered page through LibreTranslate. Inert on the
+                          source locale (French), so it costs nothing by default. */}
+                      <AutoTranslate />
                       <DefaultSeo />
                       <Component {...pageProps} />
                     </TranslationProvider>

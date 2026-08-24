@@ -21,9 +21,13 @@ import java.util.List;
 @Component
 public class ProductMapper {
 
-    public ProductSummaryResponse toSummary(Product product, boolean inStock, boolean hasQuantityDiscount) {
+    public ProductSummaryResponse toSummary(Product product, boolean inStock,
+                                            List<PriceTierResponse> priceTiers) {
         return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
-                product.getPrice(), product.getUnit(), product.getImageUrl(), inStock, hasQuantityDiscount);
+                product.getPrice(), product.getUnit(), product.getImageUrl(), inStock,
+                priceTiers != null && !priceTiers.isEmpty(),
+                priceTiers == null ? List.of() : priceTiers,
+                product.getMinOrderQuantity());
     }
 
     /** Back-office list row (exposes stock/active/category; called within a transaction). */

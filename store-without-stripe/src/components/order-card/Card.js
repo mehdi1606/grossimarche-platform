@@ -1,19 +1,23 @@
-import React from 'react';
+import React from "react";
 
+/**
+ * One account KPI. Quiet by default — a large number, a small label, and colour used only on
+ * the icon so four of these in a row read as a set rather than four competing badges.
+ */
 const Card = ({ title, Icon, quantity, className }) => {
   return (
     <div className="flex h-full">
-      <div className="flex items-center border border-gray-200 w-full rounded-lg p-4">
+      <div className="flex w-full items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-luxe transition hover:border-emerald-200 hover:shadow-luxe-lg">
         <div
-          className={`flex items-center justify-center p-3 rounded-full h-12 w-12 text-xl text-center mr-4 ${className}`}
+          className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-lg ${className}`}
         >
           <Icon />
         </div>
-        <div>
-          <h5 className="leading-none mb-2 text-base font-medium font-serif text-gray-700">
+        <div className="min-w-0">
+          <p className="text-2xs font-medium uppercase tracking-luxe text-ink-400">
             {title}
-          </h5>
-          <p className="text-xl font-bold font-serif leading-none text-gray-800">
+          </p>
+          <p className="mt-1 font-display text-2xl font-semibold leading-none tabular-nums text-ink-900">
             {quantity}
           </p>
         </div>

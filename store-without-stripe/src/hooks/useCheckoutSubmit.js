@@ -14,15 +14,17 @@ import useUtilsFunction from "./useUtilsFunction";
 import CouponServices from "@services/CouponServices";
 import { notifyError, notifySuccess } from "@utils/toast";
 import CustomerServices from "@services/CustomerServices";
-import { deliveryFeeForCity } from "@utils/delivery";
+import { FREE_SHIPPING_THRESHOLD, shippingEstimate } from "@utils/delivery";
+import useBundles from "./useBundles";
 
 // COD-only checkout against Grossimarché: sync the local cart to the server cart, create a
 // delivery address, then POST /orders (idempotent). Card payment (CMI) exists in the
 // backend but is hidden for launch. All totals are recomputed server-side; the amounts
 // shown here mirror the backend rules (flat delivery fee, waived above the free threshold)
 // so the estimate matches the confirmed order.
-const FREE_SHIPPING_THRESHOLD = 1000; // MAD — keep in step with backend grossimarche.pricing
-const FLAT_DELIVERY_FEE = 30; // MAD
+//
+// The delivery rules themselves live in @utils/delivery, shared with the cart drawer — the
+// two used to keep their own copies of the threshold and could quietly disagree.
 
 const useCheckoutSubmit = () => {
   const { dispatch } = useContext(UserContext);
@@ -106,20 +108,23 @@ const useCheckoutSubmit = () => {
   // Delivery mirrors the backend rule: the destination city sets the fee, the free-delivery
   // threshold waives it whatever the city. Derived (never user-selected) so the total shown
   // here matches the one the server recomputes at checkout.
-  const qualifiesFreeShipping = Number(cartTotal) >= FREE_SHIPPING_THRESHOLD;
-  const cityDeliveryFee = deliveryFeeForCity(selectedAddress?.city, FLAT_DELIVERY_FEE);
-  const shippingCost =
-    Number(cartTotal) > 0 && !qualifiesFreeShipping ? cityDeliveryFee : 0;
-  const freeShippingRemaining = Math.max(
-    0,
-    FREE_SHIPPING_THRESHOLD - Number(cartTotal)
-  );
+  // Bundle offers already earned by this cart. Display only: the server recomputes the
+  // discount when the order is placed, from live prices, and that figure is authoritative.
+  const { savings: bundleSavings } = useBundles();
 
-  // total = goods + shipping - coupon discount (server is authoritative at checkout).
+  const delivery = shippingEstimate(cartTotal, selectedAddress?.city);
+  const qualifiesFreeShipping = delivery.qualifiesFree;
+  const shippingCost = delivery.cost;
+  const freeShippingRemaining = delivery.remaining;
+
+  // total = goods - bundle offers - coupon + shipping (server is authoritative at checkout).
   useEffect(() => {
-    const value = Number(cartTotal) + Number(shippingCost) - Number(discountAmount);
-    setTotal(value > 0 ? value : 0);
-  }, [cartTotal, shippingCost, discountAmount]);
+    const goods = Math.max(
+      0,
+      Number(cartTotal) - Number(bundleSavings.total) - Number(discountAmount)
+    );
+    setTotal(goods + Number(shippingCost));
+  }, [cartTotal, shippingCost, discountAmount, bundleSavings.total]);
 
   // Drop the coupon if the cart empties.
   useEffect(() => {
@@ -130,15 +135,15 @@ const useCheckoutSubmit = () => {
     }
   }, [isEmpty]);
 
-  const buildAddress = (data) => {
-    const parts = [data.address, data.zipCode, data.country].filter(Boolean);
-    return {
-      label: "Livraison",
-      city: data.city,
-      addressLine: parts.join(", ").slice(0, 255),
-      isDefault: true,
-    };
-  };
+  const buildAddress = (data) => ({
+    label: "Livraison",
+    city: data.city,
+    // Just the street line now. The country was always Morocco and the postcode was never
+    // read by anything — delivery is priced from the city alone — so stitching them in only
+    // produced addresses like "rue X, , " when they were left blank.
+    addressLine: (data.address || "").trim().slice(0, 255),
+    isDefault: true,
+  });
 
   // Persist a new delivery address (from the modal), then select it and continue the flow.
   const saveAddress = async (data) => {
@@ -287,6 +292,7 @@ const useCheckoutSubmit = () => {
     handleCouponCode,
     discountPercentage: 0,
     discountAmount,
+    bundleSavings,
     shippingCost,
     qualifiesFreeShipping,
     freeShippingRemaining,

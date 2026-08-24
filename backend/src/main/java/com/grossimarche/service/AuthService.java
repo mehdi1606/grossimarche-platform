@@ -11,6 +11,7 @@ import com.grossimarche.entity.enums.Role;
 import com.grossimarche.entity.enums.UserStatus;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ErrorCode;
+import com.grossimarche.exception.RateLimitExceededException;
 import com.grossimarche.repository.LoyaltyAccountRepository;
 import com.grossimarche.repository.UserRepository;
 import com.grossimarche.security.JwtService;
@@ -21,17 +22,28 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
 
 /**
- * Ties OTP verification to accounts and tokens. On first successful login a CLIENT account
+ * Ties authentication to accounts and tokens. On first successful OTP login a CLIENT account
  * and a BRONZE loyalty account are created and consent is recorded; on every login a token
- * pair is issued. Also handles refresh-rotation and logout.
+ * pair is issued. Also handles back-office password sign-in, refresh-rotation and logout.
  */
 @Service
 public class AuthService {
 
     private static final String CONSENT_VERSION = "1.0";
+
+    /** Roles allowed to sign in with a password. Customers are OTP-only, by design. */
+    private static final List<Role> STAFF_ROLES = List.of(Role.ADMIN, Role.STORE_MANAGER);
+
+    // Brute-force guard on the password endpoint, counted per e-mail *and* per IP so neither
+    // spraying one account nor rotating accounts from one host gets a free pass.
+    private static final int LOGIN_ATTEMPTS = 8;
+    private static final Duration LOGIN_WINDOW = Duration.ofMinutes(15);
 
     private final OtpService otpService;
     private final UserRepository userRepository;
@@ -40,11 +52,14 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final TokenDenylistService denylistService;
     private final AuditService auditService;
+    private final StaffPasswordService staffPasswordService;
+    private final RateLimitService rateLimiter;
 
     public AuthService(OtpService otpService, UserRepository userRepository,
                        LoyaltyAccountRepository loyaltyAccountRepository, JwtService jwtService,
                        RefreshTokenService refreshTokenService, TokenDenylistService denylistService,
-                       AuditService auditService) {
+                       AuditService auditService, StaffPasswordService staffPasswordService,
+                       RateLimitService rateLimiter) {
         this.otpService = otpService;
         this.userRepository = userRepository;
         this.loyaltyAccountRepository = loyaltyAccountRepository;
@@ -52,6 +67,8 @@ public class AuthService {
         this.refreshTokenService = refreshTokenService;
         this.denylistService = denylistService;
         this.auditService = auditService;
+        this.staffPasswordService = staffPasswordService;
+        this.rateLimiter = rateLimiter;
     }
 
     public OtpRequestResponse requestOtp(OtpChannel channel, String destination, String ip) {
@@ -73,6 +90,47 @@ public class AuthService {
         auditService.recordLogin(user.getId(), ip, userAgent);
 
         return issueTokens(user);
+    }
+
+    /**
+     * Back-office sign-in with e-mail + password.
+     *
+     * Only ADMIN / STORE_MANAGER accounts can authenticate this way. Every failure — unknown
+     * e-mail, customer account, no password set, wrong password — returns the *same* message,
+     * so the endpoint cannot be used to discover which addresses have back-office accounts.
+     */
+    @Transactional
+    public TokenResponse loginWithPassword(String email, String password, String ip,
+                                           String userAgent) {
+        String normalised = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+        guardLoginAttempts(normalised, ip);
+
+        User user = userRepository.findByEmailIgnoreCase(normalised).orElse(null);
+        if (user == null || !STAFF_ROLES.contains(user.getRole())
+                || !staffPasswordService.matches(password, user.getPasswordHash())) {
+            throw new BusinessException(ErrorCode.TOKEN_INVALID,
+                    "E-mail ou mot de passe incorrect.");
+        }
+        if (user.getStatus() == UserStatus.BLOCKED) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "Ce compte est bloqué.");
+        }
+
+        user.setLastLoginAt(Instant.now());
+        userRepository.save(user);
+        auditService.recordLogin(user.getId(), ip, userAgent);
+        return issueTokens(user);
+    }
+
+    private void guardLoginAttempts(String email, String ip) {
+        RateLimitService.Result byEmail = rateLimiter.hit(
+                "rl:login:email:" + email, LOGIN_ATTEMPTS, LOGIN_WINDOW);
+        RateLimitService.Result byIp = rateLimiter.hit(
+                "rl:login:ip:" + ip, LOGIN_ATTEMPTS * 3, LOGIN_WINDOW);
+        if (!byEmail.allowed() || !byIp.allowed()) {
+            throw new RateLimitExceededException(
+                    Math.max(byEmail.retryAfterSeconds(), byIp.retryAfterSeconds()),
+                    "Trop de tentatives de connexion. Réessayez plus tard.");
+        }
     }
 
     /** Rotate a refresh token and issue a fresh access token. */
@@ -145,6 +203,6 @@ public class AuthService {
 
     private UserResponse toUserResponse(User user) {
         return new UserResponse(user.getId(), user.getFullName(), user.getPhone(),
-                user.getEmail(), user.getRole());
+                user.getEmail(), user.getRole(), user.isMustChangePassword());
     }
 }

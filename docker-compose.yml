@@ -3,9 +3,14 @@
 # single nginx gateway. Only the proxy is published; Postgres, Redis, backend, store and
 # admin all stay on the private network.
 #
-#   Storefront   http://localhost:8088/
-#   Back-office  http://localhost:8088/admin/
-#   API          http://localhost:8088/api/v1/...
+#   Storefront   http://<host>/
+#   Back-office  http://<host>/admin/
+#   API          http://<host>/api/v1/...
+#
+# The published port and the public origin come from the root .env (PUBLIC_PORT,
+# PUBLIC_ORIGIN). PUBLIC_ORIGIN must match how visitors actually reach the site — it is what
+# CORS is checked against, what NextAuth signs callbacks with, and what customer e-mails link
+# to. Set it to the server's address before the first start.
 #
 #   docker compose up -d --build
 #
@@ -62,16 +67,28 @@ services:
     build:
       context: ./backend
     environment:
-      # 'local' profile: ephemeral JWT key + seed data + OTP codes to the log (demo-ready).
-      # For real production switch to 'prod' and supply JWT keys + secrets (see README).
-      SPRING_PROFILES_ACTIVE: local
+      # 'local' is demo-ready: it loads the seed catalogue and generates a throwaway JWT
+      # signing key at startup — which means every session is invalidated whenever the
+      # backend restarts. Fine for a demo, wrong for a shop with real customers.
+      #
+      # 'prod' needs a persistent RSA key pair (JWT_PRIVATE_KEY / JWT_PUBLIC_KEY) and reads
+      # the database and Redis from the DB_* / REDIS_* names below. Both naming schemes are
+      # provided, so switching profile is a one-line change in .env once the keys exist.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/grossimarche
       SPRING_DATASOURCE_USERNAME: grossimarche
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-grossimarche}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
-      API_PUBLIC_URL: ${PUBLIC_ORIGIN:-http://localhost:8088}
-      CORS_ALLOWED_ORIGINS: ${PUBLIC_ORIGIN:-http://localhost:8088}
+      # Same values under the names the 'prod' profile expects.
+      DB_URL: jdbc:postgresql://postgres:5432/grossimarche
+      DB_USERNAME: grossimarche
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}
+      API_PUBLIC_URL: ${PUBLIC_ORIGIN:-http://localhost}
+      CORS_ALLOWED_ORIGINS: ${PUBLIC_ORIGIN:-http://localhost}
       # OTP delivery. 'smtp' sends the e-mail codes through the SMTP account below; SMS
       # codes stay in the backend log. Credentials live in the (gitignored) root .env —
       # see .env.example. Without a .env this falls back to log-only codes.
@@ -82,6 +99,18 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FROM: ${MAIL_FROM:-}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Grossimarché}
+      # Links inside e-mails. These are absolute and cannot be derived from the request, so
+      # they must be set in .env to the public origin — otherwise every invitation and every
+      # order-tracking link points at localhost.
+      ADMIN_URL: ${ADMIN_URL:-http://localhost/admin}
+      # The storefront, for the tracking and offer links in customer e-mails.
+      STORE_URL: ${STORE_URL:-http://localhost}
+      # First back-office account, created on startup so a fresh database is never locked out.
+      # Override BOOTSTRAP_ADMIN_PASSWORD in the root .env before exposing this deployment.
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-true}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-houarimehdi7@gmail.com}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-Admin@123}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-Mehdi Houari}
       # Product images: written to the shared `uploads` volume, served same-origin by the
       # gateway at /files/ (so the stored URL is relative and works from any host).
       STORAGE_DIRECTORY: /app/data/uploads
@@ -105,7 +134,7 @@ services:
       # Browser uses the same-origin gateway path (baked at build). Server-side rendering
       # and NextAuth call the backend directly over the private network.
       INTERNAL_API_URL: http://backend:8080/api/v1
-      NEXTAUTH_URL: ${PUBLIC_ORIGIN:-http://localhost:8088}
+      NEXTAUTH_URL: ${PUBLIC_ORIGIN:-http://localhost}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-please-change-me-32-chars-minimum-secret}
     depends_on:
       - backend
@@ -120,7 +149,7 @@ services:
     build:
       context: ./proxy
     ports:
-      - "${PUBLIC_PORT:-8088}:80"
+      - "${PUBLIC_PORT:-80}:80"
     volumes:
       # Read-only view of the images the backend uploads; nginx serves them at /files/.
       - uploads:/usr/share/nginx/files:ro

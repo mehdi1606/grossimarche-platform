@@ -2,6 +2,7 @@ import React from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { Card, CardBody } from "@windmill/react-ui";
 import { useTranslation } from "react-i18next";
+import { FiAlertTriangle, FiMail } from "react-icons/fi";
 
 //internal import
 import Error from "@/components/form/others/Error";
@@ -12,12 +13,69 @@ import SelectRole from "@/components/form/selectOption/SelectRole";
 import DrawerButton from "@/components/form/button/DrawerButton";
 import LabelArea from "@/components/form/selectOption/LabelArea";
 
-// Passwordless (OTP) staff: only name, email/phone and role are needed. Access to the various
+// Name, e-mail and role — no password field. The server generates the password and e-mails
+// it, so an admin never sets (or sees) another person's credentials. Access to the various
 // panels is decided by the role, not a per-user route list.
 const StaffDrawer = ({ id }) => {
-  const { register, handleSubmit, onSubmit, errors, isSubmitting } =
-    useStaffSubmit(id);
+  const {
+    register,
+    handleSubmit,
+    onSubmit,
+    errors,
+    isSubmitting,
+    credentials,
+    dismissCredentials,
+  } = useStaffSubmit(id);
   const { t } = useTranslation();
+
+  // Only reached when the invitation e-mail could not be sent. Shown once — the password is
+  // stored as a hash and cannot be retrieved again.
+  if (credentials) {
+    return (
+      <div className="flex h-full w-full flex-col p-6">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+          <FiAlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              Compte créé — e-mail non envoyé
+            </p>
+            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300/90">
+              L'envoi d'e-mails n'est pas configuré sur ce serveur. Notez ces
+              identifiants et transmettez-les : ils ne seront plus affichés.
+            </p>
+          </div>
+        </div>
+
+        <dl className="mt-5 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+          <div>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Identifiant
+            </dt>
+            <dd className="mt-0.5 flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-100">
+              <FiMail className="h-4 w-4 shrink-0 text-gray-400" />
+              {credentials.email}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Mot de passe provisoire
+            </dt>
+            <dd className="mt-0.5 select-all font-mono text-lg font-bold tracking-wide text-emerald-600">
+              {credentials.password}
+            </dd>
+          </div>
+        </dl>
+
+        <button
+          type="button"
+          onClick={dismissCredentials}
+          className="mt-6 h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
+        >
+          J'ai noté le mot de passe
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -59,6 +117,7 @@ const StaffDrawer = ({ id }) => {
                   <LabelArea label="Email" />
                   <div className="col-span-8 sm:col-span-4">
                     <InputArea
+                      required={true}
                       register={register}
                       label="Email"
                       name="email"
@@ -99,10 +158,9 @@ const StaffDrawer = ({ id }) => {
                 </div>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t(
-                    "StaffOtpHint",
-                    "There are no passwords — staff sign in with a one-time code sent to their email or phone. Access to each panel is decided by the role."
-                  )}
+                  Un mot de passe provisoire est généré et envoyé à cette adresse
+                  e-mail. Le nouveau membre devra le remplacer à sa première
+                  connexion. L'accès à chaque panneau dépend du rôle.
                 </p>
               </div>
 

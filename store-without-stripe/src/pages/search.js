@@ -32,7 +32,7 @@ const Search = ({ products, attributes, categories }) => {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-serif text-2xl font-bold text-gray-800">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink-900">
               {queryText ? `Résultats pour « ${queryText} »` : "Nos produits"}
             </h1>
             {productData?.length > 0 && (
@@ -69,7 +69,7 @@ const Search = ({ products, attributes, categories }) => {
                 <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-gray-100 text-gray-400">
                   <FiSearch className="text-2xl" />
                 </span>
-                <h2 className="text-lg font-semibold text-gray-800">Aucun produit trouvé</h2>
+                <h2 className="font-display text-lg font-semibold text-ink-800">Aucun produit trouvé</h2>
                 <p className="mt-1 max-w-sm text-sm text-gray-500">
                   Essayez un autre mot-clé, élargissez la fourchette de prix ou
                   réinitialisez les filtres.
@@ -77,7 +77,7 @@ const Search = ({ products, attributes, categories }) => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-6 xl:grid-cols-4">
                   {productData?.slice(0, visibleProduct).map((product, i) => (
                     <ProductCard key={i + 1} product={product} attributes={attributes} />
                   ))}

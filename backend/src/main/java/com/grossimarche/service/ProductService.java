@@ -37,9 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -102,11 +104,18 @@ public class ProductService {
         Specification<Product> spec = specs.stream().reduce(Specification::and).orElse(null);
 
         Page<Product> page = productRepository.findAll(spec, pageable);
-        Set<UUID> withTiers = page.hasContent()
-                ? priceTierRepository.findProductIdsWithTiers(page.getContent().stream().map(Product::getId).toList())
-                : Set.of();
+        // The tiers themselves, for the whole page, in one query — the storefront prices the
+        // cart from these, so a boolean would not be enough (and one query per row would be
+        // an N+1 on every grid).
+        Map<UUID, List<PriceTierResponse>> tiersByProduct = page.hasContent()
+                ? priceTierRepository
+                        .findByProductIds(page.getContent().stream().map(Product::getId).toList())
+                        .stream()
+                        .collect(Collectors.groupingBy(t -> t.getProduct().getId(),
+                                Collectors.mapping(productMapper::toTier, Collectors.toList())))
+                : Map.of();
         return page.map(p -> productMapper.toSummary(p, p.getStockQuantity() > 0,
-                withTiers.contains(p.getId())));
+                tiersByProduct.get(p.getId())));
     }
 
     // ---- Admin reads ------------------------------------------------------------------

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Badge,
   Button,
-  Pagination,
   Table,
   TableBody,
   TableCell,
@@ -31,6 +30,7 @@ import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
+import TablePagination from "@/components/common/TablePagination";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
@@ -202,7 +202,7 @@ const Orders = () => {
         />
       </div>
 
-      {loading ? (
+      {loading && rows.length === 0 ? (
         <TableSkeleton rows={8} cols={6} />
       ) : visible.length === 0 ? (
         <EmptyState
@@ -211,7 +211,11 @@ const Orders = () => {
           description="When customers place orders they'll appear here, newest first."
         />
       ) : (
-        <TableContainer className="mb-8">
+        <TableContainer
+          className={`mb-8 transition-opacity duration-200 ${
+            loading ? "pointer-events-none opacity-50" : ""
+          }`}
+        >
           <Table>
             <TableHeader>
               <tr>
@@ -255,11 +259,11 @@ const Orders = () => {
             </TableBody>
           </Table>
           <TableFooter>
-            <Pagination
-              totalResults={totalDoc}
-              resultsPerPage={LIMIT}
+            <TablePagination
+              page={page}
+              totalDoc={totalDoc}
+              limit={LIMIT}
               onChange={setPage}
-              label="Orders navigation"
             />
           </TableFooter>
         </TableContainer>

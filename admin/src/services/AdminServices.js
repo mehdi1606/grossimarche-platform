@@ -1,14 +1,16 @@
 import requests from "./httpService";
 import { adaptStaff, pageContent } from "./adapters";
 
-// Grossimarché back-office auth is passwordless OTP; only ADMIN/STORE_MANAGER may use the
-// admin. The role gate lives in useLoginSubmit. Staff management maps to /admin/staff.
+// Back-office auth is e-mail + password (POST /auth/login). Only ADMIN/STORE_MANAGER accounts
+// are accepted — the backend rejects anyone else, and useLoginSubmit checks the role again
+// before storing the session. The storefront is unaffected: customers still sign in with a
+// one-time code through their own OTP endpoints.
 const AdminServices = {
-  requestOtp: async ({ channel, destination }) => {
-    return requests.post("/auth/otp/request", { channel, destination });
+  login: async ({ email, password }) => {
+    return requests.post("/auth/login", { email, password });
   },
-  verifyOtp: async ({ channel, destination, code }) => {
-    return requests.post("/auth/otp/verify", { channel, destination, code });
+  changePassword: async ({ currentPassword, newPassword }) => {
+    return requests.post("/me/password", { currentPassword, newPassword });
   },
 
   // Staff (ADMIN only on the backend).
@@ -17,6 +19,9 @@ const AdminServices = {
     // The Staff page + useFilter expect a plain array (they call data.map).
     return pageContent(res).map(adaptStaff);
   },
+  // Creating a staff member does not take a password: the server generates one and e-mails
+  // it. The response carries `invitationSent`, and `temporaryPassword` only when the e-mail
+  // could not go out — so the admin can still pass the credentials on.
   addStaff: async (body) => {
     return requests.post("/admin/staff", {
       fullName: body.name || body.fullName,
@@ -24,6 +29,9 @@ const AdminServices = {
       email: body.email || null,
       role: body.role === "Super Admin" || body.role === "Admin" ? "ADMIN" : "STORE_MANAGER",
     });
+  },
+  resetStaffPassword: async (id) => {
+    return requests.post(`/admin/staff/${id}/reset-password`, {});
   },
   updateStaff: async (id, body) => {
     return requests.patch(`/admin/staff/${id}`, {

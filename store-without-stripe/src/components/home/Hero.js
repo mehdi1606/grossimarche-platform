@@ -22,38 +22,38 @@ const Hero = ({ categories = [] }) => {
   const shortcuts = categories.slice(0, 1);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-500">
-      <div className="gm-float pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
-      <div className="gm-float-slow pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-white/5 blur-2xl" />
-      <div className="gm-float pointer-events-none absolute right-1/4 top-1/2 h-40 w-40 rounded-full bg-teal-300/10 blur-2xl" />
+    <section className="relative overflow-hidden bg-emerald-800">
+      <div className="gm-float pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl" />
+      <div className="gm-float-slow pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-brass-300/10 blur-3xl" />
+      <div className="gm-float pointer-events-none absolute right-1/4 top-1/2 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
 
-      <div className="relative mx-auto max-w-screen-2xl px-4 py-16 sm:px-10 lg:py-20">
+      <div className="relative mx-auto max-w-screen-2xl px-4 py-20 sm:px-10 lg:py-28">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] xl:gap-16">
           {/* Pitch */}
           <div className="max-w-2xl">
             <span
-              className="gm-shimmer inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/20 backdrop-blur-sm"
+              className="gm-shimmer inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-2xs font-medium uppercase tracking-luxe text-emerald-50 ring-1 ring-white/20 backdrop-blur-sm"
               style={fade()}
             >
               <FiShoppingBag /> Marché de gros en ligne
             </span>
 
             <h1
-              className="mt-5 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
+              className="mt-6 font-display text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl"
               style={fade(0.08)}
             >
               Le gros, livré chez vous.
             </h1>
 
-            <p className="mt-4 max-w-xl text-base leading-7 text-emerald-50" style={fade(0.16)}>
+            <p className="mt-5 max-w-xl text-base leading-8 text-emerald-100/90" style={fade(0.16)}>
               Achetez en gros aux meilleurs prix — produits alimentaires, boissons et
               essentiels, avec des tarifs dégressifs et le paiement à la livraison.
             </p>
 
             {/* Promises: the three arguments that decide a wholesale order */}
-            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2" style={fade(0.22)}>
+            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2" style={fade(0.22)}>
               {PROMISES.map((promise) => (
-                <li key={promise} className="flex items-center gap-2 text-sm text-emerald-50">
+                <li key={promise} className="flex items-center gap-2 text-sm text-emerald-100/90">
                   <span className="grid h-5 w-5 place-items-center rounded-full bg-white/20">
                     <FiCheck className="h-3 w-3" />
                   </span>
@@ -62,10 +62,10 @@ const Hero = ({ categories = [] }) => {
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-wrap gap-3" style={fade(0.3)}>
+            <div className="mt-10 flex flex-wrap gap-3" style={fade(0.3)}>
               <Link
                 href="/search"
-                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+                className="group inline-flex items-center gap-2 rounded-full bg-cream px-7 py-3.5 text-sm font-semibold text-emerald-800 shadow-luxe-lg transition hover:-translate-y-0.5"
               >
                 Découvrir les produits
                 <FiArrowRight className="transition-transform group-hover:translate-x-1" />
@@ -73,7 +73,7 @@ const Hero = ({ categories = [] }) => {
               {shortcuts[0] && (
                 <Link
                   href={`/search?category=${shortcuts[0].slug}&_id=${shortcuts[0]._id}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/30 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Parcourir les catégories
                 </Link>

@@ -17,6 +17,10 @@ springdoc:
 grossimarche:
   jwt:
     allow-ephemeral-key: true
+  # Tests build the exact users they need; an account appearing out of configuration would
+  # make counts and listings depend on the environment.
+  bootstrap-admin:
+    enabled: false
 
 logging:
   level:

@@ -9,16 +9,19 @@ import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
-// Grossimarché staff accounts are passwordless (OTP): a staff member is just a User with role
-// ADMIN or STORE_MANAGER. So the form is only name, email, phone and role — no password, no
-// per-user route access list (access is derived from the role, see utils/access.js). The
-// backend update endpoint only changes role/status.
+// A staff member is a User with role ADMIN or STORE_MANAGER. The form is name, email, phone
+// and role — never a password: the server generates one, stores only its hash and e-mails it,
+// so nobody (not even the admin creating the account) chooses someone else's password. There
+// is no per-user route list either; access is derived from the role (see utils/access.js).
+// The backend update endpoint only changes role/status.
 const useStaffSubmit = (id) => {
   const { state, dispatch } = useContext(AdminContext);
   const { adminInfo } = state;
   const { isDrawerOpen, closeDrawer, setIsUpdate } = useContext(SidebarContext);
   const [resData, setResData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Only populated when the invitation e-mail could not be delivered (see onSubmit).
+  const [credentials, setCredentials] = useState(null);
 
   const location = useLocation();
 
@@ -31,6 +34,10 @@ const useStaffSubmit = (id) => {
   } = useForm();
 
   const onSubmit = async (data) => {
+    // Set when the account was created but its password could not be e-mailed: the drawer
+    // then stays open so the admin can copy it. A state value would still be the previous
+    // one at the point we decide, so this is tracked locally.
+    let keepDrawerOpen = false;
     try {
       setIsSubmitting(true);
       if (id) {
@@ -55,10 +62,26 @@ const useStaffSubmit = (id) => {
           role: data.role,
         });
         setIsUpdate(true);
-        notifySuccess(res?.message || "Staff added successfully!");
+        if (res?.invitationSent === false && res?.temporaryPassword) {
+          keepDrawerOpen = true;
+          // Mail is not configured on this deployment. The password is shown once, here, and
+          // is unreadable afterwards — so it is surfaced rather than lost with the account.
+          setCredentials({
+            email: res.email,
+            password: res.temporaryPassword,
+          });
+          notifyError(
+            "Compte créé, mais l'e-mail n'a pas pu être envoyé. Transmettez le mot de passe affiché."
+          );
+        } else {
+          notifySuccess(
+            `Compte créé. Le mot de passe a été envoyé à ${res?.email || data.email}.`
+          );
+        }
       }
       setIsSubmitting(false);
-      closeDrawer();
+      // Closing the drawer would destroy the only copy of the password.
+      if (!keepDrawerOpen) closeDrawer();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
       setIsSubmitting(false);
@@ -82,6 +105,7 @@ const useStaffSubmit = (id) => {
 
   useEffect(() => {
     if (!isDrawerOpen) {
+      setCredentials(null);
       setResData({});
       setValue("name");
       setValue("email");
@@ -111,6 +135,11 @@ const useStaffSubmit = (id) => {
     adminInfo,
     resData,
     isSubmitting,
+    credentials,
+    dismissCredentials: () => {
+      setCredentials(null);
+      closeDrawer();
+    },
   };
 };
 

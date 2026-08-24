@@ -4,6 +4,7 @@ import com.grossimarche.dto.common.PageResponse;
 import com.grossimarche.dto.order.CreateOrderRequest;
 import com.grossimarche.dto.order.OrderCreatedResponse;
 import com.grossimarche.dto.order.OrderDetailResponse;
+import com.grossimarche.dto.order.OrderStatsResponse;
 import com.grossimarche.dto.order.OrderSummaryResponse;
 import com.grossimarche.security.SecurityUtils;
 import com.grossimarche.service.CheckoutService;
@@ -57,9 +58,20 @@ public class OrderController {
         return PageResponse.from(orderService.getOrders(SecurityUtils.currentUserId(), pageable));
     }
 
+    @GetMapping("/stats")
+    public OrderStatsResponse stats() {
+        return orderService.getStats(SecurityUtils.currentUserId());
+    }
+
     @GetMapping("/{id}")
     public OrderDetailResponse detail(@PathVariable UUID id) {
         return orderService.getOrder(SecurityUtils.currentUserId(), id);
+    }
+
+    /** Cancel one's own order — allowed only while it is still PENDING. */
+    @PostMapping("/{id}/cancel")
+    public OrderDetailResponse cancel(@PathVariable UUID id) {
+        return orderService.cancelOwn(SecurityUtils.currentUserId(), id);
     }
 
     @GetMapping("/{id}/invoice")

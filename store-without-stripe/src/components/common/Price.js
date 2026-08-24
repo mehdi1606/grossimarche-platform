@@ -5,14 +5,14 @@ const Price = ({ product, price, card, currency, originalPrice }) => {
   const { getNumberTwo } = useUtilsFunction();
 
   return (
-    <div className="font-serif product-price font-bold">
+    <div data-no-translate className="product-price font-display font-semibold tabular-nums">
       {product?.isCombination ? (
         <>
           <span
             className={
               card
-                ? "inline-block text-lg font-semibold text-gray-800"
-                : "inline-block text-2xl"
+                ? "inline-block text-lg font-semibold text-ink-900"
+                : "inline-block text-3xl text-ink-900"
             }
           >
             {currency}
@@ -23,8 +23,8 @@ const Price = ({ product, price, card, currency, originalPrice }) => {
               <del
                 className={
                   card
-                    ? "sm:text-sm font-normal text-base text-gray-400 ml-1"
-                    : "text-lg font-normal text-gray-400 ml-1"
+                    ? "ml-1.5 text-base font-normal text-ink-300 line-through sm:text-sm"
+                    : "ml-2 text-lg font-normal text-ink-300 line-through"
                 }
               >
                 {currency}
@@ -38,8 +38,8 @@ const Price = ({ product, price, card, currency, originalPrice }) => {
           <span
             className={
               card
-                ? "inline-block text-lg font-semibold text-gray-800"
-                : "inline-block text-2xl"
+                ? "inline-block text-lg font-semibold text-ink-900"
+                : "inline-block text-3xl text-ink-900"
             }
           >
             {currency}
@@ -50,8 +50,8 @@ const Price = ({ product, price, card, currency, originalPrice }) => {
               <del
                 className={
                   card
-                    ? "sm:text-sm font-normal text-base text-gray-400 ml-1"
-                    : "text-lg font-normal text-gray-400 ml-1"
+                    ? "ml-1.5 text-base font-normal text-ink-300 line-through sm:text-sm"
+                    : "ml-2 text-lg font-normal text-ink-300 line-through"
                 }
               >
                 {currency}

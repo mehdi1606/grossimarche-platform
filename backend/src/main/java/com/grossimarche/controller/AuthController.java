@@ -2,6 +2,7 @@ package com.grossimarche.controller;
 
 import com.grossimarche.dto.auth.LogoutRequest;
 import com.grossimarche.dto.auth.OtpRequestRequest;
+import com.grossimarche.dto.auth.PasswordLoginRequest;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.OtpVerifyRequest;
 import com.grossimarche.dto.auth.RefreshRequest;
@@ -18,8 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Passwordless authentication endpoints. Thin: validate, resolve the caller's IP/UA, and
- * delegate to {@link AuthService}. No business logic here.
+ * Authentication endpoints. Thin: validate, resolve the caller's IP/UA, and delegate to
+ * {@link AuthService}. No business logic here.
+ *
+ * Two ways in, on purpose: customers use the passwordless OTP pair ({@code /otp/request} then
+ * {@code /otp/verify}), and back-office staff use {@code /login} with e-mail + password. The
+ * storefront never calls {@code /login}, and a customer account cannot authenticate with it.
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -31,6 +36,14 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    /** Back-office sign-in. Staff only — see {@link AuthService#loginWithPassword}. */
+    @PostMapping("/login")
+    public TokenResponse login(@Valid @RequestBody PasswordLoginRequest body,
+                               HttpServletRequest request) {
+        return authService.loginWithPassword(body.email(), body.password(),
+                clientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
     }
 
     @PostMapping("/otp/request")

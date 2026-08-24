@@ -36,6 +36,9 @@ export const adaptProduct = (g) => {
     slug: g.slug,
     description: tr(g.description),
     prices: { price, originalPrice: price, discount: 0 },
+    // The untouched list price, so a cart line can be re-priced by quantity without ever
+    // compounding a discount it already carries.
+    basePrice: price,
     image: g.imageUrl ? [g.imageUrl] : [],
     stock,
     quantity: stock,
@@ -77,8 +80,11 @@ export const adaptCategoryTree = (list = []) => [
   { _id: "root", name: tr("Catégories"), icon: "", children: list.map(adaptCategory) },
 ];
 
-// Grossimarché order status -> the label strings the Invoice component styles.
-const ORDER_STATUS_LABEL = {
+// The legacy KachaBazar Invoice component styles four English strings. Keep that mapping for
+// the printed invoice only — every shopper-facing screen reads `status` (the raw backend
+// enum) through @utils/orderStatus instead, so CONFIRMED / PREPARING / OUT_FOR_DELIVERY stay
+// distinguishable rather than collapsing into one "Processing".
+const LEGACY_INVOICE_STATUS = {
   PENDING: "Pending",
   CONFIRMED: "Processing",
   PREPARING: "Processing",
@@ -87,7 +93,7 @@ const ORDER_STATUS_LABEL = {
   CANCELLED: "Cancel",
 };
 
-const paymentLabel = (m) => (m === "COD" ? "Cash On Delivery" : m);
+const paymentLabel = (m) => (m === "COD" ? "Paiement à la livraison" : m);
 
 /** Grossimarché OrderDetailResponse -> KachaBazar order shape (Invoice/OrderTable). */
 export const adaptOrder = (g) => {
@@ -97,9 +103,18 @@ export const adaptOrder = (g) => {
     _id: g.id,
     invoice: g.orderNumber,
     createdAt: g.createdAt,
-    status: ORDER_STATUS_LABEL[g.status] || g.status,
-    rawStatus: g.status,
+    status: g.status,
+    invoiceStatus: LEGACY_INVOICE_STATUS[g.status] || g.status,
+    paymentStatus: g.paymentStatus,
     paymentMethod: paymentLabel(g.paymentMethod),
+    note: g.note || "",
+    // The status timeline the backend already returns. Previously dropped on the floor —
+    // it is the whole basis of the order-tracking view.
+    timeline: (g.timeline || []).map((t) => ({
+      status: t.status,
+      note: t.note || "",
+      createdAt: t.createdAt,
+    })),
     user_info: {
       name: addr.label || "Client",
       email: "",
@@ -133,7 +148,8 @@ export const adaptOrderSummary = (g) => ({
   _id: g.id,
   invoice: g.orderNumber,
   createdAt: g.createdAt,
-  status: ORDER_STATUS_LABEL[g.status] || g.status,
+  status: g.status,
+  paymentStatus: g.paymentStatus,
   paymentMethod: paymentLabel(g.paymentMethod),
   total: g.total,
 });

@@ -58,6 +58,7 @@ public class CheckoutService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final BundleService bundleService;
     private final ProductRepository productRepository;
     private final ProductPriceTierRepository priceTierRepository;
     private final AddressRepository addressRepository;
@@ -81,9 +82,10 @@ public class CheckoutService {
                            UserRepository userRepository, PricingService pricingService,
                            LoyaltyService loyaltyService, CouponService couponService,
                            PaymentGateway paymentGateway, OrderMapper orderMapper, ObjectMapper objectMapper,
-                           ApplicationEventPublisher events) {
+                           BundleService bundleService, ApplicationEventPublisher events) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.bundleService = bundleService;
         this.productRepository = productRepository;
         this.priceTierRepository = priceTierRepository;
         this.addressRepository = addressRepository;
@@ -141,6 +143,9 @@ public class CheckoutService {
         // 4. Re-validate each line against live price and stock; decrement atomically.
         List<OrderItem> orderItems = new ArrayList<>();
         List<PricingService.LinePricing> pricingLines = new ArrayList<>();
+        // The same lines, at the prices we just resolved, so bundle offers are measured against
+        // what the customer is actually being charged rather than against list prices.
+        List<BundleService.CartLine> bundleLines = new ArrayList<>();
         for (CartItem item : items) {
             Product product = productRepository.findById(item.getProduct().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Produit", item.getProduct().getId()));
@@ -168,6 +173,7 @@ public class CheckoutService {
                     .lineTotal(pricingService.lineTotal(effective, qty))
                     .build());
             pricingLines.add(new PricingService.LinePricing(base, effective, qty));
+            bundleLines.add(new BundleService.CartLine(product.getId(), qty, effective));
         }
 
         // 5. Recompute totals server-side.
@@ -187,14 +193,25 @@ public class CheckoutService {
             couponDiscount = ev.discount();
         }
 
+        // 5c. Bundle offers ("paniers"): whenever the cart happens to contain every component
+        //     of an active offer, the difference between those components and the offer price
+        //     is taken off automatically. Nothing has to be "added as a bundle" — assembling
+        //     the set by hand earns the same price as clicking the offer.
+        BundleService.BundleDiscount bundles = bundleService.computeDiscount(bundleLines);
+        BigDecimal goodsDiscount = totals.discountTotal().add(bundles.total());
+
         order.setSubtotal(totals.subtotal());
-        order.setDiscountTotal(totals.discountTotal());
+        order.setDiscountTotal(goodsDiscount);
         order.setCouponCode(appliedCoupon == null ? null : appliedCoupon.getCode());
         order.setCouponDiscount(couponDiscount);
         order.setDeliveryFee(totals.deliveryFee());
-        // Coupon reduces goods only; delivery is charged on the original subtotal.
-        order.setTotal(pricingService.money(
-                totals.subtotal().subtract(couponDiscount).add(totals.deliveryFee())));
+        // Coupon and bundle offers reduce goods only; delivery is charged on the original
+        // subtotal. The total can never go below the delivery fee alone.
+        BigDecimal goods = totals.subtotal().subtract(couponDiscount).subtract(bundles.total());
+        if (goods.signum() < 0) {
+            goods = BigDecimal.ZERO;
+        }
+        order.setTotal(pricingService.money(goods.add(totals.deliveryFee())));
 
         // 6. Payment method drives the initial state.
         boolean cod = req.paymentMethod() == PaymentMethod.COD;

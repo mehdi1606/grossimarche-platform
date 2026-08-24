@@ -44,7 +44,7 @@ const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
 
         {/* Suggestions */}
         <div className="flex-1 overflow-y-auto p-5">
-          <ProductSuggestions title="" limit={8} />
+          <ProductSuggestions title="" limit={8} surface="white" />
         </div>
 
         {/* Footer */}

@@ -12,6 +12,8 @@ import {
   FiMoon,
   FiBell,
   FiSettings,
+  FiVolume2,
+  FiVolumeX,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import cookies from "js-cookie";
@@ -21,7 +23,11 @@ import { useTranslation } from "react-i18next";
 import ellipse from "@/assets/img/icons/ellipse.svg";
 import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
-import useNotification from "@/hooks/useNotification";
+import useNotification, {
+  isNotificationSoundEnabled,
+  playNotificationChime,
+  setNotificationSoundEnabled,
+} from "@/hooks/useNotification";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
 import NotificationServices from "@/services/NotificationServices";
@@ -45,6 +51,13 @@ const Header = () => {
   const [data, setData] = useState([]);
   const [totalDoc, setTotalDoc] = useState(0);
   const [totalUnreadDoc, setTotalUnreadDoc] = useState(0);
+  // Read once on mount: the preference lives in localStorage, which is not available during
+  // the first render on the server-rendered path.
+  const [soundOn, setSoundOn] = useState(true);
+
+  useEffect(() => {
+    setSoundOn(isNotificationSoundEnabled());
+  }, []);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
@@ -182,11 +195,34 @@ const Header = () => {
                     <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
                       Notifications
                     </span>
-                    {totalUnreadDoc > 0 && (
-                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10">
-                        {totalUnreadDoc} new
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {totalUnreadDoc > 0 && (
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10">
+                          {totalUnreadDoc} new
+                        </span>
+                      )}
+                      {/* The chime can be turned off without leaving the panel it rings for. */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = !soundOn;
+                          setNotificationSoundEnabled(next);
+                          setSoundOn(next);
+                          // Play it once when switching on, so the setting is verifiable
+                          // without waiting for a real notification to arrive.
+                          if (next) playNotificationChime();
+                        }}
+                        title={soundOn ? "Couper le son" : "Activer le son"}
+                        aria-label={soundOn ? "Couper le son" : "Activer le son"}
+                        className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-emerald-600 dark:hover:bg-gray-700"
+                      >
+                        {soundOn ? (
+                          <FiVolume2 className="h-4 w-4" />
+                        ) : (
+                          <FiVolumeX className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div
                     className={`${

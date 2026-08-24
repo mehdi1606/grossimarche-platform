@@ -1,14 +1,27 @@
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { IoClose, IoLocationOutline } from "react-icons/io5";
+import { FiCheck, FiTruck } from "react-icons/fi";
 
 //internal import
-import FilterDropdown from "@components/common/FilterDropdown";
 import { DELIVERY_CITIES } from "@utils/delivery";
 
-// Premium, responsive address modal. Opens only when the shopper has no saved delivery
-// address (or wants to add a new one). Validated with react-hook-form; on save it hands the
-// data up to the checkout hook, which persists it to /me/addresses and continues the flow.
+/**
+ * Delivery address.
+ *
+ * Opens only when the shopper has no saved address (or wants a new one). Validated with
+ * react-hook-form; on save it hands the data to the checkout hook, which persists it to
+ * /me/addresses and continues the flow.
+ *
+ * The city is picked from tiles rather than a dropdown. Three served cities is below the point
+ * where a dropdown earns its keep, and the fee differs between them — inside a closed select
+ * the shopper cannot compare "offerte" against "30 DH" without opening it and reading three
+ * lines. Laid out, the choice and its consequence are visible at once, in one click.
+ *
+ * Country and postcode are gone: everything is delivered to three Moroccan cities, so a
+ * country field only ever restates what the city already said, and the postcode was never
+ * read by anything — the delivery fee comes from the city alone.
+ */
 const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
   const {
     register,
@@ -36,38 +49,33 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
 
   if (!isOpen) return null;
 
-  const field =
-    "form-input w-full rounded-lg border border-gray-200 bg-white px-4 h-12 text-sm text-gray-700 transition duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 placeholder-gray-400";
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-gray-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}
     >
       <div
-        className="gm-modal-in w-full max-w-lg overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl"
+        className="gm-modal-in w-full max-w-lg overflow-hidden rounded-t-2xl bg-white shadow-luxe-lg sm:rounded-2xl"
         role="dialog"
         aria-modal="true"
       >
         {/* header */}
-        <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-emerald-50 text-emerald-500">
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-emerald-50 text-emerald-600">
               <IoLocationOutline className="text-xl" />
             </span>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-gray-800">
-                Delivery address
+              <h3 className="font-display text-lg font-semibold text-ink-900">
+                Adresse de livraison
               </h3>
-              <p className="text-sm text-gray-500">
-                Where should we deliver your order?
-              </p>
+              <p className="text-sm text-ink-500">Où souhaitez-vous être livré ?</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
-            className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Fermer"
+            className="rounded-full p-1.5 text-ink-400 transition hover:bg-sand hover:text-ink-600"
           >
             <IoClose className="text-xl" />
           </button>
@@ -75,87 +83,104 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
 
         {/* body */}
         <form onSubmit={handleSubmit(onSave)}>
-          <div className="grid grid-cols-6 gap-4 px-6 py-6">
-            <div className="col-span-6">
-              <label className="mb-1.5 block text-sm font-medium text-gray-600">
-                Street address
+          <div className="space-y-6 px-6 py-6">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-600">
+                Adresse
               </label>
               <input
-                {...register("address", { required: "Address is required" })}
-                className={field}
-                placeholder="123 Boulevard Mohammed V"
+                {...register("address", { required: "L'adresse est requise." })}
+                className="form-input h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-800 transition duration-200 placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                placeholder="Rue, quartier, repère…"
               />
               {errors.address && (
-                <p className="mt-1 text-xs text-red-500">{errors.address.message}</p>
+                <p className="mt-1.5 text-xs text-red-500">{errors.address.message}</p>
               )}
             </div>
 
-            {/* Delivery is only served in these cities, and each has its own fee — a free
-                text field would let a shopper enter a place we cannot deliver to. Full row:
-                "Casablanca — livraison 20 DH" does not fit in a half-width field. */}
-            <div className="col-span-6">
-              <label className="mb-1.5 block text-sm font-medium text-gray-600">
-                City
-              </label>
+            <div>
+              <div className="mb-2.5 flex items-baseline justify-between gap-3">
+                <label className="block text-sm font-medium text-ink-600">
+                  Ville de livraison
+                </label>
+                <span className="text-2xs text-ink-400">
+                  Offerte dès 1000 DH, quelle que soit la ville
+                </span>
+              </div>
+
               <Controller
                 name="city"
                 control={control}
-                rules={{ required: "City is required" }}
+                rules={{ required: "Choisissez une ville." }}
                 render={({ field: { value, onChange } }) => (
-                  <FilterDropdown
-                    heightCls="h-12"
-                    ariaLabel="Ville de livraison"
-                    placeholder="Choisissez une ville…"
-                    value={value || ""}
-                    onChange={onChange}
-                    options={DELIVERY_CITIES.map(({ city, fee }) => ({
-                      value: city,
-                      label: `${city} — ${
-                        fee === 0 ? "livraison offerte" : `livraison ${fee} DH`
-                      }`,
-                    }))}
-                  />
+                  <div
+                    role="radiogroup"
+                    aria-label="Ville de livraison"
+                    className="grid gap-2.5 sm:grid-cols-3"
+                  >
+                    {DELIVERY_CITIES.map(({ city, fee }) => {
+                      const selected = value === city;
+                      return (
+                        <button
+                          key={city}
+                          type="button"
+                          role="radio"
+                          aria-checked={selected}
+                          onClick={() => onChange(city)}
+                          className={`relative flex flex-col items-start gap-1 rounded-xl border p-3.5 text-left transition ${
+                            selected
+                              ? "border-emerald-500 bg-emerald-50/60 ring-1 ring-emerald-500"
+                              : "border-line bg-white hover:border-emerald-200 hover:bg-cream"
+                          }`}
+                        >
+                          {selected && (
+                            <span className="absolute right-2.5 top-2.5 grid h-4 w-4 place-items-center rounded-full bg-emerald-600 text-white">
+                              <FiCheck className="h-2.5 w-2.5" />
+                            </span>
+                          )}
+                          <span
+                            className={`text-sm font-semibold ${
+                              selected ? "text-emerald-900" : "text-ink-800"
+                            }`}
+                          >
+                            {city}
+                          </span>
+                          <span
+                            data-no-translate
+                            className={`inline-flex items-center gap-1 text-xs font-medium ${
+                              fee === 0 ? "text-emerald-700" : "text-ink-500"
+                            }`}
+                          >
+                            <FiTruck className="h-3 w-3" />
+                            {fee === 0 ? "Offerte" : `${fee} DH`}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
               />
               {errors.city && (
-                <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>
+                <p className="mt-1.5 text-xs text-red-500">{errors.city.message}</p>
               )}
-            </div>
-
-            <div className="col-span-3 sm:col-span-4">
-              <label className="mb-1.5 block text-sm font-medium text-gray-600">
-                Country
-              </label>
-              <input
-                {...register("country")}
-                className={field}
-                placeholder="Maroc"
-              />
-            </div>
-
-            <div className="col-span-3 sm:col-span-2">
-              <label className="mb-1.5 block text-sm font-medium text-gray-600">
-                Zip
-              </label>
-              <input {...register("zipCode")} className={field} placeholder="20000" />
             </div>
           </div>
 
           {/* footer */}
-          <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-line bg-cream px-6 py-4">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
+              className="rounded-xl px-5 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-sand"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:-translate-y-0.5 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-luxe transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {saving ? "Saving…" : "Save address"}
+              {saving ? "Enregistrement…" : "Enregistrer l'adresse"}
             </button>
           </div>
         </form>

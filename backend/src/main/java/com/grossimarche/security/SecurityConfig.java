@@ -76,9 +76,14 @@ public class SecurityConfig {
                     // Public storefront translation (FR -> AR/EN) via LibreTranslate.
                     auth.requestMatchers("/api/v1/translate").permitAll();
                     auth.requestMatchers("/api/v1/payments/cmi/callback").permitAll();
+                    // The public catalogue. Bundle offers belong here for the same reason the
+                    // products do: an offer exists to bring people in, so it has to be visible
+                    // before anyone has an account. Without this, `anyRequest().authenticated()`
+                    // catches /bundles and the storefront's offers page is empty for visitors.
                     auth.requestMatchers(HttpMethod.GET,
                             "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**",
-                            "/api/v1/currencies/**", "/api/v1/languages/**", "/api/v1/attributes/**")
+                            "/api/v1/currencies/**", "/api/v1/languages/**", "/api/v1/attributes/**",
+                            "/api/v1/bundles/**")
                             .permitAll();
                     if (local) {
                         auth.requestMatchers(SWAGGER_PATHS).permitAll();

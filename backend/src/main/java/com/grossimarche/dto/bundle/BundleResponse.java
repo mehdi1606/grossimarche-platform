@@ -1,0 +1,36 @@
+package com.grossimarche.dto.bundle;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * A bundle offer as the storefront and the back-office see it.
+ *
+ * {@code componentsTotal} is the sum of the components at their current list prices, so
+ * {@code savings} and {@code savingsPercent} are derived from live pricing rather than from a
+ * number frozen when the offer was written — a product price change is reflected immediately.
+ *
+ * {@code available} is false when a component is out of stock or has been deactivated: the
+ * offer is still shown, but the storefront can say why it cannot be ordered instead of failing
+ * at checkout.
+ */
+public record BundleResponse(
+        UUID id,
+        String name,
+        String slug,
+        String description,
+        String imageUrl,
+        BigDecimal price,
+        BigDecimal componentsTotal,
+        BigDecimal savings,
+        int savingsPercent,
+        boolean active,
+        boolean available,
+        Instant startsAt,
+        Instant endsAt,
+        List<BundleItemResponse> items,
+        Instant createdAt
+) {
+}

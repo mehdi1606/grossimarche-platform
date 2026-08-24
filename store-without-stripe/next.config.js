@@ -1,5 +1,4 @@
 const runtimeCaching = require("next-pwa/cache");
-const nextTranslate = require("next-translate-plugin");
 
 const withPWA = require("next-pwa")({
   dest: "public",
@@ -19,15 +18,19 @@ module.exports = withPWA({
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // Locale *routing* only — there are no message catalogues behind these. Content is
+  // authored in French and machine-translated at runtime through the backend's
+  // LibreTranslate endpoint (see src/context/TranslationContext.js), so adding a language
+  // here is the whole job: no locales/<lang>/common.json to write or keep in sync.
+  //
+  // These used to be declared twice — once here as ["en","es","fr","de"] with an English
+  // default, and again in i18n.json, whose values silently won because next-translate's
+  // plugin was spread in last.
   i18n: {
-    // These are all the locales you want to support in
-    // your application
-    locales: ["en", "es", "fr", "de"],
-    // This is the default locale you want to be used when visiting
-    // a non-locale prefixed path e.g. `/hello`
-    defaultLocale: "en",
-    // This is a list of locale domains and the default locale they
-    // should handle (these are only required when setting up domain routing)
+    locales: ["fr", "ar", "en"],
+    defaultLocale: "fr",
+    // Keep the visitor on the URL they typed; the language menu switches locale explicitly.
+    localeDetection: false,
   },
 
   // images: {
@@ -58,8 +61,6 @@ module.exports = withPWA({
       },
     ],
   },
-
-  ...nextTranslate(),
 });
 
 // const withBundleAnalyzer = require('@next/bundle-analyzer')({

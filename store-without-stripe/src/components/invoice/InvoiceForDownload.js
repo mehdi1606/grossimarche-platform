@@ -7,6 +7,8 @@ import {
 } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 
+import { statusLabel } from "@utils/orderStatus";
+
 // IMPORTANT: no remote fonts or images here. @react-pdf/renderer fetches any Font.register
 // source and any <Image src> at render time; a slow/blocked CDN leaves PDFDownloadLink stuck
 // on "Loading…" forever (this is what broke the download). Using the built-in Helvetica font
@@ -111,7 +113,7 @@ const InvoiceForDownload = ({ data, currency, getNumberTwo }) => {
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.h1}>FACTURE</Text>
-            <Text style={styles.info}>Statut : {data?.status}</Text>
+            <Text style={styles.info}>Statut : {statusLabel(data?.status)}</Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.brand}>Grossimarché</Text>

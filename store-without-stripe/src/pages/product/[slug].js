@@ -1,21 +1,8 @@
-import useTranslation from "next-translate/useTranslation";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { FiChevronRight, FiMinus, FiPlus } from "react-icons/fi";
-import {
-  FacebookIcon,
-  FacebookShareButton,
-  LinkedinIcon,
-  LinkedinShareButton,
-  RedditIcon,
-  RedditShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-  WhatsappIcon,
-  WhatsappShareButton,
-} from "react-share";
 //internal import
 
 import Price from "@components/common/Price";
@@ -23,8 +10,11 @@ import Stock from "@components/common/Stock";
 import Tags from "@components/common/Tags";
 import Layout from "@layout/Layout";
 import { notifyError } from "@utils/toast";
-import Card from "@components/slug-card/Card";
 import useAddToCart from "@hooks/useAddToCart";
+import useBundles from "@hooks/useBundles";
+import ProductImage from "@components/product/ProductImage";
+import PriceTiers from "@components/product/PriceTiers";
+import BundleCard from "@components/bundle/BundleCard";
 import Loading from "@components/preloader/Loading";
 import ProductCard from "@components/product/ProductCard";
 import ProductExtras from "@components/product/ProductExtras";
@@ -45,7 +35,20 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   // console.log('product',product)
 
   const { isLoading, setIsLoading } = useContext(SidebarContext);
-  const { handleAddItem, item, setItem } = useAddToCart();
+  const { handleAddItem, item, setItem, minOf } = useAddToCart();
+
+  // Wholesale minimum for this reference. The stepper starts here and cannot go below it —
+  // the value was already coming down from the API and was simply never applied.
+  const minQuantity = minOf(product);
+
+  // Bundle offers that include this product. Shown on the page because the cheapest way to
+  // buy an item is often inside a set, and a shopper on the product page would never find
+  // that out from the offers page they are not on.
+  const {
+    bundles: productBundles,
+    addBundleToCart,
+    addingId: addingBundleId,
+  } = useBundles({ productId: product?._id, enabled: !!product?._id });
 
   // react hook
 
@@ -165,11 +168,20 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     setIsLoading(false);
   }, [product]);
 
+  // Open on the minimum order quantity rather than 1, so the first click is already valid.
+  useEffect(() => {
+    setItem(minQuantity);
+  }, [minQuantity, setItem]);
+
   const handleAddToCart = (p) => {
     if (p.variants.length === 1 && p.variants[0].quantity < 1)
-      return notifyError("Insufficient stock");
+      return notifyError("Stock insuffisant.");
     // if (notAvailable) return notifyError('This Variation Not Available Now!');
-    if (stock <= 0) return notifyError("Insufficient stock");
+    if (stock <= 0) return notifyError("Article en rupture de stock.");
+    if (stock < minQuantity)
+      return notifyError(
+        `Commande minimum de ${minQuantity} — stock actuel insuffisant.`
+      );
     // console.log('selectVariant', selectVariant);
 
     if (
@@ -214,7 +226,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       };
       handleAddItem(newItem);
     } else {
-      return notifyError("Please select all variant first!");
+      return notifyError("Veuillez d'abord choisir toutes les options.");
     }
   };
 
@@ -222,12 +234,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     setImg(img);
   };
 
-  const { t } = useTranslation();
 
-  const shareUrl =
-    typeof window !== "undefined"
-      ? window.location.href
-      : `/product/${router.query.slug}`;
 
   // category name slug
   const category_name = showingTranslateValue(product?.category?.name)
@@ -277,24 +284,19 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   </li>
                 </ol>
               </div>
-              <div className="w-full rounded-lg p-3 lg:p-12 bg-white">
+              <div className="w-full rounded-2xl border border-line bg-white p-4 shadow-luxe lg:p-12">
                 <div className="flex flex-col xl:flex-row">
                   <div className="flex-shrink-0 xl:pr-10 lg:block w-full mx-auto md:w-6/12 lg:w-5/12 xl:w-4/12">
                     <Discount slug product={product} discount={discount} />
 
-                    {product.image[0] ? (
-                      <Image
-                        src={img || product.image[0]}
-                        alt="product"
-                        width={650}
-                        height={650}
-                        priority
-                      />
-                    ) : (
-                      <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-gray-50">
-                        <span className="text-6xl text-emerald-300">🛒</span>
-                      </div>
-                    )}
+                    <ProductImage
+                      src={img || product.image?.[0]}
+                      alt={showingTranslateValue(product?.title)}
+                      unit={product?.unit}
+                      zoom={false}
+                      priority
+                      className="aspect-square rounded-2xl border border-line"
+                    />
 
                     {product?.image?.length > 1 && (
                       <div className="flex flex-row flex-wrap mt-4 border-t">
@@ -307,17 +309,20 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   </div>
 
                   <div className="w-full">
-                    <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row">
-                      <div className="xl:pr-6 md:pr-6 md:w-2/3 w-full">
+                    <div className="flex w-full flex-col">
+                      <div className="w-full">
                         <div className="mb-6">
-                          <h1 className="leading-7 text-lg md:text-xl lg:text-2xl mb-1 font-semibold font-serif text-gray-800">
+                          <h1 className="mb-1 font-display text-2xl font-semibold leading-tight tracking-tight text-ink-900 md:text-3xl">
                             {showingTranslateValue(product?.title)}
                           </h1>
 
                           {product?.unit && (
-                            <p className="font-serif text-sm font-medium text-gray-500">
+                            <p className="text-sm text-ink-500">
                               Unité :{" "}
-                              <span className="font-semibold text-gray-700">
+                              <span
+                                data-no-translate
+                                className="font-medium text-ink-700"
+                              >
                                 {product.unit}
                               </span>
                             </p>
@@ -335,26 +340,12 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                         />
 
                         {product?.priceTiers?.length > 0 && (
-                          <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-                            <p className="mb-2 text-sm font-semibold text-emerald-700">
-                              Tarifs dégressifs
-                            </p>
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                              {product.priceTiers.map((tier, i) => (
-                                <div
-                                  key={i}
-                                  className="rounded-lg bg-white px-3 py-2 text-center shadow-sm"
-                                >
-                                  <p className="text-xs text-gray-500">
-                                    dès {tier.minQuantity} {product.unit || "u."}
-                                  </p>
-                                  <p className="text-sm font-bold text-emerald-600">
-                                    {currency}
-                                    {Number(tier.unitPrice).toFixed(2)}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
+                          <div className="mt-5">
+                            <PriceTiers
+                              product={product}
+                              basePrice={product?.prices?.price}
+                              quantity={item}
+                            />
                           </div>
                         )}
 
@@ -396,8 +387,8 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     className="read-or-hide"
                                   >
                                     {isReadMore
-                                      ? t("common:moreInfo")
-                                      : t("common:showLess")}
+                                      ? "Lire la suite"
+                                      : "Réduire"}
                                   </span>
                                 )
                               : product?.description?.en?.length > 230 && (
@@ -406,18 +397,24 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     className="read-or-hide"
                                   >
                                     {isReadMore
-                                      ? t("common:moreInfo")
-                                      : t("common:showLess")}
+                                      ? "Lire la suite"
+                                      : "Réduire"}
                                   </span>
                                 )}
                           </div>
 
+                          {minQuantity > 1 && (
+                            <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sand px-3 py-2 text-xs font-medium text-ink-600">
+                              Commande minimum : {minQuantity} {product.unit || "u."}
+                            </p>
+                          )}
+
                           <div className="flex items-center mt-4">
                             <div className="flex items-center justify-between space-s-3 sm:space-s-4 w-full">
-                              <div className="group flex items-center justify-between rounded-md overflow-hidden flex-shrink-0 border h-12 border-gray-300">
+                              <div className="group flex h-12 flex-shrink-0 items-center justify-between overflow-hidden rounded-xl border border-line">
                                 <button
-                                  onClick={() => setItem(item - 1)}
-                                  disabled={item === 1}
+                                  onClick={() => setItem(Math.max(minQuantity, item - 1))}
+                                  disabled={item <= minQuantity}
                                   className="flex items-center justify-center h-full flex-shrink-0 transition ease-in-out duration-300 focus:outline-none w-12 text-heading border-e border-gray-300 hover:text-gray-500"
                                 >
                                   <span className="text-dark sm:text-2xl">
@@ -429,7 +426,11 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                 </p>
                                 <button
                                   onClick={() => setItem(item + 1)}
-                                  disabled={selectVariant?.quantity <= item}
+                                  disabled={
+                                    (product?.variants?.length > 0
+                                      ? selectVariant?.quantity
+                                      : stock) <= item
+                                  }
                                   className="flex items-center justify-center h-full flex-shrink-0 transition ease-in-out duration-300 focus:outline-none w-10 md:w-12 text-heading border-s border-gray-300 hover:text-gray-500"
                                 >
                                   <span className="text-dark sm:text-2xl">
@@ -439,9 +440,10 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </div>
                               <button
                                 onClick={() => handleAddToCart(product)}
-                                className={`bg-emerald-500 hover:bg-emerald-600 text-white text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border-0 border-transparent rounded-lg shadow-lg shadow-emerald-500/25 focus-visible:outline-none focus:outline-none px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 w-full h-12`}
+                                disabled={stock <= 0}
+                                className="ml-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                               >
-                                {t("common:addToCart")}
+                                Ajouter au panier
                               </button>
                             </div>
                           </div>
@@ -449,7 +451,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           <div className="flex flex-col mt-4">
                             <span className="font-serif font-semibold py-1 text-sm d-block">
                               <span className="text-gray-800">
-                                {t("common:category")}:
+                                Catégorie :
                               </span>{" "}
                               <Link
                                 href={`/search?category=${category_name}&_id=${product?.category?._id}`}
@@ -466,72 +468,37 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <Tags product={product} />
                           </div>
 
-                          {/* social share */}
-                          <div className="mt-2">
-                            <h3 className="text-base font-semibold mb-1 font-serif">
-                              {t("common:shareYourSocial")}
-                            </h3>
-                            <p className="font-sans text-sm text-gray-500">
-                              {t("common:shareYourSocialText")}
-                            </p>
-                            <ul className="flex mt-4">
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
-                                <FacebookShareButton
-                                  url={shareUrl}
-                                  quote=""
-                                >
-                                  <FacebookIcon size={32} round />
-                                </FacebookShareButton>
-                              </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
-                                <TwitterShareButton
-                                  url={shareUrl}
-                                  quote=""
-                                >
-                                  <TwitterIcon size={32} round />
-                                </TwitterShareButton>
-                              </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
-                                <RedditShareButton
-                                  url={shareUrl}
-                                  quote=""
-                                >
-                                  <RedditIcon size={32} round />
-                                </RedditShareButton>
-                              </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
-                                <WhatsappShareButton
-                                  url={shareUrl}
-                                  quote=""
-                                >
-                                  <WhatsappIcon size={32} round />
-                                </WhatsappShareButton>
-                              </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-emerald-500  mr-2 transition ease-in-out duration-500">
-                                <LinkedinShareButton
-                                  url={shareUrl}
-                                  quote=""
-                                >
-                                  <LinkedinIcon size={32} round />
-                                </LinkedinShareButton>
-                              </li>
-                            </ul>
-                          </div>
                         </div>
                       </div>
 
-                      {/* shipping description card */}
-                      <div className="w-full xl:w-5/12 lg:w-6/12 md:w-5/12">
-                        <div
-                          className={`mt-6 md:mt-0 lg:mt-0 bg-gray-50 border border-gray-100 p-4 lg:p-8 rounded-lg`}
-                        >
-                          <Card />
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Offers containing this product. Placed above the reviews because it changes
+                  what the shopper buys, not just how they feel about it. */}
+              {productBundles?.length > 0 && (
+                <section className="pt-10 lg:pt-16">
+                  <h3 className="mb-1 font-display text-xl font-semibold text-ink-900">
+                    Disponible dans ces paniers
+                  </h3>
+                  <p className="mb-6 text-sm text-ink-500">
+                    Le même produit, moins cher dans un ensemble complet.
+                  </p>
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {productBundles.map((bundle) => (
+                      <BundleCard
+                        key={bundle.id}
+                        bundle={bundle}
+                        onAdd={addBundleToCart}
+                        adding={addingBundleId === bundle.id}
+                        compact
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* attributes + reviews */}
               <ProductExtras product={product} />

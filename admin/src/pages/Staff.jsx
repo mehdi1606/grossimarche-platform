@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiEdit, FiPlus, FiTrash2, FiUser } from "react-icons/fi";
+import { FiAlertTriangle, FiEdit, FiKey, FiMail, FiPlus, FiTrash2, FiUser } from "react-icons/fi";
 import dayjs from "dayjs";
 
 //internal import
@@ -36,6 +36,10 @@ const Staff = () => {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [resetTarget, setResetTarget] = useState(null);
+  // Set only when an invitation e-mail could not be delivered; the password is shown once
+  // here because it is stored as a hash and can never be read back.
+  const [credentials, setCredentials] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,13 +81,13 @@ const Staff = () => {
         await AdminServices.updateStaff(editing._id, { role: form.role });
         notifySuccess("Staff updated.");
       } else {
-        await AdminServices.addStaff({
+        const res = await AdminServices.addStaff({
           name: form.name,
           email: form.email,
           phone: form.phone,
           role: form.role,
         });
-        notifySuccess("Staff member added.");
+        handleCredentialResult(res, form.email, "Compte créé");
       }
       setModalOpen(false);
       await load();
@@ -91,6 +95,38 @@ const Staff = () => {
       notifyError(err?.response?.data?.message || err?.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  /**
+   * A staff account's password is generated server-side and e-mailed. Report which of the two
+   * outcomes happened — delivered, or shown here because mail is not configured.
+   */
+  const handleCredentialResult = (res, fallbackEmail, action) => {
+    if (res?.invitationSent === false && res?.temporaryPassword) {
+      setCredentials({
+        email: res.email || fallbackEmail,
+        password: res.temporaryPassword,
+      });
+      notifyError(
+        `${action}, mais l'e-mail n'a pas pu être envoyé. Transmettez le mot de passe affiché.`
+      );
+      return;
+    }
+    notifySuccess(
+      `${action}. Le mot de passe a été envoyé à ${res?.email || fallbackEmail}.`
+    );
+  };
+
+  const confirmReset = async () => {
+    const target = resetTarget;
+    setResetTarget(null);
+    try {
+      const res = await AdminServices.resetStaffPassword(target._id);
+      handleCredentialResult(res, target.email, "Mot de passe réinitialisé");
+      await load();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
     }
   };
 
@@ -196,6 +232,13 @@ const Staff = () => {
                         <FiEdit />
                       </button>
                       <button
+                        className="transition hover:text-emerald-600"
+                        onClick={() => setResetTarget(row)}
+                        title="Envoyer un nouveau mot de passe"
+                      >
+                        <FiKey />
+                      </button>
+                      <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
                         title="Remove"
@@ -216,7 +259,7 @@ const Staff = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editing ? "Edit staff" : "Add staff"}
-        subtitle="Passwordless — they sign in with a one-time code."
+        subtitle="Un mot de passe provisoire est généré et envoyé par e-mail."
         icon={FiUser}
         footer={
           <>
@@ -250,10 +293,12 @@ const Staff = () => {
                     Email
                   </span>
                   <Input
+                    type="email"
                     className={inputCls}
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     placeholder="jane@store.ma"
+                    required
                   />
                 </label>
                 <label className="block text-sm">
@@ -284,12 +329,74 @@ const Staff = () => {
               </option>
             </Select>
           </label>
-          {editing && (
+          {editing ? (
             <p className="text-xs text-gray-400">
               Name, email and phone are set when the account is created.
             </p>
+          ) : (
+            <p className="text-xs text-gray-400">
+              L'e-mail est l'identifiant de connexion : le mot de passe provisoire y est
+              envoyé, et devra être remplacé à la première connexion.
+            </p>
           )}
         </form>
+      </Modal>
+
+      {/* Reset-password confirm */}
+      <Modal
+        isOpen={!!resetTarget}
+        onClose={() => setResetTarget(null)}
+        title="Nouveau mot de passe"
+        icon={FiKey}
+        footer={
+          <>
+            <Button layout="outline" onClick={() => setResetTarget(null)}>
+              Annuler
+            </Button>
+            <Button onClick={confirmReset}>Envoyer</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Envoyer un nouveau mot de passe provisoire à{" "}
+          <span className="font-semibold">{resetTarget?.email || "—"}</span> ? Leur mot de
+          passe actuel cessera immédiatement de fonctionner.
+        </p>
+      </Modal>
+
+      {/* Credentials shown when the invitation e-mail could not be sent */}
+      <Modal
+        isOpen={!!credentials}
+        onClose={() => setCredentials(null)}
+        title="E-mail non envoyé"
+        icon={FiAlertTriangle}
+        footer={
+          <Button onClick={() => setCredentials(null)}>J'ai noté le mot de passe</Button>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          L'envoi d'e-mails n'est pas configuré sur ce serveur. Notez ces identifiants et
+          transmettez-les — ils ne seront plus affichés.
+        </p>
+        <dl className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+          <div>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Identifiant
+            </dt>
+            <dd className="mt-0.5 flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-100">
+              <FiMail className="h-4 w-4 shrink-0 text-gray-400" />
+              {credentials?.email}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Mot de passe provisoire
+            </dt>
+            <dd className="mt-0.5 select-all font-mono text-lg font-bold tracking-wide text-emerald-600">
+              {credentials?.password}
+            </dd>
+          </div>
+        </dl>
       </Modal>
 
       {/* Delete confirm */}

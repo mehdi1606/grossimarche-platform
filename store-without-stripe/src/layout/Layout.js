@@ -34,15 +34,15 @@ const Layout = ({ title, description, children }) => {
         </Head>
         <NavBarTop />
         <Navbar />
-        <div className="min-h-[60vh] bg-gray-50">{children}</div>
+        <div className="min-h-[60vh] bg-cream pb-16 lg:pb-0">{children}</div>
         <MobileFooter />
         <div className="w-full">
-          <div className="hidden relative lg:block mx-auto max-w-screen-2xl py-6 px-3 sm:px-10">
+          {/* The reassurance strip sits on the page ground, not in a box of its own. */}
+          <div className="relative mx-auto hidden max-w-screen-2xl px-3 py-12 sm:px-10 lg:block">
             <FeatureCard />
           </div>
-          <div className="border-t border-gray-100 w-full">
-            <Footer />
-          </div>
+          {/* No border here: the footer is dark and provides its own edge. */}
+          <Footer />
         </div>
       </div>
     </>

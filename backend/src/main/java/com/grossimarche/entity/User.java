@@ -59,4 +59,19 @@ public class User extends AuditableEntity {
 
     @Column(name = "last_login_at")
     private Instant lastLoginAt;
+
+    /**
+     * BCrypt hash, or {@code null} for an account that cannot sign in with a password.
+     * Customers are always null — the storefront is passwordless (OTP) and stays that way;
+     * this exists for back-office accounts, which sign in with e-mail + password.
+     */
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
+
+    @Column(name = "password_updated_at")
+    private Instant passwordUpdatedAt;
+
+    /** True while the account is still on a password the system generated for it. */
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword;
 }

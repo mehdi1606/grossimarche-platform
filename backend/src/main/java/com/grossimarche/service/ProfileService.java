@@ -7,7 +7,9 @@ import com.grossimarche.entity.LoyaltyAccount;
 import com.grossimarche.entity.User;
 import com.grossimarche.entity.enums.OtpChannel;
 import com.grossimarche.entity.enums.UserStatus;
+import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
+import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.AddressRepository;
 import com.grossimarche.repository.CartItemRepository;
@@ -38,11 +40,13 @@ public class ProfileService {
     private final CartItemRepository cartItemRepository;
     private final OtpService otpService;
     private final AuditService auditService;
+    private final StaffPasswordService staffPasswordService;
 
     public ProfileService(UserRepository userRepository, AddressRepository addressRepository,
                           OrderRepository orderRepository, LoyaltyAccountRepository loyaltyAccountRepository,
                           CartRepository cartRepository, CartItemRepository cartItemRepository,
-                          OtpService otpService, AuditService auditService) {
+                          OtpService otpService, AuditService auditService,
+                          StaffPasswordService staffPasswordService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.orderRepository = orderRepository;
@@ -51,6 +55,7 @@ public class ProfileService {
         this.cartItemRepository = cartItemRepository;
         this.otpService = otpService;
         this.auditService = auditService;
+        this.staffPasswordService = staffPasswordService;
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +70,33 @@ public class ProfileService {
             user.setFullName(req.fullName());
         }
         return toResponse(user);
+    }
+
+    /**
+     * Change one's own back-office password.
+     *
+     * Only meaningful for a staff account: a customer has no password to change, and is told
+     * so plainly rather than being handed a confusing validation error. The current password
+     * is verified first, so an unattended open session cannot be used to take the account.
+     */
+    @Transactional
+    public void changePassword(UUID userId, String currentPassword, String newPassword) {
+        User user = user(userId);
+        if (user.getPasswordHash() == null) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Ce compte n'utilise pas de mot de passe.");
+        }
+        if (!staffPasswordService.matches(currentPassword, user.getPasswordHash())) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Mot de passe actuel incorrect.");
+        }
+        if (staffPasswordService.matches(newPassword, user.getPasswordHash())) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Le nouveau mot de passe doit être différent de l'ancien.");
+        }
+        staffPasswordService.validateStrength(newPassword);
+        staffPasswordService.assign(user, newPassword, false);
+        auditService.record(userId, "PASSWORD_CHANGED", "User", userId.toString(), null, null, null);
     }
 
     /** Step 1 of a phone/email change: send an OTP to the NEW destination. */
@@ -160,6 +192,6 @@ public class ProfileService {
 
     private static UserResponse toResponse(User user) {
         return new UserResponse(user.getId(), user.getFullName(), user.getPhone(), user.getEmail(),
-                user.getRole());
+                user.getRole(), user.isMustChangePassword());
     }
 }

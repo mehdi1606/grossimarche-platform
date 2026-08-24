@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { FiLock, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { FiAlertTriangle, FiKey, FiLock, FiMail, FiPhone, FiUser } from "react-icons/fi";
 
 //internal import
 import { AdminContext } from "@/context/AdminContext";
@@ -35,6 +35,15 @@ const EditProfile = () => {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Password change. `mustChangePassword` is set by the server while the account is still on
+  // the password that was generated for it when it was created.
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const mustChangePassword =
+    profile?.mustChangePassword ?? adminInfo?.mustChangePassword ?? false;
 
   useEffect(() => {
     let active = true;
@@ -82,6 +91,40 @@ const EditProfile = () => {
     }
   };
 
+  const changePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      return notifyError("Les deux mots de passe ne correspondent pas.");
+    }
+    setChangingPassword(true);
+    try {
+      await AdminServices.changePassword({ currentPassword, newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      // The flag lives in three places (server, cookie, context); clear all of them so the
+      // banner disappears without needing a fresh sign-in.
+      setProfile((p) => (p ? { ...p, mustChangePassword: false } : p));
+      const next = { ...adminInfo, mustChangePassword: false };
+      dispatch({ type: "USER_LOGIN", payload: next });
+      Cookies.set("adminInfo", JSON.stringify(next), {
+        expires: 0.5,
+        sameSite: "None",
+        secure: true,
+      });
+      notifySuccess("Mot de passe mis à jour.");
+    } catch (err) {
+      notifyError(err?.response?.data?.message || err?.message);
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  const passwordReady =
+    currentPassword.length > 0 &&
+    newPassword.length >= 10 &&
+    confirmPassword.length > 0;
+
   const inputCls =
     "w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500";
 
@@ -103,6 +146,21 @@ const EditProfile = () => {
   return (
     <>
       <PageTitle>Edit profile</PageTitle>
+
+      {mustChangePassword && (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+          <FiAlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              Choisissez un nouveau mot de passe
+            </p>
+            <p className="mt-0.5 text-sm text-amber-800 dark:text-amber-300/90">
+              Votre compte utilise encore le mot de passe provisoire reçu par e-mail.
+              Remplacez-le ci-dessous.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         {/* identity summary */}
@@ -216,6 +274,78 @@ const EditProfile = () => {
                 className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save changes"}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      {/* password */}
+      <div className="mb-8 grid gap-6 lg:grid-cols-3">
+        <div className="hidden lg:block" />
+        <section className="rounded-2xl bg-white shadow-sm dark:bg-gray-800 lg:col-span-2">
+          <form onSubmit={changePassword}>
+            <div className="border-b border-gray-100 px-6 py-5 dark:border-gray-700">
+              <h3 className="flex items-center gap-2 font-serif text-base font-semibold text-gray-800 dark:text-gray-100">
+                <FiKey className="h-4 w-4" />
+                Mot de passe
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Au moins 10 caractères, mêlant lettres et chiffres ou symboles.
+              </p>
+            </div>
+
+            <div className="grid gap-5 px-6 py-5 sm:grid-cols-2">
+              <label className="block text-sm sm:col-span-2">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Mot de passe actuel
+                </span>
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  className={inputCls}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Nouveau mot de passe
+                </span>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  className={inputCls}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Confirmer
+                </span>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  className={inputCls}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                {confirmPassword.length > 0 && confirmPassword !== newPassword && (
+                  <span className="mt-1 block text-xs text-red-500">
+                    Les deux mots de passe ne correspondent pas.
+                  </span>
+                )}
+              </label>
+            </div>
+
+            <div className="flex items-center justify-end rounded-b-2xl border-t border-gray-100 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/60">
+              <button
+                type="submit"
+                disabled={!passwordReady || changingPassword}
+                className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {changingPassword ? "Enregistrement…" : "Changer le mot de passe"}
               </button>
             </div>
           </form>

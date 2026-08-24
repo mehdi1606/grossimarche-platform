@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 import React from "react";
-import Link from "next/link";
-import { FiShoppingCart } from "react-icons/fi";
 //internal import
 import OrderTable from "@components/order/OrderTable";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import BrandMark from "@components/common/BrandMark";
+import OrderStatusPill from "@components/order/OrderStatusPill";
 
 const Invoice = ({ data, printRef, globalSetting, currency }) => {
   // console.log('invoice data',data)
@@ -13,44 +13,19 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
 
   return (
     <div ref={printRef}>
-      <div className="bg-indigo-50 p-8 rounded-t-xl">
+      <div className="bg-sand p-8 rounded-t-xl">
         <div className="flex lg:flex-row md:flex-row flex-col lg:items-center justify-between pb-4 border-b border-gray-50">
           <div>
-            <h1 className="font-bold font-serif text-2xl uppercase">Facture</h1>
-            <h6 className="text-gray-700">
-              Statut :{" "}
-              {data.status === "Delivered" && (
-                <span className="text-emerald-500">{data.status}</span>
-              )}
-              {data.status === "POS-Completed" && (
-                <span className="text-emerald-500">{data.status}</span>
-              )}
-              {data.status === "Pending" && (
-                <span className="text-orange-500">{data.status}</span>
-              )}
-              {data.status === "Cancel" && (
-                <span className="text-red-500">{data.status}</span>
-              )}
-              {data.status === "Processing" && (
-                <span className="text-indigo-500">{data.status}</span>
-              )}
-              {data.status === "Deleted" && (
-                <span className="text-red-700">{data.status}</span>
-              )}
-            </h6>
+            <h1 className="font-display text-2xl font-semibold uppercase">Facture</h1>
+            {/* One status vocabulary for the whole store — the old six-way string compare
+                rendered nothing at all for CONFIRMED, PREPARING and OUT_FOR_DELIVERY. */}
+            <div className="mt-2 flex items-center gap-2 text-ink-600">
+              <span className="text-sm">Statut :</span>
+              <OrderStatusPill status={data?.status} size="sm" />
+            </div>
           </div>
           <div className="lg:text-right text-left">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 lg:justify-end"
-            >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                <FiShoppingCart className="h-5 w-5" />
-              </span>
-              <span className="font-serif text-xl font-bold tracking-tight text-gray-800">
-                Grossi<span className="text-emerald-500">marché</span>
-              </span>
-            </Link>
+            <BrandMark variant="dark" className="lg:justify-end" />
             <p className="mt-1 text-sm text-gray-500">
               {globalSetting?.address ||
                 "Marché de gros en ligne — Maroc"}
@@ -87,7 +62,9 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
               <br />
               {data?.user_info?.address}
               <br />
-              {data?.city} {data?.country} {data?.zipCode}
+              {/* Country and postcode are no longer collected — printing them left a line of
+                  trailing spaces on every invoice. */}
+              {data?.city}
             </span>
           </div>
         </div>

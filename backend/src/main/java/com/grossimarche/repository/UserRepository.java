@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByPhone(String phone);
 
     Optional<User> findByEmail(String email);
+
+    /** Sign-in lookup: an e-mail address is not case-sensitive, so neither is the login. */
+    Optional<User> findByEmailIgnoreCase(String email);
 
     boolean existsByPhone(String phone);
 
@@ -29,6 +33,19 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     long countByRoleAndCreatedAtGreaterThanEqual(Role role, Instant since);
 
     Page<User> findByRoleInOrderByCreatedAtDesc(Collection<Role> roles, Pageable pageable);
+
+    /**
+     * Reachable e-mail addresses for a set of roles — the recipients of an offer announcement
+     * or of a back-office alert. Blocked accounts and accounts without an e-mail are excluded
+     * at the query, so no caller has to remember to filter them.
+     */
+    @Query("""
+            select u.email from User u
+            where u.role in :roles
+              and u.status = com.grossimarche.entity.enums.UserStatus.ACTIVE
+              and u.email is not null and u.email <> ''
+            """)
+    List<String> findActiveEmailsByRoles(Collection<Role> roles);
 
     /**
      * Customers filtered by role, optionally matching a free-text query on name/phone/email.

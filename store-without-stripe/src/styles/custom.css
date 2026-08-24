@@ -1715,3 +1715,181 @@ p:not(:last-of-type) {
 .gm-thin-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(100, 116, 139, 0.7);
 }
+
+/* ---------------------------------------------------------------------------
+   Grossimarché — typographic and interaction base.
+
+   The store had no font loaded at all (the Tailwind config named "Open Sans" and
+   "Inter", neither of which was ever fetched), so everything rendered in the system
+   sans. Inter and Fraunces are now linked from _document; these rules set the
+   defaults that make them read the way a premium storefront should.
+   --------------------------------------------------------------------------- */
+
+body {
+  background-color: #fbf9f5; /* cream */
+  color: #26261f; /* ink-800 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial headings: optical sizing does the work of a display cut at large sizes. */
+.font-display {
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  letter-spacing: -0.015em;
+}
+
+/* Numbers in prices, quantities and totals must not jitter as they change. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* One visible focus treatment for the whole store — keyboard users had none.
+   `:focus-visible` keeps it off mouse clicks, so nothing looks "stuck". */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #3f7355; /* emerald-500 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection picks up the brand rather than the browser default blue. */
+::selection {
+  background-color: rgba(63, 115, 85, 0.15);
+  color: #15150f;
+}
+
+/* Respect the OS "reduce motion" setting across everything added here — the badge
+   pop, the cart nudge and the timeline pulse included. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-badge-pop,
+  .animate-cart-nudge,
+  .animate-fade-up,
+  .animate-shimmer,
+  .animate-ping,
+  .animate-spin {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Account pagination, restyled to match the cards it sits under. */
+.paginationOrder .pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.paginationOrder .page--link,
+.paginationOrder .page-previous-link,
+.paginationOrder .page-next-link {
+  display: grid;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px solid #e8e3d8; /* line */
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  color: #50504a; /* ink-600 */
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.paginationOrder .page--link:hover,
+.paginationOrder .page-previous-link:hover,
+.paginationOrder .page-next-link:hover {
+  border-color: #98bca3;
+  color: #264936;
+}
+.paginationOrder .activePagination .page--link {
+  background: #3f7355;
+  border-color: #3f7355;
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   Right-to-left support.
+
+   Content is machine-translated at runtime (see AutoTranslate), so Arabic can appear on any
+   page without a per-page RTL pass. These rules cover what breaks *regardless* of layout:
+   literals that must stay left-to-right even inside an RTL paragraph.
+   --------------------------------------------------------------------------- */
+
+/* Anything excluded from translation is a literal — a price, an invoice number, a phone
+   number, the brand. Bidi reordering would scramble those inside RTL text, so isolate them. */
+[dir="rtl"] [data-no-translate],
+[dir="rtl"] .tabular-nums,
+[dir="rtl"] .product-price {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Keep number-led lines (totals, quantities) reading naturally when the label is Arabic. */
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[inputmode="numeric"] {
+  direction: ltr;
+  text-align: center;
+}
+
+[dir="rtl"] .paginationOrder .pagination {
+  direction: ltr;
+}
+
+/* ---------------------------------------------------------------------------
+   Offer marquee — one continuous, seamless glide.
+
+   The track holds the offers twice, so translating it exactly -50% lands the second
+   copy precisely where the first began: the loop has no jump and no gap. Duration is
+   set per-instance from the number of tiles, keeping the speed constant however many
+   offers are running.
+   --------------------------------------------------------------------------- */
+
+@keyframes gmMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.gm-marquee-track {
+  display: flex;
+  width: max-content;
+  animation-name: gmMarquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  /* Promote to its own layer: without this the browser repaints every tile each frame
+     and the glide stutters on long rows. */
+  will-change: transform;
+}
+
+/* Slow to a near-stop rather than freezing: an abrupt halt under the cursor reads as a
+   glitch, easing out reads as deference. */
+.gm-marquee:hover .gm-marquee-track,
+.gm-marquee:focus-within .gm-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Feather both edges so tiles arrive and leave instead of being clipped by a hard line. */
+.gm-marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right, transparent, #000 6%, #000 94%, transparent
+  );
+  mask-image: linear-gradient(
+    to right, transparent, #000 6%, #000 94%, transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-marquee-track {
+    animation: none;
+  }
+  /* Without the animation the row must still be reachable, so hand it back to the user. */
+  .gm-marquee {
+    overflow-x: auto;
+  }
+}

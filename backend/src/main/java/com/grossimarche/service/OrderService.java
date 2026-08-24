@@ -1,6 +1,7 @@
 package com.grossimarche.service;
 
 import com.grossimarche.dto.order.OrderDetailResponse;
+import com.grossimarche.dto.order.OrderStatsResponse;
 import com.grossimarche.dto.order.OrderSummaryResponse;
 import com.grossimarche.dto.mapper.OrderMapper;
 import com.grossimarche.entity.Order;
@@ -26,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +91,43 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderSummaryResponse> getOrders(UUID userId, Pageable pageable) {
         return orderRepository.findByUserId(userId, pageable).map(orderMapper::toSummary);
+    }
+
+    /**
+     * Per-status counters for the customer's own orders, in one grouped query. Statuses with
+     * no order are reported as zero rather than omitted, so the caller never has to guess.
+     */
+    @Transactional(readOnly = true)
+    public OrderStatsResponse getStats(UUID userId) {
+        Map<OrderStatus, Long> byStatus = new EnumMap<>(OrderStatus.class);
+        for (OrderStatus status : OrderStatus.values()) {
+            byStatus.put(status, 0L);
+        }
+        for (OrderRepository.StatusCount row : orderRepository.countByUserGroupedByStatus(userId)) {
+            byStatus.put(row.getStatus(), row.getCount());
+        }
+        long total = byStatus.values().stream().mapToLong(Long::longValue).sum();
+        long inProgress = byStatus.get(OrderStatus.CONFIRMED)
+                + byStatus.get(OrderStatus.PREPARING)
+                + byStatus.get(OrderStatus.OUT_FOR_DELIVERY);
+        return new OrderStatsResponse(total, byStatus.get(OrderStatus.PENDING), inProgress,
+                byStatus.get(OrderStatus.DELIVERED), byStatus.get(OrderStatus.CANCELLED), byStatus);
+    }
+
+    /**
+     * Customer-initiated cancellation. Only allowed while the order is still PENDING — once
+     * the shop has confirmed it, stock and picking are already committed and cancelling
+     * becomes an operator decision. Unknown or foreign orders 404 like every other read.
+     */
+    @Transactional
+    public OrderDetailResponse cancelOwn(UUID userId, UUID orderId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande", orderId));
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Cette commande n'est plus annulable en ligne. Contactez-nous.");
+        }
+        return applyCancel(order, userId, "Annulée par le client");
     }
 
     /** Whether an order belongs to a user — used by the WebSocket subscription check. */
@@ -163,7 +202,15 @@ public class OrderService {
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional
     public OrderDetailResponse cancel(UUID orderId, UUID actorId, String note) {
-        Order order = getOrderEntity(orderId);
+        return applyCancel(getOrderEntity(orderId), actorId, note);
+    }
+
+    /**
+     * The cancellation itself, shared by the admin action and the customer's own cancel:
+     * restore stock, reverse loyalty, free the coupon, then record and publish the change.
+     */
+    private OrderDetailResponse applyCancel(Order order, UUID actorId, String note) {
+        UUID orderId = order.getId();
         if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.DELIVERED) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED,
                     "Commande non annulable (statut : " + order.getStatus() + ").");

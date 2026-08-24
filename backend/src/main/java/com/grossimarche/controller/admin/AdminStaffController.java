@@ -53,6 +53,12 @@ public class AdminStaffController {
         return staffAdminService.update(id, body);
     }
 
+    /** Send the member a new temporary password (theirs is lost). */
+    @PostMapping("/{id}/reset-password")
+    public StaffResponse resetPassword(@PathVariable UUID id) {
+        return staffAdminService.resetPassword(id);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         staffAdminService.deactivate(id);

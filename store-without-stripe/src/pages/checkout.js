@@ -9,9 +9,7 @@ import {
   IoLocationOutline,
   IoAddCircleOutline,
 } from "react-icons/io5";
-import { useQuery } from "@tanstack/react-query";
-import { ImCreditCard } from "react-icons/im";
-import useTranslation from "next-translate/useTranslation";
+import { FiCheck, FiLock, FiRefreshCw, FiTruck } from "react-icons/fi";
 
 //internal import
 
@@ -24,24 +22,57 @@ import useGetSetting from "@hooks/useGetSetting";
 import InputPayment from "@components/form/InputPayment";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import SettingServices from "@services/SettingServices";
 import AddressModal from "@components/modal/AddressModal";
 import UpsellModal from "@components/modal/UpsellModal";
 import useSuggestedProducts from "@hooks/useSuggestedProducts";
+import { estimatedDeliveryLabel } from "@utils/delivery";
+
+// The three things the checkout asks for, named once. The page used to number its sections
+// "01./02./03." in plain text with no indication of where the shopper stood.
+const STEPS = ["Vos coordonnées", "Livraison", "Paiement"];
+
+const StepIndicator = ({ current }) => (
+  <ol className="mb-10 flex items-center gap-2 sm:gap-4">
+    {STEPS.map((label, i) => {
+      const done = i < current;
+      const active = i === current;
+      return (
+        <li key={label} className="flex flex-1 items-center gap-2 sm:gap-3">
+          <span
+            className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold ring-1 transition ${
+              done
+                ? "bg-emerald-600 text-white ring-emerald-600"
+                : active
+                  ? "bg-white text-emerald-700 ring-emerald-500"
+                  : "bg-sand text-ink-400 ring-line"
+            }`}
+          >
+            {done ? <FiCheck className="h-3.5 w-3.5" /> : i + 1}
+          </span>
+          <span
+            className={`hidden text-xs font-medium sm:block ${
+              done || active ? "text-ink-800" : "text-ink-400"
+            }`}
+          >
+            {label}
+          </span>
+          {i < STEPS.length - 1 && (
+            <span
+              className={`h-px flex-1 ${done ? "bg-emerald-400" : "bg-line"}`}
+              aria-hidden="true"
+            />
+          )}
+        </li>
+      );
+    })}
+  </ol>
+);
 
 const Checkout = () => {
-  const { t } = useTranslation();
   const { storeCustomizationSetting } = useGetSetting();
   const { showingTranslateValue } = useUtilsFunction();
 
-  const { data: storeSetting } = useQuery({
-    queryKey: ["storeSetting"],
-    queryFn: async () => await SettingServices.getStoreSetting(),
-    staleTime: 4 * 60 * 1000, // Api request after 4 minutes
-  });
-
   const {
-    error,
     couponInfo,
     couponRef,
     total,
@@ -51,7 +82,6 @@ const Checkout = () => {
     currency,
     register,
     errors,
-    showCard,
     setShowCard,
     handleSubmit,
     submitHandler,
@@ -61,8 +91,8 @@ const Checkout = () => {
     qualifiesFreeShipping,
     freeShippingRemaining,
     isCheckoutSubmit,
-    hasShippingAddress,
     isCouponAvailable,
+    bundleSavings,
     selectedAddress,
     addressModalOpen,
     setAddressModalOpen,
@@ -86,16 +116,26 @@ const Checkout = () => {
     submitHandler(data);
   };
 
+  // Which step the shopper is on, derived from what they have actually supplied rather than
+  // from a wizard they have to click through.
+  const currentStep = selectedAddress ? 2 : 1;
+
+  const confirmLabel =
+    showingTranslateValue(storeCustomizationSetting?.checkout?.confirm_button) ||
+    "Confirmer la commande";
+
   return (
     <>
-      <Layout title="Checkout" description="this is checkout page">
+      <Layout title="Commande" description="Finalisez votre commande Grossimarché">
         <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
-          <div className="py-10 lg:py-12 px-0 2xl:max-w-screen-2xl w-full xl:max-w-screen-xl flex flex-col md:flex-row lg:flex-row">
-            <div className="md:w-full lg:w-3/5 flex h-full flex-col order-2 sm:order-1 lg:order-1">
-              <div className="mt-5 md:mt-0 md:col-span-2">
+          <div className="flex w-full flex-col px-0 py-10 pb-28 lg:flex-row lg:py-12 lg:pb-12 xl:max-w-screen-xl 2xl:max-w-screen-2xl">
+            <div className="order-2 flex h-full flex-col sm:order-1 md:w-full lg:order-1 lg:w-3/5">
+              <div className="mt-5 md:col-span-2 md:mt-0">
+                <StepIndicator current={currentStep} />
+
                 <form onSubmit={handleSubmit(onConfirm)}>
                   <div className="form-group">
-                    <h2 className="font-semibold font-serif text-base text-gray-700 pb-3">
+                    <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       01.{" "}
                       {showingTranslateValue(
                         storeCustomizationSetting?.checkout?.personal_details
@@ -111,7 +151,7 @@ const Checkout = () => {
                           )}
                           name="firstName"
                           type="text"
-                          placeholder="John"
+                          placeholder="Youssef"
                         />
                         <Error errorName={errors.firstName} />
                       </div>
@@ -124,7 +164,7 @@ const Checkout = () => {
                           )}
                           name="lastName"
                           type="text"
-                          placeholder="Doe"
+                          placeholder="Alami"
                           required={false}
                         />
                         <Error errorName={errors.lastName} />
@@ -139,7 +179,7 @@ const Checkout = () => {
                           name="email"
                           type="email"
                           readOnly={true}
-                          placeholder="youremail@gmail.com"
+                          placeholder="vous@exemple.com"
                         />
                         <Error errorName={errors.email} />
                       </div>
@@ -152,7 +192,7 @@ const Checkout = () => {
                           )}
                           name="contact"
                           type="tel"
-                          placeholder="+062-6532956"
+                          placeholder="+212 6 00 00 00 00"
                         />
 
                         <Error errorName={errors.contact} />
@@ -161,7 +201,7 @@ const Checkout = () => {
                   </div>
 
                   <div className="form-group mt-12">
-                    <h2 className="font-semibold font-serif text-base text-gray-700 pb-3">
+                    <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       02.{" "}
                       {showingTranslateValue(
                         storeCustomizationSetting?.checkout?.shipping_details
@@ -170,19 +210,19 @@ const Checkout = () => {
 
                     <div className="mb-8">
                       {selectedAddress ? (
-                        <div className="flex items-start justify-between gap-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                        <div className="flex items-start justify-between gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
                           <div className="flex items-start gap-3">
-                            <span className="mt-0.5 grid h-9 w-9 place-items-center rounded-full bg-white text-emerald-500 shadow-sm">
+                            <span className="mt-0.5 grid h-9 w-9 place-items-center rounded-full bg-white text-emerald-600 shadow-sm">
                               <IoLocationOutline />
                             </span>
                             <div>
-                              <p className="text-sm font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-ink-800">
                                 Livrer à
                               </p>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-ink-600">
                                 {selectedAddress.addressLine}
                               </p>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-ink-500">
                                 {selectedAddress.city}
                               </p>
                             </div>
@@ -190,7 +230,7 @@ const Checkout = () => {
                           <button
                             type="button"
                             onClick={() => setAddressModalOpen(true)}
-                            className="shrink-0 text-sm font-medium text-emerald-600 transition hover:text-emerald-700 hover:underline"
+                            className="shrink-0 text-sm font-medium text-emerald-700 transition hover:underline"
                           >
                             Modifier
                           </button>
@@ -199,7 +239,7 @@ const Checkout = () => {
                         <button
                           type="button"
                           onClick={() => setAddressModalOpen(true)}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white px-4 py-6 text-sm font-medium text-gray-600 transition hover:border-emerald-300 hover:text-emerald-600"
+                          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-white px-4 py-6 text-sm font-medium text-ink-600 transition hover:border-emerald-300 hover:text-emerald-700"
                         >
                           <IoAddCircleOutline className="text-lg" />
                           Ajouter une adresse de livraison
@@ -208,46 +248,51 @@ const Checkout = () => {
                     </div>
 
                     <Label label="Livraison" />
-                    <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="rounded-2xl border border-line bg-white p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="grid h-9 w-9 place-items-center rounded-full bg-emerald-50 text-emerald-500">
-                            <IoLocationOutline />
+                          <span className="grid h-9 w-9 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                            <FiTruck className="h-4 w-4" />
                           </span>
                           <div>
-                            <p className="text-sm font-semibold text-gray-800">
+                            <p className="text-sm font-semibold text-ink-800">
                               Livraison standard
                             </p>
-                            {/* The fee depends on the destination, so name it rather than
-                                promising "partout au Maroc". */}
-                            <p className="text-xs text-gray-500">
-                              {selectedAddress?.city
-                                ? `${selectedAddress.city} — paiement à la livraison`
-                                : "Choisissez une ville — paiement à la livraison"}
+                            {/* A date, not a vague range — it is what removes the "when will
+                                it arrive?" hesitation right before confirming. */}
+                            <p className="text-xs text-ink-500">
+                              Estimée le{" "}
+                              <span className="font-medium text-ink-700">
+                                {estimatedDeliveryLabel()}
+                              </span>
+                              {selectedAddress?.city ? ` · ${selectedAddress.city}` : ""}
                             </p>
                           </div>
                         </div>
                         <span
                           className={`text-sm font-bold ${
-                            qualifiesFreeShipping ? "text-emerald-600" : "text-gray-800"
+                            qualifiesFreeShipping ? "text-emerald-700" : "text-ink-800"
                           }`}
                         >
-                          {qualifiesFreeShipping ? "Offerte" : `${currency}${shippingCost.toFixed(2)}`}
+                          {qualifiesFreeShipping
+                            ? "Offerte"
+                            : `${currency}${shippingCost.toFixed(2)}`}
                         </span>
                       </div>
 
                       {/* Free-shipping progress nudge (AOV lever) */}
                       {!qualifiesFreeShipping && cartTotal > 0 && (
-                        <div className="mt-3 border-t border-gray-100 pt-3">
-                          <p className="mb-1.5 text-xs text-gray-600">
+                        <div className="mt-3 border-t border-line pt-3">
+                          <p className="mb-1.5 text-xs text-ink-600">
                             Plus que{" "}
-                            <span className="font-semibold text-emerald-600">
+                            <span className="font-semibold text-emerald-700">
                               {currency}
                               {freeShippingRemaining.toFixed(2)}
                             </span>{" "}
-                            pour la <span className="font-semibold">livraison offerte</span> 🎉
+                            pour la{" "}
+                            <span className="font-semibold">livraison offerte</span>
                           </p>
-                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                          <div className="h-1 w-full overflow-hidden rounded-full bg-sand">
                             <div
                               className="h-full rounded-full bg-emerald-500 transition-all duration-500"
                               style={{
@@ -261,16 +306,31 @@ const Checkout = () => {
                         </div>
                       )}
                       {qualifiesFreeShipping && (
-                        <div className="mt-3 border-t border-gray-100 pt-3">
-                          <p className="text-xs font-medium text-emerald-600">
-                            🎉 Vous bénéficiez de la livraison offerte !
+                        <div className="mt-3 border-t border-line pt-3">
+                          <p className="text-xs font-medium text-emerald-700">
+                            Vous bénéficiez de la livraison offerte.
                           </p>
                         </div>
                       )}
                     </div>
+
+                    {/* The backend has always accepted a note on the order; nothing in the
+                        UI ever collected one. Delivery instructions are exactly the kind of
+                        thing a wholesale customer needs to pass on. */}
+                    <div className="mt-6">
+                      <Label label="Instructions de livraison (facultatif)" />
+                      <textarea
+                        {...register("orderNote")}
+                        rows={3}
+                        maxLength={500}
+                        placeholder="Étage, horaires de réception, contact sur place…"
+                        className="form-input w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink-800 transition placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-0"
+                      />
+                    </div>
                   </div>
+
                   <div className="form-group mt-12">
-                    <h2 className="font-semibold text-base text-gray-700 pb-3">
+                    <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       03.{" "}
                       {showingTranslateValue(
                         storeCustomizationSetting?.checkout?.payment_method
@@ -279,8 +339,8 @@ const Checkout = () => {
 
                     {/* COD only for launch. CMI card payment exists in the backend but is
                         hidden until online payment is enabled. */}
-                    <div className="grid sm:grid-cols-3 grid-cols-1 gap-4">
-                      <div className="">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <div>
                         <InputPayment
                           setShowCard={setShowCard}
                           register={register}
@@ -293,13 +353,32 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-6 gap-4 lg:gap-6 mt-10">
+                  {/* Reassurance sits next to the commitment, not in the footer. */}
+                  <div className="mt-8 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-3">
+                    {[
+                      { Icon: FiLock, title: "Aucun prépaiement", text: "Vous payez à la réception" },
+                      { Icon: FiTruck, title: "Livraison suivie", text: "Statut en temps réel" },
+                      { Icon: FiRefreshCw, title: "Annulation libre", text: "Tant que non confirmée" },
+                    ].map(({ Icon, title, text }) => (
+                      <div key={title} className="flex items-start gap-2.5">
+                        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <p className="text-xs font-semibold text-ink-800">{title}</p>
+                          <p className="text-2xs text-ink-500">{text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-10 grid grid-cols-6 gap-4 lg:gap-6">
                     <div className="col-span-6 sm:col-span-3">
                       <Link
                         href="/"
-                        className="bg-indigo-50 border border-indigo-100 rounded py-3 text-center text-sm font-medium text-gray-700 hover:text-gray-800 hover:border-gray-300 transition-all flex justify-center font-serif w-full"
+                        className="flex w-full justify-center rounded-xl border border-line bg-white py-3 text-center text-sm font-medium text-ink-700 transition-all hover:border-emerald-300 hover:text-emerald-700"
                       >
-                        <span className="text-xl mr-2">
+                        <span className="mr-2 text-xl">
                           <IoReturnUpBackOutline />
                         </span>
                         {showingTranslateValue(
@@ -307,31 +386,26 @@ const Checkout = () => {
                         )}
                       </Link>
                     </div>
-                    <div className="col-span-6 sm:col-span-3">
+                    <div className="col-span-6 hidden sm:col-span-3 sm:block">
                       <button
                         type="submit"
                         disabled={isEmpty || isCheckoutSubmit}
-                        className="bg-emerald-500 hover:bg-emerald-600 border border-emerald-500 transition-all rounded py-3 text-center text-sm font-serif font-medium text-white flex justify-center w-full"
+                        className="flex w-full justify-center rounded-xl bg-emerald-600 py-3 text-center text-sm font-semibold text-white shadow-luxe transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {isCheckoutSubmit ? (
                           <span className="flex justify-center text-center">
-                            {" "}
                             <img
                               src="/loader/spinner.gif"
-                              alt="Loading"
+                              alt="Chargement"
                               width={20}
                               height={10}
-                            />{" "}
+                            />
                             <span className="ml-2">Traitement…</span>
                           </span>
                         ) : (
                           <span className="flex justify-center text-center">
-                            {showingTranslateValue(
-                              storeCustomizationSetting?.checkout
-                                ?.confirm_button
-                            )}
-                            <span className="text-xl ml-2">
-                              {" "}
+                            {confirmLabel}
+                            <span className="ml-2 text-xl">
                               <IoArrowForward />
                             </span>
                           </span>
@@ -339,121 +413,160 @@ const Checkout = () => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Mobile: the commitment stays in the thumb zone instead of being scrolled
+                      past at the bottom of a long form. */}
+                  <div className="fixed inset-x-0 bottom-16 z-20 border-t border-line bg-white/95 p-3 backdrop-blur sm:hidden">
+                    <button
+                      type="submit"
+                      disabled={isEmpty || isCheckoutSubmit}
+                      className="flex w-full items-center justify-between rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-luxe transition-all disabled:opacity-50"
+                    >
+                      <span data-no-translate className="tabular-nums">
+                        {currency}
+                        {parseFloat(total).toFixed(2)}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        {isCheckoutSubmit ? "Traitement…" : confirmLabel}
+                        <IoArrowForward />
+                      </span>
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
 
-            <div className="md:w-full lg:w-2/5 lg:ml-10 xl:ml-14 md:ml-6 flex flex-col h-full md:sticky lg:sticky top-28 md:order-2 lg:order-2">
-              <div className="border p-5 lg:px-8 lg:py-8 rounded-lg bg-white order-1 sm:order-2">
-                <h2 className="font-semibold font-serif text-lg pb-4">
+            <div className="top-28 flex h-full flex-col md:order-2 md:ml-6 md:w-full md:sticky lg:order-2 lg:ml-10 lg:w-2/5 lg:sticky xl:ml-14">
+              <div className="order-1 rounded-2xl border border-line bg-white p-5 shadow-luxe sm:order-2 lg:px-8 lg:py-8">
+                <h2 className="pb-4 font-display text-lg font-semibold text-ink-800">
                   {showingTranslateValue(
                     storeCustomizationSetting?.checkout?.order_summary
                   )}
                 </h2>
 
-                <div className="overflow-y-scroll flex-grow scrollbar-hide w-full max-h-64 bg-gray-50 block">
+                <div className="block max-h-64 w-full flex-grow overflow-y-scroll rounded-xl border border-line scrollbar-hide">
                   {items.map((item) => (
-                    <CartItem key={item.id} item={item} currency={currency} />
+                    <CartItem key={item.id} item={item} currency={currency} compact />
                   ))}
 
                   {isEmpty && (
-                    <div className="text-center py-10">
-                      <span className="flex justify-center my-auto text-gray-500 font-semibold text-4xl">
+                    <div className="py-10 text-center">
+                      <span className="my-auto flex justify-center text-4xl font-semibold text-ink-300">
                         <IoBagHandle />
                       </span>
-                      <h2 className="font-medium font-serif text-sm pt-2 text-gray-600">
+                      <h2 className="pt-2 text-sm font-medium text-ink-500">
                         Votre panier est vide
                       </h2>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center mt-4 py-4 lg:py-4 text-sm w-full font-semibold text-heading last:border-b-0 last:text-base last:pb-0">
+                <div className="mt-4 flex w-full items-center py-4 text-sm font-semibold last:border-b-0 last:pb-0 last:text-base lg:py-4">
                   <form className="w-full">
                     {couponInfo.couponCode ? (
-                      <span className="bg-emerald-50 px-4 py-3 leading-tight w-full rounded-md flex justify-between">
-                        {" "}
-                        <p className="text-emerald-600">Code appliqué </p>{" "}
-                        <span className="text-red-500 text-right">
+                      <span className="flex w-full justify-between rounded-xl bg-emerald-50 px-4 py-3 leading-tight">
+                        <p className="text-emerald-700">Code appliqué</p>
+                        <span className="text-right font-semibold text-emerald-800">
                           {couponInfo.couponCode}
                         </span>
                       </span>
                     ) : (
-                      <div className="flex flex-col sm:flex-row items-start justify-end">
+                      <div className="flex flex-col items-start justify-end sm:flex-row">
                         <input
                           ref={couponRef}
                           type="text"
                           placeholder="Code promo"
-                          className="form-input py-2 px-3 md:px-4 w-full appearance-none transition ease-in-out border text-input text-sm rounded-md h-12 duration-200 bg-white border-gray-200 focus:ring-0 focus:outline-none focus:border-emerald-500 placeholder-gray-500 placeholder-opacity-75"
+                          className="form-input h-12 w-full appearance-none rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink-800 transition duration-200 ease-in-out placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-0 md:px-4"
                         />
-                        {isCouponAvailable ? (
-                          <button
-                            disabled={isCouponAvailable}
-                            type="submit"
-                            className="md:text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border border-gray-200 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 hover:text-white hover:bg-emerald-500 h-12 text-sm lg:text-base w-full sm:w-auto"
-                          >
+                        <button
+                          disabled={isCouponAvailable}
+                          onClick={handleCouponCode}
+                          className="mt-3 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-line px-5 py-3 text-center text-sm font-semibold leading-4 text-ink-700 transition duration-300 ease-in-out hover:bg-emerald-600 hover:text-white focus:outline-none focus-visible:outline-none sm:ml-3 sm:mt-0 sm:w-auto md:ml-3 md:mt-0 md:px-6 md:py-3.5 md:text-sm lg:ml-3 lg:mt-0 lg:px-8 lg:py-3 lg:text-base"
+                        >
+                          {isCouponAvailable ? (
                             <img
                               src="/loader/spinner.gif"
-                              alt="Loading"
+                              alt="Chargement"
                               width={20}
                               height={10}
                             />
-                            <span className=" ml-2 font-light">Processing</span>
-                          </button>
-                        ) : (
-                          <button
-                            disabled={isCouponAvailable}
-                            onClick={handleCouponCode}
-                            className="md:text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border border-gray-200 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 hover:text-white hover:bg-emerald-500 h-12 text-sm lg:text-base w-full sm:w-auto"
-                          >
-                            {showingTranslateValue(
+                          ) : (
+                            showingTranslateValue(
                               storeCustomizationSetting?.checkout?.apply_button
-                            )}
-                          </button>
-                        )}
+                            )
+                          )}
+                        </button>
                       </div>
                     )}
                   </form>
                 </div>
-                <div className="flex items-center py-2 text-sm w-full font-semibold text-gray-500 last:border-b-0 last:text-base last:pb-0">
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.checkout?.sub_total
+
+                <dl className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <dt className="font-medium text-ink-500">
+                      {showingTranslateValue(
+                        storeCustomizationSetting?.checkout?.sub_total
+                      )}
+                    </dt>
+                    <dd className="font-bold tabular-nums text-ink-800">
+                      {currency}
+                      {cartTotal?.toFixed(2)}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="font-medium text-ink-500">
+                      {showingTranslateValue(
+                        storeCustomizationSetting?.checkout?.shipping_cost
+                      )}
+                    </dt>
+                    <dd className="font-bold tabular-nums">
+                      {qualifiesFreeShipping ? (
+                        <span className="text-emerald-700">Offerte</span>
+                      ) : (
+                        <span className="text-ink-800">
+                          {currency}
+                          {shippingCost?.toFixed(2)}
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                  {bundleSavings?.total > 0 && (
+                    <div className="flex items-center justify-between">
+                      <dt className="font-medium text-ink-500">
+                        {bundleSavings.applied.length > 1
+                          ? `Offres paniers (${bundleSavings.applied.length})`
+                          : `Offre « ${bundleSavings.applied[0].name} »`}
+                      </dt>
+                      <dd
+                        data-no-translate
+                        className="font-bold tabular-nums text-brass-600"
+                      >
+                        −{currency}
+                        {bundleSavings.total.toFixed(2)}
+                      </dd>
+                    </div>
                   )}
-                  <span className="ml-auto flex-shrink-0 text-gray-800 font-bold">
-                    {currency}
-                    {cartTotal?.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-center py-2 text-sm w-full font-semibold text-gray-500 last:border-b-0 last:text-base last:pb-0">
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.checkout?.shipping_cost
-                  )}
-                  <span className="ml-auto flex-shrink-0 font-bold">
-                    {qualifiesFreeShipping ? (
-                      <span className="text-emerald-600">Offerte</span>
-                    ) : (
-                      <span className="text-gray-800">
-                        {currency}
-                        {shippingCost?.toFixed(2)}
-                      </span>
-                    )}
-                  </span>
-                </div>
-                <div className="flex items-center py-2 text-sm w-full font-semibold text-gray-500 last:border-b-0 last:text-base last:pb-0">
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.checkout?.discount
-                  )}
-                  <span className="ml-auto flex-shrink-0 font-bold text-orange-400">
-                    {currency}
-                    {discountAmount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="border-t mt-4">
-                  <div className="flex items-center font-bold font-serif justify-between pt-5 text-sm uppercase">
-                    {showingTranslateValue(
-                      storeCustomizationSetting?.checkout?.total_cost
-                    )}
-                    <span className="font-serif font-extrabold text-lg">
+                  <div className="flex items-center justify-between">
+                    <dt className="font-medium text-ink-500">
+                      {showingTranslateValue(
+                        storeCustomizationSetting?.checkout?.discount
+                      )}
+                    </dt>
+                    <dd className="font-bold tabular-nums text-brass-600">
+                      −{currency}
+                      {discountAmount.toFixed(2)}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-4 border-t border-line">
+                  <div className="flex items-center justify-between pt-5 text-sm font-bold uppercase tracking-wide">
+                    <span className="text-ink-600">
+                      {showingTranslateValue(
+                        storeCustomizationSetting?.checkout?.total_cost
+                      )}
+                    </span>
+                    <span data-no-translate className="font-display text-2xl font-semibold tabular-nums text-ink-900">
                       {currency}
                       {parseFloat(total).toFixed(2)}
                     </span>

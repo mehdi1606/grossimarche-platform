@@ -36,21 +36,23 @@ const NavBarTop = () => {
   }, [userInfo]);
 
   return (
-    <div className="hidden lg:block bg-gray-50 border-b border-gray-100">
+    <div className="hidden border-b border-line bg-cream lg:block">
       <div className="max-w-screen-2xl mx-auto px-3 sm:px-10">
-        <div className="text-gray-600 py-2 font-sans text-xs font-medium flex justify-between items-center">
+        <div className="flex items-center justify-between py-2 font-sans text-xs font-medium text-ink-500">
           {/* Left: contact */}
           <div className="flex items-center gap-5">
             <a
               href="tel:+2125220000000"
-              className="flex items-center hover:text-emerald-600 transition"
+              data-no-translate
+              className="flex items-center transition hover:text-emerald-700"
             >
               <FiPhoneCall className="mr-1.5" />
               +212 5 22 00 00 00
             </a>
             <a
               href="mailto:contact@grossimarche.ma"
-              className="hidden xl:flex items-center hover:text-emerald-600 transition"
+              data-no-translate
+              className="hidden items-center transition hover:text-emerald-700 xl:flex"
             >
               <FiMail className="mr-1.5" />
               contact@grossimarche.ma
@@ -59,22 +61,22 @@ const NavBarTop = () => {
 
           {/* Right: account */}
           <div className="flex items-center gap-4">
-            <span className="hidden xl:inline text-gray-400">
+            <span className="hidden text-ink-400 xl:inline">
               Livraison partout au Maroc — Paiement à la livraison
             </span>
             {userInfo?.email ? (
               <>
                 <Link
                   href="/user/dashboard"
-                  className="flex items-center font-medium hover:text-emerald-600 transition"
+                  className="flex items-center font-medium transition hover:text-emerald-700"
                 >
                   <FiUser className="mr-1" />
                   Mon compte
                 </Link>
-                <span className="text-gray-300">|</span>
+                <span className="text-line">|</span>
                 <button
                   onClick={handleLogOut}
-                  className="flex items-center font-medium hover:text-emerald-600 transition"
+                  className="flex items-center font-medium transition hover:text-emerald-700"
                 >
                   <IoLockOpenOutline className="mr-1" />
                   Se déconnecter
@@ -83,7 +85,7 @@ const NavBarTop = () => {
             ) : (
               <Link
                 href="/auth/login"
-                className="flex items-center font-medium hover:text-emerald-600 transition"
+                className="flex items-center font-medium transition hover:text-emerald-700"
               >
                 <FiUser className="mr-1" />
                 Se connecter
