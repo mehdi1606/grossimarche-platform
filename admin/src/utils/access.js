@@ -21,8 +21,8 @@ const STORE_MANAGER_ROUTES = [
   "customer-order", // a customer's order detail
   "orders",
   "order", // order invoice detail
-  "offers", // quantity-discount tiers — part of catalogue pricing
-  "bundles", // bundle offers ("paniers") — also catalogue pricing
+  "offers", // quantity-discount tiers - part of catalogue pricing
+  "bundles", // bundle offers ("paniers") - also catalogue pricing
   "reviews", // customer-review moderation
   "notifications",
   "edit-profile",

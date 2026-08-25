@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * Emits the uniform {@link ApiError} JSON (401) when an unauthenticated caller hits a
- * protected endpoint — never an HTML login page. Also used by the JWT filter to reject
+ * protected endpoint - never an HTML login page. Also used by the JWT filter to reject
  * malformed/expired/denylisted tokens.
  */
 @Component

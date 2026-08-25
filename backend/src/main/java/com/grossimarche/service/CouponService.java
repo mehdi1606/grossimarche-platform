@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * Coupon rules and admin CRUD. Money is computed in {@link PricingService}; this service
  * owns validity (active, window, minimum, usage/per-user limits) and redemption records.
- * {@link #evaluate} is pure — it never throws — so both the preview endpoint and checkout
+ * {@link #evaluate} is pure - it never throws - so both the preview endpoint and checkout
  * share one code path; the caller decides whether an invalid result is a 200 or an error.
  */
 @Service

@@ -68,7 +68,7 @@ public class OrderController {
         return orderService.getOrder(SecurityUtils.currentUserId(), id);
     }
 
-    /** Cancel one's own order — allowed only while it is still PENDING. */
+    /** Cancel one's own order - allowed only while it is still PENDING. */
     @PostMapping("/{id}/cancel")
     public OrderDetailResponse cancel(@PathVariable UUID id) {
         return orderService.cancelOwn(SecurityUtils.currentUserId(), id);

@@ -21,8 +21,8 @@ const Cart = () => {
   const userInfo = getUserSession();
 
   /**
-   * Undo for the last removed line. Removal is committed immediately — the cart is always
-   * truthful — and the removed item is held here just long enough to put back. Deleting a
+   * Undo for the last removed line. Removal is committed immediately - the cart is always
+   * truthful - and the removed item is held here just long enough to put back. Deleting a
    * line was previously instant and irreversible, which is a harsh outcome for a mis-tap on
    * a 4mm icon.
    */
@@ -45,7 +45,7 @@ const Cart = () => {
     setLastRemoved(null);
   };
 
-  // Bundle offers the cart has already earned. Display only — the server recomputes the
+  // Bundle offers the cart has already earned. Display only - the server recomputes the
   // discount at checkout and is what the customer is actually charged.
   const { savings: bundleSavings } = useBundles();
 
@@ -88,7 +88,7 @@ const Cart = () => {
         </button>
       </div>
 
-      {/* Undo strip — sits above the list so it is visible whatever is scrolled into view. */}
+      {/* Undo strip - sits above the list so it is visible whatever is scrolled into view. */}
       {lastRemoved && (
         <div className="flex animate-fade-up items-center justify-between gap-3 border-b border-line bg-sand px-4 py-2.5">
           <p className="min-w-0 truncate text-sm text-ink-500">
@@ -235,7 +235,7 @@ const Cart = () => {
           </button>
           <p className="mt-2.5 flex items-center justify-center gap-1.5 text-2xs text-ink-400">
             <FiLock className="h-3 w-3" />
-            Paiement à la livraison — aucune carte requise
+            Paiement à la livraison - aucune carte requise
           </p>
         </div>
       )}

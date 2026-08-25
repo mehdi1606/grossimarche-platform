@@ -3,7 +3,7 @@ import Link from "next/link";
 /**
  * The Grossimarché mark: a serif monogram, not a shopping-cart glyph.
  *
- * The logo used to be a `FiShoppingCart`, which put the exact same icon in the navbar twice —
+ * The logo used to be a `FiShoppingCart`, which put the exact same icon in the navbar twice -
  * once as the brand and once as the cart button, forty pixels apart. A monogram separates
  * identity from action, and reads as a house rather than a template.
  */
@@ -37,7 +37,7 @@ const BrandMark = ({ variant = "light", withWordmark = true, className = "", hre
   );
 
   // `data-no-translate` stops the runtime translation pass (see AutoTranslate) from turning
-  // the brand into a common noun — "Grossimarché" is a name in every language.
+  // the brand into a common noun - "Grossimarché" is a name in every language.
   if (!href) {
     return (
       <span data-no-translate className={`flex items-center gap-2.5 ${className}`}>
@@ -50,7 +50,7 @@ const BrandMark = ({ variant = "light", withWordmark = true, className = "", hre
     <Link
       href={href}
       data-no-translate
-      aria-label="Grossimarché — accueil"
+      aria-label="Grossimarché - accueil"
       className={`flex items-center gap-2.5 ${className}`}
     >
       {content}

@@ -26,7 +26,7 @@ import java.util.Map;
  * Turns domain events into e-mail.
  *
  * Everything here fires {@code AFTER_COMMIT}, so nothing is ever announced for a transaction
- * that rolled back, and every send goes through {@link Mailer}'s async methods — a customer
+ * that rolled back, and every send goes through {@link Mailer}'s async methods - a customer
  * waiting on an SMTP handshake would be a strange way to confirm their order.
  *
  * A delivery failure is logged and dropped on purpose: an order must not fail because a relay
@@ -152,7 +152,7 @@ public class MailNotificationListener {
      * to reach a person, so the same alert goes out by e-mail to every active staff account.
      */
     // A plain @EventListener, not a transactional one: StaffAlertEvent is published *from*
-    // an AFTER_COMMIT listener, so there is no transaction left to hang off — a
+    // an AFTER_COMMIT listener, so there is no transaction left to hang off - a
     // @TransactionalEventListener would simply never fire.
     @EventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

@@ -16,8 +16,8 @@ import {
  * ⚠ These entries only render the Sidebar. Actual Router routes live in `routes/index.js`.
  *
  * Visibility is role-based: SidebarContent filters every entry (and sub-entry) against the
- * signed-in user's access list (utils/access.js). ADMIN-only areas — Staff, Coupons,
- * Settings (stores) and the International config — are therefore hidden from a STORE_MANAGER
+ * signed-in user's access list (utils/access.js). ADMIN-only areas - Staff, Coupons,
+ * Settings (stores) and the International config - are therefore hidden from a STORE_MANAGER
  * automatically; no per-item role flag is needed here.
  */
 const sidebar = [

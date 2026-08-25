@@ -37,7 +37,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   const { isLoading, setIsLoading } = useContext(SidebarContext);
   const { handleAddItem, item, setItem, minOf } = useAddToCart();
 
-  // Wholesale minimum for this reference. The stepper starts here and cannot go below it —
+  // Wholesale minimum for this reference. The stepper starts here and cannot go below it -
   // the value was already coming down from the API and was simply never applied.
   const minQuantity = minOf(product);
 
@@ -180,7 +180,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     if (stock <= 0) return notifyError("Article en rupture de stock.");
     if (stock < minQuantity)
       return notifyError(
-        `Commande minimum de ${minQuantity} — stock actuel insuffisant.`
+        `Commande minimum de ${minQuantity} - stock actuel insuffisant.`
       );
     // console.log('selectVariant', selectVariant);
 

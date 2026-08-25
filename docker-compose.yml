@@ -1,5 +1,5 @@
 # =====================================================================================
-# Grossimarché — full platform, one command. Backend + storefront + back-office behind a
+# Grossimarché - full platform, one command. Backend + storefront + back-office behind a
 # single nginx gateway. Only the proxy is published; Postgres, Redis, backend, store and
 # admin all stay on the private network.
 #
@@ -8,7 +8,7 @@
 #   API          http://<host>/api/v1/...
 #
 # The published port and the public origin come from the root .env (PUBLIC_PORT,
-# PUBLIC_ORIGIN). PUBLIC_ORIGIN must match how visitors actually reach the site — it is what
+# PUBLIC_ORIGIN). PUBLIC_ORIGIN must match how visitors actually reach the site - it is what
 # CORS is checked against, what NextAuth signs callbacks with, and what customer e-mails link
 # to. Set it to the server's address before the first start.
 #
@@ -68,7 +68,7 @@ services:
       context: ./backend
     environment:
       # 'local' is demo-ready: it loads the seed catalogue and generates a throwaway JWT
-      # signing key at startup — which means every session is invalidated whenever the
+      # signing key at startup - which means every session is invalidated whenever the
       # backend restarts. Fine for a demo, wrong for a shop with real customers.
       #
       # 'prod' needs a persistent RSA key pair (JWT_PRIVATE_KEY / JWT_PUBLIC_KEY) and reads
@@ -90,7 +90,7 @@ services:
       API_PUBLIC_URL: ${PUBLIC_ORIGIN:-http://localhost}
       CORS_ALLOWED_ORIGINS: ${PUBLIC_ORIGIN:-http://localhost}
       # OTP delivery. 'smtp' sends the e-mail codes through the SMTP account below; SMS
-      # codes stay in the backend log. Credentials live in the (gitignored) root .env —
+      # codes stay in the backend log. Credentials live in the (gitignored) root .env -
       # see .env.example. Without a .env this falls back to log-only codes.
       OTP_PROVIDER: ${OTP_PROVIDER:-logging}
       MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
@@ -100,7 +100,7 @@ services:
       MAIL_FROM: ${MAIL_FROM:-}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Grossimarché}
       # Links inside e-mails. These are absolute and cannot be derived from the request, so
-      # they must be set in .env to the public origin — otherwise every invitation and every
+      # they must be set in .env to the public origin - otherwise every invitation and every
       # order-tracking link points at localhost.
       ADMIN_URL: ${ADMIN_URL:-http://localhost/admin}
       # The storefront, for the tracking and offer links in customer e-mails.
@@ -115,7 +115,7 @@ services:
       # gateway at /files/ (so the stored URL is relative and works from any host).
       STORAGE_DIRECTORY: /app/data/uploads
       STORAGE_PUBLIC_BASE_URL: /files
-      # Machine translation (LibreTranslate). Best-effort — source text is returned if it's down.
+      # Machine translation (LibreTranslate). Best-effort - source text is returned if it's down.
       GROSSIMARCHE_TRANSLATION_ENABLED: ${TRANSLATION_ENABLED:-true}
       GROSSIMARCHE_TRANSLATION_URL: http://libretranslate:5000
     volumes:

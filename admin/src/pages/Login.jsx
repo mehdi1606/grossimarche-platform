@@ -6,7 +6,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import Error from "@/components/form/others/Error";
 import LabelArea from "@/components/form/selectOption/LabelArea";
 import InputArea from "@/components/form/input/InputArea";
-// The file is saved with a double extension (login-img.JPG.jpeg) — import it as it is on disk.
+// The file is saved with a double extension (login-img.JPG.jpeg) - import it as it is on disk.
 import LoginImage from "@/assets/img/login-img.JPG.jpeg";
 import useLoginSubmit from "@/hooks/useLoginSubmit";
 import CMButton from "@/components/form/button/CMButton";

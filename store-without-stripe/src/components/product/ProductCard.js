@@ -40,7 +40,7 @@ const ProductCard = ({ product, attributes }) => {
   /**
    * Adding from the grid goes through `useAddToCart` like every other entry point, so the
    * shopper gets the same confirmation, the same stock check and the same minimum-order rule.
-   * This used to be a private copy that added silently — no toast, no drawer, no minimum.
+   * This used to be a private copy that added silently - no toast, no drawer, no minimum.
    */
   const addToCart = (p) => {
     if (p?.variants?.length > 0) {
@@ -109,7 +109,7 @@ const ProductCard = ({ product, attributes }) => {
             </h2>
           </div>
 
-          {/* Wholesale signals: the quantity break first — it is the reason to buy a case —
+          {/* Wholesale signals: the quantity break first - it is the reason to buy a case -
               then the minimum order. */}
           <div className="mb-3 mt-2 min-h-[1.5rem] space-y-1.5">
             {nextTier && (

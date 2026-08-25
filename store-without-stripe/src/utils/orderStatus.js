@@ -3,7 +3,7 @@
  *
  * The backend enum is `PENDING → CONFIRMED → PREPARING → OUT_FOR_DELIVERY → DELIVERED`,
  * with `CANCELLED` reachable from any non-terminal state. Everything the shopper sees about
- * an order — label, colour, timeline step, what they may still do — is derived from here,
+ * an order - label, colour, timeline step, what they may still do - is derived from here,
  * so a new state is added in exactly one place.
  */
 

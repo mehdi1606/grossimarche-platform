@@ -7,10 +7,10 @@ import java.util.List;
 /**
  * Base class for all expected, client-facing errors. Carries an {@link ErrorCode}
  * (which supplies the HTTP status) and, optionally, field-level details. Programming
- * errors must not use this type — let them reach the 500 catch-all.
+ * errors must not use this type - let them reach the 500 catch-all.
  *
  * <p>The message defaults to the code's French default; pass a custom message to
- * override it (e.g. to include an entity id or the number of remaining attempts —
+ * override it (e.g. to include an entity id or the number of remaining attempts -
  * never a secret).
  */
 public class BusinessException extends RuntimeException {

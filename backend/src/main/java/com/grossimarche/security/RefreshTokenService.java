@@ -70,7 +70,7 @@ public class RefreshTokenService {
         String current = redis.opsForValue().get(curKey(userId, familyId));
         if (current == null || !current.equals(hash)) {
             // A superseded token was replayed → assume theft, burn the whole family.
-            log.warn("Refresh token replay detected for family {} — revoking the family", familyId);
+            log.warn("Refresh token replay detected for family {} - revoking the family", familyId);
             revokeFamily(userId, familyId);
             throw new BusinessException(ErrorCode.TOKEN_INVALID,
                     "Jeton de rafraîchissement déjà utilisé. Session révoquée.");

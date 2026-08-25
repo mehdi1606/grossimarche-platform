@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  *
  * @param enabled  master switch; turn off once the account is established
  * @param email    sign-in identifier for the owner account
- * @param password initial password — <strong>override with BOOTSTRAP_ADMIN_PASSWORD</strong>
+ * @param password initial password - <strong>override with BOOTSTRAP_ADMIN_PASSWORD</strong>
  *                 in any environment that is not a local machine
  * @param fullName display name for the account
  */

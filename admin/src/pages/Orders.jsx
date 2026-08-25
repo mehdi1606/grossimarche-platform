@@ -53,7 +53,7 @@ const STATUS_FLOW = [
 ];
 const isCancelledStatus = (s) => s === "Cancel" || s === "Cancelled";
 
-/** Horizontal lifecycle tracker — completed steps filled, current step ringed, rest muted. */
+/** Horizontal lifecycle tracker - completed steps filled, current step ringed, rest muted. */
 const OrderStatusTracker = ({ status }) => {
   if (isCancelledStatus(status)) {
     return (
@@ -233,7 +233,7 @@ const Orders = () => {
                 <TableRow key={row._id}>
                   <TableCell className="font-semibold">#{row.invoice}</TableCell>
                   <TableCell className="text-sm">
-                    {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY, HH:mm") : "—"}
+                    {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY, HH:mm") : "-"}
                   </TableCell>
                   <TableCell>{row.user_info?.name || "Client"}</TableCell>
                   <TableCell>
@@ -358,7 +358,7 @@ const Orders = () => {
               <p className="text-sm text-gray-500">
                 {[detail.user_info?.address, detail.user_info?.city]
                   .filter(Boolean)
-                  .join(", ") || "—"}
+                  .join(", ") || "-"}
               </p>
             </div>
 

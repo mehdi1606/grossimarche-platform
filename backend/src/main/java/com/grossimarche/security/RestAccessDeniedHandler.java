@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * Emits the uniform {@link ApiError} JSON (403) when an authenticated caller lacks the
- * required role — never an HTML page.
+ * required role - never an HTML page.
  */
 @Component
 public class RestAccessDeniedHandler implements AccessDeniedHandler {

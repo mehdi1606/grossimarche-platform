@@ -9,7 +9,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 const SECONDS_PER_TILE = 7;
 
 /**
- * Below this, the row scrolls nothing — it just repeats itself.
+ * Below this, the row scrolls nothing - it just repeats itself.
  *
  * A marquee needs its content duplicated to loop seamlessly, so with one offer the row becomes
  * the same tile six times, which reads as padding rather than as a catalogue. Fewer offers than
@@ -18,7 +18,7 @@ const SECONDS_PER_TILE = 7;
  */
 const MARQUEE_MIN = 5;
 
-/** One offer, as a poster. Image and name only — the detail lives on the offers page. */
+/** One offer, as a poster. Image and name only - the detail lives on the offers page. */
 const OfferTile = ({ bundle, currency, ariaHidden }) => (
   <Link
     href="/offer"
@@ -72,7 +72,7 @@ const OfferTile = ({ bundle, currency, ariaHidden }) => (
  * A single offer, given the whole width.
  *
  * When there is exactly one promotion, repeating it across a row does not make the shop look
- * busier — it makes it look like it is pretending. One offer is a statement, so it gets the
+ * busier - it makes it look like it is pretending. One offer is a statement, so it gets the
  * space of one: a wide banner where the name can be set large and the saving read from across
  * the room.
  */
@@ -153,7 +153,7 @@ const OfferFeature = ({ bundle, currency }) => (
  * The layout is chosen by how many offers are actually running, because one promotion and ten
  * promotions are different things to present:
  *
- *   0        nothing at all — no heading, no empty row, no gap in the page
+ *   0        nothing at all - no heading, no empty row, no gap in the page
  *   1        a full-width banner
  *   2 – 4    a grid, each offer once
  *   5+       a continuous marquee
@@ -217,7 +217,7 @@ const BundleRail = () => {
             className="gm-marquee-track gap-5"
             style={{ animationDuration: `${bundles.length * SECONDS_PER_TILE}s` }}
           >
-            {/* Two identical passes — the minimum a seamless loop needs. The second is hidden
+            {/* Two identical passes - the minimum a seamless loop needs. The second is hidden
                 from assistive tech and taken out of the tab order: it is the same offers
                 again, and announcing them twice would be noise. */}
             {bundles.map((bundle) => (

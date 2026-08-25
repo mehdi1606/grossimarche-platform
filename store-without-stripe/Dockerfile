@@ -1,5 +1,5 @@
 # Grossimarché storefront (Next.js). Single stage: install (incl. devDeps for the build),
-# build, then run `next start`. Native `sharp` build is skipped (--ignore-scripts) — Next
+# build, then run `next start`. Native `sharp` build is skipped (--ignore-scripts) - Next
 # falls back for image optimization; the storefront's product images come from the backend.
 FROM node:20-alpine
 WORKDIR /app

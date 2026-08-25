@@ -51,7 +51,7 @@ const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
         <div className="border-t border-gray-100 p-5">
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="text-gray-500">
-              {totalItems} article{totalItems > 1 ? "s" : ""} — total
+              {totalItems} article{totalItems > 1 ? "s" : ""} - total
             </span>
             <span className="text-lg font-bold text-gray-800">
               {currency}

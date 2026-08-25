@@ -22,7 +22,7 @@ const SuggestionCard = ({ product, currency }) => {
   /**
    * Goes through the shared hook like every other add: stock and minimum-order are checked,
    * and `image` is the single URL the cart line expects rather than the raw array. Silent and
-   * without opening the drawer — this row is *inside* the drawer, and a toast per quick-add
+   * without opening the drawer - this row is *inside* the drawer, and a toast per quick-add
    * would bury the cart it just changed.
    */
   const add = () => {
@@ -91,7 +91,7 @@ const SuggestionCard = ({ product, currency }) => {
  *
  * The row hides its scrollbar (`gm-rail`), which looks clean and, on its own, made the extra
  * products undiscoverable: in a narrow cart drawer there was nothing to say the row continued
- * and no scrollbar to drag. Two affordances fix that without adding clutter — a soft fade over
+ * and no scrollbar to drag. Two affordances fix that without adding clutter - a soft fade over
  * whichever edge still has content behind it, and arrows that appear only when the row
  * actually overflows and only on the side you can still travel towards.
  */

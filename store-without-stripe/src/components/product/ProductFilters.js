@@ -113,7 +113,7 @@ const ProductFilters = ({ categories = [] }) => {
               onChange={(e) => setMinPrice(e.target.value)}
               className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
             />
-            <span className="text-gray-300">—</span>
+            <span className="text-gray-300">-</span>
             <input
               type="number"
               min="0"

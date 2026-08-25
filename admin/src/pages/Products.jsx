@@ -247,7 +247,7 @@ const Products = () => {
           }}
           options={categories.map((c) => ({
             value: c._id,
-            label: c.name?.en || "—",
+            label: c.name?.en || "-",
           }))}
         />
       </div>
@@ -298,7 +298,7 @@ const Products = () => {
                       <span className="font-medium">{row.title?.en}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">{row.category?.name?.en || "—"}</TableCell>
+                  <TableCell className="text-sm">{row.category?.name?.en || "-"}</TableCell>
                   <TableCell className="font-semibold">
                     {currency}
                     {Number(row.prices?.price || 0).toFixed(2)}
@@ -417,7 +417,7 @@ const Products = () => {
                   onChange={(next) => setForm({ ...form, categoryId: next })}
                   options={categories.map((c) => ({
                     value: c._id,
-                    label: c.name?.en || "—",
+                    label: c.name?.en || "-",
                   }))}
                 />
               </div>
@@ -492,7 +492,7 @@ const Products = () => {
               checked={form.active}
               onChange={(e) => setForm({ ...form, active: e.target.checked })}
             />
-            Active — visible in the storefront
+            Active - visible in the storefront
           </label>
         </form>
       </Modal>

@@ -17,7 +17,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
         <div className="flex lg:flex-row md:flex-row flex-col lg:items-center justify-between pb-4 border-b border-gray-50">
           <div>
             <h1 className="font-display text-2xl font-semibold uppercase">Facture</h1>
-            {/* One status vocabulary for the whole store — the old six-way string compare
+            {/* One status vocabulary for the whole store - the old six-way string compare
                 rendered nothing at all for CONFIRMED, PREPARING and OUT_FOR_DELIVERY. */}
             <div className="mt-2 flex items-center gap-2 text-ink-600">
               <span className="text-sm">Statut :</span>
@@ -28,7 +28,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
             <BrandMark variant="dark" className="lg:justify-end" />
             <p className="mt-1 text-sm text-gray-500">
               {globalSetting?.address ||
-                "Marché de gros en ligne — Maroc"}
+                "Marché de gros en ligne - Maroc"}
             </p>
           </div>
         </div>
@@ -62,7 +62,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
               <br />
               {data?.user_info?.address}
               <br />
-              {/* Country and postcode are no longer collected — printing them left a line of
+              {/* Country and postcode are no longer collected - printing them left a line of
                   trailing spaces on every invoice. */}
               {data?.city}
             </span>

@@ -14,7 +14,7 @@ import lombok.Setter;
 
 /**
  * A customer's rating (1–5) and optional comment on a product. Moderated: only rows with
- * {@code approved = true} are shown publicly. One review per (product, user) — a repeat
+ * {@code approved = true} are shown publicly. One review per (product, user) - a repeat
  * submission updates the existing row.
  */
 @Entity

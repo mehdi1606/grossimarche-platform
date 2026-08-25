@@ -14,13 +14,13 @@ import { DELIVERY_CITIES } from "@utils/delivery";
  * /me/addresses and continues the flow.
  *
  * The city is picked from tiles rather than a dropdown. Three served cities is below the point
- * where a dropdown earns its keep, and the fee differs between them — inside a closed select
+ * where a dropdown earns its keep, and the fee differs between them - inside a closed select
  * the shopper cannot compare "offerte" against "30 DH" without opening it and reading three
  * lines. Laid out, the choice and its consequence are visible at once, in one click.
  *
  * Country and postcode are gone: everything is delivered to three Moroccan cities, so a
  * country field only ever restates what the city already said, and the postcode was never
- * read by anything — the delivery fee comes from the city alone.
+ * read by anything - the delivery fee comes from the city alone.
  */
 const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
   const {

@@ -10,7 +10,7 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Real Postgres 17 and Redis 7 containers for integration tests. {@code @ServiceConnection}
  * wires each container's connection details into the Spring context automatically, so no
- * datasource/redis properties are needed in tests — the containers take precedence.
+ * datasource/redis properties are needed in tests - the containers take precedence.
  */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {

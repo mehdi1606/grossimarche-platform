@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { FiCheck, FiChevronDown } from "react-icons/fi";
 
 /**
- * Styled single-select for the list filters. A native <select> is not themable — its option
+ * Styled single-select for the list filters. A native <select> is not themable - its option
  * list is drawn by the OS, so it ignores the dark mode and the app's rounding/colours. The
  * panel is therefore rendered here: same height and border as the search field, closes on
  * outside click or Escape, and marks the current choice.
  *
  * Props: options [{ value, label }], value, onChange(value), allLabel (the "no filter"
  * entry, always first), ariaLabel, className (width/layout of the wrapper), placement
- * ("top" opens upward — needed when the trigger sits in a modal footer, where a downward
+ * ("top" opens upward - needed when the trigger sits in a modal footer, where a downward
  * panel would be clipped by the dialog's overflow).
  */
 const FilterDropdown = ({

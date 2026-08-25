@@ -34,7 +34,7 @@ const MyOrders = () => {
       }),
   });
 
-  // Paginate on the page size actually requested — this used to divide by 8 while asking the
+  // Paginate on the page size actually requested - this used to divide by 8 while asking the
   // API for 10, so the last page(s) of a long history were unreachable.
   const pageCount = Math.ceil((data?.totalDoc || 0) / PAGE_SIZE);
 

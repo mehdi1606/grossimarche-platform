@@ -38,7 +38,7 @@ const Order = ({ params }) => {
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const { data, error, isLoading } = useQuery({
-    // Keyed by id — the old key was the constant "order", so opening a second order showed
+    // Keyed by id - the old key was the constant "order", so opening a second order showed
     // the first one's cached data.
     queryKey: ["order", orderId],
     queryFn: async () => await OrderServices.getOrderById(orderId),
@@ -80,7 +80,7 @@ const Order = ({ params }) => {
           </Link>
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Tracking is the reason this page gets opened — it leads. The invoice, which
+            {/* Tracking is the reason this page gets opened - it leads. The invoice, which
                 used to be the entire page, now sits underneath it. */}
             <section className="lg:col-span-2">
               <div className="rounded-2xl border border-line bg-white p-6 shadow-luxe sm:p-8">

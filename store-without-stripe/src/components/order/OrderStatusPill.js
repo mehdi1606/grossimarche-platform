@@ -4,7 +4,7 @@ import { statusMeta } from "@utils/orderStatus";
  * One order status, rendered the same way everywhere it appears.
  *
  * Reads the raw backend enum (PENDING…CANCELLED) rather than a pre-translated string, so
- * every status has a French label and a colour — including the three that the old table
+ * every status has a French label and a colour - including the three that the old table
  * silently rendered as an empty cell.
  */
 const OrderStatusPill = ({ status, size = "md" }) => {

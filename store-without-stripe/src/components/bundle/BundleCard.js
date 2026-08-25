@@ -4,7 +4,7 @@ import { FiPackage, FiPlus, FiShoppingCart } from "react-icons/fi";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
 /**
- * One bundle offer — a "panier".
+ * One bundle offer - a "panier".
  *
  * The whole point of the card is the comparison: what the set contains, what those items cost
  * separately, and what the set costs. A saving nobody can see is a saving nobody acts on, so
@@ -50,7 +50,7 @@ const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
           <p className="mt-1.5 line-clamp-2 text-sm text-ink-500">{bundle.description}</p>
         )}
 
-        {/* What is in the set. This is the offer — hiding it behind a link would make the
+        {/* What is in the set. This is the offer - hiding it behind a link would make the
             price meaningless. */}
         <ul className="mt-4 space-y-1.5 border-t border-line pt-4">
           {items.slice(0, compact ? 3 : 6).map((item) => (

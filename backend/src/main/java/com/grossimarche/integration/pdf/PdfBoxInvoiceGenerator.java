@@ -42,7 +42,7 @@ public class PdfBoxInvoiceGenerator implements InvoiceGenerator {
             try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
                 float y = 800;
                 y = line(cs, bold, 16, 50, y, "GROSSIMARCHÉ");
-                y = line(cs, regular, 9, 50, y, "Vente en gros — Cash & Carry");
+                y = line(cs, regular, 9, 50, y, "Vente en gros - Cash & Carry");
                 y = line(cs, regular, 9, 50, y, "ICE 000000000000000 · RC 00000 · Casablanca, Maroc");
                 y -= 10;
                 y = line(cs, bold, 13, 50, y, "FACTURE " + order.getOrderNumber());

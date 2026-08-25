@@ -61,7 +61,7 @@ const Navbar = () => {
       <div className="sticky top-0 z-20 bg-emerald-700">
         <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
           <div className="top-bar mx-auto flex h-16 items-center justify-between py-4 lg:h-auto">
-            {/* On a phone the bar was the search field and nothing else — no brand anywhere
+            {/* On a phone the bar was the search field and nothing else - no brand anywhere
                 above the fold. The monogram alone fits without crowding the field; the full
                 wordmark returns once there is room for it. */}
             <BrandMark
@@ -98,7 +98,7 @@ const Navbar = () => {
             </div>
 
             <div className="hidden shrink-0 items-center gap-1 sm:ml-6 lg:flex">
-              {/* Cart — the single desktop entry point */}
+              {/* Cart - the single desktop entry point */}
               <button
                 aria-label={
                   totalItems > 0
@@ -124,7 +124,7 @@ const Navbar = () => {
 
               {/* Account */}
               {userInfo ? (
-                // Logged in — always go to the account area, regardless of whether a name or
+                // Logged in - always go to the account area, regardless of whether a name or
                 // photo has been set (phone/email sign-ups start with neither).
                 <Link
                   href="/user/dashboard"

@@ -12,7 +12,7 @@ const toCategoryRequest = (body, existing) => {
   return {
     name,
     slug: body.slug || existing?.slug || slugify(name),
-    // The backend icon column is short (60 chars) — keep an icon name/emoji, not a long URL.
+    // The backend icon column is short (60 chars) - keep an icon name/emoji, not a long URL.
     icon: icon.length > 60 ? "" : icon,
     displayOrder: Number(body.displayOrder ?? existing?.displayOrder ?? 0),
     active: body.status ? body.status === "show" : body.active !== false,

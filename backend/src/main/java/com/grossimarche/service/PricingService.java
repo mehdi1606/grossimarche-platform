@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * The single source of pricing truth. Catalogue, cart and checkout all resolve prices and
- * totals here — a second implementation anywhere is a defect. All money is
+ * totals here - a second implementation anywhere is a defect. All money is
  * {@code BigDecimal} at scale 2, rounded HALF_UP at the boundary.
  */
 @Service
@@ -51,8 +51,8 @@ public class PricingService {
     }
 
     /**
-     * Delivery fee for a destination. The free-delivery threshold still wins — it can only
-     * ever lower the bill — then the city's own rate applies, and any city without a
+     * Delivery fee for a destination. The free-delivery threshold still wins - it can only
+     * ever lower the bill - then the city's own rate applies, and any city without a
      * configured rate falls back to the flat fee.
      */
     public BigDecimal deliveryFee(BigDecimal subtotal, String city) {
@@ -64,7 +64,7 @@ public class PricingService {
     }
 
     /**
-     * City keys are configuration, typed by hand on both sides — match them on a normalized
+     * City keys are configuration, typed by hand on both sides - match them on a normalized
      * form so "Casablanca", " casablanca " and "CASABLANCA" all resolve.
      */
     private String normalizeCity(String city) {

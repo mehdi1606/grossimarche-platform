@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Create or replace a bundle offer.
  *
- * At least one component is required — a "bundle" of nothing is not an offer — but one is
+ * At least one component is required - a "bundle" of nothing is not an offer - but one is
  * enough: a single product at a promotional pack price is a perfectly good offer, so this is
  * deliberately not restricted to two or more.
  */

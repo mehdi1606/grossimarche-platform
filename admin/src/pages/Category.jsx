@@ -141,7 +141,7 @@ const Category = () => {
         </Button>
       </div>
 
-      {/* filters — mirrors the products list */}
+      {/* filters - mirrors the products list */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />

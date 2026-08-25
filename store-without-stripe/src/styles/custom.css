@@ -1536,7 +1536,7 @@ p:not(:last-of-type) {
 }
 
 /* ============================================================================
-   Premium motion — scroll reveals, floating accents, shimmer, 3D tilt.
+   Premium motion - scroll reveals, floating accents, shimmer, 3D tilt.
    Kept dependency-free (pure CSS + a tiny IntersectionObserver in <Reveal/>).
    Respects prefers-reduced-motion.
    ========================================================================== */
@@ -1618,7 +1618,7 @@ p:not(:last-of-type) {
 }
 
 /* ---------------------------------------------------------------------------
-   Toasts (react-toastify) — Grossimarché theme.
+   Toasts (react-toastify) - Grossimarché theme.
    Same vocabulary as the rest of the site: white card, 16px radius, hairline
    border, soft shadow, and a coloured rail that identifies the variant at a
    glance. Icons come from utils/toast.js as a tinted chip.
@@ -1717,7 +1717,7 @@ p:not(:last-of-type) {
 }
 
 /* ---------------------------------------------------------------------------
-   Grossimarché — typographic and interaction base.
+   Grossimarché - typographic and interaction base.
 
    The store had no font loaded at all (the Tailwind config named "Open Sans" and
    "Inter", neither of which was ever fetched), so everything rendered in the system
@@ -1745,7 +1745,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* One visible focus treatment for the whole store — keyboard users had none.
+/* One visible focus treatment for the whole store - keyboard users had none.
    `:focus-visible` keeps it off mouse clicks, so nothing looks "stuck". */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid #3f7355; /* emerald-500 */
@@ -1759,7 +1759,7 @@ body {
   color: #15150f;
 }
 
-/* Respect the OS "reduce motion" setting across everything added here — the badge
+/* Respect the OS "reduce motion" setting across everything added here - the badge
    pop, the cart nudge and the timeline pulse included. */
 @media (prefers-reduced-motion: reduce) {
   .animate-badge-pop,
@@ -1821,7 +1821,7 @@ body {
    literals that must stay left-to-right even inside an RTL paragraph.
    --------------------------------------------------------------------------- */
 
-/* Anything excluded from translation is a literal — a price, an invoice number, a phone
+/* Anything excluded from translation is a literal - a price, an invoice number, a phone
    number, the brand. Bidi reordering would scramble those inside RTL text, so isolate them. */
 [dir="rtl"] [data-no-translate],
 [dir="rtl"] .tabular-nums,
@@ -1843,7 +1843,7 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Offer marquee — one continuous, seamless glide.
+   Offer marquee - one continuous, seamless glide.
 
    The track holds the offers twice, so translating it exactly -50% lands the second
    copy precisely where the first began: the loop has no jump and no gap. Duration is

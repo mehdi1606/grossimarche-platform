@@ -59,7 +59,7 @@ public final class EmailTemplates {
                   </div>
                 </td></tr></table>
                 <p style="margin:26px 0 0;font-size:13px;line-height:20px;color:#9ca3af;">
-                  Si vous n'&ecirc;tes pas &agrave; l'origine de cette demande, ignorez cet e-mail&nbsp;&mdash;
+                  Si vous n'&ecirc;tes pas &agrave; l'origine de cette demande, ignorez cet e-mail&nbsp;-
                   votre compte reste s&eacute;curis&eacute;.
                 </p>
                 """).replace("{{CODE}}", escape(code));
@@ -69,7 +69,7 @@ public final class EmailTemplates {
     /**
      * The back-office invitation: credentials for a newly created staff account.
      *
-     * The password is shown once, here, and nowhere else — it is stored only as a hash, so
+     * The password is shown once, here, and nowhere else - it is stored only as a hash, so
      * neither we nor an admin can retrieve it later; a lost password is reset, not looked up.
      */
     public static String staffInviteEmail(String fullName, String email, String password,
@@ -111,7 +111,7 @@ public final class EmailTemplates {
      * Order-status update for the customer.
      *
      * The status is spelled out in the shopper's own words rather than as the enum name, and
-     * the button goes to the tracking page — this e-mail exists to stop the "where is my
+     * the button goes to the tracking page - this e-mail exists to stop the "where is my
      * order?" message, so it has to answer that question by itself.
      */
     public static String orderStatusEmail(String orderNumber, String statusLabel,

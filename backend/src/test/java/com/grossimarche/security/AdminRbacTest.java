@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Verifies the back-office authorization split enforced by {@link SecurityConfig}, exercised
  * over real HTTP with real JWTs. A STORE_MANAGER is limited to the core store operations
- * (orders, products, categories, customers, …); ADMIN also owns the exclusive areas — staff,
+ * (orders, products, categories, customers, …); ADMIN also owns the exclusive areas - staff,
  * coupons, settings (stores) and the currency/language configuration.
  *
  * <p>Tokens are minted directly by {@link JwtService}; the JWT filter builds the principal

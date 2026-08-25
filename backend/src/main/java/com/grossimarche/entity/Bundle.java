@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A bundle offer — a "panier": several products sold together for less than the sum of their
+ * A bundle offer - a "panier": several products sold together for less than the sum of their
  * individual prices.
  *
  * A bundle is a pricing *rule*, not a sellable product. It never becomes an order line: when

@@ -11,8 +11,8 @@ const SOUND_PREF_KEY = "gm_notification_sound";
  * A short two-tone chime, synthesised with the Web Audio API rather than shipped as an audio
  * file: no asset to load, no format to worry about, and nothing to 404 behind the gateway.
  *
- * Browsers block audio until the page has been interacted with. That is exactly right here —
- * a back-office that nobody has clicked is a back-office nobody is watching — so a blocked
+ * Browsers block audio until the page has been interacted with. That is exactly right here -
+ * a back-office that nobody has clicked is a back-office nobody is watching - so a blocked
  * play is ignored rather than reported.
  */
 export const playNotificationChime = async () => {
@@ -73,7 +73,7 @@ export const setNotificationSoundEnabled = (enabled) => {
  * event on the STOMP topic above (NotificationService.record); until now nothing listened,
  * so the bell only updated on a page reload.
  *
- * `updated` flips to true on each push — the header re-fetches the list and the unread count
+ * `updated` flips to true on each push - the header re-fetches the list and the unread count
  * from that flag, so the transport stays out of the rendering logic. The subscription needs
  * the JWT: the WebSocket interceptor authenticates the CONNECT frame and only lets
  * ADMIN/STORE_MANAGER subscribe to this topic.

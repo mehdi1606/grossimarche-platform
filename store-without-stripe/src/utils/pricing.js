@@ -4,7 +4,7 @@
  * This mirrors `PricingService.resolveUnitPrice` on the backend, which recomputes every line
  * at checkout and stays authoritative. The duplication is not optional: the backend only
  * applies tiers when the order is placed, so without this the cart shows the base price for a
- * quantity that has already earned a lower one — 4 × 98 DH displayed, 4 × 50 DH charged. A
+ * quantity that has already earned a lower one - 4 × 98 DH displayed, 4 × 50 DH charged. A
  * cart that understates the discount is still a cart that lies.
  */
 
@@ -48,7 +48,7 @@ export const nextTier = (priceTiers, quantity) => {
  *
  * Cart lines carry their tier-adjusted price in `price` so that react-use-cart's own totals
  * are correct everywhere without a parallel calculation. `basePrice` is therefore the only
- * safe input for re-pricing — reading `price` back would compound the discount each time the
+ * safe input for re-pricing - reading `price` back would compound the discount each time the
  * quantity changed.
  */
 export const basePriceOf = (item) =>

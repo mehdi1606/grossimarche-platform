@@ -3,7 +3,7 @@ import { FiCheck, FiChevronDown } from "react-icons/fi";
 
 /**
  * Styled single-select, the storefront twin of the back-office one. A native <select> cannot
- * be themed — its option list is drawn by the OS, so it ignores the app's rounding, colours
+ * be themed - its option list is drawn by the OS, so it ignores the app's rounding, colours
  * and hover states. Click to open, closes on outside click or Escape.
  *
  * Props: options [{ value, label }], value, onChange(value), placeholder (the reset row,

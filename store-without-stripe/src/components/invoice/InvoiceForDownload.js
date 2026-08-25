@@ -117,7 +117,7 @@ const InvoiceForDownload = ({ data, currency, getNumberTwo }) => {
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.brand}>Grossimarché</Text>
-            <Text style={styles.brandSub}>Marché de gros en ligne — Maroc</Text>
+            <Text style={styles.brandSub}>Marché de gros en ligne - Maroc</Text>
           </View>
         </View>
 
@@ -194,7 +194,7 @@ const InvoiceForDownload = ({ data, currency, getNumberTwo }) => {
         </View>
 
         <Text style={styles.thanks}>
-          Merci {name} — votre commande a bien été reçue !
+          Merci {name} - votre commande a bien été reçue !
         </Text>
       </Page>
     </Document>

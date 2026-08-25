@@ -11,7 +11,7 @@ import { bundleSavingsForCart } from "@utils/bundleSavings";
 /**
  * Bundle offers on the storefront.
  *
- * Adding an offer puts its component products in the cart — the offer itself is never a cart
+ * Adding an offer puts its component products in the cart - the offer itself is never a cart
  * line. That is not a shortcut: the backend applies the saving to any cart that happens to
  * contain the full set, so assembling the basket by hand earns exactly the same price as
  * clicking the offer. One rule, one place, and the cart stays a plain list of products that
@@ -32,7 +32,7 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  /** What the current cart has already earned from offers (display only — see the util). */
+  /** What the current cart has already earned from offers (display only - see the util). */
   const savings = bundleSavingsForCart(bundles, items);
 
   const addBundleToCart = async (bundle) => {
@@ -43,7 +43,7 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
     }
     setAddingId(bundle.id);
     try {
-      // Re-read each product so the cart line carries live price, stock and unit — the offer
+      // Re-read each product so the cart line carries live price, stock and unit - the offer
       // payload is a snapshot for display, and a cart built from it could drift.
       const products = await Promise.all(
         bundle.items.map((item) =>

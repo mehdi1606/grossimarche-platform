@@ -115,7 +115,7 @@ public class OrderService {
     }
 
     /**
-     * Customer-initiated cancellation. Only allowed while the order is still PENDING — once
+     * Customer-initiated cancellation. Only allowed while the order is still PENDING - once
      * the shop has confirmed it, stock and picking are already committed and cancelling
      * becomes an operator decision. Unknown or foreign orders 404 like every other read.
      */
@@ -130,7 +130,7 @@ public class OrderService {
         return applyCancel(order, userId, "Annulée par le client");
     }
 
-    /** Whether an order belongs to a user — used by the WebSocket subscription check. */
+    /** Whether an order belongs to a user - used by the WebSocket subscription check. */
     @Transactional(readOnly = true)
     public boolean userOwnsOrder(UUID orderId, UUID userId) {
         return orderRepository.findByIdAndUserId(orderId, userId).isPresent();

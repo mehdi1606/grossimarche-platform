@@ -87,7 +87,7 @@ public class CurrencyService {
             currency.setExchangeRate(BigDecimal.ONE);
             currency.setEnabled(true);
         } else if (currency.isDefault()) {
-            // Cannot silently unset the only default — a default must always exist.
+            // Cannot silently unset the only default - a default must always exist.
             throw new BusinessException(ErrorCode.VALIDATION_FAILED,
                     "Définissez une autre devise par défaut avant de retirer celle-ci.");
         }

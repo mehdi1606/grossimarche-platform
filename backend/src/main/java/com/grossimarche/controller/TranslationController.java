@@ -23,7 +23,7 @@ public class TranslationController {
 
     /**
      * The storefront translates the page it renders, so this endpoint is called by ordinary
-     * browsing rather than by an admin action — and it is unauthenticated. The window is wide
+     * browsing rather than by an admin action - and it is unauthenticated. The window is wide
      * enough for a real visitor opening page after page in a cold cache, and narrow enough
      * that nobody can use the shop as a free translation API.
      */

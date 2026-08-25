@@ -78,13 +78,13 @@ public class NotificationService {
 
     /**
      * Persist a notification and push it to staff subscribers. Intended for internal callers
-     * (event listeners), so it carries no authorization annotation — never expose it to a
+     * (event listeners), so it carries no authorization annotation - never expose it to a
      * request-driven path.
      *
      * REQUIRES_NEW is essential, not decorative: the callers are {@code AFTER_COMMIT}
      * transactional listeners, where the surrounding transaction is already committed. With
      * the default propagation the insert joins that finished transaction and is silently
-     * dropped — the row never reaches the database and no error is raised.
+     * dropped - the row never reaches the database and no error is raised.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void record(NotificationType type, String title, String message, UUID referenceId) {

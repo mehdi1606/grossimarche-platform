@@ -24,8 +24,8 @@ const Login = () => {
 
   const isSms = channel === "SMS";
   // Coming from the cart: say why the sign-in is being asked for, instead of dropping the
-  // shopper on a bare login form mid-purchase. (An account is required — the order API is
-  // authenticated — so the honest move is to explain it, not hide it.)
+  // shopper on a bare login form mid-purchase. (An account is required - the order API is
+  // authenticated - so the honest move is to explain it, not hide it.)
   const fromCheckout = useSearchParams().get("redirectUrl") === "checkout";
 
   return (
@@ -40,7 +40,7 @@ const Login = () => {
                     <FiShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                     <p className="text-sm text-emerald-800">
                       <span className="font-semibold">Votre panier est conservé.</span>{" "}
-                      Connectez-vous pour finaliser votre commande — vous reviendrez
+                      Connectez-vous pour finaliser votre commande - vous reviendrez
                       directement au paiement.
                     </p>
                   </div>
@@ -50,7 +50,7 @@ const Login = () => {
                     {fromCheckout ? "Finaliser ma commande" : "Connexion"}
                   </h2>
                   <p className="mb-6 mt-2 text-sm text-ink-500 md:text-base">
-                    Recevez un code à usage unique — pas de mot de passe.
+                    Recevez un code à usage unique - pas de mot de passe.
                   </p>
                 </div>
 
@@ -155,7 +155,7 @@ const Login = () => {
 
                 <p className="mt-6 text-center text-sm text-gray-500">
                   Pas encore de compte ? Saisissez simplement votre téléphone ou e-mail
-                  ci-dessus — votre compte est créé automatiquement lors de la première
+                  ci-dessus - votre compte est créé automatiquement lors de la première
                   connexion.
                 </p>
               </div>

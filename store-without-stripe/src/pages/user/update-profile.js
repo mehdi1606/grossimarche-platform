@@ -74,7 +74,7 @@ const UpdateProfile = () => {
               name="phone"
               type="tel"
               readOnly={true}
-              placeholder="—"
+              placeholder="-"
             />
           </div>
 
@@ -85,7 +85,7 @@ const UpdateProfile = () => {
               name="email"
               type="email"
               readOnly={true}
-              placeholder="—"
+              placeholder="-"
             />
           </div>
         </div>

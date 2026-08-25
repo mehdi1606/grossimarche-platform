@@ -24,7 +24,7 @@ export const adaptProduct = (g) => {
   const price = Number(g.price ?? 0);
   const stock =
     g.stockQuantity !== undefined ? g.stockQuantity : g.inStock ? 100 : 0;
-  // Next.js getServerSideProps rejects `undefined` in props — use null when absent.
+  // Next.js getServerSideProps rejects `undefined` in props - use null when absent.
   const category =
     g.categoryId !== undefined && g.categoryId !== null
       ? { _id: g.categoryId, name: tr(g.categoryName) }
@@ -81,7 +81,7 @@ export const adaptCategoryTree = (list = []) => [
 ];
 
 // The legacy KachaBazar Invoice component styles four English strings. Keep that mapping for
-// the printed invoice only — every shopper-facing screen reads `status` (the raw backend
+// the printed invoice only - every shopper-facing screen reads `status` (the raw backend
 // enum) through @utils/orderStatus instead, so CONFIRMED / PREPARING / OUT_FOR_DELIVERY stay
 // distinguishable rather than collapsing into one "Processing".
 const LEGACY_INVOICE_STATUS = {
@@ -108,7 +108,7 @@ export const adaptOrder = (g) => {
     paymentStatus: g.paymentStatus,
     paymentMethod: paymentLabel(g.paymentMethod),
     note: g.note || "",
-    // The status timeline the backend already returns. Previously dropped on the floor —
+    // The status timeline the backend already returns. Previously dropped on the floor -
     // it is the whole basis of the order-tracking view.
     timeline: (g.timeline || []).map((t) => ({
       status: t.status,

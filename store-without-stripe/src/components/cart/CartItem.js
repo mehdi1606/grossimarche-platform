@@ -11,9 +11,9 @@ import { basePriceOf, nextTier } from "@utils/pricing";
 /**
  * One cart line.
  *
- * Three deliberate changes over the original: the quantity can be typed (not only stepped —
+ * Three deliberate changes over the original: the quantity can be typed (not only stepped -
  * a wholesale order of 240 units is 239 clicks otherwise), removal is undoable, and the line
- * states what the shopper is actually buying — remaining stock and the next quantity break.
+ * states what the shopper is actually buying - remaining stock and the next quantity break.
  *
  * Removal is committed immediately and the *undo* is owned by the cart (`onRemove`), not by
  * this component: a line that deferred its own deletion would quietly cancel it if the drawer

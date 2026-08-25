@@ -3,7 +3,7 @@ import requests from "./httpService";
 /**
  * Bundle offers ("paniers"): a named set of products sold together below the sum of its parts.
  *
- * Prices are never computed here — the API returns componentsTotal, savings and savingsPercent
+ * Prices are never computed here - the API returns componentsTotal, savings and savingsPercent
  * from live product prices, and recomputes the discount again at checkout. The back-office
  * only says what the set contains and what the whole thing costs.
  */
@@ -24,7 +24,7 @@ const BundleServices = {
 
   /**
    * Upload the offer's image (multipart). The backend stores it and sets bundle.imageUrl, so
-   * the picture is served from our own storage at /files/ — same path product images take.
+   * the picture is served from our own storage at /files/ - same path product images take.
    */
   uploadImage: async (id, file) => {
     const fd = new FormData();
@@ -32,7 +32,7 @@ const BundleServices = {
     return requests.post(`/admin/bundles/${id}/image`, fd);
   },
 
-  /** E-mail the offer to every active customer. Never automatic — see AdminBundleController. */
+  /** E-mail the offer to every active customer. Never automatic - see AdminBundleController. */
   announce: async (id) => requests.post(`/admin/bundles/${id}/announce`, {}),
 
   remove: async (id) => requests.delete(`/admin/bundles/${id}`),

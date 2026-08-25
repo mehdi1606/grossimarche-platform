@@ -45,7 +45,7 @@ const Offer = () => {
   return (
     <Layout
       title="Offres"
-      description="Paniers et offres Grossimarché — des ensembles complets à prix de gros"
+      description="Paniers et offres Grossimarché - des ensembles complets à prix de gros"
     >
       {/* Hero */}
       <section className="relative overflow-hidden bg-emerald-800">
@@ -96,7 +96,7 @@ const Offer = () => {
                     Paniers du moment
                   </h2>
                   <p className="mt-2 text-sm text-ink-500">
-                    Ajoutez un panier entier en un clic — la remise s'applique
+                    Ajoutez un panier entier en un clic - la remise s'applique
                     automatiquement à la commande.
                   </p>
                 </div>

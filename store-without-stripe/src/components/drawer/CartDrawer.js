@@ -10,7 +10,7 @@ import { useTranslate } from "@context/TranslationContext";
 const CartDrawer = () => {
   const { cartDrawerOpen, closeCartDrawer } = useContext(SidebarContext);
   // In a right-to-left language the cart belongs on the left, mirroring where the eye
-  // expects it — a drawer pinned to the right in Arabic reads as the wrong side of the page.
+  // expects it - a drawer pinned to the right in Arabic reads as the wrong side of the page.
   const { isRTL } = useTranslate();
 
   return (

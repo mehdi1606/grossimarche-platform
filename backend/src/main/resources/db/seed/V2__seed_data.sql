@@ -1,5 +1,5 @@
 -- =====================================================================================
--- Grossimarché — seed data (V2). Loaded ONLY under the local profile (and the schema
+-- Grossimarché - seed data (V2). Loaded ONLY under the local profile (and the schema
 -- verification test), via the extra Flyway location classpath:db/seed.
 -- 8 categories, 24 realistic Moroccan wholesale products, price tiers on 8 of them,
 -- and 4 stores. FKs are resolved by slug so no UUIDs are hardcoded.

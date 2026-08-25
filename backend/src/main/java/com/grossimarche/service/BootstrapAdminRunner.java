@@ -17,7 +17,7 @@ import java.util.Locale;
 
 /**
  * Creates the owner's back-office account on startup, so a fresh database is never left with
- * no way in — there is no public sign-up for staff, and staff accounts can only be created by
+ * no way in - there is no public sign-up for staff, and staff accounts can only be created by
  * an existing ADMIN.
  *
  * Deliberately conservative, because it runs on every boot:
@@ -25,7 +25,7 @@ import java.util.Locale;
  *   <li>the account is created if it does not exist;</li>
  *   <li>if it exists but has no password (e.g. it was created before password sign-in, or by
  *       the OTP flow), the configured password is set;</li>
- *   <li>if it already has a password, <em>nothing</em> is touched — a boot must never reset a
+ *   <li>if it already has a password, <em>nothing</em> is touched - a boot must never reset a
  *       password the owner has since changed.</li>
  * </ul>
  */

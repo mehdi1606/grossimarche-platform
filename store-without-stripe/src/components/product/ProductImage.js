@@ -14,10 +14,10 @@ import { glyphFor } from "@components/product/ProductGlyph";
  *
  *  - **One tile, one ground.** Every product occupies the same square, with the image
  *    contained and evenly inset. Contained rather than cropped because a sack, a drum and a
- *    carton are different shapes, and cropping a 25kg sack to a square cuts the label off —
+ *    carton are different shapes, and cropping a 25kg sack to a square cuts the label off -
  *    the part the buyer identifies it by.
  *  - **A product without a photo is still drawn.** It gets an illustration of what it actually
- *    is — a sack, a jerrycan, a tin — in the colour family of its type, with its unit named
+ *    is - a sack, a jerrycan, a tin - in the colour family of its type, with its unit named
  *    underneath. Photographing a wholesale catalogue takes weeks, and until that is done a
  *    buyer can still tell a sack of flour from a drum of oil while scanning the grid. A real
  *    uploaded photo always wins over the drawing.

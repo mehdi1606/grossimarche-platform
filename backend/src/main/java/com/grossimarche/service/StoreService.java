@@ -72,7 +72,7 @@ public class StoreService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void delete(UUID id) {
-        // Hard delete — a magasin is a standalone locator record with no downstream references.
+        // Hard delete - a magasin is a standalone locator record with no downstream references.
         storeRepository.delete(getById(id));
     }
 

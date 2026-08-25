@@ -6,7 +6,7 @@ import com.grossimarche.entity.Order;
 import java.util.Map;
 
 /**
- * Payment gateway abstraction. The application stores zero card data — the PAN/CVV never
+ * Payment gateway abstraction. The application stores zero card data - the PAN/CVV never
  * touch this server; only signed redirect fields go out and a signed callback comes back.
  */
 public interface PaymentGateway {

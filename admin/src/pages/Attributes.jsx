@@ -119,7 +119,7 @@ const AttributePreview = ({ name, type, values }) => {
   return (
     <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/30">
       <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-        <FiEye className="h-3.5 w-3.5" /> Preview — what the customer sees
+        <FiEye className="h-3.5 w-3.5" /> Preview - what the customer sees
       </div>
       {values.length === 0 ? (
         <p className="text-sm text-gray-400">Add options above to see the preview.</p>
@@ -343,7 +343,7 @@ const Attributes = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={form.id ? "Edit attribute" : "New attribute"}
-        subtitle="An extra choice shown on a product — like Packaging or Brand."
+        subtitle="An extra choice shown on a product - like Packaging or Brand."
         icon={FiTag}
         footer={
           <>
@@ -363,7 +363,7 @@ const Attributes = () => {
           {/* Plain-language intro so a first-time user knows what this is for */}
           <div className="rounded-lg bg-emerald-50/70 p-3 text-xs leading-5 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200">
             An <b>attribute</b> lets customers pick an option on a product. Just name it, choose
-            how they select, and list the options — the preview below shows exactly how it will
+            how they select, and list the options - the preview below shows exactly how it will
             look on your store.
           </div>
 

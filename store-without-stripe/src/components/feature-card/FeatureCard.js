@@ -2,7 +2,7 @@ import React from "react";
 import { FiTruck, FiHeadphones, FiDollarSign, FiTag } from "react-icons/fi";
 
 // Real Grossimarché value props (Morocco, MAD, cash-on-delivery). No online payment yet, so
-// there is no "secure payment" card — the promise is payment on delivery.
+// there is no "secure payment" card - the promise is payment on delivery.
 const FEATURES = [
   { id: 1, title: "Livraison offerte", text: "Dès 1000 DH d'achat", Icon: FiTruck },
   { id: 2, title: "Support 7j/7", text: "Une équipe qui répond", Icon: FiHeadphones },
@@ -15,7 +15,7 @@ const FEATURES = [
  *
  * Four hairline-separated statements rather than four bordered boxes: a row of outlined cards
  * reads as a table of features, which is what a template does. Removing the boxes and giving
- * each promise a second line turns it into something worth reading — the icon supports the
+ * each promise a second line turns it into something worth reading - the icon supports the
  * words instead of decorating a container.
  */
 const FeatureCard = () => {

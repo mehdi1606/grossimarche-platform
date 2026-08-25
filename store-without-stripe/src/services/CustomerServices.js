@@ -14,7 +14,7 @@ const CustomerServices = {
     return requests.post("/auth/otp/verify", { channel, destination, code });
   },
 
-  // Profile & addresses (mapped to /me — request/response field mapping refined in FE-4).
+  // Profile & addresses (mapped to /me - request/response field mapping refined in FE-4).
   getCustomer: async () => {
     return requests.get("/me");
   },

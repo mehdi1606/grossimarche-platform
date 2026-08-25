@@ -38,7 +38,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    /** Back-office sign-in. Staff only — see {@link AuthService#loginWithPassword}. */
+    /** Back-office sign-in. Staff only - see {@link AuthService#loginWithPassword}. */
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody PasswordLoginRequest body,
                                HttpServletRequest request) {

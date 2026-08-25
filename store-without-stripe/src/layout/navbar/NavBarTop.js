@@ -62,7 +62,7 @@ const NavBarTop = () => {
           {/* Right: account */}
           <div className="flex items-center gap-4">
             <span className="hidden text-ink-400 xl:inline">
-              Livraison partout au Maroc — Paiement à la livraison
+              Livraison partout au Maroc - Paiement à la livraison
             </span>
             {userInfo?.email ? (
               <>

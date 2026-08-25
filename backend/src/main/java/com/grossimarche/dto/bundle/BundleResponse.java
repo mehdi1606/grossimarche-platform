@@ -10,7 +10,7 @@ import java.util.UUID;
  *
  * {@code componentsTotal} is the sum of the components at their current list prices, so
  * {@code savings} and {@code savingsPercent} are derived from live pricing rather than from a
- * number frozen when the offer was written — a product price change is reflected immediately.
+ * number frozen when the offer was written - a product price change is reflected immediately.
  *
  * {@code available} is false when a component is out of stock or has been deactivated: the
  * offer is still shown, but the storefront can say why it cannot be ordered instead of failing

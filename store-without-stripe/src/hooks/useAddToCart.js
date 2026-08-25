@@ -9,7 +9,7 @@ import { basePriceOf, effectiveUnitPrice } from "@utils/pricing";
  * Adding to the cart, with the three things the old version was missing: French copy, the
  * wholesale minimum-order rule, and a visible confirmation.
  *
- * `minOrderQuantity` comes from the catalogue and is the whole point of a *marché de gros* —
+ * `minOrderQuantity` comes from the catalogue and is the whole point of a *marché de gros* -
  * a reference sold by the carton of 12 cannot be ordered one at a time. It was being adapted
  * from the API and then never enforced anywhere.
  */
@@ -23,7 +23,7 @@ const useAddToCart = () => {
    *
    * Quantity discounts are a *price* change, not a separate total, so the line's own price is
    * rewritten rather than corrected later in the summary. react-use-cart derives itemTotal and
-   * cartTotal from `price`, so doing it here makes every screen — drawer, checkout, badge —
+   * cartTotal from `price`, so doing it here makes every screen - drawer, checkout, badge -
    * agree with what the server will charge, with no second calculation to keep in step.
    */
   const repriceForQuantity = (line, quantity) => {
@@ -67,15 +67,15 @@ const useAddToCart = () => {
     if (already + wanted > stock) {
       notifyError(
         already > 0
-          ? `Stock insuffisant — il ne reste que ${stock} unité(s).`
-          : `Stock insuffisant — ${stock} unité(s) disponible(s).`
+          ? `Stock insuffisant - il ne reste que ${stock} unité(s).`
+          : `Stock insuffisant - ${stock} unité(s) disponible(s).`
       );
       return false;
     }
 
     if (min > stock) {
       notifyError(
-        `Commande minimum de ${min} unité(s) — stock actuel insuffisant.`
+        `Commande minimum de ${min} unité(s) - stock actuel insuffisant.`
       );
       return false;
     }
@@ -109,7 +109,7 @@ const useAddToCart = () => {
     if (!result) return false;
 
     if (result.quantity + item > stockOf(product)) {
-      notifyError(`Stock insuffisant — maximum ${stockOf(product)} unité(s).`);
+      notifyError(`Stock insuffisant - maximum ${stockOf(product)} unité(s).`);
       return false;
     }
     const next = result.quantity + item;
@@ -131,7 +131,7 @@ const useAddToCart = () => {
     if (next < min) {
       removeItem(result.id);
       if (min > 1) {
-        notifySuccess(`Retiré du panier — commande minimum de ${min} unité(s).`);
+        notifySuccess(`Retiré du panier - commande minimum de ${min} unité(s).`);
       }
       return true;
     }
@@ -155,7 +155,7 @@ const useAddToCart = () => {
       return false;
     }
     if (parsed > stock) {
-      notifyError(`Stock insuffisant — maximum ${stock} unité(s).`);
+      notifyError(`Stock insuffisant - maximum ${stock} unité(s).`);
       repriceForQuantity(line, stock);
       updateItemQuantity(line.id, stock);
       return false;

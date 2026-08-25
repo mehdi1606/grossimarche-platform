@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Assigns each request a trace id: it propagates an incoming {@value #HEADER} if present,
  * otherwise generates a short one. The id is placed in the SLF4J MDC (key
- * {@value #MDC_KEY}, rendered on every log line — see application.yml), echoed back in
+ * {@value #MDC_KEY}, rendered on every log line - see application.yml), echoed back in
  * the {@value #HEADER} response header, and embedded in every {@code ApiError} body.
  *
  * <p>Runs first so the id is available to all downstream logging and error handling.

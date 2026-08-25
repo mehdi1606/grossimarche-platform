@@ -20,11 +20,11 @@ import java.util.UUID;
  * Authenticates requests bearing an {@code Authorization: Bearer <jwt>} header. Registered
  * before {@code UsernamePasswordAuthenticationFilter}. It validates the token (signature,
  * expiry, issuer via {@link JwtService}), rejects denylisted jtis, and populates the
- * SecurityContext from the token claims — no DB hit on the hot path.
+ * SecurityContext from the token claims - no DB hit on the hot path.
  *
  * <p>A missing header is left to the authorization rules (public endpoints stay open). A
  * malformed / expired / revoked token yields a clean 401 in the {@code ApiError} shape via
- * {@link RestAuthenticationEntryPoint} — never a 500 and never HTML.
+ * {@link RestAuthenticationEntryPoint} - never a 500 and never HTML.
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

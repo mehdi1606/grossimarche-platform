@@ -46,7 +46,7 @@ public class AuditService {
     }
 
     public void recordFailedOtp(String maskedDestination, String ip, String userAgent) {
-        // Store only the masked destination — never the code, never the raw contact.
+        // Store only the masked destination - never the code, never the raw contact.
         record(null, "OTP_FAILED", "Otp", maskedDestination, ip, userAgent, null);
     }
 }

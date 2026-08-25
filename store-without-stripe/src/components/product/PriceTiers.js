@@ -4,7 +4,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import { effectiveUnitPrice } from "@utils/pricing";
 
 /**
- * The quantity-discount ladder — the single most important thing on a wholesale product page,
+ * The quantity-discount ladder - the single most important thing on a wholesale product page,
  * and previously a row of pale boxes that read as decoration.
  *
  * It is a table because that is what a buyer is doing: comparing a price against a quantity.
@@ -69,7 +69,7 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
               {currency}
               {base.toFixed(2)}
             </td>
-            <td className="px-4 py-2.5 text-right text-ink-300">—</td>
+            <td className="px-4 py-2.5 text-right text-ink-300">-</td>
           </tr>
 
           {tiers.map((tier, i) => {

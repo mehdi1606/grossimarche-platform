@@ -23,7 +23,7 @@ const LIMIT = 10;
 /**
  * Quantity-discount tiers ("Offers"). A tier says: from N units, the unit price drops to X.
  * The storefront reads exactly these rows to show its degressive pricing, and until now they
- * could only be created in SQL — the back-office had no screen for them at all.
+ * could only be created in SQL - the back-office had no screen for them at all.
  */
 const Offers = () => {
   const { currency } = useUtilsFunction();
@@ -117,7 +117,7 @@ const Offers = () => {
     if (!price || price <= 0) {
       return notifyError("Le prix unitaire doit être supérieur à 0.");
     }
-    // A tier above the base price is not a discount — catch it here rather than let the
+    // A tier above the base price is not a discount - catch it here rather than let the
     // storefront display a "discount" that costs more.
     if (basePrice && price >= basePrice) {
       return notifyError(
@@ -203,7 +203,7 @@ const Offers = () => {
         <EmptyState
           icon={FiPercent}
           title="No products yet"
-          description="Add products first — tiers are defined per product."
+          description="Add products first - tiers are defined per product."
         />
       ) : (
         <TableContainer className="mb-8">
@@ -316,7 +316,7 @@ const Offers = () => {
               <p className="text-sm text-gray-400">Chargement…</p>
             ) : sortedTiers.length === 0 ? (
               <p className="rounded-lg border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-400 dark:border-gray-600">
-                Aucun palier — le prix de base s&apos;applique à toute quantité.
+                Aucun palier - le prix de base s&apos;applique à toute quantité.
               </p>
             ) : (
               <ul className="space-y-2">

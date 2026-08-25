@@ -31,7 +31,7 @@ import {
 } from "react-icons/tb";
 
 /**
- * Premium line-icon set for product categories (Tabler icons — one consistent stroke weight).
+ * Premium line-icon set for product categories (Tabler icons - one consistent stroke weight).
  * The database stores the short KEY (e.g. "oil", "coffee") in the category `icon` column, and
  * both the admin picker and the storefront render the matching component. Keep this catalogue
  * in sync with the admin copy in `admin/src/utils/categoryIcons.jsx`.
@@ -73,7 +73,7 @@ const BY_KEY = CATEGORY_ICONS.reduce((acc, item) => {
   return acc;
 }, {});
 
-// Older categories stored a keyword or an emoji instead of a catalogue key — map them across
+// Older categories stored a keyword or an emoji instead of a catalogue key - map them across
 // so existing data keeps rendering a proper icon.
 const ALIASES = {
   grain: "rice",

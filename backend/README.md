@@ -1,7 +1,7 @@
-# Grossimarché — Backend API
+# Grossimarché - Backend API
 
 Wholesale (cash & carry) supermarket e-commerce REST API for the Moroccan market,
-built with Spring Boot 4.1 on a **layered architecture**. Backend only — a Next.js web
+built with Spring Boot 4.1 on a **layered architecture**. Backend only - a Next.js web
 app and a React Native app will both consume this API later, so it makes no client-specific
 assumptions.
 
@@ -29,7 +29,7 @@ assumptions.
 ### Deferred (documented swaps, not gaps in the happy path)
 - **Field encryption at rest** (phone/address) + blind index → high-risk retrofit to the
   phone/email lookup path; see `docs/COMPLIANCE.md` §6.
-- **Redis-backed cache** (Caffeine used instead) and **Bucket4j** (Redis INCR limiter used) —
+- **Redis-backed cache** (Caffeine used instead) and **Bucket4j** (Redis INCR limiter used) -
   avoided bleeding-edge Boot 4 wiring risk; both are swap-in points.
 - **`openapi.json`** is generated from the running app (see `docs/API.md`), not committed.
 - Exhaustive coverage gates: JaCoCo report runs; the doc's 90% target needs more tests.
@@ -68,7 +68,7 @@ automatically). Docker must be running; you do **not** need `docker compose up` 
 
 ## Environment variables
 
-Local dev needs none — `application-local.yml` and `docker-compose.yml` share the same
+Local dev needs none - `application-local.yml` and `docker-compose.yml` share the same
 non-secret credentials. See [`.env.example`](.env.example) for the full list; these
 matter mainly for the `prod` profile, where all secrets are required from the env.
 
@@ -81,7 +81,7 @@ matter mainly for the `prod` profile, where all secrets are required from the en
 | `API_PUBLIC_URL` | `http://localhost:8080` | Advertised in the OpenAPI doc. |
 | `CORS_ALLOWED_ORIGINS` | localhost:3000,3001 | CORS allowlist (used from B3). |
 
-## Architecture — package by layer
+## Architecture - package by layer
 
 ```
 com.grossimarche
@@ -105,11 +105,11 @@ com.grossimarche
 ### Layer rules (enforced by ArchUnit in B11)
 
 1. `controller → service → repository`. A controller never injects a repository.
-2. A JPA entity never crosses the controller boundary — DTOs in, DTOs out; mapping in `service`.
+2. A JPA entity never crosses the controller boundary - DTOs in, DTOs out; mapping in `service`.
 3. `repository` depends only on `entity` and Spring Data.
 4. `service` must not depend on `controller` or on `jakarta.servlet` types.
 5. Every third-party call goes through an interface in `integration/` (real + local/test impls).
-6. No `@Transactional` on controllers — transactions begin in `service`.
+6. No `@Transactional` on controllers - transactions begin in `service`.
 7. No business logic in controllers, entities, mappers or exception handlers.
 
 ## Conventions
@@ -118,7 +118,7 @@ com.grossimarche
 - **Schema** is owned by Flyway; `spring.jpa.hibernate.ddl-auto=validate`.
 - **Errors** all use the `ApiError` shape with an `ErrorCode`, carrying a `traceId`
   (also returned as the `X-Request-Id` header and stamped on every log line).
-- **No secrets in the repo** — env vars only, documented in `.env.example`.
+- **No secrets in the repo** - env vars only, documented in `.env.example`.
 
 ## Profiles
 
@@ -126,4 +126,4 @@ com.grossimarche
 |---|---|---|---|
 | `local` | hardcoded dev values / compose | enabled | always |
 | `prod`  | env vars, no defaults | disabled | when authorized |
-| `test`  | Testcontainers (`@ServiceConnection`) | disabled | — |
+| `test`  | Testcontainers (`@ServiceConnection`) | disabled | - |

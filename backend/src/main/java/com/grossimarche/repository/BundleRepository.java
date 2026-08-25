@@ -44,7 +44,7 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
             """)
     Optional<Bundle> findByIdWithItems(UUID id);
 
-    /** Available offers that contain a given product — shown on that product's page. */
+    /** Available offers that contain a given product - shown on that product's page. */
     @Query("""
             select distinct b from Bundle b
             join b.items i

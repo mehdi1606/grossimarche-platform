@@ -1,5 +1,5 @@
 -- Bundle offers ("paniers"): a named set of products sold together for less than the sum of
--- its parts — a seasonal basket, a starter pack, a restocking set.
+-- its parts - a seasonal basket, a starter pack, a restocking set.
 --
 -- A bundle is NOT a product and does not become an order line. It is a *rule*: when a cart
 -- contains every component in at least the required quantity, checkout applies the difference

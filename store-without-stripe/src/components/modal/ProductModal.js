@@ -31,7 +31,7 @@ const ProductModal = ({
 
   const { handleAddItem, setItem, item, minOf } = useAddToCart();
 
-  // Same wholesale minimum as the product page — the modal is a full add-to-cart surface,
+  // Same wholesale minimum as the product page - the modal is a full add-to-cart surface,
   // not a preview, so it has to honour the same rule.
   const minQuantity = minOf(product);
   const { lang, showingTranslateValue, getNumber, getNumberTwo } =
@@ -166,7 +166,7 @@ const ProductModal = ({
     if (stock <= 0) return notifyError("Article en rupture de stock.");
     if (stock < minQuantity)
       return notifyError(
-        `Commande minimum de ${minQuantity} — stock actuel insuffisant.`
+        `Commande minimum de ${minQuantity} - stock actuel insuffisant.`
       );
 
     if (

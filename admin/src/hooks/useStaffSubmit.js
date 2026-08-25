@@ -11,7 +11,7 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 import cookieOptions from "@/utils/cookieOptions";
 
 // A staff member is a User with role ADMIN or STORE_MANAGER. The form is name, email, phone
-// and role — never a password: the server generates one, stores only its hash and e-mails it,
+// and role - never a password: the server generates one, stores only its hash and e-mails it,
 // so nobody (not even the admin creating the account) chooses someone else's password. There
 // is no per-user route list either; access is derived from the role (see utils/access.js).
 // The backend update endpoint only changes role/status.
@@ -62,7 +62,7 @@ const useStaffSubmit = (id) => {
         if (res?.invitationSent === false && res?.temporaryPassword) {
           keepDrawerOpen = true;
           // Mail is not configured on this deployment. The password is shown once, here, and
-          // is unreadable afterwards — so it is surfaced rather than lost with the account.
+          // is unreadable afterwards - so it is surfaced rather than lost with the account.
           setCredentials({
             email: res.email,
             password: res.temporaryPassword,

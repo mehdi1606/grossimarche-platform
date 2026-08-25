@@ -18,7 +18,7 @@ import java.util.UUID;
 
 /**
  * Back-office notification feed (STORE_MANAGER + ADMIN). The feed is shared across staff, so
- * there is no per-user filtering — read state is global.
+ * there is no per-user filtering - read state is global.
  */
 @RestController
 @RequestMapping("/api/v1/admin/notifications")

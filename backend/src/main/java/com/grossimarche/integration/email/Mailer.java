@@ -27,7 +27,7 @@ import java.util.List;
  *
  * Mail is optional. Spring Boot only auto-configures a {@link JavaMailSender} when
  * {@code spring.mail.host} is set, so on a machine with no SMTP relay this logs a warning and
- * reports that nothing was sent — for a staff invitation the caller then shows the password to
+ * reports that nothing was sent - for a staff invitation the caller then shows the password to
  * the admin instead of it vanishing.
  *
  * Notifications and announcements go out on the mail executor: a status change must never make
@@ -94,7 +94,7 @@ public class Mailer {
 
     /**
      * Send one message. Returns whether it went out, so callers that care can react; those that
-     * do not can ignore it — a failed notification must never break the action that triggered it.
+     * do not can ignore it - a failed notification must never break the action that triggered it.
      */
     public boolean send(String to, String subject, String plainBody, String htmlBody) {
         JavaMailSender sender = mailSender.getIfAvailable();

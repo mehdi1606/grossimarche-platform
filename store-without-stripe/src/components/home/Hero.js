@@ -46,7 +46,7 @@ const Hero = ({ categories = [] }) => {
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-8 text-emerald-100/90" style={fade(0.16)}>
-              Achetez en gros aux meilleurs prix — produits alimentaires, boissons et
+              Achetez en gros aux meilleurs prix - produits alimentaires, boissons et
               essentiels, avec des tarifs dégressifs et le paiement à la livraison.
             </p>
 

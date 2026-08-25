@@ -31,7 +31,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID>,
     /**
      * Atomically decrement stock only if enough is available. Returns 1 on success, 0 if
      * stock is insufficient. The {@code stock >= qty} guard plus the row lock during the
-     * UPDATE make concurrent checkouts for the last unit resolve to exactly one winner —
+     * UPDATE make concurrent checkouts for the last unit resolve to exactly one winner -
      * stock can never go negative.
      */
     @Modifying(flushAutomatically = true)

@@ -13,7 +13,7 @@ public interface LoyaltyTransactionRepository extends JpaRepository<LoyaltyTrans
 
     Page<LoyaltyTransaction> findByUserId(UUID userId, Pageable pageable);
 
-    /** Sum of all ledger movements for a user — must equal the account balance (B7 invariant). */
+    /** Sum of all ledger movements for a user - must equal the account balance (B7 invariant). */
     @Query("select coalesce(sum(t.points), 0) from LoyaltyTransaction t where t.user.id = :userId")
     int sumPointsByUserId(@Param("userId") UUID userId);
 }

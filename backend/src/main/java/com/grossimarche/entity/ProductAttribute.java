@@ -14,7 +14,7 @@ import lombok.Setter;
 
 /**
  * An informational key/value spec on a product (e.g. Marque = Aïcha, Origine = Meknès).
- * Display only — it does not affect price or stock. Ordered by {@code displayOrder}.
+ * Display only - it does not affect price or stock. Ordered by {@code displayOrder}.
  */
 @Entity
 @Table(name = "product_attributes")

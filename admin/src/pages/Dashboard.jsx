@@ -105,7 +105,7 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const { currency } = useUtilsFunction();
 
-  // 100% backend-driven — every figure below comes from these endpoints.
+  // 100% backend-driven - every figure below comes from these endpoints.
   const { data: summary, loading: loadingSummary } = useAsync(
     OrderServices.getDashboardAmount
   );

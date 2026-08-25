@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * SMTP email sender (Gmail, or any SMTP relay). Connection settings come from
- * {@code spring.mail.*} and never from source — see {@code .env.example}. Active when
+ * {@code spring.mail.*} and never from source - see {@code .env.example}. Active when
  * {@code grossimarche.otp.provider=smtp}, which leaves the SMS channel on the logging
  * sender. Delivery is wrapped in the same Resilience4j retry/circuit breaker as the HTTP
  * provider, so a flaky relay degrades into a clean business error.
@@ -78,7 +78,7 @@ public class SmtpEmailOtpSender implements OtpSender {
             // Plain-text fallback + branded HTML (EmailTemplates).
             helper.setText(plain, EmailTemplates.otpEmail(code));
         } catch (Exception e) {
-            // Message construction failed (bad address / encoding) — surface it through the
+            // Message construction failed (bad address / encoding) - surface it through the
             // same fallback as a delivery failure.
             throw new IllegalStateException("Could not build the OTP email", e);
         }

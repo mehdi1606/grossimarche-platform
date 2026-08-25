@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Bundle offers ("paniers") — a named set of products sold together below the sum of its parts.
+ * Bundle offers ("paniers") - a named set of products sold together below the sum of its parts.
  *
  * The offer is a pricing rule rather than a sellable item: nothing new enters the cart or the
  * order lines. {@link #computeDiscount} looks at what is already in the cart and returns the
@@ -46,7 +46,7 @@ import java.util.UUID;
 @Service
 public class BundleService {
 
-    /** Same set the product uploader accepts — one rule for every image in the catalogue. */
+    /** Same set the product uploader accepts - one rule for every image in the catalogue. */
     private static final Set<String> ALLOWED_IMAGE_TYPES =
             Set.of("image/png", "image/jpeg", "image/webp", "image/avif");
 
@@ -74,7 +74,7 @@ public class BundleService {
         return bundleRepository.findAvailable(Instant.now()).stream().map(this::toResponse).toList();
     }
 
-    /** Available offers that include a given product — shown on that product's page. */
+    /** Available offers that include a given product - shown on that product's page. */
     @Transactional(readOnly = true)
     public List<BundleResponse> listContainingProduct(UUID productId) {
         return bundleRepository.findAvailableContainingProduct(productId, Instant.now())
@@ -221,7 +221,7 @@ public class BundleService {
      *
      * <ul>
      *   <li>Using the effective price (not the list price) means an offer never stacks on top of
-     *       a quantity discount that already beat it — the saving clamps at zero instead of
+     *       a quantity discount that already beat it - the saving clamps at zero instead of
      *       being applied twice.</li>
      *   <li>Units are <em>consumed</em>: a product appearing in two offers is counted for one of
      *       them, richest first. Otherwise overlapping offers would each discount the same
@@ -327,7 +327,7 @@ public class BundleService {
         });
     }
 
-    /** An offer that saves nothing is a pricing mistake — refuse it at the door. */
+    /** An offer that saves nothing is a pricing mistake - refuse it at the door. */
     private void validatePrice(Bundle bundle) {
         BigDecimal components = bundle.getItems().stream()
                 .map(i -> i.getProduct().getPrice().multiply(BigDecimal.valueOf(i.getQuantity())))

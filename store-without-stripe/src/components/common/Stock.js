@@ -1,5 +1,5 @@
 /**
- * Premium stock indicator. Never exposes raw counts or i18n keys to the customer — just a
+ * Premium stock indicator. Never exposes raw counts or i18n keys to the customer - just a
  * clean status pill: in stock (green), limited (amber, scarcity nudge) or out of stock (red).
  */
 const LOW_THRESHOLD = 5;

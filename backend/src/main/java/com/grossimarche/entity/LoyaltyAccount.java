@@ -21,7 +21,7 @@ import java.util.UUID;
 
 /**
  * A user's loyalty account. The primary key is the user's id (one account per user).
- * {@code pointsBalance} must always equal the sum of the user's loyalty transactions —
+ * {@code pointsBalance} must always equal the sum of the user's loyalty transactions -
  * an invariant asserted by tests in B7.
  */
 @Entity

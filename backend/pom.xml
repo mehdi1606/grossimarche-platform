@@ -59,7 +59,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!-- WebSocket / STOMP (live order tracking — wired in B9; starter is harmless now) -->
+        <!-- WebSocket / STOMP (live order tracking - wired in B9; starter is harmless now) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -109,7 +109,7 @@
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
 
-        <!-- Resilience for outbound integrations (SMS/email/CMI) — used from B4/B10 -->
+        <!-- Resilience for outbound integrations (SMS/email/CMI) - used from B4/B10 -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot4</artifactId>
@@ -127,7 +127,7 @@
             <artifactId>caffeine</artifactId>
         </dependency>
 
-        <!-- PDF invoices (B6) — Apache PDFBox, no vendor lock-in -->
+        <!-- PDF invoices (B6) - Apache PDFBox, no vendor lock-in -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>

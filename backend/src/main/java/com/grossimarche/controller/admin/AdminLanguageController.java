@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-/** Admin language configuration (ADMIN only — enforced by URL rules and service @PreAuthorize). */
+/** Admin language configuration (ADMIN only - enforced by URL rules and service @PreAuthorize). */
 @RestController
 @RequestMapping("/api/v1/admin/languages")
 public class AdminLanguageController {

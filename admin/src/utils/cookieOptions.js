@@ -2,8 +2,8 @@
  * Cookie attributes that survive the scheme the app is actually served over.
  *
  * Every cookie here used to be written with `SameSite=None; Secure`. Both attributes are
- * rejected on a plain-HTTP origin — `Secure` outright, and `SameSite=None` because the spec
- * requires it to be paired with `Secure` — so on `http://<ip>/` the browser silently dropped
+ * rejected on a plain-HTTP origin - `Secure` outright, and `SameSite=None` because the spec
+ * requires it to be paired with `Secure` - so on `http://<ip>/` the browser silently dropped
  * them. Sign-in appeared to work (the session lives in React state for the tab) while every
  * subsequent request went out with no Authorization header and came back 401.
  *

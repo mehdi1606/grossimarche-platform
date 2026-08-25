@@ -1,7 +1,7 @@
 /**
  * Delivery zones served by Grossimarché, with their fee.
  *
- * This table mirrors `grossimarche.pricing.city-fees` in the backend configuration — the
+ * This table mirrors `grossimarche.pricing.city-fees` in the backend configuration - the
  * server recomputes the fee at checkout and is authoritative. Keep both in step: a value
  * changed here alone would only mislead the shopper, never change what is charged.
  */
@@ -9,7 +9,7 @@
  * Free-delivery threshold and the fallback flat fee, in MAD.
  *
  * These mirror `grossimarche.pricing` in the backend, which recomputes both at checkout and
- * is authoritative. They live here — not inline in the cart and again in the checkout hook —
+ * is authoritative. They live here - not inline in the cart and again in the checkout hook -
  * so the drawer's "plus que X pour la livraison offerte" can never drift from the total the
  * customer is actually charged.
  */
@@ -30,7 +30,7 @@ export const deliveryFeeForCity = (city, fallbackFee) => {
   return match ? match.fee : fallbackFee;
 };
 
-/** "Gratuite" / "20 DH" — the label shown next to a city in the picker. */
+/** "Gratuite" / "20 DH" - the label shown next to a city in the picker. */
 export const deliveryFeeLabel = (fee, currency = "DH") =>
   Number(fee) === 0 ? "Livraison offerte" : `Livraison ${fee} ${currency}`;
 
@@ -55,7 +55,7 @@ export const shippingEstimate = (cartTotal, city) => {
 };
 
 /**
- * A delivery *date*, not a vague range — shoppers plan around a day, and a concrete promise
+ * A delivery *date*, not a vague range - shoppers plan around a day, and a concrete promise
  * is what removes the "when will it arrive?" hesitation at checkout.
  *
  * Orders placed before the 14h cut-off ship next day; after it, the day after. Sunday is not
@@ -70,7 +70,7 @@ export const estimatedDeliveryDate = (from = new Date()) => {
   return date;
 };
 
-/** "jeudi 24 août" — the human label for {@link estimatedDeliveryDate}. */
+/** "jeudi 24 août" - the human label for {@link estimatedDeliveryDate}. */
 export const estimatedDeliveryLabel = (from = new Date()) =>
   estimatedDeliveryDate(from).toLocaleDateString("fr-FR", {
     weekday: "long",

@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * One account KPI. Quiet by default — a large number, a small label, and colour used only on
+ * One account KPI. Quiet by default - a large number, a small label, and colour used only on
  * the icon so four of these in a row read as a set rather than four competing badges.
  */
 const Card = ({ title, Icon, quantity, className }) => {

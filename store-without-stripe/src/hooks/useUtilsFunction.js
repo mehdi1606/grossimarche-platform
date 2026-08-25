@@ -33,7 +33,7 @@ const useUtilsFunction = () => {
     return parseFloat(value || 0).toFixed(globalSetting?.floating_number || 2);
   };
 
-  //for translation — routed through the machine-translation engine (see TranslationContext)
+  //for translation - routed through the machine-translation engine (see TranslationContext)
   const showingTranslateValue = (data) => translateValue(data);
 
   const showingImage = (data) => {

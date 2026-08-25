@@ -195,7 +195,7 @@ public class CheckoutService {
 
         // 5c. Bundle offers ("paniers"): whenever the cart happens to contain every component
         //     of an active offer, the difference between those components and the offer price
-        //     is taken off automatically. Nothing has to be "added as a bundle" — assembling
+        //     is taken off automatically. Nothing has to be "added as a bundle" - assembling
         //     the set by hand earns the same price as clicking the offer.
         BundleService.BundleDiscount bundles = bundleService.computeDiscount(bundleLines);
         BigDecimal goodsDiscount = totals.discountTotal().add(bundles.total());
@@ -262,7 +262,7 @@ public class CheckoutService {
 
     /**
      * How the buyer is named in the back-office notification. Accounts are passwordless, so a
-     * shopper who never filled a profile has only a phone or an e-mail — fall back to those
+     * shopper who never filled a profile has only a phone or an e-mail - fall back to those
      * rather than showing an empty name.
      */
     private String customerLabel(UUID userId) {

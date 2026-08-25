@@ -26,7 +26,7 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 const EMPTY = { name: "", email: "", phone: "", role: "Store Manager" };
 
 const nameOf = (row) =>
-  typeof row?.name === "object" ? row?.name?.en || "—" : row?.name || "—";
+  typeof row?.name === "object" ? row?.name?.en || "-" : row?.name || "-";
 
 const Staff = () => {
   const [rows, setRows] = useState([]);
@@ -100,7 +100,7 @@ const Staff = () => {
 
   /**
    * A staff account's password is generated server-side and e-mailed. Report which of the two
-   * outcomes happened — delivered, or shown here because mail is not configured.
+   * outcomes happened - delivered, or shown here because mail is not configured.
    */
   const handleCredentialResult = (res, fallbackEmail, action) => {
     if (res?.invitationSent === false && res?.temporaryPassword) {
@@ -170,7 +170,7 @@ const Staff = () => {
         <EmptyState
           icon={FiUser}
           title="No staff yet"
-          description="Invite your team. Staff sign in with a one-time code — access is decided by their role."
+          description="Invite your team. Staff sign in with a one-time code - access is decided by their role."
           actionLabel="Add staff"
           onAction={openAdd}
         />
@@ -204,7 +204,7 @@ const Staff = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{row.email || "—"}</div>
+                    <div className="text-sm">{row.email || "-"}</div>
                     <div className="text-xs text-gray-400">{row.phone || ""}</div>
                   </TableCell>
                   <TableCell>
@@ -213,7 +213,7 @@ const Staff = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
-                    {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY") : "—"}
+                    {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY") : "-"}
                   </TableCell>
                   <TableCell>
                     <button onClick={() => toggle(row)}>
@@ -323,9 +323,9 @@ const Staff = () => {
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
             >
-              <option value="Admin">Admin — full access</option>
+              <option value="Admin">Admin - full access</option>
               <option value="Store Manager">
-                Store Manager — orders, products, categories, customers
+                Store Manager - orders, products, categories, customers
               </option>
             </Select>
           </label>
@@ -359,7 +359,7 @@ const Staff = () => {
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Envoyer un nouveau mot de passe provisoire à{" "}
-          <span className="font-semibold">{resetTarget?.email || "—"}</span> ? Leur mot de
+          <span className="font-semibold">{resetTarget?.email || "-"}</span> ? Leur mot de
           passe actuel cessera immédiatement de fonctionner.
         </p>
       </Modal>
@@ -376,7 +376,7 @@ const Staff = () => {
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
           L'envoi d'e-mails n'est pas configuré sur ce serveur. Notez ces identifiants et
-          transmettez-les — ils ne seront plus affichés.
+          transmettez-les - ils ne seront plus affichés.
         </p>
         <dl className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
           <div>

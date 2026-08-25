@@ -7,7 +7,7 @@ import { SidebarContext } from "@/context/SidebarContext";
  * Desktop rail. The collapse toggle lives inside the sidebar, next to the logo. Instead of
  * unmounting the sidebar (which made it vanish in one frame) the aside animates its width
  * and the content fades and slides with it. The inner wrapper keeps a fixed w-64 so the
- * menu does not reflow — text re-wrapping mid-collapse is what makes this look cheap.
+ * menu does not reflow - text re-wrapping mid-collapse is what makes this look cheap.
  *
  * Once collapsed there is nothing left to click, so a small handle appears against the left
  * edge of the page to bring it back.

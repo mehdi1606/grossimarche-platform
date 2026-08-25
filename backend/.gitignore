@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# Secrets — never commit
+# Secrets - never commit
 .env
 *.pem
 *.p12

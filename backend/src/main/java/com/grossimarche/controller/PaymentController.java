@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * CMI payment webhook. Public (called by the gateway) — the signature is verified inside
+ * CMI payment webhook. Public (called by the gateway) - the signature is verified inside
  * {@link OrderService#handlePaymentCallback} before any field is trusted. Card fields are
  * never stored; the callback is idempotent.
  */

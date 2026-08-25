@@ -27,7 +27,7 @@ const Layout = ({ title, description, children }) => {
           <title>
             {title
               ? `Grossimarché | ${title}`
-              : "Grossimarché — Marché de gros en ligne au Maroc"}
+              : "Grossimarché - Marché de gros en ligne au Maroc"}
           </title>
           {description && <meta name="description" content={description} />}
           <link ref="icon" href="/favicon.png" />

@@ -1,5 +1,5 @@
 # Test profile. Datasource and Redis are supplied at runtime by Testcontainers via
-# @ServiceConnection, so no connection settings are declared here — the containers win.
+# @ServiceConnection, so no connection settings are declared here - the containers win.
 spring:
   jpa:
     hibernate:

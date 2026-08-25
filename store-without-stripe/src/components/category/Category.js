@@ -23,7 +23,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
  * The pages worth reaching from the mobile menu, in the shopper's language.
  *
  * Defined here rather than pulled from `@utils/data`, whose entries are still the template's
- * untranslated keys ("offer-page", "checkout-page") — they were rendering literally.
+ * untranslated keys ("offer-page", "checkout-page") - they were rendering literally.
  */
 const PAGES = [
   { title: "Paniers & offres", href: "/offer", icon: FiGift },
@@ -37,7 +37,7 @@ const PAGES = [
 /**
  * The mobile category menu.
  *
- * It still carried the KachaBazar logo from the original template — the one place in the
+ * It still carried the KachaBazar logo from the original template - the one place in the
  * storefront where another shop's brand was on screen. It now uses the same mark as the rest
  * of the site.
  *
@@ -58,7 +58,7 @@ const Category = () => {
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
-      {/* Header — stays put while the list scrolls under it. */}
+      {/* Header - stays put while the list scrolls under it. */}
       <div className="flex shrink-0 items-center justify-between gap-3 bg-emerald-700 px-5 py-4">
         <BrandMark variant="light" href="/" />
         <button

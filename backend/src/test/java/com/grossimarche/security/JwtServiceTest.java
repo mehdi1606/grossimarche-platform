@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * B3 smoke test for the RS256 token stack: issue/parse round trip, expired token rejected,
- * and a token signed with a different key rejected. Pure unit test — no Spring context.
+ * and a token signed with a different key rejected. Pure unit test - no Spring context.
  * The exhaustive security suite (denylist, refresh rotation, family revocation, HTTP role
  * matrix) is built in B11.
  */
@@ -67,7 +67,7 @@ class JwtServiceTest {
         JwtService service = new JwtService(encoder, config.jwtDecoder(keyProvider, props),
                 keyProvider, props);
 
-        // Hand-craft a token that expired 90s ago — beyond the decoder's 60s clock skew.
+        // Hand-craft a token that expired 90s ago - beyond the decoder's 60s clock skew.
         Instant now = Instant.now();
         JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256)
                 .keyId(keyProvider.signingKeyId()).build();

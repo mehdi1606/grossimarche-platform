@@ -38,7 +38,7 @@ const nameOf = (product) =>
   typeof product?.title === "object" ? product?.title?.en : product?.title || product?.name;
 
 /**
- * Bundle offers ("paniers") — the back-office side of an offer made of one or more products.
+ * Bundle offers ("paniers") - the back-office side of an offer made of one or more products.
  *
  * A bundle is a pricing rule, not a product: it never becomes an order line. When a customer's
  * cart contains everything the set lists, checkout takes off the difference between those
@@ -82,7 +82,7 @@ const Bundles = () => {
     load();
   }, [load]);
 
-  // What the chosen products cost separately — the number the offer price has to beat, shown
+  // What the chosen products cost separately - the number the offer price has to beat, shown
   // live so nobody has to open a calculator to price a basket.
   const componentsTotal = useMemo(
     () => items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0),
@@ -153,7 +153,7 @@ const Bundles = () => {
     const productId = product._id || product.id;
     if (items.some((item) => item.productId === productId)) {
       // The same product twice would be two rows disagreeing about one quantity.
-      notifyError("Ce produit est déjà dans l'offre — modifiez sa quantité.");
+      notifyError("Ce produit est déjà dans l'offre - modifiez sa quantité.");
       return;
     }
     setItems([
@@ -263,7 +263,7 @@ const Bundles = () => {
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-800">
         <p className="max-w-2xl text-sm text-gray-500 dark:text-gray-400">
           Un panier regroupe un ou plusieurs produits à un prix d'ensemble. La remise
-          s'applique automatiquement dès que le panier du client contient tous les articles —
+          s'applique automatiquement dès que le panier du client contient tous les articles -
           rien n'est à gérer en stock.
         </p>
         <Button onClick={openAdd} className="h-11">

@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * Glass shopping trolley — the same illustration as the storefront hero, kept in sync by
+ * Glass shopping trolley - the same illustration as the storefront hero, kept in sync by
  * hand (the two apps do not share a package). Inline SVG rather than a photo: it scales to
  * any panel size, weighs nothing, and its translucency lets the emerald gradient behind it
  * show through, which is what makes the glass effect work.

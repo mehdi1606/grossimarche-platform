@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Checkout request. The {@code Idempotency-Key} header (not part of this body) is required
- * and makes retries safe. Totals are never accepted from the client — the server recomputes.
+ * and makes retries safe. Totals are never accepted from the client - the server recomputes.
  */
 public record CreateOrderRequest(
         @NotNull UUID addressId,

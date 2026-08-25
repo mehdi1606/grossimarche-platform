@@ -39,7 +39,7 @@ public class NotificationEventListener {
         // Everything the back-office needs to triage the order without opening it: who, how
         // much, how many lines, where, and how it will be paid.
         String message = String.format(Locale.FRANCE,
-                "%s — %d article%s (%d unité%s), %.2f DH — %s (%s) — %s.",
+                "%s - %d article%s (%d unité%s), %.2f DH - %s (%s) - %s.",
                 event.orderNumber(),
                 event.itemCount(),
                 event.itemCount() > 1 ? "s" : "",

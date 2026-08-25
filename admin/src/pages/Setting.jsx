@@ -110,7 +110,7 @@ const Setting = () => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <PageTitle>Settings — Stores</PageTitle>
+        <PageTitle>Settings - Stores</PageTitle>
         <Button onClick={openAdd} className="h-11 rounded-lg">
           <FiPlus className="mr-2" /> Add store
         </Button>
@@ -122,7 +122,7 @@ const Setting = () => {
         <EmptyState
           icon={FiMapPin}
           title="No stores yet"
-          description="Add your first magasin — name, city, address and map coordinates. These power the store locator."
+          description="Add your first magasin - name, city, address and map coordinates. These power the store locator."
           actionLabel="Add store"
           onAction={openAdd}
         />
@@ -144,7 +144,7 @@ const Setting = () => {
                   <TableCell className="font-semibold">{row.name}</TableCell>
                   <TableCell>{row.city}</TableCell>
                   <TableCell className="text-sm">{row.address}</TableCell>
-                  <TableCell>{row.phone || "—"}</TableCell>
+                  <TableCell>{row.phone || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-3 text-gray-400">
                       <button

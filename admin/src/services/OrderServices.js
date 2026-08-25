@@ -37,7 +37,7 @@ const OrderServices = {
     return requests.patch(`/admin/orders/${id}/status`, { status, note: body?.note || "" });
   },
 
-  // Dashboard analytics (shapes differ from KachaBazar — components may need alignment).
+  // Dashboard analytics (shapes differ from KachaBazar - components may need alignment).
   getDashboardAmount: async () => requests.get("/admin/dashboard/summary"),
   getDashboardCount: async () => requests.get("/admin/dashboard/summary"),
   getDashboardRecentOrder: async ({ limit = 8 } = {}) => {

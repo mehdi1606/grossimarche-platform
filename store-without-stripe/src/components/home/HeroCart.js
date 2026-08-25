@@ -1,5 +1,5 @@
 /**
- * Glass shopping trolley for the hero — an inline SVG rather than an image: it scales at any
+ * Glass shopping trolley for the hero - an inline SVG rather than an image: it scales at any
  * size, weighs nothing, and its translucency lets the green gradient show through, which is
  * the whole point of the effect.
  *
@@ -43,7 +43,7 @@ const HeroCart = ({ className = "" }) => (
       <circle cx="52" cy="196" r="10" fill="url(#gmBubble)" stroke="#ffffff" strokeOpacity="0.28" />
     </g>
 
-    {/* Goods stacked in the basket — bubbles again, so the glass stays readable */}
+    {/* Goods stacked in the basket - bubbles again, so the glass stays readable */}
     <g className="gm-float">
       <circle cx="150" cy="118" r="30" fill="url(#gmBubble)" stroke="#ffffff" strokeOpacity="0.4" />
       <circle cx="212" cy="104" r="22" fill="#ffffff" fillOpacity="0.22" stroke="#ffffff" strokeOpacity="0.35" />

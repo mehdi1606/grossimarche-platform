@@ -17,7 +17,7 @@ import java.util.TreeMap;
  * Production CMI gateway. Builds the 3-D Secure redirect form and verifies callbacks using
  * CMI's store-key SHA-512 hashing scheme. Active only when
  * {@code grossimarche.payment.provider=cmi}; credentials come from env. No card data is
- * ever received or stored here — PCI scope stays with CMI.
+ * ever received or stored here - PCI scope stays with CMI.
  */
 @Component
 @ConditionalOnProperty(prefix = "grossimarche.payment", name = "provider", havingValue = "cmi")

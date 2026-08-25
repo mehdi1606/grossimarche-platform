@@ -14,7 +14,7 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
 
     /**
      * Active stores ordered by great-circle distance from the given point (haversine, in
-     * SQL — never sorted in Java). {@code LEAST(1, …)} guards the {@code acos} domain.
+     * SQL - never sorted in Java). {@code LEAST(1, …)} guards the {@code acos} domain.
      */
     @Query(value = """
             SELECT * FROM stores WHERE active = true ORDER BY

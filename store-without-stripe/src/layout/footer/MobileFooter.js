@@ -15,7 +15,7 @@ const MobileFooter = () => {
   const { totalItems } = useCart();
   const userInfo = getUserSession();
 
-  // Same badge behaviour as the desktop navbar — and, unlike before, the badge is hidden
+  // Same badge behaviour as the desktop navbar - and, unlike before, the badge is hidden
   // entirely at zero instead of displaying a permanent "0".
   const [bump, setBump] = useState(false);
   const previousCount = useRef(totalItems);

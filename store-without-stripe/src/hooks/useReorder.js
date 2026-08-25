@@ -7,14 +7,14 @@ import ProductServices from "@services/ProductServices";
 import { SidebarContext } from "@context/SidebarContext";
 
 /**
- * "Commander à nouveau" — rebuild a past order as a fresh cart.
+ * "Commander à nouveau" - rebuild a past order as a fresh cart.
  *
  * A wholesale customer buys the same basket again and again; making them re-find twenty
  * references is the friction that sends them back to the phone. Deliberately *not* a
  * one-click repurchase: it fills the cart and opens the drawer so prices and stock can be
  * reviewed before committing.
  *
- * Products are re-priced from the catalogue, never from the old order line — a stale price
+ * Products are re-priced from the catalogue, never from the old order line - a stale price
  * would be rejected by the server at checkout anyway. Items that have since been delisted or
  * gone out of stock are skipped and reported, rather than silently dropped.
  */

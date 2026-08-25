@@ -30,7 +30,7 @@ import java.util.UUID;
  * extra safety for an account already restricted by role.
  *
  * Nobody types a password when creating an account. The server generates one, stores only its
- * hash, and e-mails it to the new member, who is required to replace it on first sign-in — so
+ * hash, and e-mails it to the new member, who is required to replace it on first sign-in - so
  * a password is never chosen by a third party and cannot be read back later. Only an ADMIN may
  * manage staff.
  */
@@ -96,7 +96,7 @@ public class StaffAdminService {
                 invitationDetail(sent));
 
         // The clear-text password leaves the server exactly once, and only when we could not
-        // e-mail it — otherwise the new account would be unreachable.
+        // e-mail it - otherwise the new account would be unreachable.
         return toResponse(user, sent, sent ? null : temporaryPassword);
     }
 

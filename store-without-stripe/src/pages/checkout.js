@@ -102,7 +102,7 @@ const Checkout = () => {
 
   // Last-chance cross-sell: the first time the shopper confirms, if we have relevant
   // suggestions, show the upsell modal instead of placing the order. A second confirm (or the
-  // modal's own confirm button) goes straight through — never block the sale twice.
+  // modal's own confirm button) goes straight through - never block the sale twice.
   const { suggestions } = useSuggestedProducts({ limit: 8 });
   const [upsellOpen, setUpsellOpen] = useState(false);
   const upsellShown = useRef(false);
@@ -258,7 +258,7 @@ const Checkout = () => {
                             <p className="text-sm font-semibold text-ink-800">
                               Livraison standard
                             </p>
-                            {/* A date, not a vague range — it is what removes the "when will
+                            {/* A date, not a vague range - it is what removes the "when will
                                 it arrive?" hesitation right before confirming. */}
                             <p className="text-xs text-ink-500">
                               Estimée le{" "}

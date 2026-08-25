@@ -2,8 +2,8 @@
  * Product illustrations.
  *
  * A wholesale catalogue is mostly sacks, drums and cartons, and photographing every reference
- * takes weeks. Until real photos exist, this draws the *kind* of thing each product is — a
- * 25kg sack looks like a sack, a 5L bidon looks like a bidon — so a buyer scanning the grid
+ * takes weeks. Until real photos exist, this draws the *kind* of thing each product is - a
+ * 25kg sack looks like a sack, a 5L bidon looks like a bidon - so a buyer scanning the grid
  * can tell a sack of flour from a drum of oil at a glance, which two letters on a tile could
  * never do.
  *
@@ -12,7 +12,7 @@
  * same two-tone treatment (soft fill, darker outline), so a grid of them reads as one set
  * rather than as clip-art.
  *
- * A real uploaded photo always wins — see ProductImage.
+ * A real uploaded photo always wins - see ProductImage.
  */
 
 // `body` is the light fill, `line` the outline; both are passed in by the tile.
@@ -28,7 +28,7 @@ const shell = (children) => ({ body, line }) => (
   </svg>
 );
 
-/** Jerrycan — cooking oil in 5L / 20L bidons. */
+/** Jerrycan - cooking oil in 5L / 20L bidons. */
 const Bidon = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M30 34h30a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H30a6 6 0 0 1-6-6V40a6 6 0 0 1 6-6Z" fill={body} />
@@ -38,7 +38,7 @@ const Bidon = shell(({ body, line }) => (
   </g>
 ));
 
-/** Bottle — olive oil, vinegar, anything sold by the bottle. */
+/** Bottle - olive oil, vinegar, anything sold by the bottle. */
 const Bottle = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M42 16h12v12l8 12a10 10 0 0 1 2 6v26a6 6 0 0 1-6 6H38a6 6 0 0 1-6-6V46a10 10 0 0 1 2-6l8-12V16Z" fill={body} />
@@ -47,7 +47,7 @@ const Bottle = shell(({ body, line }) => (
   </g>
 ));
 
-/** Sack — flour, semolina, rice, sugar, detergent: the shape of wholesale. */
+/** Sack - flour, semolina, rice, sugar, detergent: the shape of wholesale. */
 const Sack = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M34 28c0 6-6 8-6 18v26a6 6 0 0 0 6 6h28a6 6 0 0 0 6-6V46c0-10-6-12-6-18Z" fill={body} />
@@ -56,7 +56,7 @@ const Sack = shell(({ body, line }) => (
   </g>
 ));
 
-/** Carton — the default for anything boxed by the dozen. */
+/** Carton - the default for anything boxed by the dozen. */
 const Carton = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M24 36l24-12 24 12v34L48 82 24 70V36Z" fill={body} />
@@ -64,7 +64,7 @@ const Carton = shell(({ body, line }) => (
   </g>
 ));
 
-/** Tin — sardines, tomato concentrate, preserves. */
+/** Tin - sardines, tomato concentrate, preserves. */
 const Tin = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <ellipse cx="48" cy="34" rx="22" ry="9" fill={body} />
@@ -73,7 +73,7 @@ const Tin = shell(({ body, line }) => (
   </g>
 ));
 
-/** Bottle pack — water and soft drinks sold by the shrink-wrapped pack. */
+/** Bottle pack - water and soft drinks sold by the shrink-wrapped pack. */
 const Pack = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     {[26, 42, 58].map((x) => (
@@ -90,7 +90,7 @@ const Pack = shell(({ body, line }) => (
   </g>
 ));
 
-/** Coffee / tea — a scooped bag. */
+/** Coffee / tea - a scooped bag. */
 const Bag = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M32 34h32l-3 40a6 6 0 0 1-6 5H41a6 6 0 0 1-6-5l-3-40Z" fill={body} />
@@ -99,7 +99,7 @@ const Bag = shell(({ body, line }) => (
   </g>
 ));
 
-/** Fresh produce — fruit and vegetables sold by the kilo. */
+/** Fresh produce - fruit and vegetables sold by the kilo. */
 const Produce = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M48 32c-4-5-12-6-17-2-6 5-7 15-3 25 3 8 9 17 15 17 2 0 3-1 5-1s3 1 5 1c6 0 12-9 15-17 4-10 3-20-3-25-5-4-13-3-17 2Z" fill={body} />
@@ -108,7 +108,7 @@ const Produce = shell(({ body, line }) => (
   </g>
 ));
 
-/** Soap / hygiene — a stacked bar. */
+/** Soap / hygiene - a stacked bar. */
 const Bar = shell(({ body, line }) => (
   <g stroke={line} strokeWidth="2.5" strokeLinejoin="round">
     <path d="M24 46a6 6 0 0 1 6-6h36a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6H30a6 6 0 0 1-6-6v-6Z" fill={body} />
@@ -156,7 +156,7 @@ const RULES = [
   {
     glyph: Bag,
     tint: "coffee",
-    // "\b" is ASCII-only, so it never fires after an accent — "Thé " would silently fail to
+    // "\b" is ASCII-only, so it never fires after an accent - "Thé " would silently fail to
     // match. Hence the explicit "not followed by a letter" lookahead instead.
     test: /caf[ée]|th[ée](?![a-zà-ÿ])|cacao|chocolat en poudre/i,
   },

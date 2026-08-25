@@ -1,7 +1,7 @@
 /**
  * The bundle saving a cart has earned, for display only.
  *
- * This mirrors `BundleService.computeDiscount` on the backend, which stays authoritative — it
+ * This mirrors `BundleService.computeDiscount` on the backend, which stays authoritative - it
  * recomputes the discount at checkout against live prices and is what the customer is actually
  * charged. The duplication buys one thing worth having: the shopper sees "offre panier
  * appliquée" while filling the cart, rather than discovering a lower total after ordering.
@@ -48,7 +48,7 @@ export const bundleSavingsForCart = (bundles = [], cartItems = []) => {
 };
 
 /**
- * How close the cart is to completing an offer — used to nudge ("il vous manque 2 × X").
+ * How close the cart is to completing an offer - used to nudge ("il vous manque 2 × X").
  * Returns null once the set is already complete, so callers can simply skip a null.
  */
 export const missingForBundle = (bundle, cartItems = []) => {

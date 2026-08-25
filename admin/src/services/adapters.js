@@ -12,7 +12,7 @@ const STATUS_LABEL = { ACTIVE: "Active", BLOCKED: "Inactive", DELETED: "Deleted"
 /** Grossimarché StaffResponse -> admin staff row. */
 export const adaptStaff = (g) => ({
   _id: g.id,
-  name: { en: g.fullName || "—" },
+  name: { en: g.fullName || "-" },
   email: g.email || "",
   phone: g.phone || "",
   role: ROLE_LABEL[g.role] || g.role,
@@ -24,7 +24,7 @@ export const adaptStaff = (g) => ({
 /** Grossimarché CustomerSummary/Detail -> admin customer row. */
 export const adaptCustomer = (g) => ({
   _id: g.id,
-  name: g.fullName || "—",
+  name: g.fullName || "-",
   email: g.email || "",
   phone: g.phone || "",
   status: STATUS_LABEL[g.status] || g.status,

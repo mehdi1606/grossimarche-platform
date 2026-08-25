@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Admin attribute-catalogue CRUD (STORE_MANAGER + ADMIN — part of catalogue management).
+ * Admin attribute-catalogue CRUD (STORE_MANAGER + ADMIN - part of catalogue management).
  * Values are managed together with their parent attribute in a single payload.
  */
 @RestController

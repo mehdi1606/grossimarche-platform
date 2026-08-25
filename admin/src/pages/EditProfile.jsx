@@ -22,7 +22,7 @@ const ROLE_STYLE = {
 /**
  * Own-profile page. Only the full name is editable: PATCH /me takes nothing else, e-mail and
  * phone are the sign-in identity (a change requires verifying the new destination with a
- * code), and the role is granted from the Staff page — never self-assigned. Those three are
+ * code), and the role is granted from the Staff page - never self-assigned. Those three are
  * therefore shown read-only instead of being offered as inputs that quietly do nothing,
  * which is what the previous version did.
  */
@@ -169,13 +169,13 @@ const EditProfile = () => {
               ROLE_STYLE[role] || "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
             }`}
           >
-            {ROLE_LABEL[role] || role || "—"}
+            {ROLE_LABEL[role] || role || "-"}
           </span>
           <p className="mt-4 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
             Signed in with
             <br />
             <span className="font-medium text-gray-700 dark:text-gray-200">
-              {profile?.email || profile?.phone || "—"}
+              {profile?.email || profile?.phone || "-"}
             </span>
           </p>
         </section>
@@ -216,7 +216,7 @@ const EditProfile = () => {
                 Sign-in details
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                These identify your account, so they cannot be edited here — changing one
+                These identify your account, so they cannot be edited here - changing one
                 requires verifying the new address or number with a code.
               </p>
 
@@ -227,7 +227,7 @@ const EditProfile = () => {
                   </span>
                   <div className={readOnlyCls}>
                     <FiMail className="h-4 w-4 shrink-0" />
-                    <span className="flex-1 truncate">{profile?.email || "—"}</span>
+                    <span className="flex-1 truncate">{profile?.email || "-"}</span>
                     <FiLock className="h-3.5 w-3.5 shrink-0" />
                   </div>
                 </div>
@@ -237,7 +237,7 @@ const EditProfile = () => {
                   </span>
                   <div className={readOnlyCls}>
                     <FiPhone className="h-4 w-4 shrink-0" />
-                    <span className="flex-1 truncate">{profile?.phone || "—"}</span>
+                    <span className="flex-1 truncate">{profile?.phone || "-"}</span>
                     <FiLock className="h-3.5 w-3.5 shrink-0" />
                   </div>
                 </div>
@@ -246,7 +246,7 @@ const EditProfile = () => {
               <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Your role is{" "}
                 <span className="font-medium text-gray-700 dark:text-gray-200">
-                  {ROLE_LABEL[role] || role || "—"}
+                  {ROLE_LABEL[role] || role || "-"}
                 </span>
                 . Roles are granted from the Staff page by an administrator.
               </p>

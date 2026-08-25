@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 /**
  * Lightweight 3D tilt: returns a ref + handlers to spread on a `.gm-tilt-inner` element.
  * The card rotates toward the cursor (max `max` degrees) and springs back on leave.
- * Pure transform via CSS custom properties — no re-renders, no dependencies.
+ * Pure transform via CSS custom properties - no re-renders, no dependencies.
  */
 const useTilt = (max = 10) => {
   const ref = useRef(null);

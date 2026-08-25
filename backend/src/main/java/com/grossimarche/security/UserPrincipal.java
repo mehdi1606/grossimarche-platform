@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /**
  * The authenticated principal placed in the SecurityContext. Exposes the user id and role.
- * There is no password — authentication is by bearer JWT — so {@link #getPassword()} is
+ * There is no password - authentication is by bearer JWT - so {@link #getPassword()} is
  * empty and never used.
  */
 public class UserPrincipal implements UserDetails {

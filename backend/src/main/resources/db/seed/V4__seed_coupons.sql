@@ -1,5 +1,5 @@
 -- =====================================================================================
--- Grossimarché — seed coupons (V4). Loaded ONLY under the local profile (extra Flyway
+-- Grossimarché - seed coupons (V4). Loaded ONLY under the local profile (extra Flyway
 -- location classpath:db/seed), so demo codes never exist in production. Two examples:
 -- a percentage welcome code (capped) and a fixed-amount code with a minimum basket.
 -- =====================================================================================

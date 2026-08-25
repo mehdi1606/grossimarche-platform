@@ -13,7 +13,7 @@ const OrderServices = {
    * One page of history plus the per-status counters.
    *
    * The counters come from `GET /orders/stats` (one grouped query server-side). They used to
-   * be read off this response, which never contained them — so three of the four dashboard
+   * be read off this response, which never contained them - so three of the four dashboard
    * cards were permanently zero. Fetched in parallel, and a failing stats call degrades to
    * zeros rather than taking the whole history down with it.
    */

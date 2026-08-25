@@ -50,12 +50,12 @@ const SOCIALS = [
  *
  * Deep green rather than white, on purpose: a cream page that simply stops has no ending, and
  * the eye keeps looking for one. A dark base closes the page, and it is where premium
- * storefronts put their weight — the last thing a visitor sees should feel like the cover of
+ * storefronts put their weight - the last thing a visitor sees should feel like the cover of
  * the shop, not leftover space.
  *
  * The previous version left a large void: the brand block spanned two of six columns and the
  * four link lists (one of them a single link) could not fill the rest. Here the contact
- * details sit under the brand — they are what a wholesale buyer actually looks for down here —
+ * details sit under the brand - they are what a wholesale buyer actually looks for down here -
  * so both sides of the grid carry real weight.
  */
 const Footer = () => {
@@ -76,7 +76,7 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-emerald-900 text-emerald-50">
-      {/* A single brass hairline along the top edge — the one bright note, and what stops the
+      {/* A single brass hairline along the top edge - the one bright note, and what stops the
           dark block from reading as a plain slab. */}
       <span
         aria-hidden="true"
@@ -90,7 +90,7 @@ const Footer = () => {
             <BrandMark variant="light" />
 
             <p className="mt-6 max-w-sm text-sm leading-7 text-emerald-100/70">
-              Votre marché de gros en ligne au Maroc — produits en gros, tarifs dégressifs
+              Votre marché de gros en ligne au Maroc - produits en gros, tarifs dégressifs
               et livraison rapide dans tout le Royaume.
             </p>
 

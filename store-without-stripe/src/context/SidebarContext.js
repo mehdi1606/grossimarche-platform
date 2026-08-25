@@ -12,7 +12,7 @@ export const SidebarProvider = ({ children }) => {
 
   const toggleCartDrawer = useCallback(() => setCartDrawerOpen((open) => !open), []);
   const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
-  // Explicit open (as opposed to toggle) — adding to the cart must always *show* the cart,
+  // Explicit open (as opposed to toggle) - adding to the cart must always *show* the cart,
   // never close it because the drawer happened to be open already.
   const openCartDrawer = useCallback(() => setCartDrawerOpen(true), []);
 

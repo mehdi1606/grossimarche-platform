@@ -6,8 +6,8 @@ import { useTranslate } from "@context/TranslationContext";
 /**
  * Translates the rendered page itself.
  *
- * The alternative — a `t("checkout.confirm_button")` key for every string, and a JSON
- * catalogue per language — means every new label is a four-file change and every untranslated
+ * The alternative - a `t("checkout.confirm_button")` key for every string, and a JSON
+ * catalogue per language - means every new label is a four-file change and every untranslated
  * key ships as either English or a raw key. This walks what the browser actually painted,
  * sends the French it finds to LibreTranslate in batches, and writes the result back. A new
  * page, a new button, a page nobody remembered to wire up: all translated, with no per-string
@@ -16,7 +16,7 @@ import { useTranslate } from "@context/TranslationContext";
  * It is a no-op on the source locale, so French visitors pay nothing at all.
  *
  * What it deliberately does *not* touch:
- *   - anything inside `[data-no-translate]` or `[translate="no"]` — brand name, prices,
+ *   - anything inside `[data-no-translate]` or `[translate="no"]` - brand name, prices,
  *     invoice numbers, e-mail addresses;
  *   - text with no letters in it (amounts, dates, phone numbers, ISO codes);
  *   - script/style/code/pre and editable fields.
@@ -116,7 +116,7 @@ const AutoTranslate = () => {
       while (node && textNodes.length + attributeTargets.length < MAX_NODES_PER_PASS) {
         if (node.nodeType === Node.TEXT_NODE) {
           const current = node.nodeValue;
-          // Already showing the translation we produced for this node — leave it alone.
+          // Already showing the translation we produced for this node - leave it alone.
           if (applied.get(node) !== current) {
             if (!originals.has(node)) originals.set(node, current);
             textNodes.push(node);
@@ -175,7 +175,7 @@ const AutoTranslate = () => {
           applied.set(node, { ...(applied.get(node) || {}), [name]: out });
           return;
         }
-        // Preserve the original leading/trailing whitespace — it is doing layout work.
+        // Preserve the original leading/trailing whitespace - it is doing layout work.
         const raw = originals.get(node) || source;
         const [, lead = "", , trail = ""] = raw.match(/^(\s*)([\s\S]*?)(\s*)$/) || [];
         const next = `${lead}${out}${trail}`;

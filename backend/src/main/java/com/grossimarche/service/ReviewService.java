@@ -19,7 +19,7 @@ import java.util.UUID;
 
 /**
  * Product reviews: public listing of approved reviews, authenticated submission (moderated
- * — a new or edited review starts unapproved), and admin moderation. One review per
+ * - a new or edited review starts unapproved), and admin moderation. One review per
  * (product, user): a repeat submission updates the existing row and re-enters moderation.
  */
 @Service

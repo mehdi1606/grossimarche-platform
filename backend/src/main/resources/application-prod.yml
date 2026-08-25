@@ -1,4 +1,4 @@
-# Production profile. Every value comes from the environment — no defaults, no secrets
+# Production profile. Every value comes from the environment - no defaults, no secrets
 # committed. Swagger UI and api-docs stay disabled (inherited from application.yml).
 spring:
   datasource:

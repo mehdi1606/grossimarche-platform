@@ -138,7 +138,7 @@ const Notifications = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {row.createdAt ? dayjs(row.createdAt).format("DD MMM, HH:mm") : "—"}
+                      {row.createdAt ? dayjs(row.createdAt).format("DD MMM, HH:mm") : "-"}
                     </TableCell>
                     <TableCell>
                       <Badge type={row.read ? "neutral" : "success"}>

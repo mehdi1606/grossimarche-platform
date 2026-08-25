@@ -190,13 +190,13 @@ const Coupons = () => {
                     {discountLabel(row)}
                   </TableCell>
                   <TableCell>
-                    {row.minimumAmount ? `${currency}${row.minimumAmount}` : "—"}
+                    {row.minimumAmount ? `${currency}${row.minimumAmount}` : "-"}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {row.startTime ? dayjs(row.startTime).format("DD MMM YYYY") : "—"}
+                    {row.startTime ? dayjs(row.startTime).format("DD MMM YYYY") : "-"}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {row.endTime ? dayjs(row.endTime).format("DD MMM YYYY") : "—"}
+                    {row.endTime ? dayjs(row.endTime).format("DD MMM YYYY") : "-"}
                   </TableCell>
                   <TableCell>
                     <button onClick={() => toggle(row)}>

@@ -5,13 +5,13 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
  * Controlled table pagination.
  *
  * Replaces Windmill's `<Pagination>`, which keeps the active page in its own state. That is
- * fine while it stays mounted — but every one of these tables swaps itself for a skeleton
+ * fine while it stays mounted - but every one of these tables swaps itself for a skeleton
  * while loading, so changing page unmounted the widget and it came back believing it was on
  * page 1. The second click then asked for the page the parent was already on, nothing changed,
  * and paging appeared to be broken.
  *
  * Here the page is a prop. The component has no memory to get out of step with, so it also
- * follows correctly when something else resets the page — applying a filter, or a search.
+ * follows correctly when something else resets the page - applying a filter, or a search.
  */
 const TablePagination = ({ page = 1, totalDoc = 0, limit = 10, onChange }) => {
   const totalPages = Math.max(1, Math.ceil(totalDoc / limit));

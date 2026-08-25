@@ -34,7 +34,7 @@ const Home = ({ popularProducts, categories, attributes }) => {
     <Layout>
       <Hero categories={cats} />
 
-      {/* Value props — `relative z-10` is what keeps these on top: the cards are pulled onto
+      {/* Value props - `relative z-10` is what keeps these on top: the cards are pulled onto
           the hero with -mt-8, and the hero is positioned, so a static section here would be
           painted underneath it and lose its titles behind the green. */}
       <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
@@ -57,7 +57,7 @@ const Home = ({ popularProducts, categories, attributes }) => {
         </div>
       </section>
 
-      {/* Categories — one scrollable row with arrow controls */}
+      {/* Categories - one scrollable row with arrow controls */}
       <CategoryRail categories={cats} />
 
       {/* Offers. Renders nothing at all when there is no active offer, so the home page has

@@ -27,7 +27,7 @@ import java.util.Base64;
  * signing key never leaves this server; anything that only needs to <em>verify</em> a
  * token (a gateway, a future mobile BFF, another service) needs the public key alone, and
  * a leaked public key is harmless. An HS256 shared secret, by contrast, is enough to
- * <em>forge</em> tokens, so it must be distributed to every verifier — a far larger blast
+ * <em>forge</em> tokens, so it must be distributed to every verifier - a far larger blast
  * radius. The {@code kid} header lets us publish several verification keys at once and
  * rotate the signing key without downtime.
  *
@@ -78,7 +78,7 @@ public class JwtKeyProvider {
                     + "and JWT_PUBLIC_KEY (PEM). Ephemeral keys are permitted only in the "
                     + "local/test profiles.");
         }
-        log.warn("No JWT key configured — generating an EPHEMERAL RS256 key pair. Tokens will "
+        log.warn("No JWT key configured - generating an EPHEMERAL RS256 key pair. Tokens will "
                 + "not survive a restart. Never rely on this outside local/test.");
         return generateEphemeralKey(props.keyId());
     }

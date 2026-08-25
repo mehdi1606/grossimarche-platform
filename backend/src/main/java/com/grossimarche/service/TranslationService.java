@@ -35,8 +35,8 @@ public class TranslationService {
     /**
      * Scripts we can verify an answer against. LibreTranslate has no direct fr->ar model and
      * pivots through English; when the second leg does not run, it returns the English
-     * intermediate. That is not a failure it reports — the text simply comes back in the wrong
-     * language — so for languages with their own script we check the output actually uses it.
+     * intermediate. That is not a failure it reports - the text simply comes back in the wrong
+     * language - so for languages with their own script we check the output actually uses it.
      */
     private static final Map<String, Character.UnicodeScript> TARGET_SCRIPT = Map.of(
             "ar", Character.UnicodeScript.ARABIC,
@@ -105,7 +105,7 @@ public class TranslationService {
                 // Only cache genuine translations. An identical output usually means the
                 // target model wasn't reached; an output in the wrong script means the pivot
                 // stopped at English. Neither is frozen in the cache, so both are retried
-                // later — once the model finishes loading, the answer corrects itself.
+                // later - once the model finishes loading, the answer corrects itself.
                 boolean genuine = ok && tr != null && !tr.equals(src) && inTargetScript(tr, target);
                 result[idx] = genuine ? tr : src;
                 if (genuine) {

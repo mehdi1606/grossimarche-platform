@@ -5,7 +5,7 @@ import requests from "./httpService";
  *
  * A submitted review starts unapproved and stays invisible in the storefront until someone
  * approves it here. The backend has had these endpoints all along; without a screen calling
- * them, every review a customer wrote was stuck pending forever — which looked, from the
+ * them, every review a customer wrote was stuck pending forever - which looked, from the
  * shop side, exactly like reviews not working.
  */
 const ReviewServices = {

@@ -9,7 +9,7 @@ class MyDocument extends Document {
     const setting = await SettingServices.getStoreSeoSetting();
 
     // Carry the routed locale into the markup so the first paint is already announced in the
-    // right language and direction — TranslationContext only corrects it after hydration.
+    // right language and direction - TranslationContext only corrects it after hydration.
     return { ...initialProps, setting, locale: ctx?.locale || "fr" };
   }
 
@@ -37,7 +37,7 @@ class MyDocument extends Document {
             property="og:title"
             content={
               setting?.meta_title ||
-              "Grossimarché — Marché de gros en ligne au Maroc"
+              "Grossimarché - Marché de gros en ligne au Maroc"
             }
           />
           <meta property="og:type" content="eCommerce Website" />

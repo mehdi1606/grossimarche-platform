@@ -104,7 +104,7 @@ public class ProductService {
         Specification<Product> spec = specs.stream().reduce(Specification::and).orElse(null);
 
         Page<Product> page = productRepository.findAll(spec, pageable);
-        // The tiers themselves, for the whole page, in one query — the storefront prices the
+        // The tiers themselves, for the whole page, in one query - the storefront prices the
         // cart from these, so a boolean would not be enough (and one query per row would be
         // an N+1 on every grid).
         Map<UUID, List<PriceTierResponse>> tiersByProduct = page.hasContent()
@@ -151,7 +151,7 @@ public class ProductService {
     }
 
     /** Back-office detail: resolves by id regardless of the active flag (so hidden products
-     *  remain editable and re-activatable). Not cached — admin edits must see fresh state. */
+     *  remain editable and re-activatable). Not cached - admin edits must see fresh state. */
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional(readOnly = true)
     public ProductDetailResponse adminGetDetail(UUID id) {

@@ -8,7 +8,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 
 /**
- * Background execution for work that must not hold a request open — today, sending e-mail.
+ * Background execution for work that must not hold a request open - today, sending e-mail.
  *
  * The pool is deliberately small and its queue bounded: an SMTP relay is slow and rate-limited,
  * so more threads would only queue at the relay instead of here, and an unbounded queue would

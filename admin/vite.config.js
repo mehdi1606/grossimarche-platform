@@ -46,7 +46,7 @@ export default defineConfig({
   define: {
     "process.env": process.env,
     // sockjs-client (STOMP transport for the live notification feed) expects the Node
-    // `global`, which does not exist in the browser — map it to globalThis.
+    // `global`, which does not exist in the browser - map it to globalThis.
     global: "globalThis",
   },
 

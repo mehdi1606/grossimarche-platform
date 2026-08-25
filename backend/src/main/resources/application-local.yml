@@ -1,5 +1,5 @@
 # Local development profile. Points at the docker-compose Postgres and Redis.
-# Credentials are hardcoded here (and mirrored in docker-compose.yml) — they are
+# Credentials are hardcoded here (and mirrored in docker-compose.yml) - they are
 # non-secret local dev values, and pinning them avoids any env-var mismatch between the
 # app and the container. Ports are offset from the usual 5432/6379 to avoid clashes.
 spring:

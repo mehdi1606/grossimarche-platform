@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * The single catalogue of business error codes. Every thrown {@link BusinessException}
- * references one of these — never an ad-hoc string at the throw site. Each code carries
+ * references one of these - never an ad-hoc string at the throw site. Each code carries
  * its HTTP status and a default French message shown to the end user.
  */
 public enum ErrorCode {

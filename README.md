@@ -1,4 +1,4 @@
-# Grossimarché — full platform (one command)
+# Grossimarché - full platform (one command)
 
 Backend + storefront + back-office behind a single nginx gateway.
 
@@ -53,7 +53,7 @@ In the demo (`local` profile) the code is **printed to the backend log**:
 docker compose logs -f backend | grep "code="
 ```
 
-- **Storefront**: any phone/email works — first verify creates a `CLIENT` account.
+- **Storefront**: any phone/email works - first verify creates a `CLIENT` account.
 - **Back-office**: only `ADMIN` / `STORE_MANAGER` accounts get in. Promote a user once:
 
 ```bash
@@ -66,13 +66,13 @@ from the back-office afterwards.)
 
 ## What each service does
 
-- **backend** — the Grossimarché REST API. Runs the `local` profile here: ephemeral JWT key,
+- **backend** - the Grossimarché REST API. Runs the `local` profile here: ephemeral JWT key,
   Flyway seed data (24 products, 2 demo coupons `BIENVENUE10` / `GROSSI50`), OTP codes to the log.
-- **store** — Next.js storefront. The browser calls `/api/v1` same-origin through the gateway;
+- **store** - Next.js storefront. The browser calls `/api/v1` same-origin through the gateway;
   server-side rendering + NextAuth call the backend directly at `http://backend:8080` on the
   private network (`INTERNAL_API_URL`). COD-only checkout; coupons; product reviews.
-- **admin** — Vite SPA built with `--base=/admin/`, served static by nginx under `/admin/`.
-- **proxy** — the only container with a published port. Routes by URL; adds WebSocket upgrade.
+- **admin** - Vite SPA built with `--base=/admin/`, served static by nginx under `/admin/`.
+- **proxy** - the only container with a published port. Routes by URL; adds WebSocket upgrade.
 
 ## Going to real production
 
@@ -82,4 +82,4 @@ The demo runs the backend `local` profile for convenience. For production:
    (`JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, DB creds, `OTP_PROVIDER=live` + provider keys).
 2. Set a strong `NEXTAUTH_SECRET` and a real `PUBLIC_ORIGIN` (your domain).
 3. Terminate TLS at the proxy (add a 443 server block + certificates; e.g. Let's Encrypt).
-4. Keep Postgres/Redis on the private network (already the case — no published ports).
+4. Keep Postgres/Redis on the private network (already the case - no published ports).

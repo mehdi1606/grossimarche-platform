@@ -5,7 +5,7 @@ import { accessListForRole } from "@/utils/access";
 
 // Back-office access is role-based. The signed-in user's role (ADMIN | STORE_MANAGER) comes
 // from the OTP login (stored on adminInfo.role); the set of reachable routes is derived from
-// utils/access.js — there is no per-user encrypted access list anymore.
+// utils/access.js - there is no per-user encrypted access list anymore.
 const useGetCData = () => {
   const { state } = useContext(AdminContext);
   const { adminInfo } = state;

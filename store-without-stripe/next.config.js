@@ -18,12 +18,12 @@ module.exports = withPWA({
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  // Locale *routing* only — there are no message catalogues behind these. Content is
+  // Locale *routing* only - there are no message catalogues behind these. Content is
   // authored in French and machine-translated at runtime through the backend's
   // LibreTranslate endpoint (see src/context/TranslationContext.js), so adding a language
   // here is the whole job: no locales/<lang>/common.json to write or keep in sync.
   //
-  // These used to be declared twice — once here as ["en","es","fr","de"] with an English
+  // These used to be declared twice - once here as ["en","es","fr","de"] with an English
   // default, and again in i18n.json, whose values silently won because next-translate's
   // plugin was spread in last.
   i18n: {

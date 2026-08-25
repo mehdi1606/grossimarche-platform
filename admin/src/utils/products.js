@@ -4921,7 +4921,7 @@ const products = [
     children: 'Chips & Nuts',
     createdAt: '2021-12-22T16:41:23.198Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image: 'https://i.postimg.cc/SKg2X2YM/Lays-Classic-Salted-25g.jpg',
     originalPrice: 11,
     parent: 'Snacks & Instant',
@@ -4943,7 +4943,7 @@ const products = [
     children: 'Chips & Nuts',
     createdAt: '2021-12-22T16:41:23.198Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image:
       'https://i.postimg.cc/3xHDzHHd/Lays-American-Style-Cream-And-Onion-Chips-25g.jpg',
     originalPrice: 9,
@@ -4966,7 +4966,7 @@ const products = [
     children: 'Chips & Nuts',
     createdAt: '2021-12-22T16:41:23.198Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image: 'https://i.postimg.cc/ZKNdf52G/Kurkure-Chilli-Chatka-Crackers.jpg',
     originalPrice: 10,
     parent: 'Snacks & Instant',
@@ -4988,7 +4988,7 @@ const products = [
     children: 'Chips & Nuts',
     createdAt: '2021-12-22T16:41:23.198Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image: 'https://i.postimg.cc/pV4jYFGQ/Camel-Smoked-Almonds-40g.jpg',
     originalPrice: 12,
     parent: 'Snacks & Instant',
@@ -5010,7 +5010,7 @@ const products = [
     children: 'Chips & Nuts',
     createdAt: '2021-12-22T16:41:23.197Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image:
       'https://i.postimg.cc/RhknMk6p/Blue-Diamond-Almonds-Smokehouse-43g.jpg',
     originalPrice: 10,
@@ -5033,7 +5033,7 @@ const products = [
     children: 'Chocolate',
     createdAt: '2021-12-22T16:41:23.197Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image: 'https://i.postimg.cc/cLg8bMC4/M-M-Choco-Chocolate-45gm.jpg',
     originalPrice: 9,
     parent: 'Snacks & Instant',
@@ -5055,7 +5055,7 @@ const products = [
     children: 'Chocolate',
     createdAt: '2021-12-22T16:41:23.197Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image: 'https://i.postimg.cc/Y0rWn5GJ/Lotte-Almond-Chocoball-46g.jpg',
     originalPrice: 13,
     parent: 'Snacks & Instant',
@@ -5077,7 +5077,7 @@ const products = [
     children: 'Chocolate',
     createdAt: '2021-12-22T16:41:23.196Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image:
       'https://i.postimg.cc/ydXRT1dm/Foxs-Crystal-Clear-Passiar-Mints-180g.jpg',
     originalPrice: 10,
@@ -5100,7 +5100,7 @@ const products = [
     children: 'Chocolate',
     createdAt: '2021-12-22T16:41:23.196Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image:
       'https://i.postimg.cc/j2MJGMyC/CHIKO-Assorted-Chocolate-Box-200g.jpg',
     originalPrice: 11,
@@ -5123,7 +5123,7 @@ const products = [
     children: 'Chocolate',
     createdAt: '2021-12-22T16:41:23.196Z',
     description:
-      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip — see also corn chip.',
+      'a small usually thin and flat piece (as of wood or stone) cut, struck, or flaked off. b : a small piece of food: such as. (1) : a small, thin, crisp, usually salty piece of food typically prepared by frying, baking, or drying banana chips especially : potato chip - see also corn chip.',
     image:
       'https://i.postimg.cc/VkpXfZpC/Alpenliebe-Smooth-Caramel-Candy-225g.jpg',
     originalPrice: 10,

@@ -13,7 +13,7 @@ import SelectRole from "@/components/form/selectOption/SelectRole";
 import DrawerButton from "@/components/form/button/DrawerButton";
 import LabelArea from "@/components/form/selectOption/LabelArea";
 
-// Name, e-mail and role — no password field. The server generates the password and e-mails
+// Name, e-mail and role - no password field. The server generates the password and e-mails
 // it, so an admin never sets (or sees) another person's credentials. Access to the various
 // panels is decided by the role, not a per-user route list.
 const StaffDrawer = ({ id }) => {
@@ -28,7 +28,7 @@ const StaffDrawer = ({ id }) => {
   } = useStaffSubmit(id);
   const { t } = useTranslation();
 
-  // Only reached when the invitation e-mail could not be sent. Shown once — the password is
+  // Only reached when the invitation e-mail could not be sent. Shown once - the password is
   // stored as a hash and cannot be retrieved again.
   if (credentials) {
     return (
@@ -37,7 +37,7 @@ const StaffDrawer = ({ id }) => {
           <FiAlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div>
             <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              Compte créé — e-mail non envoyé
+              Compte créé - e-mail non envoyé
             </p>
             <p className="mt-1 text-sm text-amber-800 dark:text-amber-300/90">
               L'envoi d'e-mails n'est pas configuré sur ce serveur. Notez ces

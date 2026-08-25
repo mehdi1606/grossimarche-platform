@@ -35,7 +35,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Page<User> findByRoleInOrderByCreatedAtDesc(Collection<Role> roles, Pageable pageable);
 
     /**
-     * Reachable e-mail addresses for a set of roles — the recipients of an offer announcement
+     * Reachable e-mail addresses for a set of roles - the recipients of an offer announcement
      * or of a back-office alert. Blocked accounts and accounts without an e-mail are excluded
      * at the query, so no caller has to remember to filter them.
      */

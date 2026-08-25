@@ -3,7 +3,7 @@
 Base path `/api/v1` · Auth `Authorization: Bearer <access_token>` · Roles `CLIENT`,
 `STORE_MANAGER`, `ADMIN`. Every error uses the uniform `ApiError` shape with an
 `ErrorCode` and a `traceId`. The full machine-readable contract is `openapi.json`
-(generated from the running app — see below); this file is the human summary.
+(generated from the running app - see below); this file is the human summary.
 
 ## Auth (public)
 | Method | Path | Purpose |
@@ -27,7 +27,7 @@ Base path `/api/v1` · Auth `Authorization: Bearer <access_token>` · Roles `CLI
 `POST /orders` (header `Idempotency-Key`) · `GET /orders` · `GET /orders/{id}` · `GET /orders/{id}/invoice`
 
 ## Coupons
-`POST /coupons/validate` — check a code against the caller's current cart (200 with
+`POST /coupons/validate` - check a code against the caller's current cart (200 with
 `valid:true|false`, no order created). Pass `couponCode` in `POST /orders` to apply it;
 the discount is re-validated and snapshotted server-side, and freed if the order is cancelled.
 
@@ -35,14 +35,14 @@ the discount is re-validated and snapshotted server-side, and freed if the order
 `GET /loyalty` · `GET /loyalty/transactions` · `GET /stores?lat=&lng=`
 
 ## Payments (gateway)
-`POST /payments/cmi/callback` — signed webhook, idempotent, stores zero card data.
+`POST /payments/cmi/callback` - signed webhook, idempotent, stores zero card data.
 
 ## Admin (`/admin/**`, ADMIN or STORE_MANAGER)
 Categories, products (CRUD, `/stock`, `/tiers`, `/attributes`, `/image`, `/import`), stores,
 orders (`/status`, `/cancel`), loyalty `/{userId}/adjust`, coupons (CRUD),
 reviews (list, `/{id}/approve`, delete). Also `dashboard` (`/summary`, `/sales`,
 `/best-sellers`, `/recent-orders`), `customers` (list/search, `/{id}`, `/{id}/status`),
-and `staff` (CRUD; ADMIN only — accounts sign in by OTP, no passwords).
+and `staff` (CRUD; ADMIN only - accounts sign in by OTP, no passwords).
 
 ## WebSocket
 `/ws` (STOMP, SockJS). Topics: `/topic/orders/{orderId}` (own order), `/topic/admin/orders`

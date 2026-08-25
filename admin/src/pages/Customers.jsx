@@ -52,7 +52,7 @@ const Customers = () => {
     return () => clearTimeout(id);
   }, [search]);
 
-  // Same control styling as the products list — a plain input, because the Windmill Input
+  // Same control styling as the products list - a plain input, because the Windmill Input
   // theme base forces h-12/px-3/bg-gray-100 and overrides any utility passed in className.
   const controlCls =
     "w-full h-11 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:hover:border-gray-500";
@@ -81,7 +81,7 @@ const Customers = () => {
         <PageTitle>Customers</PageTitle>
       </div>
 
-      {/* filters — same control as the products list */}
+      {/* filters - same control as the products list */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row">
         <form
           className="relative flex-1"
@@ -147,7 +147,7 @@ const Customers = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{row.email || "—"}</div>
+                    <div className="text-sm">{row.email || "-"}</div>
                     <div className="text-xs text-gray-400">{row.phone || ""}</div>
                   </TableCell>
                   <TableCell>{row.orderCount}</TableCell>
@@ -213,8 +213,8 @@ const Customers = () => {
         {detail && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <Info label="Email" value={detail.email || "—"} />
-              <Info label="Phone" value={detail.phone || "—"} />
+              <Info label="Email" value={detail.email || "-"} />
+              <Info label="Phone" value={detail.phone || "-"} />
               <Info label="Orders" value={detail.orderCount} />
               <Info
                 label="Total spent"
@@ -222,12 +222,12 @@ const Customers = () => {
               />
               <Info
                 label="Joined"
-                value={detail.createdAt ? dayjs(detail.createdAt).format("DD MMM YYYY") : "—"}
+                value={detail.createdAt ? dayjs(detail.createdAt).format("DD MMM YYYY") : "-"}
               />
               <Info label="Status" value={detail.status} />
             </div>
             <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-400 dark:bg-gray-700/40">
-              Customer accounts can be blocked but not deleted — account erasure is handled
+              Customer accounts can be blocked but not deleted - account erasure is handled
               under the right-to-erasure process (loi 09-08).
             </p>
           </div>

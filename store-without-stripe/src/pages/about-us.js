@@ -26,7 +26,7 @@ const VALUES = [
   {
     Icon: FiCreditCard,
     title: "En toute confiance",
-    text: "Payez à la livraison — commandez sans engagement de paiement en ligne.",
+    text: "Payez à la livraison - commandez sans engagement de paiement en ligne.",
   },
   {
     Icon: FiUsers,
@@ -46,13 +46,13 @@ const AboutUs = () => {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-emerald-50">
             Grossimarché est le marché de gros en ligne du Maroc. Nous simplifions l'achat en
-            gros pour les commerçants, restaurateurs et professionnels — au meilleur prix, avec
+            gros pour les commerçants, restaurateurs et professionnels - au meilleur prix, avec
             une livraison fiable et le paiement à la livraison.
           </p>
         </div>
       </section>
 
-      {/* Stats — same overlap as the home page: `relative z-10` keeps the cards above the
+      {/* Stats - same overlap as the home page: `relative z-10` keeps the cards above the
           positioned hero they are pulled onto with -mt-8. */}
       <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
         <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">

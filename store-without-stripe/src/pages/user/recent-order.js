@@ -12,7 +12,7 @@ import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
 /**
  * The dashboard's recent-orders block.
  *
- * Deliberately short — three cards and a link to the full history. Pagination belongs on
+ * Deliberately short - three cards and a link to the full history. Pagination belongs on
  * /user/my-orders, not on a dashboard summary that also shows four counters above it.
  */
 const RecentOrder = ({ data, loading, error }) => {

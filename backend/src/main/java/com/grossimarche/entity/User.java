@@ -62,7 +62,7 @@ public class User extends AuditableEntity {
 
     /**
      * BCrypt hash, or {@code null} for an account that cannot sign in with a password.
-     * Customers are always null — the storefront is passwordless (OTP) and stays that way;
+     * Customers are always null - the storefront is passwordless (OTP) and stays that way;
      * this exists for back-office accounts, which sign in with e-mail + password.
      */
     @Column(name = "password_hash", length = 100)

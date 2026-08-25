@@ -14,13 +14,13 @@ import Cookies from "js-cookie";
 import TranslationServices from "@services/TranslationServices";
 
 /**
- * Storefront translation engine — machine translation instead of locale files.
+ * Storefront translation engine - machine translation instead of locale files.
  *
  * Everything the visitor reads is authored once, in French, in the code and in the database.
  * There are no `locales/*.json` catalogues to keep in sync: dynamic values *and* static UI
  * strings are translated on demand through the backend's LibreTranslate endpoint, which caches
  * every result in Redis. That is why adding a language is a configuration change here rather
- * than a translation project — and why a string that is never shown is never paid for.
+ * than a translation project - and why a string that is never shown is never paid for.
  *
  * Three layers of cache keep it cheap:
  *   1. an in-memory map, so a string is looked up once per session;
@@ -28,7 +28,7 @@ import TranslationServices from "@services/TranslationServices";
  *   3. Redis on the backend, shared by every visitor.
  *
  * While a translation is in flight the French text stays on screen and is swapped when the
- * batch resolves — never a blank or a raw key.
+ * batch resolves - never a blank or a raw key.
  */
 const TranslationContext = createContext(null);
 
@@ -39,7 +39,7 @@ const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);
 
 // LibreTranslate pivots (fr -> en -> ar), which costs real time: measured at roughly 0.4s per
 // string. A chunk of 40 therefore takes ~16s, and several of those in parallel queue up behind
-// each other inside LibreTranslate until they pass the backend's 30s read timeout — at which
+// each other inside LibreTranslate until they pass the backend's 30s read timeout - at which
 // point the backend gives up and returns the French unchanged. Small chunks, sent one after
 // the other, keep every request comfortably inside that budget.
 const CHUNK_SIZE = 12;
@@ -74,7 +74,7 @@ const writePersisted = (locale, entries) => {
         : entries;
     window.localStorage.setItem(storageKey(locale), JSON.stringify(trimmed));
   } catch {
-    // Quota or private mode — the in-memory cache still works for this session.
+    // Quota or private mode - the in-memory cache still works for this session.
   }
 };
 
@@ -134,11 +134,11 @@ export const TranslationProvider = ({ children }) => {
    * Translate a list of French strings, resolving to a `{ source: translated }` map.
    *
    * Safe to call with anything: cached strings resolve immediately, in-flight strings share
-   * the existing request, and a failure resolves to the source text rather than rejecting —
+   * the existing request, and a failure resolves to the source text rather than rejecting -
    * the store must stay readable when LibreTranslate is down or still loading its models.
    *
    * Chunks are sent **sequentially**. Firing them in parallel does not make LibreTranslate
-   * any faster — it translates one batch at a time — it only makes the later requests wait in
+   * any faster - it translates one batch at a time - it only makes the later requests wait in
    * its queue until they exceed the backend's read timeout and come back untranslated.
    */
   const translateBatch = useCallback(
@@ -162,7 +162,7 @@ export const TranslationProvider = ({ children }) => {
           const out = res?.translatedText || [];
           // Cache only genuine translations. The backend answers best-effort: when
           // LibreTranslate times out or has not loaded the target model, it returns the
-          // source text unchanged. Storing that would pin the French permanently — the bug
+          // source text unchanged. Storing that would pin the French permanently - the bug
           // that made the Arabic switch look like it did nothing at all. Leaving a no-op
           // uncached costs one retry on the next pass and fixes itself once the model warms.
           commit(
@@ -183,7 +183,7 @@ export const TranslationProvider = ({ children }) => {
       }
 
       // One promise per chunk, registered up front so a concurrent caller asking for the same
-      // string waits on it rather than requesting it again — but awaited in series.
+      // string waits on it rather than requesting it again - but awaited in series.
       const queue = chunks.reduce(
         (previous, chunk) => previous.then(() => sendChunk(chunk)),
         Promise.resolve()
@@ -248,7 +248,7 @@ export const TranslationProvider = ({ children }) => {
       locale,
       isSource,
       isRTL: RTL_LOCALES.has(locale),
-      // `t` takes the French string itself — there is no key to look up.
+      // `t` takes the French string itself - there is no key to look up.
       t: lookup,
       translateValue,
       translateBatch,

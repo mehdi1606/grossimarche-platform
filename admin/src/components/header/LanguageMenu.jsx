@@ -8,7 +8,7 @@ import useUtilsFunction from "@/hooks/useUtilsFunction";
 /**
  * Header language switcher. Replaces the old CSS hover dropdown, which had a hardcoded
  * white panel (no dark mode), square corners and flags pulled from a third-party sprite on
- * raw.githubusercontent.com — an external asset that often failed to load, leaving blank
+ * raw.githubusercontent.com - an external asset that often failed to load, leaving blank
  * rows. Here the ISO code stands in for the flag: it always renders and needs no network.
  *
  * Same panel styling as FilterDropdown: click to open, closes on outside click or Escape.

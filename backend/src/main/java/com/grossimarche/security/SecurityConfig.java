@@ -21,7 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * Spring Security 7 configuration (SecurityFilterChain bean style — the old
+ * Spring Security 7 configuration (SecurityFilterChain bean style - the old
  * WebSecurityConfigurerAdapter does not exist). The API is stateless and cookie-free:
  * every request authenticates with a bearer JWT via {@link JwtAuthenticationFilter}.
  */
@@ -119,7 +119,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /** BCrypt encoder used to hash OTP codes (not user passwords — there are none). */
+    /** BCrypt encoder used to hash OTP codes (not user passwords - there are none). */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -128,7 +128,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Explicit allowlist from env — never "*" in production.
+        // Explicit allowlist from env - never "*" in production.
         config.setAllowedOrigins(appProperties.cors().allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

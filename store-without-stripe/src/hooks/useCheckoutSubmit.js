@@ -23,7 +23,7 @@ import useBundles from "./useBundles";
 // shown here mirror the backend rules (flat delivery fee, waived above the free threshold)
 // so the estimate matches the confirmed order.
 //
-// The delivery rules themselves live in @utils/delivery, shared with the cart drawer — the
+// The delivery rules themselves live in @utils/delivery, shared with the cart drawer - the
 // two used to keep their own copies of the threshold and could quietly disagree.
 
 const useCheckoutSubmit = () => {
@@ -139,7 +139,7 @@ const useCheckoutSubmit = () => {
     label: "Livraison",
     city: data.city,
     // Just the street line now. The country was always Morocco and the postcode was never
-    // read by anything — delivery is priced from the city alone — so stitching them in only
+    // read by anything - delivery is priced from the city alone - so stitching them in only
     // produced addresses like "rue X, , " when they were left blank.
     addressLine: (data.address || "").trim().slice(0, 255),
     isDefault: true,
@@ -168,7 +168,7 @@ const useCheckoutSubmit = () => {
       setError("");
 
       // A delivery address is required. If the shopper has none saved, guide them into the
-      // modal instead of failing — no re-entry when an address already exists.
+      // modal instead of failing - no re-entry when an address already exists.
       const addressId = selectedAddressId || selectedAddress?.id;
       if (!addressId) {
         setAddressModalOpen(true);

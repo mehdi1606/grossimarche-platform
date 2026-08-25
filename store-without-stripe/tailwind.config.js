@@ -7,7 +7,7 @@
  * 1. `emerald` is *redefined* rather than supplemented. Hundreds of existing class names
  *    already say `emerald-500`; remapping the scale to a deep, desaturated forest green
  *    upgrades every one of them at once instead of leaving two greens fighting.
- * 2. `font-serif` is a legacy alias kept on the body sans on purpose — it is applied to
+ * 2. `font-serif` is a legacy alias kept on the body sans on purpose - it is applied to
  *    buttons and 10px labels all over the codebase, where a display serif would look wrong.
  *    Real editorial headings opt in with `font-display`.
  */
@@ -21,7 +21,7 @@ module.exports = {
   theme: {
     fontFamily: {
       sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-      // Legacy alias — see the note above. Not an actual serif.
+      // Legacy alias - see the note above. Not an actual serif.
       serif: ["Inter", "system-ui", "sans-serif"],
       display: ["Fraunces", "Georgia", "Cambria", "serif"],
       DejaVu: ["DejaVu Sans", "Arial", "sans-serif"],
@@ -80,7 +80,7 @@ module.exports = {
         "3xl": "1.5rem",
       },
       boxShadow: {
-        // Soft, wide and low-opacity — the "expensive" shadow. Never a hard drop shadow.
+        // Soft, wide and low-opacity - the "expensive" shadow. Never a hard drop shadow.
         luxe: "0 1px 2px rgba(21,21,15,0.04), 0 8px 24px -12px rgba(21,21,15,0.12)",
         "luxe-lg": "0 2px 4px rgba(21,21,15,0.04), 0 24px 48px -20px rgba(21,21,15,0.18)",
         inset: "inset 0 0 0 1px rgba(21,21,15,0.06)",

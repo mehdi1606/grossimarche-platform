@@ -74,7 +74,7 @@ const OrderTimeline = ({ status, timeline = [] }) => {
 
         return (
           <li key={step} className="relative flex gap-4 pb-6 last:pb-0">
-            {/* Connector — drawn behind the marker, and only between steps. */}
+            {/* Connector - drawn behind the marker, and only between steps. */}
             {!last && (
               <span
                 aria-hidden="true"

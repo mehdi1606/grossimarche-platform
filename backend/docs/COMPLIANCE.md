@@ -1,4 +1,4 @@
-# Conformité — loi 09-08 / CNDP (Maroc)
+# Conformité - loi 09-08 / CNDP (Maroc)
 
 Base documentaire pour la déclaration CNDP du traitement de données personnelles de
 Grossimarché. Ce document décrit **quelles** données sont collectées, **pourquoi**, **où**
@@ -35,14 +35,14 @@ connexion réussie). Une nouvelle version de politique invalide le consentement 
 | Commandes | conservation légale comptable (10 ans) | non purgées |
 | Compte inactif | anonymisation sur demande ou politique | `DELETE /me` |
 
-## 4. Droits des personnes — endpoints
+## 4. Droits des personnes - endpoints
 
 | Droit | Endpoint |
 |---|---|
-| Accès (portabilité) | `GET /api/v1/me/export` — export JSON complet |
+| Accès (portabilité) | `GET /api/v1/me/export` - export JSON complet |
 | Rectification (profil) | `PATCH /api/v1/me` |
 | Rectification (téléphone/e-mail) | `POST /api/v1/me/contact/request` puis `/contact/verify` (nouvelle vérification OTP obligatoire) |
-| Effacement | `DELETE /api/v1/me` — anonymisation : identifiants supprimés/remplacés, statut `DELETED`, adresses et panier supprimés ; les commandes sont conservées pour la comptabilité, dissociées des identifiants personnels |
+| Effacement | `DELETE /api/v1/me` - anonymisation : identifiants supprimés/remplacés, statut `DELETED`, adresses et panier supprimés ; les commandes sont conservées pour la comptabilité, dissociées des identifiants personnels |
 
 ## 5. Sécurité (résumé)
 

@@ -1,5 +1,5 @@
 // Homepage LAYOUT content (hero, banners, section order, SEO copy) is presentation and stays
-// in local config (src/config/home.js) — there is no CMS backend for it. Everything that IS
+// in local config (src/config/home.js) - there is no CMS backend for it. Everything that IS
 // backed by the API is fetched live: the language list comes from /languages and the active
 // currency from /currencies/default.
 import requests from "./httpServices";

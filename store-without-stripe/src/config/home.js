@@ -20,7 +20,7 @@ export const globalSetting = {
   email: "contact@grossimarche.ma",
   from_email: "no-reply@grossimarche.ma",
   email_to_customer: true,
-  meta_title: "Grossimarché — Vente en gros",
+  meta_title: "Grossimarché - Vente en gros",
   meta_url: "https://grossimarche.ma",
 };
 

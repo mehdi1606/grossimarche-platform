@@ -36,7 +36,7 @@ const Stars = ({ value = 0 }) => {
  * A customer's review is saved unapproved and stays invisible in the shop until it is approved
  * here. The API for this existed from the start; nothing in the back-office ever called it, so
  * every review ever written sat pending and the storefront always showed "soyez le premier à
- * donner votre avis" — the feature looked broken when it was only unattended.
+ * donner votre avis" - the feature looked broken when it was only unattended.
  *
  * Pending reviews lead, because they are the ones costing something by sitting there.
  */
@@ -164,7 +164,7 @@ const Reviews = () => {
                 <TableRow key={row.id}>
                   <TableCell>
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {row.productName || "—"}
+                      {row.productName || "-"}
                     </span>
                     {!row.approved && (
                       <Badge type="warning" className="ml-2">
@@ -189,7 +189,7 @@ const Reviews = () => {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-gray-400">
-                      {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY") : "—"}
+                      {row.createdAt ? dayjs(row.createdAt).format("DD MMM YYYY") : "-"}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">

@@ -95,8 +95,8 @@ public class AuthService {
     /**
      * Back-office sign-in with e-mail + password.
      *
-     * Only ADMIN / STORE_MANAGER accounts can authenticate this way. Every failure — unknown
-     * e-mail, customer account, no password set, wrong password — returns the *same* message,
+     * Only ADMIN / STORE_MANAGER accounts can authenticate this way. Every failure - unknown
+     * e-mail, customer account, no password set, wrong password - returns the *same* message,
      * so the endpoint cannot be used to discover which addresses have back-office accounts.
      */
     @Transactional

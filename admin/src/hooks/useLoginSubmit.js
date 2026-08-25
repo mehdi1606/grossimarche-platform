@@ -16,7 +16,7 @@ const STAFF_ROLES = ["ADMIN", "STORE_MANAGER"];
  *
  * Staff open the back-office many times a day, and a one-time code each time was friction
  * that bought no extra safety for an account already restricted by role. Customers are
- * unaffected — the storefront still signs in with a one-time code.
+ * unaffected - the storefront still signs in with a one-time code.
  *
  * The role is checked here as well as on the server: a CLIENT that somehow reached this
  * endpoint would 403 on every admin call anyway, and failing at the door gives a clear
