@@ -8,6 +8,7 @@ import AdminServices from "@/services/AdminServices";
 import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import cookieOptions from "@/utils/cookieOptions";
 
 // A staff member is a User with role ADMIN or STORE_MANAGER. The form is name, email, phone
 // and role — never a password: the server generates one, stores only its hash and e-mails it,
@@ -46,11 +47,7 @@ const useStaffSubmit = (id) => {
         if (isSameAdmin && res) {
           const updated = { ...adminInfo, role: res.role || adminInfo.role };
           dispatch({ type: "USER_LOGIN", payload: updated });
-          Cookies.set("adminInfo", JSON.stringify(updated), {
-            expires: 0.5,
-            sameSite: "None",
-            secure: true,
-          });
+          Cookies.set("adminInfo", JSON.stringify(updated), cookieOptions({ expires: 0.5 }));
         }
         setIsUpdate(true);
         notifySuccess("Staff Updated Successfully!");

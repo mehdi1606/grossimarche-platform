@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 //internal import
 import SettingServices from "@services/SettingServices";
+import cookieOptions from "@utils/cookieOptions";
 
 /**
  * Storefront language switcher, same shape as the back-office one: a globe button that opens
@@ -59,11 +60,8 @@ const LanguageMenu = () => {
   const pick = (language) => {
     setOpen(false);
     if (language.iso_code === router.locale) return;
-    Cookies.set("_lang", language.iso_code, { sameSite: "None", secure: true });
-    Cookies.set("_curr_lang", JSON.stringify(language), {
-      sameSite: "None",
-      secure: true,
-    });
+    Cookies.set("_lang", language.iso_code, cookieOptions());
+    Cookies.set("_curr_lang", JSON.stringify(language), cookieOptions());
     // Stay on the current page instead of bouncing to the home page.
     router.push(router.asPath, router.asPath, { locale: language.iso_code });
   };

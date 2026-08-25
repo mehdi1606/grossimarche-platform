@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { createContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import cookieOptions from "@/utils/cookieOptions";
 
 // create context
 export const SidebarContext = createContext();
@@ -72,16 +73,10 @@ export const SidebarProvider = ({ children }) => {
   const handleLanguageChange = (value) => {
     // console.log("handleChangeLang", value);
 
-    Cookies.set("i18next", value?.iso_code, {
-      sameSite: "None",
-      secure: true, // Include the "secure" attribute
-    });
+    Cookies.set("i18next", value?.iso_code, cookieOptions());
     i18n.changeLanguage(value?.iso_code);
     setLang(value?.iso_code);
-    Cookies.set("_currLang", JSON.stringify(value), {
-      sameSite: "None",
-      secure: true, // Include the "secure" attribute
-    });
+    Cookies.set("_currLang", JSON.stringify(value), cookieOptions());
     setCurrLang(value);
   };
 
@@ -120,10 +115,7 @@ export const SidebarProvider = ({ children }) => {
 
     // Set i18next language & update cookies **only when needed**
     if (!cookieLang || cookieLang !== selectedLang) {
-      Cookies.set("i18next", selectedLang, {
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("i18next", selectedLang, cookieOptions());
     }
 
     // Change i18n language **only if it differs**

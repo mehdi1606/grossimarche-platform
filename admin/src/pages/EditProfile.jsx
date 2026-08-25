@@ -7,6 +7,7 @@ import { AdminContext } from "@/context/AdminContext";
 import AdminServices from "@/services/AdminServices";
 import PageTitle from "@/components/Typography/PageTitle";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import cookieOptions from "@/utils/cookieOptions";
 
 const ROLE_LABEL = {
   ADMIN: "Administrator",
@@ -78,11 +79,7 @@ const EditProfile = () => {
       // Keep the header avatar and the session cookie in step with the new name.
       const next = { ...adminInfo, name: updated?.fullName || adminInfo?.name };
       dispatch({ type: "USER_LOGIN", payload: next });
-      Cookies.set("adminInfo", JSON.stringify(next), {
-        expires: 0.5,
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 0.5 }));
       notifySuccess("Profile updated.");
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
@@ -107,11 +104,7 @@ const EditProfile = () => {
       setProfile((p) => (p ? { ...p, mustChangePassword: false } : p));
       const next = { ...adminInfo, mustChangePassword: false };
       dispatch({ type: "USER_LOGIN", payload: next });
-      Cookies.set("adminInfo", JSON.stringify(next), {
-        expires: 0.5,
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 0.5 }));
       notifySuccess("Mot de passe mis à jour.");
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);

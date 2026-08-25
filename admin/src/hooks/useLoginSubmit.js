@@ -7,6 +7,7 @@ import { useHistory } from "react-router-dom";
 import { AdminContext } from "@/context/AdminContext";
 import AdminServices from "@/services/AdminServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import cookieOptions from "@/utils/cookieOptions";
 
 const STAFF_ROLES = ["ADMIN", "STORE_MANAGER"];
 
@@ -52,11 +53,7 @@ const useLoginSubmit = () => {
         mustChangePassword: !!user.mustChangePassword,
       };
       dispatch({ type: "USER_LOGIN", payload: adminInfo });
-      Cookies.set("adminInfo", JSON.stringify(adminInfo), {
-        expires: 0.5,
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("adminInfo", JSON.stringify(adminInfo), cookieOptions({ expires: 0.5 }));
 
       if (adminInfo.mustChangePassword) {
         notifySuccess("Connexion réussie. Choisissez un nouveau mot de passe.");

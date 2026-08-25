@@ -5,6 +5,7 @@ import React, { createContext, useEffect, useReducer } from "react";
 //internal imports
 import { setToken } from "@services/httpServices";
 import LoadingForSession from "@components/preloader/LoadingForSession";
+import cookieOptions from "@utils/cookieOptions";
 
 export const UserContext = createContext();
 
@@ -50,10 +51,7 @@ export const UserProvider = ({ children }) => {
       // Mirror the session into userInfo (cookie + state) so components that read
       // state.userInfo (navbar, dashboard) show the signed-in user.
       dispatch({ type: "USER_LOGIN", payload: session.user });
-      Cookies.set("userInfo", JSON.stringify(session.user), {
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("userInfo", JSON.stringify(session.user), cookieOptions());
     } else if (status === "unauthenticated") {
       setToken(null);
       dispatch({ type: "USER_LOGOUT" });

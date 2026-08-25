@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 //internal import
 import SettingServices from "@services/SettingServices";
 import { storeCustomization } from "@utils/storeCustomizationSetting";
+import cookieOptions from "@utils/cookieOptions";
 
 const useGetSetting = () => {
   const lang = Cookies.get("_lang");
@@ -41,10 +42,7 @@ const useGetSetting = () => {
     }
 
     if (!lang) {
-      Cookies.set("_lang", "en", {
-        sameSite: "None",
-        secure: true,
-      });
+      Cookies.set("_lang", "en", cookieOptions());
     }
   }, [data, isFetched, lang]);
 
