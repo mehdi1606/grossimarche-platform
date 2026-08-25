@@ -34,7 +34,7 @@ const MobileFooter = () => {
       <div className="flex h-full w-full flex-grow cursor-pointer flex-col justify-between overflow-y-scroll rounded bg-white align-middle scrollbar-hide">
         <CategoryDrawer className="h-6 w-6 drop-shadow-xl" />
       </div>
-      <footer className="fixed bottom-0 z-30 flex h-16 w-full items-center justify-between border-t border-emerald-800/40 bg-emerald-700 px-3 sm:px-10 lg:hidden">
+      <footer className="fixed bottom-0 z-30 flex h-16 w-full items-center justify-between border-t border-emerald-800/40 bg-emerald-700 px-3 pb-[env(safe-area-inset-bottom)] sm:px-10 lg:hidden">
         <button
           aria-label="Catégories"
           onClick={toggleCategoryDrawer}

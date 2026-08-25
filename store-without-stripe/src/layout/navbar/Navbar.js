@@ -61,6 +61,13 @@ const Navbar = () => {
       <div className="sticky top-0 z-20 bg-emerald-700">
         <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
           <div className="top-bar mx-auto flex h-16 items-center justify-between py-4 lg:h-auto">
+            {/* On a phone the bar was the search field and nothing else — no brand anywhere
+                above the fold. The monogram alone fits without crowding the field; the full
+                wordmark returns once there is room for it. */}
+            <BrandMark
+              withWordmark={false}
+              className="mr-3 shrink-0 lg:hidden"
+            />
             <BrandMark className="mr-3 hidden shrink-0 lg:mr-12 lg:flex xl:mr-12" />
 
             <div className="w-full transition-all duration-200 ease-in-out md:mx-12 lg:mx-4 lg:flex lg:max-w-[520px] xl:mx-0 xl:max-w-[750px] 2xl:max-w-[900px]">

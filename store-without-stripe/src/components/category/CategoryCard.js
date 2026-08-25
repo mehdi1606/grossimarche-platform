@@ -56,17 +56,17 @@ const CategoryCard = ({ title, icon, nested, id }) => {
     <>
       <a
         onClick={() => showCategory(id, title)}
-        className="p-2 flex items-center rounded-md hover:bg-gray-50 w-full hover:text-emerald-600"
+        className="flex min-h-[48px] w-full cursor-pointer items-center rounded-xl px-2.5 transition hover:bg-cream hover:text-emerald-700"
         role="button"
       >
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
           <CategoryIcon icon={icon} className="h-4 w-4" />
         </span>
 
-        <div className="inline-flex items-center justify-between ml-3 text-sm font-medium w-full hover:text-emerald-600">
+        <div className="ml-3 inline-flex w-full items-center justify-between text-sm font-medium text-ink-700">
           {title}
           {nested?.length > 0 && (
-            <span className="transition duration-700 ease-in-out inline-flex loading-none items-end text-gray-400">
+            <span className="inline-flex items-center text-ink-300 transition">
               {show ? <IoChevronDownOutline /> : <IoChevronForwardOutline />}
             </span>
           )}
@@ -84,17 +84,17 @@ const CategoryCard = ({ title, icon, nested, id }) => {
                       showingTranslateValue(children.name)
                     )
                   }
-                  className="flex items-center font-serif pr-2 text-sm text-gray-600 hover:text-emerald-600 py-1 cursor-pointer"
+                  className="flex min-h-[44px] cursor-pointer items-center pr-2 text-sm text-ink-600 transition hover:text-emerald-700"
                 >
                   <span className="text-xs text-gray-500">
                     <IoRemoveSharp />
                   </span>
 
-                  <div className="inline-flex items-center justify-between ml-3 text-sm font-medium w-full hover:text-emerald-600">
+                  <div className="ml-3 inline-flex w-full items-center justify-between text-sm font-medium">
                     {showingTranslateValue(children.name)}
 
                     {children.children.length > 0 ? (
-                      <span className="transition duration-700 ease-in-out inline-flex loading-none items-end text-gray-400">
+                      <span className="inline-flex items-center text-ink-300 transition">
                         {showSubCategory.id === children._id &&
                         showSubCategory.show ? (
                           <IoChevronDownOutline />
@@ -113,7 +113,7 @@ const CategoryCard = ({ title, icon, nested, id }) => {
                       showingTranslateValue(children.name)
                     )
                   }
-                  className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-emerald-600 cursor-pointer"
+                  className="flex min-h-[44px] cursor-pointer items-center text-sm text-ink-600 transition hover:text-emerald-700"
                 >
                   <span className="text-xs text-gray-500 pr-2">
                     <IoRemoveSharp />
@@ -135,7 +135,7 @@ const CategoryCard = ({ title, icon, nested, id }) => {
                             showingTranslateValue(subChildren?.name)
                           )
                         }
-                        className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-emerald-600 cursor-pointer"
+                        className="flex min-h-[44px] cursor-pointer items-center text-sm text-ink-600 transition hover:text-emerald-700"
                       >
                         <span className="text-xs text-gray-500 pr-2">
                           <IoRemoveSharp />
