@@ -29,7 +29,7 @@ spring:
       max-file-size: 5MB
       max-request-size: 6MB
   # Outbound SMTP, used when grossimarche.otp.provider=smtp. Credentials come from the
-  # environment only (see .env.example) — Gmail requires an App Password, never the
+  # environment only (see .env.example) - Gmail requires an App Password, never the
   # account password, and 2-Step Verification must be on for the account.
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
@@ -43,9 +43,12 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          # 15s rather than 5s: a cold STARTTLS handshake to Gmail from a VPS regularly needs
+          # more than five seconds, and a timeout looks identical to a rejected password from
+          # the back-office side.
+          connectiontimeout: 15000
+          timeout: 15000
+          writetimeout: 15000
   # Jackson 3 (shipped with Boot 4) already serialises java.time as ISO-8601 by default.
   # Null-omission is applied per-DTO via @JsonInclude where wanted.
 
@@ -118,7 +121,7 @@ grossimarche:
   # reset a password that has since been changed.
   #
   # IMPORTANT: set BOOTSTRAP_ADMIN_PASSWORD anywhere that is not a local machine. The default
-  # below is a first-run convenience so the back-office is reachable out of the box — it is not
+  # below is a first-run convenience so the back-office is reachable out of the box - it is not
   # a production secret, and it should be changed from the account's own password screen.
   bootstrap-admin:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:true}
