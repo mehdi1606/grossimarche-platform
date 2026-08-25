@@ -26,3 +26,6 @@ yarn-error.log*
 
 # css
 /src/assets/css/tailwind.output.css
+# Vite build output (this project builds to dist, not the CRA "build" above)
+/dist
+/statistics.html
