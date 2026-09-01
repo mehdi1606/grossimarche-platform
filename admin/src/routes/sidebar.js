@@ -11,6 +11,7 @@ import {
   FiPackage,
   FiStar,
   FiTag,
+  FiUserCheck,
 } from "react-icons/fi";
 
 /**
@@ -49,6 +50,11 @@ const sidebar = [
     path: "/customers",
     icon: FiUsers,
     name: "Customers",
+  },
+  {
+    path: "/approvals",
+    icon: FiUserCheck,
+    name: "Approvals",
   },
   {
     path: "/client-types",

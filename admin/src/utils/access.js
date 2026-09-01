@@ -18,6 +18,7 @@ const STORE_MANAGER_ROUTES = [
   "categories",
   "attributes",
   "customers",
+  "approvals", // customer validation queue - day-to-day judgement, not policy
   "customer-order", // a customer's order detail
   "orders",
   "order", // order invoice detail
