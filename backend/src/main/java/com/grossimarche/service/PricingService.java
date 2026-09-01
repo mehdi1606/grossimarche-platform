@@ -2,12 +2,14 @@ package com.grossimarche.service;
 
 import com.grossimarche.config.PricingProperties;
 import com.grossimarche.entity.ProductPriceTier;
+import com.grossimarche.entity.ProductTypePrice;
 import com.grossimarche.entity.enums.CouponType;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The single source of pricing truth. Catalogue, cart and checkout all resolve prices and
@@ -39,6 +41,51 @@ public class PricingService {
             }
         }
         return money(best);
+    }
+
+    /**
+     * The effective unit price for a quantity, from a segment's own price ladder.
+     *
+     * The ladder is self-contained: its {@code minQuantity == 1} rung is the segment's base
+     * price and the rungs above it are its quantity breaks, so unlike
+     * {@link #resolveUnitPrice(BigDecimal, List, int)} there is no separate base price to pass
+     * in - and none to fall back to.
+     *
+     * Returns empty when the ladder cannot price the quantity: no rungs at all (the product is
+     * not sold to this segment), or none low enough to reach it (the segment has a minimum
+     * order this quantity is below). Empty means "no price", never zero and never the list
+     * price - a product that silently sells at the wrong price costs more than one that
+     * refuses to sell.
+     */
+    public Optional<BigDecimal> resolveTypeUnitPrice(List<ProductTypePrice> ladder, int quantity) {
+        if (ladder == null || ladder.isEmpty()) {
+            return Optional.empty();
+        }
+        BigDecimal best = null;
+        int bestMin = 0;
+        for (ProductTypePrice rung : ladder) {
+            // >= bestMin, so the highest threshold the quantity reaches wins even if the rows
+            // arrive unordered.
+            if (quantity >= rung.getMinQuantity() && rung.getMinQuantity() >= bestMin) {
+                best = rung.getUnitPrice();
+                bestMin = rung.getMinQuantity();
+            }
+        }
+        return Optional.ofNullable(best).map(this::money);
+    }
+
+    /**
+     * The smallest quantity this ladder can price at all.
+     *
+     * When a segment's cheapest rung starts at 6, the product cannot be bought in fives: this
+     * is that segment's minimum order for it, and the storefront shows it rather than letting
+     * a shopper build a cart that cannot be priced.
+     */
+    public int minimumQuantity(List<ProductTypePrice> ladder) {
+        if (ladder == null || ladder.isEmpty()) {
+            return 0;
+        }
+        return ladder.stream().mapToInt(ProductTypePrice::getMinQuantity).min().orElse(0);
     }
 
     public BigDecimal lineTotal(BigDecimal unitPrice, int quantity) {
