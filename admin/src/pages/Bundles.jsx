@@ -12,6 +12,7 @@ import {
 } from "@windmill/react-ui";
 import {
   FiImage,
+  FiDollarSign,
   FiPackage,
   FiPlus,
   FiSearch,
@@ -23,6 +24,7 @@ import {
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import BundleServices from "@/services/BundleServices";
+import BundlePriceGridModal from "@/components/pricing/BundlePriceGridModal";
 import ProductServices from "@/services/ProductServices";
 import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
@@ -65,6 +67,7 @@ const Bundles = () => {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [announceTarget, setAnnounceTarget] = useState(null);
+  const [priceTarget, setPriceTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -340,6 +343,13 @@ const Bundles = () => {
                     <div className="flex justify-end gap-3 text-gray-400">
                       <button
                         className="transition hover:text-emerald-600"
+                        onClick={() => setPriceTarget(row)}
+                        title="Prix par type de client"
+                      >
+                        <FiDollarSign />
+                      </button>
+                      <button
+                        className="transition hover:text-emerald-600"
                         onClick={() => setAnnounceTarget(row)}
                         title="Envoyer aux clients par e-mail"
                       >
@@ -575,6 +585,14 @@ const Bundles = () => {
           </label>
         </form>
       </Modal>
+
+      <BundlePriceGridModal
+        isOpen={!!priceTarget}
+        onClose={() => setPriceTarget(null)}
+        bundle={priceTarget}
+        currency={currency}
+        onSaved={load}
+      />
 
       {/* Announce */}
       <Modal

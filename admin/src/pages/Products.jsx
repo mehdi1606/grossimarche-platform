@@ -11,11 +11,21 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiBox, FiEdit, FiImage, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
+import {
+  FiBox,
+  FiDollarSign,
+  FiEdit,
+  FiImage,
+  FiPlus,
+  FiSearch,
+  FiTrash2,
+  FiX,
+} from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import ProductServices from "@/services/ProductServices";
+import PriceGridModal from "@/components/pricing/PriceGridModal";
 import CategoryServices from "@/services/CategoryServices";
 import Modal from "@/components/common/Modal";
 import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
@@ -55,6 +65,7 @@ const Products = () => {
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [priceTarget, setPriceTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -317,6 +328,13 @@ const Products = () => {
                     <div className="flex justify-end gap-3 text-gray-400">
                       <button
                         className="transition hover:text-emerald-600"
+                        onClick={() => setPriceTarget(row)}
+                        title="Grille de prix par type de client"
+                      >
+                        <FiDollarSign />
+                      </button>
+                      <button
+                        className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
                         title="Edit"
                       >
@@ -496,6 +514,14 @@ const Products = () => {
           </label>
         </form>
       </Modal>
+
+      <PriceGridModal
+        isOpen={!!priceTarget}
+        onClose={() => setPriceTarget(null)}
+        product={priceTarget}
+        currency={currency}
+        onSaved={load}
+      />
 
       {/* Delete confirm */}
       <Modal
