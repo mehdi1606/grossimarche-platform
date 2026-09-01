@@ -15,12 +15,14 @@ import com.grossimarche.entity.Category;
 import com.grossimarche.entity.Product;
 import com.grossimarche.entity.ProductAttribute;
 import com.grossimarche.entity.ProductPriceTier;
+import com.grossimarche.entity.ProductTypePrice;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.ProductAttributeRepository;
 import com.grossimarche.repository.ProductPriceTierRepository;
+import com.grossimarche.repository.ProductTypePriceRepository;
 import com.grossimarche.repository.ProductRepository;
 import com.grossimarche.repository.ProductReviewRepository;
 import com.grossimarche.repository.spec.ProductSpecifications;
@@ -36,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,6 +70,9 @@ public class ProductService {
     private final com.grossimarche.integration.storage.StorageService storageService;
     private final com.grossimarche.config.StorageProperties storageProperties;
     private final ApplicationEventPublisher events;
+    private final CatalogueViewer catalogueViewer;
+    private final ProductTypePriceRepository typePriceRepository;
+    private final PricingService pricingService;
 
     public ProductService(ProductRepository productRepository,
                           ProductPriceTierRepository priceTierRepository,
@@ -75,7 +81,9 @@ public class ProductService {
                           CategoryService categoryService, AuditService auditService,
                           com.grossimarche.integration.storage.StorageService storageService,
                           com.grossimarche.config.StorageProperties storageProperties,
-                          ApplicationEventPublisher events) {
+                          ApplicationEventPublisher events, CatalogueViewer catalogueViewer,
+                          ProductTypePriceRepository typePriceRepository,
+                          PricingService pricingService) {
         this.productRepository = productRepository;
         this.priceTierRepository = priceTierRepository;
         this.attributeRepository = attributeRepository;
@@ -86,14 +94,23 @@ public class ProductService {
         this.storageService = storageService;
         this.storageProperties = storageProperties;
         this.events = events;
+        this.catalogueViewer = catalogueViewer;
+        this.typePriceRepository = typePriceRepository;
+        this.pricingService = pricingService;
     }
 
     // ---- Public reads -----------------------------------------------------------------
 
     @Transactional(readOnly = true)
     public Page<ProductSummaryResponse> search(ProductFilter filter, Pageable pageable) {
+        UUID clientTypeId = catalogueViewer.currentClientTypeId().orElse(null);
+
         List<Specification<Product>> specs = Stream.of(
                         ProductSpecifications.active(true),
+                        // A product with no price for this segment is not sold to it, so it is
+                        // not listed to it either. Null segment = no filter: an anonymous
+                        // visitor browses everything, priceless.
+                        ProductSpecifications.pricedForClientType(clientTypeId),
                         ProductSpecifications.inCategory(filter.categoryId()),
                         ProductSpecifications.matchesText(filter.q()),
                         ProductSpecifications.priceAtLeast(filter.minPrice()),
@@ -104,18 +121,24 @@ public class ProductService {
         Specification<Product> spec = specs.stream().reduce(Specification::and).orElse(null);
 
         Page<Product> page = productRepository.findAll(spec, pageable);
-        // The tiers themselves, for the whole page, in one query - the storefront prices the
-        // cart from these, so a boolean would not be enough (and one query per row would be
-        // an N+1 on every grid).
-        Map<UUID, List<PriceTierResponse>> tiersByProduct = page.hasContent()
-                ? priceTierRepository
-                        .findByProductIds(page.getContent().stream().map(Product::getId).toList())
-                        .stream()
-                        .collect(Collectors.groupingBy(t -> t.getProduct().getId(),
-                                Collectors.mapping(productMapper::toTier, Collectors.toList())))
-                : Map.of();
-        return page.map(p -> productMapper.toSummary(p, p.getStockQuantity() > 0,
-                tiersByProduct.get(p.getId())));
+        if (!page.hasContent()) {
+            return page.map(p -> productMapper.toPricelessSummary(p, false));
+        }
+        if (clientTypeId == null) {
+            // No segment, no prices. The catalogue stays browsable - that is what brings people
+            // to register - but every figure is withheld.
+            return page.map(p -> productMapper.toPricelessSummary(p, p.getStockQuantity() > 0));
+        }
+
+        // Every ladder for the page in one query: the storefront prices the cart from these, so
+        // a "has discounts" boolean would not do, and one query per row is an N+1 on every grid.
+        Map<UUID, List<ProductTypePrice>> ladders = typePriceRepository
+                .findForProductsAndType(page.getContent().stream().map(Product::getId).toList(),
+                        clientTypeId)
+                .stream()
+                .collect(Collectors.groupingBy(t -> t.getProduct().getId()));
+
+        return page.map(p -> toSegmentSummary(p, ladders.get(p.getId())));
     }
 
     // ---- Admin reads ------------------------------------------------------------------
@@ -140,14 +163,67 @@ public class ProductService {
         return productRepository.findAll(spec, pageable).map(productMapper::toAdminSummary);
     }
 
-    @Cacheable(value = CacheConfig.PRODUCT_DETAIL, key = "#idOrSlug")
+    /**
+     * Public product detail, priced for whoever is asking.
+     *
+     * The cache key carries the segment. Keyed on the slug alone, the first caller's prices
+     * would be served to every other segment and to anonymous visitors - the whole grid leaking
+     * through a cache hit.
+     */
+    @Cacheable(value = CacheConfig.PRODUCT_DETAIL,
+            key = "#idOrSlug + '|' + @catalogueViewer.cacheKey()")
     @Transactional(readOnly = true)
     public ProductDetailResponse getDetail(String idOrSlug) {
         Product product = resolvePublic(idOrSlug);
-        List<ProductPriceTier> tiers = priceTierRepository.findByProductIdOrderByMinQuantityAsc(product.getId());
-        return productMapper.toDetail(product, productMapper.toTiers(tiers), loadAttributes(product.getId()),
-                reviewRepository.averageRating(product.getId()),
-                reviewRepository.countByProductIdAndApprovedTrue(product.getId()));
+        UUID clientTypeId = catalogueViewer.currentClientTypeId().orElse(null);
+        double rating = reviewRepository.averageRating(product.getId());
+        long reviews = reviewRepository.countByProductIdAndApprovedTrue(product.getId());
+
+        if (clientTypeId == null) {
+            return productMapper.toPricelessDetail(product, loadAttributes(product.getId()),
+                    rating, reviews);
+        }
+
+        List<ProductTypePrice> ladder = typePriceRepository
+                .findByProductIdAndClientTypeIdOrderByMinQuantityAsc(product.getId(), clientTypeId);
+        if (ladder.isEmpty()) {
+            // Priced for nobody here means sold to nobody here: a 404 rather than a page
+            // advertising something this customer cannot buy.
+            throw new ResourceNotFoundException("Produit", idOrSlug);
+        }
+        return productMapper.toDetail(product, toTierResponses(ladder), loadAttributes(product.getId()),
+                rating, reviews, entryPrice(ladder), minimumFor(product, ladder));
+    }
+
+    /** A listing row priced for one segment. */
+    private ProductSummaryResponse toSegmentSummary(Product product, List<ProductTypePrice> ladder) {
+        if (ladder == null || ladder.isEmpty()) {
+            return productMapper.toPricelessSummary(product, product.getStockQuantity() > 0);
+        }
+        return productMapper.toSummary(product, product.getStockQuantity() > 0,
+                toTierResponses(ladder), entryPrice(ladder), minimumFor(product, ladder));
+    }
+
+    /**
+     * The price shown before any quantity is chosen: the cheapest quantity this segment may
+     * actually buy, which is not always one - some segments only buy by the case.
+     */
+    private BigDecimal entryPrice(List<ProductTypePrice> ladder) {
+        int min = pricingService.minimumQuantity(ladder);
+        return pricingService.resolveTypeUnitPrice(ladder, min).orElse(null);
+    }
+
+    /** The larger of the product's own minimum and the one the segment's ladder implies. */
+    private int minimumFor(Product product, List<ProductTypePrice> ladder) {
+        return Math.max(Math.max(product.getMinOrderQuantity(), 1),
+                pricingService.minimumQuantity(ladder));
+    }
+
+    private List<PriceTierResponse> toTierResponses(List<ProductTypePrice> ladder) {
+        return ladder.stream()
+                .sorted(Comparator.comparingInt(ProductTypePrice::getMinQuantity))
+                .map(r -> new PriceTierResponse(r.getId(), r.getMinQuantity(), r.getUnitPrice()))
+                .toList();
     }
 
     /** Back-office detail: resolves by id regardless of the active flag (so hidden products

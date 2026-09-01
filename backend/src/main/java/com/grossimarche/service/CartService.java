@@ -12,7 +12,6 @@ import com.grossimarche.exception.InsufficientStockException;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.CartItemRepository;
 import com.grossimarche.repository.CartRepository;
-import com.grossimarche.repository.ProductPriceTierRepository;
 import com.grossimarche.repository.ProductRepository;
 import com.grossimarche.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -33,17 +32,18 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
-    private final ProductPriceTierRepository priceTierRepository;
+    private final SegmentPricingService segmentPricing;
     private final PricingService pricingService;
     private final UserRepository userRepository;
 
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
-                       ProductRepository productRepository, ProductPriceTierRepository priceTierRepository,
+                       ProductRepository productRepository,
+                       SegmentPricingService segmentPricing,
                        PricingService pricingService, UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
-        this.priceTierRepository = priceTierRepository;
+        this.segmentPricing = segmentPricing;
         this.pricingService = pricingService;
         this.userRepository = userRepository;
     }
@@ -51,7 +51,7 @@ public class CartService {
     @Transactional
     public CartResponse getCart(UUID userId) {
         Cart cart = getOrCreateCart(userId);
-        return toResponse(cartItemRepository.findByCartId(cart.getId()));
+        return toResponse(userId, cartItemRepository.findByCartId(cart.getId()));
     }
 
     @Transactional
@@ -75,7 +75,7 @@ public class CartService {
             }
         }
         cart.setUpdatedAt(java.time.Instant.now());
-        return toResponse(cartItemRepository.findByCartId(cart.getId()));
+        return toResponse(userId, cartItemRepository.findByCartId(cart.getId()));
     }
 
     @Transactional
@@ -104,7 +104,7 @@ public class CartService {
             }
         }
         cart.setUpdatedAt(java.time.Instant.now());
-        return toResponse(cartItemRepository.findByCartId(cart.getId()));
+        return toResponse(userId, cartItemRepository.findByCartId(cart.getId()));
     }
 
     private void validateQuantity(Product product, int quantity) {
@@ -126,14 +126,25 @@ public class CartService {
                         .build()));
     }
 
-    private CartResponse toResponse(List<CartItem> items) {
+    /**
+     * Price the cart for its owner's segment.
+     *
+     * The same resolution checkout performs, so the basket a shopper reads and the invoice they
+     * receive cannot disagree - the classic way that happens is two code paths pricing the same
+     * line from two different tables.
+     */
+    private CartResponse toResponse(UUID userId, List<CartItem> items) {
+        UUID clientTypeId = segmentPricing.requireClientTypeId(
+                userRepository.findById(userId).orElseThrow(() ->
+                        new ResourceNotFoundException("Client", userId)));
         List<CartItemResponse> lines = new ArrayList<>();
         List<PricingService.LinePricing> pricingLines = new ArrayList<>();
         for (CartItem item : items) {
             Product product = item.getProduct();
-            BigDecimal base = product.getPrice();
-            BigDecimal effective = pricingService.resolveUnitPrice(base,
-                    priceTierRepository.findByProductIdOrderByMinQuantityAsc(product.getId()), item.getQuantity());
+            SegmentPricingService.LinePrice priced =
+                    segmentPricing.priceLine(clientTypeId, product, item.getQuantity());
+            BigDecimal base = priced.entryPrice();
+            BigDecimal effective = priced.unitPrice();
             BigDecimal lineTotal = pricingService.lineTotal(effective, item.getQuantity());
             boolean stockIssue = item.getQuantity() > product.getStockQuantity();
             lines.add(new CartItemResponse(product.getId(), product.getName(), product.getUnit(),

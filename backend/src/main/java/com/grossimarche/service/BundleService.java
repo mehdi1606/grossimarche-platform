@@ -6,7 +6,9 @@ import com.grossimarche.dto.bundle.BundleRequest;
 import com.grossimarche.dto.bundle.BundleResponse;
 import com.grossimarche.entity.Bundle;
 import com.grossimarche.entity.BundleItem;
+import com.grossimarche.entity.BundleTypePrice;
 import com.grossimarche.entity.Product;
+import com.grossimarche.entity.ProductTypePrice;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ErrorCode;
@@ -14,7 +16,9 @@ import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.config.StorageProperties;
 import com.grossimarche.integration.storage.StorageService;
 import com.grossimarche.repository.BundleRepository;
+import com.grossimarche.repository.BundleTypePriceRepository;
 import com.grossimarche.repository.ProductRepository;
+import com.grossimarche.repository.ProductTypePriceRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,15 +56,26 @@ public class BundleService {
             Set.of("image/png", "image/jpeg", "image/webp", "image/avif");
 
     private final BundleRepository bundleRepository;
+    private final CatalogueViewer catalogueViewer;
+    private final PricingService pricingService;
+    private final BundleTypePriceRepository bundlePriceRepository;
+    private final ProductTypePriceRepository productPriceRepository;
     private final ProductRepository productRepository;
     private final StorageService storageService;
     private final StorageProperties storageProperties;
     private final ApplicationEventPublisher events;
 
     public BundleService(BundleRepository bundleRepository, ProductRepository productRepository,
+                         CatalogueViewer catalogueViewer, PricingService pricingService,
+                         BundleTypePriceRepository bundlePriceRepository,
+                         ProductTypePriceRepository productPriceRepository,
                          StorageService storageService, StorageProperties storageProperties,
                          ApplicationEventPublisher events) {
         this.bundleRepository = bundleRepository;
+        this.catalogueViewer = catalogueViewer;
+        this.pricingService = pricingService;
+        this.bundlePriceRepository = bundlePriceRepository;
+        this.productPriceRepository = productPriceRepository;
         this.productRepository = productRepository;
         this.storageService = storageService;
         this.storageProperties = storageProperties;
@@ -368,33 +384,74 @@ public class BundleService {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
+    /**
+     * A bundle as one viewer sees it.
+     *
+     * Every figure is resolved against the viewer's segment, or withheld entirely when they
+     * have none. An anonymous visitor still sees the offer exists and what is in it - that is
+     * what brings them to register - but not a single price.
+     */
     private BundleResponse toResponse(Bundle bundle) {
+        UUID clientTypeId = catalogueViewer.currentClientTypeId().orElse(null);
         List<BundleItemResponse> items = new ArrayList<>();
-        BigDecimal componentsTotal = BigDecimal.ZERO;
+        BigDecimal componentsTotal = clientTypeId == null ? null : BigDecimal.ZERO;
         boolean available = !bundle.getItems().isEmpty();
+
+        Map<UUID, List<ProductTypePrice>> ladders = clientTypeId == null
+                ? Map.of()
+                : productPriceRepository.findForProductsAndType(
+                                bundle.getItems().stream().map(i -> i.getProduct().getId()).toList(),
+                                clientTypeId)
+                        .stream()
+                        .collect(Collectors.groupingBy(r -> r.getProduct().getId()));
 
         for (BundleItem item : bundle.getItems()) {
             Product product = item.getProduct();
-            BigDecimal lineTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-            componentsTotal = componentsTotal.add(lineTotal);
             boolean inStock = product.isActive() && product.getStockQuantity() >= item.getQuantity();
             available = available && inStock;
+
+            BigDecimal unit = null;
+            BigDecimal lineTotal = null;
+            if (clientTypeId != null) {
+                unit = pricingService.resolveTypeUnitPrice(
+                        ladders.get(product.getId()), item.getQuantity()).orElse(null);
+                if (unit == null) {
+                    // A component this segment cannot buy makes the whole set unbuyable, and
+                    // any total we printed would be fiction.
+                    componentsTotal = null;
+                    available = false;
+                } else {
+                    lineTotal = pricingService.lineTotal(unit, item.getQuantity());
+                    if (componentsTotal != null) {
+                        componentsTotal = componentsTotal.add(lineTotal);
+                    }
+                }
+            }
+
             items.add(new BundleItemResponse(product.getId(), product.getName(), product.getSlug(),
                     product.getUnit(), product.getImageUrl(), item.getQuantity(),
-                    product.getPrice(), lineTotal, product.getStockQuantity(), inStock));
+                    unit, lineTotal, product.getStockQuantity(), inStock));
         }
 
-        BigDecimal savings = componentsTotal.subtract(bundle.getPrice());
-        if (savings.signum() < 0) {
-            savings = BigDecimal.ZERO;
+        BigDecimal price = clientTypeId == null ? null
+                : bundlePriceRepository.findByBundleIdAndClientTypeId(bundle.getId(), clientTypeId)
+                        .map(BundleTypePrice::getPrice).orElse(null);
+        if (clientTypeId != null && price == null) {
+            // Not priced for this segment: the offer is not on sale to them.
+            available = false;
         }
-        int savingsPercent = componentsTotal.signum() > 0
+
+        BigDecimal savings = BigDecimal.ZERO;
+        if (price != null && componentsTotal != null) {
+            savings = componentsTotal.subtract(price).max(BigDecimal.ZERO);
+        }
+        int savingsPercent = componentsTotal != null && componentsTotal.signum() > 0
                 ? savings.multiply(BigDecimal.valueOf(100))
                         .divide(componentsTotal, 0, RoundingMode.HALF_UP).intValue()
                 : 0;
 
         return new BundleResponse(bundle.getId(), bundle.getName(), bundle.getSlug(),
-                bundle.getDescription(), bundle.getImageUrl(), bundle.getPrice(),
+                bundle.getDescription(), bundle.getImageUrl(), price,
                 componentsTotal, savings, savingsPercent, bundle.isActive(),
                 available && bundle.isAvailableAt(Instant.now()),
                 bundle.getStartsAt(), bundle.getEndsAt(), items, bundle.getCreatedAt());

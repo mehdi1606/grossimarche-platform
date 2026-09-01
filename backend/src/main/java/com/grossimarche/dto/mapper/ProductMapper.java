@@ -30,6 +30,37 @@ public class ProductMapper {
                 product.getMinOrderQuantity());
     }
 
+    /**
+     * A listing row priced for one segment.
+     *
+     * {@code entryPrice} is what the shopper sees before choosing a quantity, and
+     * {@code minQuantity} the smallest quantity this segment may buy - neither is necessarily
+     * the product's own base price or minimum, because both belong to the segment's ladder.
+     */
+    public ProductSummaryResponse toSummary(Product product, boolean inStock,
+                                            List<PriceTierResponse> priceTiers,
+                                            java.math.BigDecimal entryPrice, int minQuantity) {
+        return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+                entryPrice, product.getUnit(), product.getImageUrl(), inStock,
+                priceTiers != null && priceTiers.size() > 1,
+                priceTiers == null ? List.of() : priceTiers,
+                minQuantity);
+    }
+
+    /**
+     * A listing row with every figure withheld.
+     *
+     * For a visitor with no segment: anonymous, or an applicant still waiting for validation.
+     * The price is null rather than zero and the ladder empty rather than absent, so a caller
+     * that forgets to check renders nothing instead of "0,00 DH" - a wrong price is worse than
+     * a missing one.
+     */
+    public ProductSummaryResponse toPricelessSummary(Product product, boolean inStock) {
+        return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+                null, product.getUnit(), product.getImageUrl(), inStock, false, List.of(),
+                Math.max(product.getMinOrderQuantity(), 1));
+    }
+
     /** Back-office list row (exposes stock/active/category; called within a transaction). */
     public AdminProductSummaryResponse toAdminSummary(Product product) {
         return new AdminProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
@@ -45,6 +76,29 @@ public class ProductMapper {
                 product.getDescription(), product.getPrice(), product.getUnit(), product.getStockQuantity(),
                 product.getMinOrderQuantity(), product.getImageUrl(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
+                averageRating, reviewCount);
+    }
+
+    /** Product detail priced for one segment: its ladder, its entry price, its minimum. */
+    public ProductDetailResponse toDetail(Product product, List<PriceTierResponse> priceTiers,
+                                          List<ProductAttributeResponse> attributes,
+                                          double averageRating, long reviewCount,
+                                          java.math.BigDecimal entryPrice, int minQuantity) {
+        return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
+                product.getDescription(), entryPrice, product.getUnit(), product.getStockQuantity(),
+                minQuantity, product.getImageUrl(), product.isActive(),
+                product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
+                averageRating, reviewCount);
+    }
+
+    /** Product detail with every figure withheld - see {@link #toPricelessSummary}. */
+    public ProductDetailResponse toPricelessDetail(Product product,
+                                                   List<ProductAttributeResponse> attributes,
+                                                   double averageRating, long reviewCount) {
+        return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
+                product.getDescription(), null, product.getUnit(), product.getStockQuantity(),
+                Math.max(product.getMinOrderQuantity(), 1), product.getImageUrl(), product.isActive(),
+                product.getCategory().getId(), product.getCategory().getName(), List.of(), attributes,
                 averageRating, reviewCount);
     }
 

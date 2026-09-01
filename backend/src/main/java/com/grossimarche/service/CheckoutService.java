@@ -27,7 +27,6 @@ import com.grossimarche.repository.CartRepository;
 import com.grossimarche.repository.OrderItemRepository;
 import com.grossimarche.repository.OrderRepository;
 import com.grossimarche.repository.OrderStatusHistoryRepository;
-import com.grossimarche.repository.ProductPriceTierRepository;
 import com.grossimarche.repository.ProductRepository;
 import com.grossimarche.repository.UserRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -60,7 +59,7 @@ public class CheckoutService {
     private final CartItemRepository cartItemRepository;
     private final BundleService bundleService;
     private final ProductRepository productRepository;
-    private final ProductPriceTierRepository priceTierRepository;
+    private final SegmentPricingService segmentPricing;
     private final AddressRepository addressRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -75,7 +74,8 @@ public class CheckoutService {
     private final ApplicationEventPublisher events;
 
     public CheckoutService(CartRepository cartRepository, CartItemRepository cartItemRepository,
-                           ProductRepository productRepository, ProductPriceTierRepository priceTierRepository,
+                           ProductRepository productRepository,
+                           SegmentPricingService segmentPricing,
                            AddressRepository addressRepository, OrderRepository orderRepository,
                            OrderItemRepository orderItemRepository,
                            OrderStatusHistoryRepository statusHistoryRepository,
@@ -87,7 +87,7 @@ public class CheckoutService {
         this.cartItemRepository = cartItemRepository;
         this.bundleService = bundleService;
         this.productRepository = productRepository;
-        this.priceTierRepository = priceTierRepository;
+        this.segmentPricing = segmentPricing;
         this.addressRepository = addressRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
@@ -104,6 +104,12 @@ public class CheckoutService {
 
     @Transactional
     public OrderCreatedResponse checkout(UUID userId, CreateOrderRequest req, String idempotencyKey) {
+        // The segment decides every price below, so it is resolved once, up front: an account
+        // with none cannot be billed at all, and finding that out halfway through would mean
+        // stock already decremented for an order that cannot be priced.
+        UUID clientTypeId = segmentPricing.requireClientTypeId(
+                userRepository.findById(userId).orElseThrow(() ->
+                        new ResourceNotFoundException("Client", userId)));
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED, "En-tête Idempotency-Key requis.");
         }
@@ -154,9 +160,13 @@ public class CheckoutService {
                         "Le produit « " + product.getName() + " » n'est plus disponible.");
             }
             int qty = item.getQuantity();
-            BigDecimal base = product.getPrice();
-            BigDecimal effective = pricingService.resolveUnitPrice(base,
-                    priceTierRepository.findByProductIdOrderByMinQuantityAsc(product.getId()), qty);
+            // Priced from the buyer's own segment ladder, never from products.price - that
+            // figure is an internal reference nobody is charged. A line the segment has no
+            // price for stops checkout rather than falling back to it.
+            SegmentPricingService.LinePrice priced =
+                    segmentPricing.priceLine(clientTypeId, product, qty);
+            BigDecimal base = priced.entryPrice();
+            BigDecimal effective = priced.unitPrice();
 
             if (productRepository.decrementStock(product.getId(), qty) == 0) {
                 throw new InsufficientStockException(

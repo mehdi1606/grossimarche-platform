@@ -20,6 +20,30 @@ public final class ProductSpecifications {
     private ProductSpecifications() {
     }
 
+    /**
+     * Only products that carry a price for this segment.
+     *
+     * Applied in the query, not after fetching, because filtering a fetched page would leave a
+     * "20 per page" listing showing three rows. An EXISTS subquery is the cheap shape for this:
+     * it stops at the first matching rung and needs no join or distinct.
+     *
+     * Null segment means no filter - an anonymous visitor browses the whole catalogue, simply
+     * without prices.
+     */
+    public static Specification<Product> pricedForClientType(UUID clientTypeId) {
+        if (clientTypeId == null) {
+            return null;
+        }
+        return (root, query, cb) -> {
+            var sub = query.subquery(Long.class);
+            var price = sub.from(com.grossimarche.entity.ProductTypePrice.class);
+            sub.select(cb.literal(1L)).where(
+                    cb.equal(price.get("product").get("id"), root.get("id")),
+                    cb.equal(price.get("clientType").get("id"), clientTypeId));
+            return cb.exists(sub);
+        };
+    }
+
     public static Specification<Product> active(Boolean active) {
         if (active == null) {
             return null;
