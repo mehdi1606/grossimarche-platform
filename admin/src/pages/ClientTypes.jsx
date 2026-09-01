@@ -21,8 +21,9 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import CLIENT_TYPE_ICONS, { clientTypeIcon } from "@/utils/clientTypeIcons";
 
-const EMPTY_FORM = { name: "", description: "", sortOrder: 0, active: true };
+const EMPTY_FORM = { name: "", description: "", icon: "", sortOrder: 0, active: true };
 
 /**
  * Client types - the commercial segments the catalogue is priced against.
@@ -68,6 +69,7 @@ const ClientTypes = () => {
     setForm({
       name: row.name || "",
       description: row.description || "",
+      icon: row.icon || "",
       sortOrder: row.sortOrder ?? 0,
       active: !!row.active,
     });
@@ -85,6 +87,7 @@ const ClientTypes = () => {
       const body = {
         name: form.name.trim(),
         description: form.description.trim() || null,
+        icon: form.icon || null,
         sortOrder: Number(form.sortOrder) || 0,
         active: form.active,
       };
@@ -158,9 +161,17 @@ const ClientTypes = () => {
               {rows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {row.name}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+                        {React.createElement(clientTypeIcon(row.icon), {
+                          className: "h-5 w-5",
+                          strokeWidth: 1.75,
+                        })}
+                      </span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        {row.name}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <code className="text-xs text-gray-400">{row.slug}</code>
@@ -234,6 +245,38 @@ const ClientTypes = () => {
               autoFocus
             />
           </Label>
+
+          <div>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Icone
+            </span>
+            <p className="mb-2 mt-0.5 text-xs text-gray-400">
+              Elle represente l&apos;activite sur la page d&apos;inscription. Des traits, pas un
+              emoji : un emoji change de dessin selon le telephone du client.
+            </p>
+            <div className="grid max-h-52 grid-cols-5 gap-2 overflow-y-auto rounded-xl border border-gray-200 p-2 dark:border-gray-700 sm:grid-cols-7">
+              {CLIENT_TYPE_ICONS.map(({ key, label, Icon }) => {
+                const selected = form.icon === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    title={label}
+                    aria-label={label}
+                    aria-pressed={selected}
+                    onClick={() => setForm({ ...form, icon: selected ? "" : key })}
+                    className={`grid aspect-square place-items-center rounded-xl border transition ${
+                      selected
+                        ? "border-emerald-500 bg-emerald-50 text-emerald-600 ring-2 ring-emerald-500/20 dark:bg-emerald-500/10"
+                        : "border-transparent bg-gray-50 text-gray-400 hover:border-gray-200 hover:text-gray-600 dark:bg-gray-900/40 dark:hover:border-gray-600"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <Label>
             <span>Description (optionnelle)</span>

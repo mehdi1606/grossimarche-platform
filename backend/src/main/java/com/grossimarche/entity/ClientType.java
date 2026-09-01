@@ -41,6 +41,16 @@ public class ClientType extends AuditableEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    /**
+     * Icon key, not markup and not an emoji: "bakery", "dairy", "grocery".
+     *
+     * Each interface maps the key to its own component, so restyling the set is a front-end
+     * change rather than a data migration - and unlike an emoji it renders the same on every
+     * operating system, which is the least a shop sign should do.
+     */
+    @Column(name = "icon", length = 40)
+    private String icon;
+
     /** Presentation order in the registration chooser. */
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;

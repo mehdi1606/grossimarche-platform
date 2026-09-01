@@ -9,12 +9,13 @@ public record ClientTypeResponse(
         String name,
         String slug,
         String description,
+        String icon,
         int sortOrder,
         boolean active
 ) {
 
     public static ClientTypeResponse from(ClientType type) {
         return new ClientTypeResponse(type.getId(), type.getName(), type.getSlug(),
-                type.getDescription(), type.getSortOrder(), type.isActive());
+                type.getDescription(), type.getIcon(), type.getSortOrder(), type.isActive());
     }
 }

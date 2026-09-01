@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Size;
 public record ClientTypeRequest(
         @NotBlank @Size(max = 100) String name,
         @Size(max = 500) String description,
+        @Size(max = 40) String icon,
         @PositiveOrZero Integer sortOrder,
         Boolean active
 ) {

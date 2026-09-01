@@ -68,6 +68,7 @@ public class ClientTypeService {
                 .name(name)
                 .slug(uniqueSlug(name, null))
                 .description(trimToNull(req.description()))
+                .icon(trimToNull(req.icon()))
                 .sortOrder(req.sortOrder() == null ? 0 : req.sortOrder())
                 .active(req.active() == null || req.active())
                 .build();
@@ -88,6 +89,7 @@ public class ClientTypeService {
         }
         type.setName(name);
         type.setDescription(trimToNull(req.description()));
+        type.setIcon(trimToNull(req.icon()));
         if (req.sortOrder() != null) {
             type.setSortOrder(req.sortOrder());
         }
