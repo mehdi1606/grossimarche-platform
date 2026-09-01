@@ -31,6 +31,9 @@ const STORE_MANAGER_ROUTES = [
 // ADMIN-exclusive areas layered on top of the core.
 const ADMIN_ONLY_ROUTES = [
   "our-staff",
+  // Client types cut the whole price grid: creating one decides how every product has to
+  // be priced from then on. Commercial policy, not a store manager's daily catalogue work.
+  "client-types",
   "coupons",
   "settings", // → store / magasins management
   "currencies",

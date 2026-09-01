@@ -80,10 +80,13 @@ public class SecurityConfig {
                     // products do: an offer exists to bring people in, so it has to be visible
                     // before anyone has an account. Without this, `anyRequest().authenticated()`
                     // catches /bundles and the storefront's offers page is empty for visitors.
+                    // /client-types joins them for a narrower reason: the sign-up form has to
+                    // offer the segments to someone who by definition has no account yet. It
+                    // returns the segment names only, never what any of them pays.
                     auth.requestMatchers(HttpMethod.GET,
                             "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**",
                             "/api/v1/currencies/**", "/api/v1/languages/**", "/api/v1/attributes/**",
-                            "/api/v1/bundles/**")
+                            "/api/v1/bundles/**", "/api/v1/client-types")
                             .permitAll();
                     if (local) {
                         auth.requestMatchers(SWAGGER_PATHS).permitAll();
@@ -97,7 +100,11 @@ public class SecurityConfig {
                             "/api/v1/admin/coupons/**",
                             "/api/v1/admin/stores/**",
                             "/api/v1/admin/currencies/**",
-                            "/api/v1/admin/languages/**").hasRole("ADMIN");
+                            "/api/v1/admin/languages/**",
+                            // Client types cut the whole price grid: creating one decides how
+                            // every product must be priced from then on. That is a commercial
+                            // decision, not the daily catalogue work a store manager does.
+                            "/api/v1/admin/client-types/**").hasRole("ADMIN");
                     auth.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "STORE_MANAGER");
                     auth.requestMatchers("/actuator/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();

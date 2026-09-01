@@ -10,6 +10,7 @@ import {
   FiPercent,
   FiPackage,
   FiStar,
+  FiTag,
 } from "react-icons/fi";
 
 /**
@@ -48,6 +49,11 @@ const sidebar = [
     path: "/customers",
     icon: FiUsers,
     name: "Customers",
+  },
+  {
+    path: "/client-types",
+    icon: FiTag,
+    name: "ClientTypes",
   },
   {
     path: "/orders",

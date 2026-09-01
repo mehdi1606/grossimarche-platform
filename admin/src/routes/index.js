@@ -12,6 +12,7 @@ const Category = lazy(() => import("@/pages/Category"));
 const ChildCategory = lazy(() => import("@/pages/ChildCategory"));
 const Staff = lazy(() => import("@/pages/Staff"));
 const Customers = lazy(() => import("@/pages/Customers"));
+const ClientTypes = lazy(() => import("@/pages/ClientTypes"));
 const CustomerOrder = lazy(() => import("@/pages/CustomerOrder"));
 const Orders = lazy(() => import("@/pages/Orders"));
 const OrderInvoice = lazy(() => import("@/pages/OrderInvoice"));
@@ -110,6 +111,10 @@ const routes = [
     path: "/reviews",
     component: Reviews,
   },
+  {
+    path: "/client-types",
+    component: ClientTypes,
+  },
   { path: "/settings", component: Setting },
   {
     path: "/404",
@@ -142,6 +147,7 @@ const routeAccessList = [
   { label: "Bundles", value: "bundles" },
   { label: "Reviews", value: "reviews" },
   { label: "Customers", value: "customers" },
+  { label: "ClientTypes", value: "client-types" },
   { label: "Orders", value: "orders" },
   { label: "Staff", value: "our-staff" },
   { label: "Settings", value: "settings" },
