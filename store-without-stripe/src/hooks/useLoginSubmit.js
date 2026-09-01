@@ -1,97 +1,57 @@
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
 //internal import
 import { notifyError, notifySuccess } from "@utils/toast";
-import CustomerServices from "@services/CustomerServices";
 
-// Passwordless OTP login: step 1 sends a code to the chosen channel (SMS/EMAIL),
-// step 2 verifies it via NextAuth signIn("credentials").
+/**
+ * Sign-in with e-mail and password.
+ *
+ * Nothing is dispatched to UserContext here: it already syncs itself from the NextAuth session
+ * (see its useEffect), and writing the user twice is how the two copies drift apart.
+ *
+ * The API's own message is shown verbatim on failure. It deliberately says something different
+ * for "waiting for validation" than for a bad password, and flattening the two into one
+ * friendly sentence would leave an approved-but-impatient customer retyping a password that was
+ * right the first time.
+ */
 const useLoginSubmit = () => {
   const router = useRouter();
-  const redirectUrl = useSearchParams().get("redirectUrl");
-
   const [loading, setLoading] = useState(false);
-  const [channel, setChannel] = useState("SMS"); // "SMS" | "EMAIL"
-  const [codeSent, setCodeSent] = useState(false);
-  const [destination, setDestination] = useState("");
 
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors },
   } = useForm();
 
-  const resetFlow = () => {
-    setCodeSent(false);
-    setDestination("");
-  };
-
-  const sendCode = async (dest) => {
+  const submitHandler = async ({ email, password }) => {
     setLoading(true);
     try {
-      const res = await CustomerServices.requestOtp({ channel, destination: dest });
-      setDestination(dest);
-      setCodeSent(true);
-      notifySuccess(
-        res?.message || `Un code a été envoyé (${res?.maskedDestination || dest}).`
-      );
-    } catch (error) {
-      notifyError(error?.response?.data?.message || error?.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyCode = async (code) => {
-    setLoading(true);
-    try {
-      const result = await signIn("credentials", {
+      const res = await signIn("credentials", {
+        email: (email || "").trim(),
+        password,
         redirect: false,
-        channel,
-        destination,
-        code,
-        callbackUrl: "/user/dashboard",
       });
-      if (result?.error) {
-        notifyError(result.error);
-      } else if (result?.ok) {
-        notifySuccess("Connexion réussie.");
-        router.push(redirectUrl ? "/checkout" : "/user/dashboard");
+
+      if (res?.error) {
+        notifyError(res.error);
+        return;
       }
-    } catch (error) {
-      notifyError(error?.response?.data?.message || error?.message);
+
+      notifySuccess("Connexion reussie.");
+      const { redirectUrl } = router.query;
+      router.push(redirectUrl ? `/${redirectUrl}` : "/user/dashboard");
+    } catch (err) {
+      notifyError(err?.message || "Echec de la connexion.");
     } finally {
       setLoading(false);
     }
   };
 
-  // One form, two phases: no code yet => request it; code present => verify it.
-  const submitHandler = async ({ destination: dest, code }) => {
-    if (!codeSent) {
-      return sendCode(dest);
-    }
-    return verifyCode(code);
-  };
-
-  const resendCode = () => sendCode(getValues("destination") || destination);
-
-  return {
-    register,
-    errors,
-    loading,
-    handleSubmit,
-    submitHandler,
-    channel,
-    setChannel,
-    codeSent,
-    resetFlow,
-    resendCode,
-  };
+  return { handleSubmit, submitHandler, register, errors, loading };
 };
 
 export default useLoginSubmit;

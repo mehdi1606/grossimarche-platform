@@ -21,7 +21,11 @@ export const pageContent = (res) => {
  */
 export const adaptProduct = (g) => {
   if (!g) return null;
-  const price = Number(g.price ?? 0);
+  // The API withholds every figure from a visitor with no validated account, and null is how
+  // it says so. Coercing that to 0 here would print "0,00 DH" all over the shop - a wrong price
+  // is far worse than a missing one, so the absence is carried through instead.
+  const priced = g.price !== null && g.price !== undefined;
+  const price = priced ? Number(g.price) : null;
   const stock =
     g.stockQuantity !== undefined ? g.stockQuantity : g.inStock ? 100 : 0;
   // Next.js getServerSideProps rejects `undefined` in props - use null when absent.
@@ -39,6 +43,8 @@ export const adaptProduct = (g) => {
     // The untouched list price, so a cart line can be re-priced by quantity without ever
     // compounding a discount it already carries.
     basePrice: price,
+    /** False when this viewer may not see prices at all. Components branch on it. */
+    priced,
     image: g.imageUrl ? [g.imageUrl] : [],
     stock,
     quantity: stock,

@@ -1,20 +1,32 @@
 import requests from "./httpServices";
 
-// Grossimarché is passwordless: sign in by requesting a one-time code (SMS/EMAIL) then
-// verifying it. Verify returns { accessToken, refreshToken, user } and, on first login,
-// creates the account. NextAuth's credentials authorize() calls verifyOtp (see
-// @lib/next-auth-options); the storefront login screen calls requestOtp then signIn.
+/**
+ * Customer accounts.
+ *
+ * Grossimarche is a wholesaler, so an account is a trade relationship rather than a
+ * self-service signup: registering creates a PENDING account that can sign in to nothing and
+ * see no prices until the merchant recognises the business. That is deliberate - prices here
+ * are per client type and confidential.
+ *
+ * Sign-in is e-mail + password. The one-time-code flow it replaced could not express any of
+ * this: a code proves you own a phone number, not that you are a shop.
+ */
 const CustomerServices = {
-  // channel: "SMS" | "EMAIL", destination: phone (E.164-ish) or email
-  requestOtp: async ({ channel, destination }) => {
-    return requests.post("/auth/otp/request", { channel, destination });
+  login: async ({ email, password }) => {
+    return requests.post("/auth/login", { email, password });
   },
 
-  verifyOtp: async ({ channel, destination, code }) => {
-    return requests.post("/auth/otp/verify", { channel, destination, code });
+  /** Apply for a trade account. Returns the PENDING account; no tokens, by design. */
+  register: async (body) => {
+    return requests.post("/auth/register", body);
   },
 
-  // Profile & addresses (mapped to /me - request/response field mapping refined in FE-4).
+  /** The segments offered at sign-up. Public: the chooser runs before anyone has an account. */
+  getClientTypes: async () => {
+    return requests.get("/client-types");
+  },
+
+  // Profile & addresses.
   getCustomer: async () => {
     return requests.get("/me");
   },

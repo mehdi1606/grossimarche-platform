@@ -55,6 +55,14 @@ const useAddToCart = () => {
     const existing = items.find((i) => i.id === product.id);
     const already = existing?.quantity || 0;
 
+    // No price means no account, or an account still waiting for validation. Guarding here
+    // rather than in each button covers the grid, the quick-view modal and the product page in
+    // one place - and a cart line with a null price would silently total as zero.
+    if (product?.priced === false || product?.price === null || product?.price === undefined) {
+      notifyError("Connectez-vous a votre compte professionnel pour commander.");
+      return false;
+    }
+
     if (stock < 1) {
       notifyError("Article en rupture de stock.");
       return false;
