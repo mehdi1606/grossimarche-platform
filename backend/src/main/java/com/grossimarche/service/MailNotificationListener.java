@@ -94,6 +94,54 @@ public class MailNotificationListener {
                 EmailTemplates.orderStatusEmail(event.orderNumber(), copy[0], copy[1], trackUrl));
     }
 
+    /**
+     * Tell an applicant what was decided about their trade account.
+     *
+     * Sent for a refusal as well as an approval. A silent refusal produces a customer who keeps
+     * trying a correct password, then telephones - the reason costs one e-mail and saves that
+     * call.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    public void onCustomerDecision(CustomerDecisionEvent event) {
+        User user = userRepository.findById(event.userId()).orElse(null);
+        if (user == null || user.getEmail() == null || user.getEmail().isBlank()) {
+            log.warn("Customer decision for {} could not be e-mailed: no address.", event.userId());
+            return;
+        }
+
+        String shop = user.getBusinessName() != null ? user.getBusinessName() : user.getFullName();
+        String loginUrl = mailer.storeUrl() + "/auth/login";
+
+        if (event.approved()) {
+            String segment = user.getClientType() == null ? "" : user.getClientType().getName();
+            String plain = """
+                    Bonjour %s,
+
+                    Votre compte Grossimarche est activé. Vous pouvez desormais vous connecter
+                    et consulter vos tarifs%s.
+
+                    Connexion : %s
+
+                    A bientot.
+                    """.formatted(shop, segment.isBlank() ? "" : " (" + segment + ")", loginUrl);
+            mailer.sendAsync(user.getEmail(), "Votre compte Grossimarche est activé", plain,
+                    EmailTemplates.accountApprovedEmail(shop, segment, loginUrl));
+        } else {
+            String plain = """
+                    Bonjour %s,
+
+                    Votre demande de compte Grossimarche n'a pas pu etre acceptée.
+
+                    Motif : %s
+
+                    Si vous pensez qu'il s'agit d'une erreur, répondez à cet e-mail.
+                    """.formatted(shop, event.reason());
+            mailer.sendAsync(user.getEmail(), "Votre demande de compte Grossimarche", plain,
+                    EmailTemplates.accountRejectedEmail(shop, event.reason()));
+        }
+    }
+
     /** Announce a bundle offer to every active customer who has an e-mail address. */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

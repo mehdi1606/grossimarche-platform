@@ -191,7 +191,6 @@ public class ProfileService {
     }
 
     private static UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getPhone(), user.getEmail(),
-                user.getRole(), user.isMustChangePassword());
+        return UserResponse.from(user);
     }
 }

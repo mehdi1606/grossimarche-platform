@@ -208,6 +208,47 @@ public final class EmailTemplates {
         return layout(title, content);
     }
 
+    /** A trade account has been opened: the applicant may now sign in and see their prices. */
+    public static String accountApprovedEmail(String shopName, String segment, String loginUrl) {
+        String segmentLine = segment == null || segment.isBlank()
+                ? ""
+                : "<p style=\"margin:0 0 26px;font-size:14px;line-height:22px;color:#374151;\">"
+                + "Vos tarifs sont ceux de la catégorie <strong>" + escape(segment)
+                + "</strong>.</p>";
+        String content = ("""
+                <p style="margin:0 0 6px;font-size:12px;color:#059669;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Compte activé</p>
+                <h1 style="margin:0 0 10px;font-size:20px;color:#111827;">Bienvenue, {{SHOP}}</h1>
+                <p style="margin:0 0 18px;font-size:14px;line-height:22px;color:#374151;">Votre compte professionnel est validé. Vous pouvez vous connecter et passer commande.</p>
+                {{SEGMENT}}
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+                  <a href="{{URL}}" style="display:inline-block;background:#047857;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 34px;border-radius:10px;">Se connecter</a>
+                </td></tr></table>
+                """)
+                .replace("{{SHOP}}", escape(shopName))
+                .replace("{{SEGMENT}}", segmentLine)
+                .replace("{{URL}}", escape(loginUrl));
+        return layout("Votre compte Grossimarché est activé", content);
+    }
+
+    /**
+     * An application was turned down.
+     *
+     * The reason is shown rather than softened away: an applicant who is not told why has no
+     * way to fix anything, and calls instead.
+     */
+    public static String accountRejectedEmail(String shopName, String reason) {
+        String content = ("""
+                <p style="margin:0 0 6px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Demande de compte</p>
+                <h1 style="margin:0 0 10px;font-size:20px;color:#111827;">Bonjour {{SHOP}}</h1>
+                <p style="margin:0 0 18px;font-size:14px;line-height:22px;color:#374151;">Votre demande de compte n'a pas pu être acceptée.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;"><tr><td style="background:#f9fafb;border-left:3px solid #d1d5db;padding:14px 16px;font-size:14px;line-height:22px;color:#374151;">{{REASON}}</td></tr></table>
+                <p style="margin:0;font-size:14px;line-height:22px;color:#6b7280;">Si vous pensez qu'il s'agit d'une erreur, répondez simplement à cet e-mail.</p>
+                """)
+                .replace("{{SHOP}}", escape(shopName))
+                .replace("{{REASON}}", escape(reason));
+        return layout("Votre demande de compte Grossimarché", content);
+    }
+
     /** Minimal HTML escaping for values interpolated into the templates. */
     private static String escape(String s) {
         if (s == null) {

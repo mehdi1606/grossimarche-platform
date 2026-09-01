@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * A registered account. At least one of {@code phone} / {@code email} is always present
@@ -88,4 +89,25 @@ public class User extends AuditableEntity {
     /** True while the account is still on a password the system generated for it. */
     @Column(name = "must_change_password", nullable = false)
     private boolean mustChangePassword;
+
+    /**
+     * The trading name. This, not the contact person's name, is what an admin recognises when
+     * deciding whether an applicant is a real customer.
+     */
+    @Column(name = "business_name", length = 150)
+    private String businessName;
+
+    @Column(name = "city", length = 100)
+    private String city;
+
+    @Column(name = "approved_at")
+    private Instant approvedAt;
+
+    /** Which staff account validated this customer. Null until someone does. */
+    @Column(name = "approved_by")
+    private UUID approvedBy;
+
+    /** Why an application was turned down - told to the applicant, and kept for a second look. */
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
 }

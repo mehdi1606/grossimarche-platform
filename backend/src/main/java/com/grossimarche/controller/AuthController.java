@@ -6,25 +6,33 @@ import com.grossimarche.dto.auth.PasswordLoginRequest;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.OtpVerifyRequest;
 import com.grossimarche.dto.auth.RefreshRequest;
+import com.grossimarche.dto.auth.RegisterRequest;
 import com.grossimarche.dto.auth.TokenResponse;
+import com.grossimarche.dto.user.UserResponse;
+import com.grossimarche.service.CustomerRegistrationService;
 import com.grossimarche.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Authentication endpoints. Thin: validate, resolve the caller's IP/UA, and delegate to
  * {@link AuthService}. No business logic here.
  *
- * Two ways in, on purpose: customers use the passwordless OTP pair ({@code /otp/request} then
- * {@code /otp/verify}), and back-office staff use {@code /login} with e-mail + password. The
- * storefront never calls {@code /login}, and a customer account cannot authenticate with it.
+ * {@code /login} serves everyone now: staff and customers alike sign in with e-mail and
+ * password. {@code /register} opens a customer account, which stays PENDING until an admin
+ * validates it - so registering grants no access and, in particular, no sight of any price.
+ *
+ * The OTP pair ({@code /otp/request}, {@code /otp/verify}) is still wired up but the
+ * storefront no longer uses it.
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -33,9 +41,25 @@ public class AuthController {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final AuthService authService;
+    private final CustomerRegistrationService registrationService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService,
+                          CustomerRegistrationService registrationService) {
         this.authService = authService;
+        this.registrationService = registrationService;
+    }
+
+    /**
+     * Apply for a trade account.
+     *
+     * Returns the created account, always PENDING. There are no tokens in the response:
+     * registering is a request, not a sign-in.
+     */
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse register(@Valid @RequestBody RegisterRequest body,
+                                 HttpServletRequest request) {
+        return registrationService.register(body, clientIp(request));
     }
 
     /** Back-office sign-in. Staff only - see {@link AuthService#loginWithPassword}. */

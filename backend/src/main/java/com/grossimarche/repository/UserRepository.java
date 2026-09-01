@@ -2,6 +2,7 @@ package com.grossimarche.repository;
 
 import com.grossimarche.entity.User;
 import com.grossimarche.entity.enums.Role;
+import com.grossimarche.entity.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     /** Sign-in lookup: an e-mail address is not case-sensitive, so neither is the login. */
     Optional<User> findByEmailIgnoreCase(String email);
+
+    /** The validation queue: applications waiting, oldest first. */
+    List<User> findByRoleAndStatusOrderByCreatedAtAsc(Role role, UserStatus status);
+
+    /** Badge count for the back-office, without loading the queue itself. */
+    long countByRoleAndStatus(Role role, UserStatus status);
 
     boolean existsByPhone(String phone);
 
