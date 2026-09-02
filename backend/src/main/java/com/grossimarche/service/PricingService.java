@@ -103,8 +103,25 @@ public class PricingService {
      * configured rate falls back to the flat fee.
      */
     public BigDecimal deliveryFee(BigDecimal subtotal, String city) {
+        return deliveryFee(subtotal, city, null);
+    }
+
+    /**
+     * Delivery fee where the caller has already looked the city up.
+     *
+     * {@code cityRate} comes from the delivery-zone table, which an admin edits; it wins over
+     * the {@code city-fees} configuration, which now only covers a city nobody has created yet.
+     * Two sources for one number is how they end up disagreeing, and the one that can be
+     * changed without a redeploy should be the one that counts.
+     *
+     * The free-delivery threshold still outranks both: it can only ever lower the bill.
+     */
+    public BigDecimal deliveryFee(BigDecimal subtotal, String city, BigDecimal cityRate) {
         if (subtotal.compareTo(props.freeDeliveryThreshold()) >= 0) {
             return money(BigDecimal.ZERO);
+        }
+        if (cityRate != null) {
+            return money(cityRate);
         }
         BigDecimal cityFee = props.cityFees().get(normalizeCity(city));
         return money(cityFee != null ? cityFee : props.deliveryFee());
@@ -129,6 +146,16 @@ public class PricingService {
 
     /** Compute the order-level totals from the priced lines, delivered to {@code city}. */
     public Totals computeTotals(List<LinePricing> lines, String city) {
+        return computeTotals(lines, city, null);
+    }
+
+    /**
+     * Totals where the caller has already resolved the city's rate from the delivery-zone
+     * table. The fee is applied to the subtotal computed here, which is why the rate is passed
+     * in rather than the fee itself: the free-delivery threshold is decided against a number
+     * only this method knows.
+     */
+    public Totals computeTotals(List<LinePricing> lines, String city, BigDecimal cityRate) {
         BigDecimal subtotal = BigDecimal.ZERO;
         BigDecimal discount = BigDecimal.ZERO;
         for (LinePricing line : lines) {
@@ -138,7 +165,7 @@ public class PricingService {
         }
         subtotal = money(subtotal);
         discount = money(discount);
-        BigDecimal delivery = deliveryFee(subtotal, city);
+        BigDecimal delivery = deliveryFee(subtotal, city, cityRate);
         BigDecimal total = money(subtotal.add(delivery));
         return new Totals(subtotal, discount, delivery, total);
     }

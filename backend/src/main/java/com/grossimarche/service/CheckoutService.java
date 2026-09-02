@@ -60,6 +60,7 @@ public class CheckoutService {
     private final BundleService bundleService;
     private final ProductRepository productRepository;
     private final SegmentPricingService segmentPricing;
+    private final DeliveryZoneService deliveryZones;
     private final AddressRepository addressRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -76,6 +77,7 @@ public class CheckoutService {
     public CheckoutService(CartRepository cartRepository, CartItemRepository cartItemRepository,
                            ProductRepository productRepository,
                            SegmentPricingService segmentPricing,
+                           DeliveryZoneService deliveryZones,
                            AddressRepository addressRepository, OrderRepository orderRepository,
                            OrderItemRepository orderItemRepository,
                            OrderStatusHistoryRepository statusHistoryRepository,
@@ -88,6 +90,7 @@ public class CheckoutService {
         this.bundleService = bundleService;
         this.productRepository = productRepository;
         this.segmentPricing = segmentPricing;
+        this.deliveryZones = deliveryZones;
         this.addressRepository = addressRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
@@ -188,7 +191,10 @@ public class CheckoutService {
 
         // 5. Recompute totals server-side.
         // Delivery is priced from the destination city of the address chosen above.
-        PricingService.Totals totals = pricingService.computeTotals(pricingLines, address.getCity());
+        // The rate comes from the delivery-zone table the admin edits, not from the
+        // application.yml map it replaced - otherwise every price change is a redeploy.
+        PricingService.Totals totals = pricingService.computeTotals(pricingLines,
+                address.getCity(), deliveryZones.rateFor(address.getCity()).orElse(null));
 
         // 5b. Apply an optional coupon: validated server-side against the fresh subtotal,
         //     snapshotted on the order. An invalid/expired code aborts checkout (no order).

@@ -35,6 +35,8 @@ const ADMIN_ONLY_ROUTES = [
   // Client types cut the whole price grid: creating one decides how every product has to
   // be priced from then on. Commercial policy, not a store manager's daily catalogue work.
   "client-types",
+  // Delivery rates are commercial policy too: what a round costs is not an operations call.
+  "delivery",
   "coupons",
   "settings", // → store / magasins management
   "currencies",

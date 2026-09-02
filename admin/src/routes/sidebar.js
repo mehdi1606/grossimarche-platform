@@ -11,6 +11,7 @@ import {
   FiPackage,
   FiStar,
   FiTag,
+  FiTruck,
   FiUserCheck,
 } from "react-icons/fi";
 
@@ -99,6 +100,11 @@ const sidebar = [
     path: "/notifications",
     icon: FiBell,
     name: "Notifications",
+  },
+  {
+    path: "/delivery",
+    icon: FiTruck,
+    name: "Delivery",
   },
   {
     path: "/settings",

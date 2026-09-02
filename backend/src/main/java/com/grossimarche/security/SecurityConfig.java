@@ -86,7 +86,10 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.GET,
                             "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/stores/**",
                             "/api/v1/currencies/**", "/api/v1/languages/**", "/api/v1/attributes/**",
-                            "/api/v1/bundles/**", "/api/v1/client-types")
+                            "/api/v1/bundles/**", "/api/v1/client-types",
+                            // Where we deliver: a shopper needs it while filling in an
+                            // address, and the list of cities served is a shop sign.
+                            "/api/v1/delivery-cities")
                             .permitAll();
                     if (local) {
                         auth.requestMatchers(SWAGGER_PATHS).permitAll();
@@ -104,7 +107,9 @@ public class SecurityConfig {
                             // Client types cut the whole price grid: creating one decides how
                             // every product must be priced from then on. That is a commercial
                             // decision, not the daily catalogue work a store manager does.
-                            "/api/v1/admin/client-types/**").hasRole("ADMIN");
+                            "/api/v1/admin/client-types/**",
+                            // Delivery rates are commercial policy, like the segments.
+                            "/api/v1/admin/delivery-cities/**").hasRole("ADMIN");
                     auth.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "STORE_MANAGER");
                     auth.requestMatchers("/actuator/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
