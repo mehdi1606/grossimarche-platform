@@ -5,6 +5,8 @@ import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +98,31 @@ public class RefreshTokenService {
         redis.opsForValue().set(curKey(userId, familyId), hash, ttl);
         redis.opsForSet().add(famKey(userId, familyId), hash);
         redis.expire(famKey(userId, familyId), ttl);
+    }
+
+    /**
+     * Revoke every session this user has, on every device.
+     *
+     * Called after a password reset. Without it, whoever prompted the reset - a thief holding a
+     * stolen refresh token - keeps access for the token's full 30-day life, which reduces the
+     * reset to a formality. Scanned rather than KEYS: this Redis serves every request, and
+     * blocking it to sign one person out is a poor trade.
+     */
+    public void revokeAllForUser(UUID userId) {
+        ScanOptions options = ScanOptions.scanOptions()
+                .match("rtfam:" + userId + ":*").count(100).build();
+        try (Cursor<String> cursor = redis.scan(options)) {
+            while (cursor.hasNext()) {
+                String famKey = cursor.next();
+                Set<String> members = redis.opsForSet().members(famKey);
+                if (members != null) {
+                    members.forEach(h -> redis.delete(rtKey(h)));
+                }
+                // rtfam:{user}:{family} and rtcur:{user}:{family} differ only by the prefix.
+                redis.delete("rtcur:" + famKey.substring("rtfam:".length()));
+                redis.delete(famKey);
+            }
+        }
     }
 
     private void revokeFamily(UUID userId, String familyId) {

@@ -65,6 +65,15 @@ const Login = () => {
                   <Error errorName={errors.password} />
                 </div>
 
+                <div className="flex justify-end">
+                  <Link
+                    href="/auth/forget-password"
+                    className="text-sm text-emerald-700 transition hover:underline"
+                  >
+                    Mot de passe oublie ?
+                  </Link>
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading}

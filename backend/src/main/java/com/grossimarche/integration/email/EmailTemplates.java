@@ -249,6 +249,30 @@ public final class EmailTemplates {
         return layout("Votre demande de compte Grossimarché", content);
     }
 
+    /**
+     * The six-digit code that lets a customer set a new password.
+     *
+     * Set large and widely spaced because it is read on one screen and typed into another,
+     * usually on a phone - a run of six tight digits is exactly where a 6 becomes an 8. The
+     * closing reassurance earns its place too: most people who receive one of these
+     * unexpectedly want to know whether they have to do anything about it.
+     */
+    public static String passwordResetEmail(String shopName, String code) {
+        String content = ("""
+                <p style="margin:0 0 6px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Mot de passe oublié</p>
+                <h1 style="margin:0 0 10px;font-size:20px;color:#111827;">Bonjour {{SHOP}}</h1>
+                <p style="margin:0 0 22px;font-size:14px;line-height:22px;color:#374151;">Voici votre code de réinitialisation. Saisissez-le sur la page ouverte dans votre navigateur.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;"><tr><td align="center">
+                  <div style="display:inline-block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 34px;font-family:'Courier New',monospace;font-size:34px;font-weight:700;letter-spacing:10px;color:#047857;">{{CODE}}</div>
+                </td></tr></table>
+                <p style="margin:0 0 6px;font-size:14px;line-height:22px;color:#374151;">Ce code est valable <strong>15 minutes</strong>.</p>
+                <p style="margin:0;font-size:14px;line-height:22px;color:#6b7280;">Vous n'avez rien demandé ? Ignorez cet e-mail : votre mot de passe reste inchangé.</p>
+                """)
+                .replace("{{SHOP}}", escape(shopName))
+                .replace("{{CODE}}", escape(code));
+        return layout("Votre code de réinitialisation Grossimarché", content);
+    }
+
     /** Minimal HTML escaping for values interpolated into the templates. */
     private static String escape(String s) {
         if (s == null) {

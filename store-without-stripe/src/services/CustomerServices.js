@@ -21,6 +21,28 @@ const CustomerServices = {
     return requests.post("/auth/register", body);
   },
 
+  /**
+   * Forgotten password, in three steps.
+   *
+   * The address is sent again at every step because the code is stored against it, not against
+   * a session: someone reads the code on their phone and finishes on their computer, and that
+   * has to work.
+   *
+   * `forgotPassword` resolves whether or not the address has an account - the API refuses to
+   * say, so this cannot be used to find out who shops here.
+   */
+  forgotPassword: async (email) => {
+    return requests.post("/auth/password/forgot", { email });
+  },
+
+  verifyResetCode: async ({ email, code }) => {
+    return requests.post("/auth/password/verify-code", { email, code });
+  },
+
+  resetPassword: async ({ email, code, newPassword }) => {
+    return requests.post("/auth/password/reset", { email, code, newPassword });
+  },
+
   /** The segments offered at sign-up. Public: the chooser runs before anyone has an account. */
   getClientTypes: async () => {
     return requests.get("/client-types");

@@ -3,6 +3,7 @@ package com.grossimarche.controller;
 import com.grossimarche.dto.auth.LogoutRequest;
 import com.grossimarche.dto.auth.OtpRequestRequest;
 import com.grossimarche.dto.auth.PasswordLoginRequest;
+import com.grossimarche.dto.auth.PasswordResetRequests;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.OtpVerifyRequest;
 import com.grossimarche.dto.auth.RefreshRequest;
@@ -11,6 +12,7 @@ import com.grossimarche.dto.auth.TokenResponse;
 import com.grossimarche.dto.user.UserResponse;
 import com.grossimarche.service.CustomerRegistrationService;
 import com.grossimarche.service.AuthService;
+import com.grossimarche.service.PasswordResetService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Authentication endpoints. Thin: validate, resolve the caller's IP/UA, and delegate to
@@ -42,11 +46,45 @@ public class AuthController {
 
     private final AuthService authService;
     private final CustomerRegistrationService registrationService;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(AuthService authService,
-                          CustomerRegistrationService registrationService) {
+                          CustomerRegistrationService registrationService,
+                          PasswordResetService passwordResetService) {
         this.authService = authService;
         this.registrationService = registrationService;
+        this.passwordResetService = passwordResetService;
+    }
+
+    /**
+     * Step 1 of a forgotten password: e-mail a code.
+     *
+     * Answers the same sentence whether the address belongs to a customer, to a staff member,
+     * or to nobody. "No such account" would make this form a way to enumerate the shop's client
+     * list, and "that is a staff account" would be worse.
+     */
+    @PostMapping("/password/forgot")
+    public Map<String, String> forgotPassword(
+            @Valid @RequestBody PasswordResetRequests.Forgot body, HttpServletRequest request) {
+        passwordResetService.requestCode(body.email(), clientIp(request));
+        return Map.of("message",
+                "Si un compte client existe avec cette adresse, un code vient d'être envoyé.");
+    }
+
+    /** Step 2: check the code before asking the shopper to invent a password. */
+    @PostMapping("/password/verify-code")
+    public Map<String, String> verifyResetCode(
+            @Valid @RequestBody PasswordResetRequests.VerifyCode body) {
+        passwordResetService.verifyCode(body.email(), body.code());
+        return Map.of("message", "Code vérifié.");
+    }
+
+    /** Step 3: spend the code, set the password, and end every existing session. */
+    @PostMapping("/password/reset")
+    public Map<String, String> resetPassword(
+            @Valid @RequestBody PasswordResetRequests.Reset body) {
+        passwordResetService.reset(body.email(), body.code(), body.newPassword());
+        return Map.of("message", "Mot de passe mis à jour. Vous pouvez vous connecter.");
     }
 
     /**
