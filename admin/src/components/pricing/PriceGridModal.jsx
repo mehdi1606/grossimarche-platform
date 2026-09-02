@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Badge, Button, Input, Select } from "@windmill/react-ui";
+import { Badge, Input, Select } from "@windmill/react-ui";
 import { FiCopy, FiDollarSign, FiPlus, FiTrash2 } from "react-icons/fi";
 
 //internal import
@@ -139,12 +139,28 @@ const PriceGridModal = ({ isOpen, onClose, product, currency = "DH", onSaved }) 
       size="xl"
       footer={
         <>
-          <Button layout="outline" onClick={onClose}>
+          {/* Plain buttons: the Windmill `outline` variant carries w-full/h-12/bg-gray-200 in
+              this project's theme, which turned Cancel into a grey slab wider than the action
+              it sits next to. */}
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
             Annuler
-          </Button>
-          <Button onClick={save} disabled={saving || loading || !grid}>
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving || loading || !grid}
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving && (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            )}
             {saving ? "Enregistrement…" : "Enregistrer"}
-          </Button>
+          </button>
         </>
       }
     >

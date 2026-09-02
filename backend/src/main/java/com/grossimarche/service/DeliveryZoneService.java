@@ -161,6 +161,11 @@ public class DeliveryZoneService {
      */
     private void applyDistricts(DeliveryCity city, List<DeliveryCityRequest.District> submitted) {
         city.getDistricts().clear();
+        // Flush the removals before re-adding. Within one flush Hibernate orders inserts ahead
+        // of deletes, so saving a city without renaming its districts inserted "Aïn Harrouda"
+        // while the old row was still there and tripped uq_delivery_districts (city_id, name) -
+        // every edit of a city that already had districts failed with a conflict.
+        repository.saveAndFlush(city);
         if (submitted == null) {
             return;
         }

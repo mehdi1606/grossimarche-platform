@@ -79,8 +79,12 @@ public class CustomerAdminService {
     }
 
     private CustomerSummaryResponse toSummary(User user) {
+        // Loaded with the page by the repository's entity graph, so reading it here costs
+        // no extra query. Null for the accounts created before segments existed.
+        String segment = user.getClientType() == null ? null : user.getClientType().getName();
         return new CustomerSummaryResponse(user.getId(), user.getFullName(), user.getPhone(),
-                user.getEmail(), user.getStatus(), orderRepository.countByUserId(user.getId()),
+                user.getEmail(), segment, user.getStatus(),
+                orderRepository.countByUserId(user.getId()),
                 orderRepository.totalSpentByUser(user.getId()), user.getCreatedAt());
     }
 }

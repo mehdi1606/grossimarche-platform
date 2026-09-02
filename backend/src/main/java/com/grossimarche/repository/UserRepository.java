@@ -5,6 +5,7 @@ import com.grossimarche.entity.enums.Role;
 import com.grossimarche.entity.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -59,9 +60,24 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * {@code q} is always a non-null string ("" = no filter); a null bind would be typed as
      * bytea by PostgreSQL and blow up {@code lower(...)}.
      */
+    // The client type is shown on every row of the admin list; an entity graph loads it with
+    // the page instead of one lazy select per customer. An @EntityGraph rather than a fetch
+    // join because this query is paginated, and a fetch join would need its own count query.
+    @EntityGraph(attributePaths = "clientType")
     @Query("select u from User u where u.role = :role and ("
             + ":q = '' or lower(u.fullName) like lower(concat('%', :q, '%')) "
             + "or u.phone like concat('%', :q, '%') "
             + "or lower(u.email) like lower(concat('%', :q, '%')))")
     Page<User> searchByRole(Role role, String q, Pageable pageable);
+
+    /**
+     * How many customers each trade segment holds, biggest first. Customers with no segment
+     * yet - registered before segments, or still awaiting approval - are counted together
+     * rather than dropped, so the chart's total matches the customer list.
+     */
+    @Query("select coalesce(ct.name, 'Non défini') as label, count(u) as total "
+            + "from User u left join u.clientType ct "
+            + "where u.role = com.grossimarche.entity.enums.Role.CLIENT "
+            + "group by ct.name order by count(u) desc")
+    List<Object[]> countCustomersByClientType();
 }

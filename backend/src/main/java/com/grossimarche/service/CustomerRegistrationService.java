@@ -3,6 +3,7 @@ package com.grossimarche.service;
 import com.grossimarche.dto.auth.RegisterRequest;
 import com.grossimarche.dto.user.UserResponse;
 import com.grossimarche.entity.ClientType;
+import com.grossimarche.entity.enums.UserStatus;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
@@ -54,11 +55,15 @@ public class CustomerRegistrationService {
                 req.phone(), req.city(), req.district(), req.addressLine(), type, req.password(), ip);
 
         // A pending account earns nothing until someone looks at it, so the back-office is told
-        // straight away rather than discovering the queue on its next visit.
-        events.publishEvent(new StaffAlertEvent(
-                "Nouvelle demande de compte",
-                req.businessName().trim() + " (" + type.getName() + ") attend une validation.",
-                "/customers"));
+        // straight away rather than discovering the queue on its next visit. The listener turns
+        // this into both a bell notification and the staff e-mail.
+        events.publishEvent(new CustomerRegisteredEvent(
+                created.id(),
+                req.businessName().trim(),
+                type.getName(),
+                req.city(),
+                req.email() != null && !req.email().isBlank() ? req.email() : req.phone(),
+                created.status() != UserStatus.ACTIVE));
 
         return created;
     }

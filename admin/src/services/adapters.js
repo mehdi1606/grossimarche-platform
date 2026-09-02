@@ -27,6 +27,8 @@ export const adaptCustomer = (g) => ({
   name: g.fullName || "-",
   email: g.email || "",
   phone: g.phone || "",
+  // Trade segment: it decides which price grid the customer is charged, so the list shows it.
+  clientType: g.clientTypeName || "",
   status: STATUS_LABEL[g.status] || g.status,
   orderCount: g.orderCount ?? 0,
   totalSpent: g.totalSpent ?? 0,

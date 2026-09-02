@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Badge,
-  Button,
   Select,
   Table,
   TableBody,
@@ -172,27 +171,32 @@ const Approvals = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="small"
+                    {/* Two decisions of unequal weight. Approving is the expected outcome and
+                        leads; refusing is deliberately quieter — the Windmill `outline` variant
+                        rendered it as a wide grey slab that outweighed the primary action and
+                        read as disabled. */}
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
                         disabled={busyId === row.id}
                         onClick={() => approve(row)}
+                        className="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-lg bg-emerald-500 px-3.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        <FiCheck className="mr-1 h-4 w-4" />
-                        Valider
-                      </Button>
-                      <Button
-                        size="small"
-                        layout="outline"
+                        <FiCheck className="h-4 w-4" />
+                        {busyId === row.id ? "…" : "Valider"}
+                      </button>
+                      <button
+                        type="button"
                         disabled={busyId === row.id}
                         onClick={() => {
                           setRejectTarget(row);
                           setReason("");
                         }}
+                        className="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3.5 text-sm font-medium text-gray-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                       >
-                        <FiX className="mr-1 h-4 w-4" />
+                        <FiX className="h-4 w-4" />
                         Refuser
-                      </Button>
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -210,12 +214,21 @@ const Approvals = () => {
         icon={FiX}
         footer={
           <>
-            <Button layout="outline" onClick={() => setRejectTarget(null)}>
+            <button
+              type="button"
+              onClick={() => setRejectTarget(null)}
+              className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
               Annuler
-            </Button>
-            <Button className="!bg-red-500 hover:!bg-red-600" onClick={reject}>
+            </button>
+            <button
+              type="button"
+              onClick={reject}
+              disabled={!!busyId}
+              className="h-11 whitespace-nowrap rounded-lg bg-red-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               Refuser et envoyer
-            </Button>
+            </button>
           </>
         }
       >

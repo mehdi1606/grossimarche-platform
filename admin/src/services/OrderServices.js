@@ -47,6 +47,10 @@ const OrderServices = {
   getDashboardOrdersData: async () => requests.get("/admin/dashboard/summary"),
   getBestSellerProductChart: async () => requests.get("/admin/dashboard/best-sellers?limit=6"),
   getDashboardSales: async (days = 30) => requests.get(`/admin/dashboard/sales?days=${days}`),
+  // Dashboard breakdowns: deliveries per city (pie) and customers per trade segment (bar).
+  getDeliveriesByCity: async () =>
+    requests.get("/admin/dashboard/deliveries-by-city?limit=8"),
+  getCustomersByType: async () => requests.get("/admin/dashboard/customers-by-type"),
 };
 
 export default OrderServices;

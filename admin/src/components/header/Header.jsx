@@ -10,8 +10,11 @@ import {
   FiMenu,
   FiSun,
   FiMoon,
+  FiAlertTriangle,
   FiBell,
   FiSettings,
+  FiShoppingBag,
+  FiUserPlus,
   FiVolume2,
   FiVolumeX,
 } from "react-icons/fi";
@@ -249,83 +252,91 @@ const Header = () => {
                           </p>
                         </div>
                       ) : (
-                        <ul className="block text-sm border-t border-gray-100 dark:border-gray-700 rounded-md">
+                        <ul className="divide-y divide-gray-100 dark:divide-gray-700">
                           {data?.map((value, index) => {
+                            /* Type drives the icon, the colour and the destination. The row
+                               used to guess from the presence of a productId, so a customer
+                               sign-up was labelled "Stock Out" and pointed at a product that
+                               does not exist - which is exactly what a NEW_CUSTOMER row showed. */
+                            const kind =
+                              value.type === "NEW_ORDER"
+                                ? {
+                                    Icon: FiShoppingBag,
+                                    chip: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10",
+                                    to: value.orderId ? `/order/${value.orderId}` : "/orders",
+                                  }
+                                : value.type === "NEW_CUSTOMER"
+                                ? {
+                                    Icon: FiUserPlus,
+                                    chip: "bg-blue-50 text-blue-600 dark:bg-blue-500/10",
+                                    to: "/approvals",
+                                  }
+                                : value.type === "LOW_STOCK"
+                                ? {
+                                    Icon: FiAlertTriangle,
+                                    chip: "bg-amber-50 text-amber-600 dark:bg-amber-500/10",
+                                    to: value.productId
+                                      ? `/product/${value.productId}`
+                                      : "/products",
+                                  }
+                                : {
+                                    Icon: FiBell,
+                                    chip: "bg-gray-100 text-gray-500 dark:bg-gray-700",
+                                    to: "/notifications",
+                                  };
+
                             return (
                               <li
                                 key={index + 1}
-                                className={`flex justify-between items-center font-serif font-normal text-sm py-3 border-b border-gray-100 dark:border-gray-700 px-3 transition-colors duration-150 hover:bg-gray-100 ${
-                                  value.status === "unread" && "bg-gray-50"
-                                } hover:text-gray-800 dark:text-gray-400 ${
-                                  value.status === "unread" &&
-                                  "dark:bg-gray-800"
-                                } dark:hover:bg-gray-900  dark:hover:text-gray-100 cursor-pointer`}
+                                className={`group relative flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40 ${
+                                  value.status === "unread"
+                                    ? "bg-emerald-50/40 dark:bg-emerald-500/5"
+                                    : ""
+                                }`}
                               >
                                 <Link
-                                  to={
-                                    value.productId
-                                      ? `/product/${value.productId}`
-                                      : value.orderId
-                                      ? `/order/${value.orderId}`
-                                      : "/our-staff"
-                                  }
-                                  className="flex items-center"
-                                  onClick={() =>
-                                    handleNotificationStatusChange(value._id)
-                                  }
+                                  to={kind.to}
+                                  onClick={() => {
+                                    handleNotificationStatusChange(value._id);
+                                    setNotificationOpen(false);
+                                  }}
+                                  className="flex min-w-0 flex-1 items-start gap-3"
                                 >
-                                  <Avatar
-                                    className="mr-2 md:block bg-gray-50 border border-gray-200"
-                                    src={value.image}
-                                    alt="image"
-                                  />
+                                  <span
+                                    className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full ${kind.chip}`}
+                                  >
+                                    <kind.Icon className="h-4 w-4" />
+                                  </span>
 
-                                  <div className="notification-content">
-                                    <h6 className="font-medium text-gray-500">
-                                      {/* {`${cusName} ${priceText}`} */}
-                                      {value?.message}
-                                    </h6>
-
-                                    <p className="flex items-center text-xs text-gray-400">
-                                      {value.productId ? (
-                                        <Badge type="danger">Stock Out</Badge>
-                                      ) : (
-                                        <Badge type="success">New Order</Badge>
-                                      )}
-                                      <span className="ml-2">
-                                        {showDateTimeFormat(value.createdAt)}
+                                  <span className="min-w-0 flex-1">
+                                    <span className="flex items-center gap-2">
+                                      <span className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
+                                        {value.title}
                                       </span>
-                                    </p>
-                                  </div>
-
-                                  {value.status === "unread" && (
-                                    <span className="px-2 focus:outline-none">
-                                      <img
-                                        src={ellipse}
-                                        width={12}
-                                        height={12}
-                                        alt="ellipse"
-                                        className="w-3 h-3 text-emerald-600"
-                                      />
+                                      {value.status === "unread" && (
+                                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                                      )}
                                     </span>
-                                  )}
+                                    <span className="mt-0.5 block line-clamp-2 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                                      {value.message}
+                                    </span>
+                                    <span className="mt-1 block text-[11px] text-gray-400">
+                                      {showDateTimeFormat(value.createdAt)}
+                                    </span>
+                                  </span>
                                 </Link>
 
-                                <div className="group inline-block relative">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleNotificationDelete(value._id)
-                                    }
-                                    className="px-2 group-hover:text-blue-500 text-red-500 focus:outline-none"
-                                  >
-                                    <FiTrash2 />
-                                  </button>
-
-                                  <div className="absolute hidden group-hover:inline-block bg-gray-50 dark:text-red-400 mr-6 mb-1 right-0 z-50 px-3 py-2 text-sm font-medium text-red-600 rounded-lg shadow-sm tooltip dark:bg-gray-700">
-                                    Delete
-                                  </div>
-                                </div>
+                                {/* Deleting is a corner action: an icon that appears on hover,
+                                    not a red "Delete" label competing with the message. */}
+                                <button
+                                  type="button"
+                                  title="Supprimer"
+                                  aria-label="Supprimer la notification"
+                                  onClick={() => handleNotificationDelete(value._id)}
+                                  className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-gray-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 focus:opacity-100 group-hover:opacity-100 dark:hover:bg-red-500/10"
+                                >
+                                  <FiTrash2 className="h-4 w-4" />
+                                </button>
                               </li>
                             );
                           })}
@@ -371,38 +382,58 @@ const Header = () => {
               </button>
 
               {profileOpen && (
-                <ul className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 focus:outline-none">
-                  <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-emerald-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                    <Link to="/dashboard">
-                      <span className="flex items-center text-sm">
-                        <FiGrid className="w-4 h-4 mr-3" aria-hidden="true" />
-                        <span>{t("Dashboard")}</span>
-                      </span>
-                    </Link>
-                  </li>
-
-                  <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-emerald-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                    <Link to="/edit-profile">
-                      <span className="flex items-center text-sm">
-                        <FiSettings
-                          className="w-4 h-4 mr-3"
-                          aria-hidden="true"
-                        />
-                        <span>{t("EditProfile")}</span>
-                      </span>
-                    </Link>
-                  </li>
-
-                  <li
-                    onClick={handleLogOut}
-                    className="cursor-pointer justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-emerald-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                  >
-                    <span className="flex items-center text-sm">
-                      <FiLogOut className="w-4 h-4 mr-3" aria-hidden="true" />
-                      <span>{t("LogOut")}</span>
+                /* A profile menu that never says whose profile it is. The panel now opens on
+                   the signed-in identity, then the actions - and signing out is separated
+                   from navigation, because it is not the same kind of click. */
+                <div className="absolute right-0 z-30 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500 text-sm font-semibold text-white">
+                      {(adminInfo?.name || adminInfo?.email || "?").charAt(0).toUpperCase()}
                     </span>
-                  </li>
-                </ul>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
+                        {adminInfo?.name || "Staff"}
+                      </p>
+                      <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                        {adminInfo?.email || adminInfo?.phone || ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ul className="py-1">
+                    <li>
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-emerald-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-emerald-400"
+                      >
+                        <FiGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/edit-profile"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-emerald-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-emerald-400"
+                      >
+                        <FiSettings className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Mon profil
+                      </Link>
+                    </li>
+                  </ul>
+
+                  <div className="border-t border-gray-100 py-1 dark:border-gray-700">
+                    <button
+                      type="button"
+                      onClick={handleLogOut}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-300 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                    >
+                      <FiLogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      Se déconnecter
+                    </button>
+                  </div>
+                </div>
               )}
             </li>
           </ul>

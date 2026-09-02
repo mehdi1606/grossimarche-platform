@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
-import { Button } from "@windmill/react-ui";
 import { IoLogOutOutline } from "react-icons/io5";
 import { FiChevronsLeft, FiShoppingBag } from "react-icons/fi";
 
@@ -90,18 +89,19 @@ const SidebarContent = ({ onToggle }) => {
         )}
       </ul>
 
-      <div className="mt-4 px-4">
-        <Button
+      {/* Signing out is not a navigation entry, so it sits below a rule rather than in the
+          menu list. A plain button: the Windmill `outline` variant carries bg-gray-200 and a
+          stray mr-3 in this project's theme, which is what made it a heavy grey slab pushed
+          off-centre. */}
+      <div className="mt-4 border-t border-gray-100 px-3 pt-3 dark:border-gray-700">
+        <button
+          type="button"
           onClick={handleLogOut}
-          size="large"
-          layout="outline"
-          className="w-full rounded-xl"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
         >
-          <span className="flex items-center">
-            <IoLogOutOutline className="mr-3 text-lg" />
-            <span className="text-sm">{t("LogOut")}</span>
-          </span>
-        </Button>
+          <IoLogOutOutline className="h-5 w-5 shrink-0" aria-hidden="true" />
+          Se déconnecter
+        </button>
       </div>
     </div>
   );

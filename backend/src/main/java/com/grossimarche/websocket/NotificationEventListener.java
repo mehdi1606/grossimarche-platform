@@ -2,6 +2,7 @@ package com.grossimarche.websocket;
 
 import com.grossimarche.entity.enums.NotificationType;
 import com.grossimarche.entity.enums.PaymentMethod;
+import com.grossimarche.service.CustomerRegisteredEvent;
 import com.grossimarche.service.LowStockEvent;
 import com.grossimarche.service.NotificationService;
 import com.grossimarche.service.OrderPlacedEvent;
@@ -57,6 +58,29 @@ public class NotificationEventListener {
                 message,
                 event.orderId());
         events.publishEvent(new StaffAlertEvent("Nouvelle commande", message, "/orders"));
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCustomerRegistered(CustomerRegisteredEvent event) {
+        // Who signed up, as what, from where - enough to decide whether to approve without
+        // opening the record.
+        String message = String.format("%s (%s) - %s - %s.%s",
+                event.businessName(),
+                event.clientTypeName(),
+                event.city(),
+                event.contact(),
+                event.pendingApproval() ? " En attente de validation." : "");
+
+        notificationService.record(NotificationType.NEW_CUSTOMER,
+                event.pendingApproval() ? "Nouvelle demande de compte" : "Nouveau client",
+                message,
+                event.userId());
+        // A pending account blocks a customer from ordering, so it goes to the approvals
+        // queue rather than the customer list.
+        events.publishEvent(new StaffAlertEvent(
+                event.pendingApproval() ? "Nouvelle demande de compte" : "Nouveau client",
+                message,
+                event.pendingApproval() ? "/approvals" : "/customers"));
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

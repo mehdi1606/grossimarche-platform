@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Badge,
   Button,
-  Input,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +20,7 @@ import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { CATEGORY_ICONS, CategoryIcon } from "@/utils/categoryIcons";
+import { slugify } from "@/services/adapters";
 
 const EMPTY = { id: null, name: "", slug: "", icon: "cart", displayOrder: 0, active: true };
 
@@ -33,6 +33,8 @@ const Category = () => {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [search, setSearch] = useState("");
+  // Filters the icon picker: 29 monochrome glyphs is a hunt, not a choice.
+  const [iconQuery, setIconQuery] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,8 +115,19 @@ const Category = () => {
     }
   };
 
+  // Plain elements: the Windmill <Input> theme base (h-12 / px-3 / bg-gray-100) has the
+  // same specificity as these utilities, so the grey 48px field kept winning.
   const inputCls =
-    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
+    "form-input w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500";
+
+  const labelCls =
+    "mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300";
+
+  // Written out rather than derived from inputCls: that string carries `px-3`, and stacking
+  // `pl-9` on top left the padding decided by stylesheet order — which is how the search
+  // icon ended up sitting on the placeholder text.
+  const iconFilterCls =
+    "w-full h-9 rounded-lg border border-gray-200 bg-white pl-9 pr-8 text-xs text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500";
 
   // Same control styling as the products list (a plain input: the Windmill Input theme base
   // forces h-12/px-3/bg-gray-100 and would fight these utilities).
@@ -158,7 +171,7 @@ const Category = () => {
               type="button"
               onClick={() => setSearch("")}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
             </button>
@@ -247,52 +260,119 @@ const Category = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={form.id ? "Edit category" : "New category"}
-        subtitle="Pick an icon and name your category."
+        subtitle="L’icône et le nom sont ce que le client voit en boutique."
         icon={FiLayers}
         footer={
           <>
-            <Button layout="outline" onClick={() => setModalOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
               Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {saving ? "Saving…" : form.id ? "Save changes" : "Create category"}
-            </Button>
+            </button>
           </>
         }
       >
         <form onSubmit={handleSave} className="space-y-5">
-          <div className="flex items-center gap-4">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+          {/* The storefront tile, live. Choosing an icon is a visual decision, so the choice
+              is shown as the customer will actually see it rather than as a form value. */}
+          <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-500/10 dark:text-emerald-400">
               <CategoryIcon icon={form.icon} className="h-8 w-8" />
             </span>
-            <div className="flex-1">
-              <label className="block text-sm">
-                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                  Name
-                </span>
-                <Input
-                  className={inputCls}
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Huiles & condiments"
-                  required
-                />
-              </label>
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold text-gray-800 dark:text-gray-100">
+                {form.name || "Nom de la catégorie"}
+              </p>
+              {/* A bare "/search?category=…" told the reader nothing before a name is typed.
+                  The line keeps its height either way so the card does not jump. */}
+              <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                {form.slug || slugify(form.name) ? (
+                  <>/search?category={form.slug || slugify(form.name)}</>
+                ) : (
+                  <span className="italic text-gray-400">
+                    L&apos;adresse en boutique s&apos;affichera ici.
+                  </span>
+                )}
+              </p>
             </div>
           </div>
 
-          {/* Icon picker */}
-          <div>
-            <span className="mb-2 block text-sm font-medium text-gray-600 dark:text-gray-300">
-              Icon
+          <label className="block text-sm">
+            <span className={labelCls}>
+              Nom <span className="text-red-400">*</span>
             </span>
-            <div className="grid grid-cols-8 gap-1.5 rounded-xl border border-gray-100 p-2 dark:border-gray-700 sm:grid-cols-10">
-              {CATEGORY_ICONS.map(({ key, label, Icon }) => (
+            <input
+              type="text"
+              className={inputCls}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Huiles &amp; condiments"
+              required
+            />
+          </label>
+
+          {/* Icon picker: filterable, and the current choice is named rather than left to a
+              tooltip nobody hovers. */}
+          <div>
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <span className={`${labelCls} mb-0`}>Icône</span>
+              <span className="text-xs text-gray-400">
+                {CATEGORY_ICONS.find((i) => i.key === form.icon)?.label || "—"}
+              </span>
+            </div>
+
+            <div className="relative mb-2">
+              {/* left-3.5, not left-3: this project overrides Tailwind's inset scale in
+                  tailwind.config.js, where `3` means 3rem (48px), not 0.75rem. That is what
+                  pushed the magnifier into the middle of the placeholder. The half-step
+                  values are untouched, so they still mean what they say. */}
+              <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={iconQuery}
+                onChange={(e) => setIconQuery(e.target.value)}
+                // This field lives inside the category form: without this, Enter submitted
+                // the form and created the category while the user was only filtering icons.
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
+                placeholder="Filtrer les icônes…"
+                aria-label="Filtrer les icônes"
+                className={iconFilterCls}
+              />
+              {iconQuery && (
+                <button
+                  type="button"
+                  onClick={() => setIconQuery("")}
+                  aria-label="Effacer le filtre"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <FiX className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="gm-thin-scroll grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto rounded-xl border border-gray-100 p-2 dark:border-gray-700 sm:grid-cols-10">
+              {CATEGORY_ICONS.filter(({ label, key }) => {
+                const q = iconQuery.trim().toLowerCase();
+                return !q || label.toLowerCase().includes(q) || key.includes(q);
+              }).map(({ key, label, Icon }) => (
                 <button
                   type="button"
                   key={key}
                   title={label}
                   aria-label={label}
+                  aria-pressed={form.icon === key}
                   onClick={() => setForm({ ...form, icon: key })}
                   className={`grid h-9 w-9 place-items-center rounded-lg transition ${
                     form.icon === key
@@ -306,38 +386,51 @@ const Category = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Slug (optional)
-              </span>
-              <Input
+              <span className={labelCls}>Slug</span>
+              <input
+                type="text"
                 className={inputCls}
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                placeholder="auto from name"
+                placeholder={slugify(form.name) || "généré depuis le nom"}
               />
+              <span className="mt-1 block text-xs text-gray-400">
+                Laissez vide pour le déduire du nom.
+              </span>
             </label>
             <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Display order
-              </span>
-              <Input
+              <span className={labelCls}>Ordre d’affichage</span>
+              <input
                 type="number"
                 className={inputCls}
                 value={form.displayOrder}
                 onChange={(e) => setForm({ ...form, displayOrder: e.target.value })}
               />
+              <span className="mt-1 block text-xs text-gray-400">
+                Le plus petit passe en premier en boutique.
+              </span>
             </label>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:bg-gray-700/30">
             <input
               type="checkbox"
               checked={form.active}
               onChange={(e) => setForm({ ...form, active: e.target.checked })}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-emerald-500 focus:ring-emerald-400"
             />
-            Active
+            <span className="text-sm">
+              <span className="block font-medium text-gray-700 dark:text-gray-200">
+                Catégorie active
+              </span>
+              <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
+                {form.active
+                  ? "Visible dans le menu et les filtres de la boutique."
+                  : "Masquée : ses produits restent en ligne mais la catégorie disparaît."}
+              </span>
+            </span>
           </label>
         </form>
       </Modal>

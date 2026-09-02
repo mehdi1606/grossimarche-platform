@@ -1530,3 +1530,56 @@ input[type="number"]::-webkit-outer-spin-button {
 .gm-thin-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(100, 116, 139, 0.7);
 }
+
+/* ---------------------------------------------------------------------------
+   Data tables (list screens). The look is set by the Windmill theme entries in
+   assets/theme/myTheme.js; these are the few things a utility class cannot do.
+   --------------------------------------------------------------------------- */
+
+/* Digits line up column by column — prices, stock, order totals and counts read as
+   columns of numbers instead of ragged text. Harmless on non-numeric cells. */
+table td,
+table th {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The header stays put while a long list scrolls. Only applies when a page gives the
+   container a max height; otherwise it is inert. */
+table thead th,
+table thead td {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* The first column of every list is the identity of the row - product, category, customer,
+   order number. Giving it weight and full-strength ink turns a grid of equal-looking text
+   into a scannable list, without touching a single page. */
+table tbody td:first-child {
+  font-weight: 500;
+  color: #1f2937;
+}
+.theme-dark table tbody td:first-child,
+.dark table tbody td:first-child {
+  color: #e5e7eb;
+}
+
+/* Row separators stay hairline-thin so the banding does the grouping work. */
+table tbody tr + tr {
+  border-top-color: rgba(0, 0, 0, 0.04);
+}
+
+/* A horizontally scrolling table gets the same slim scrollbar as the dropdown panels,
+   instead of the heavy OS default sitting under the last row. Scoped with :has to the
+   wrapper that actually holds a table, rather than every scrollable box in the app. */
+div:has(> table) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+div:has(> table)::-webkit-scrollbar {
+  height: 6px;
+}
+div:has(> table)::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+}

@@ -21,8 +21,17 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 
 const TYPE_BADGE = {
   NEW_ORDER: "success",
+  NEW_CUSTOMER: "primary",
   LOW_STOCK: "warning",
   SYSTEM: "neutral",
+};
+
+// The raw enum is a database value, not a label for a human reading a feed.
+const TYPE_LABEL = {
+  NEW_ORDER: "Commande",
+  NEW_CUSTOMER: "Client",
+  LOW_STOCK: "Stock",
+  SYSTEM: "Système",
 };
 
 const Notifications = () => {
@@ -76,6 +85,9 @@ const Notifications = () => {
   const linkFor = (row) => {
     if (row.type === "NEW_ORDER" && row.orderId) return `/order/${row.orderId}`;
     if (row.type === "LOW_STOCK" && row.productId) return `/product/${row.productId}`;
+    // A sign-up is actionable in the approvals queue, so the row leads there rather than to
+    // a customer record with no decision on it.
+    if (row.type === "NEW_CUSTOMER") return "/approvals";
     return null;
   };
 
@@ -122,7 +134,7 @@ const Notifications = () => {
                   <TableRow key={row._id} className={row.read ? "opacity-60" : ""}>
                     <TableCell>
                       <Badge type={TYPE_BADGE[row.type] || "neutral"}>
-                        {row.type}
+                        {TYPE_LABEL[row.type] || row.type}
                       </Badge>
                     </TableCell>
                     <TableCell>

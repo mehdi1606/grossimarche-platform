@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Badge,
   Button,
-  Input,
   Table,
   TableBody,
   TableCell,
@@ -50,6 +49,11 @@ const EMPTY = {
    * on screen said "set the price here" about a number nobody is ever charged.
    */
   typePrices: [],
+  /**
+   * The internal reference kept in products.price. Only ever read back on edit, so a save
+   * returns the value the product already had instead of recomputing one.
+   */
+  referencePrice: 0,
   unit: "unité",
   stock: 0,
   minOrderQuantity: 1,
@@ -146,6 +150,8 @@ const Products = () => {
     setForm({
       name: row.title?.en || "",
       categoryId: row.category?._id || "",
+      // Carried through untouched so saving the product cannot move it (see handleSave).
+      referencePrice: row.prices?.price ?? 0,
       typePrices: [],
       unit: row.unit || "unité",
       stock: row.stock ?? 0,
@@ -154,44 +160,38 @@ const Products = () => {
       imageUrl: row.image?.[0] || "",
       active: row.status !== "hide",
     });
+    setLoadedGrid([]);
     setModalOpen(true);
-
-    try {
-      const grid = await PricingServices.getProductGrid(row._id);
-      setLoadedGrid(grid.grids || []);
-      // Only segments that actually carry a price become rows. An empty ladder means the
-      // product is not sold to that segment, which is a real answer, not a blank to fill in.
-      setForm((f) => ({
-        ...f,
-        typePrices: (grid.grids || [])
-          .filter((g) => g.rungs?.length)
-          .map((g) => ({
-            clientTypeId: g.clientTypeId,
-            // The entry price is the lowest rung, which is not always the one at quantity 1:
-            // a segment may only buy this by the case.
-            price: String(
-              g.rungs.reduce((low, r) => (r.minQuantity < low.minQuantity ? r : low)).unitPrice
-            ),
-          })),
-      }));
-    } catch (err) {
-      notifyError(err?.response?.data?.message || err?.message);
-    }
+    // The grid is deliberately not loaded here. This screen shows the price the product was
+    // created with; what the 💲 screen holds is a different thing, and reading it back into
+    // this form is exactly what made the two look like one number that kept moving.
   };
 
   const handleSave = async (e) => {
     e?.preventDefault();
     if (!form.categoryId) return notifyError("Please choose a category.");
 
-    const priced = form.typePrices.filter((r) => r.clientTypeId && r.price !== "");
-    if (priced.length !== form.typePrices.length) {
+    // Prices are only ever written when creating. Editing a product is about what it is and
+    // how much of it there is; what it costs lives on the 💲 grid, and one screen owning the
+    // prices is what keeps the two from overwriting each other.
+    const priced = editingId
+      ? []
+      : form.typePrices.filter((r) => r.clientTypeId && r.price !== "");
+    if (!editingId && priced.length !== form.typePrices.length) {
       return notifyError("Indiquez un prix pour chaque type ajouté, ou retirez la ligne.");
     }
 
     setSaving(true);
-    // products.price is NOT NULL and is now only an internal reference, so it follows the
-    // cheapest segment rather than asking the admin for a number no customer is charged.
-    const reference = priced.length
+    // products.price is NOT NULL but nothing is ever charged from it: the storefront resolves
+    // every price from the segment grid. It is therefore seeded once, at creation, from the
+    // cheapest segment - and left alone afterwards.
+    //
+    // It used to be recomputed on every save, which coupled two things that are not the same:
+    // change a rung on the 💲 grid, come back to edit the product's stock, and the Price column
+    // moved on its own. An existing product keeps the reference it was created with.
+    const reference = editingId
+      ? Number(form.referencePrice) || 0
+      : priced.length
       ? Math.min(...priced.map((r) => Number(r.price)))
       : 0;
 
@@ -217,7 +217,9 @@ const Products = () => {
         await ProductServices.uploadImage(productId, imageFile);
       }
 
-      if (productId) {
+      // Creation only: an edit never rewrites the grid, so a rung set on the 💲 screen cannot
+      // be silently overwritten by someone changing the stock here.
+      if (productId && !editingId) {
         await PricingServices.saveProductGrid(productId, buildGrids(priced));
       }
 
@@ -286,8 +288,18 @@ const Products = () => {
     [imageFile, form.imageUrl]
   );
 
+  // Modal form fields. Plain elements, like the filter bar: passing these utilities to the
+  // Windmill <Input> loses — its theme base (h-12 / px-3 / bg-gray-100) has the same
+  // specificity, so the grey 48px field won and the modal never matched the dropdown next
+  // to it.
   const inputCls =
-    "form-input w-full rounded-lg border border-gray-200 bg-white px-3 h-11 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:bg-gray-700 dark:border-gray-600";
+    "form-input w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500";
+
+  const labelCls =
+    "mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300";
+
+  const sectionCls =
+    "text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500";
 
   // Filter-bar controls are plain elements: the Windmill Input/Select theme base forces
   // h-12 / px-3 / bg-gray-100, which fights any utility passed via className (that clash is
@@ -334,7 +346,7 @@ const Products = () => {
               type="button"
               onClick={clearSearch}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
             </button>
@@ -462,35 +474,60 @@ const Products = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editingId ? "Edit product" : "Add product"}
-        subtitle="Fields marked required feed the storefront catalogue."
+        subtitle={
+          editingId
+            ? "Les changements sont visibles en boutique dès l'enregistrement."
+            : "Nom, catégorie et au moins un prix par type de client sont nécessaires."
+        }
         icon={FiBox}
-        size="lg"
+        size="xl"
         footer={
           <>
-            <Button layout="outline" onClick={() => setModalOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
               Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {saving ? "Saving…" : editingId ? "Save changes" : "Add product"}
-            </Button>
+            </button>
           </>
         }
       >
-        <form onSubmit={handleSave} className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row">
-            {/* image */}
-            <div className="sm:w-40">
-              <span className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300">
-                Image
-              </span>
-              <label className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400 transition hover:border-emerald-300 dark:border-gray-600 dark:bg-gray-700/40">
+        {/* Three concerns, three sections: what the product is, what it costs, how it is
+            stocked. A flat stack of nine fields is what made this form hard to scan. */}
+        {/* Two columns: the product as an object on the left (its picture, whether it is
+            on sale), everything you type on the right. The single scrolling column pushed the
+            pricing grid - the decision this screen exists for - below the fold. */}
+        <form onSubmit={handleSave} className="grid gap-6 lg:grid-cols-[16rem_1fr]">
+          <aside className="space-y-4">
+            <div>
+              <span className={labelCls}>Image</span>
+              <label className="group relative grid aspect-square w-full cursor-pointer place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400 transition hover:border-emerald-300 hover:text-emerald-500 dark:border-gray-600 dark:bg-gray-700/40">
                 {preview ? (
-                  <img src={preview} alt="" className="h-full w-full object-cover" />
-                ) : (
                   <>
-                    <FiImage className="text-2xl" />
-                    <span className="px-2 text-center text-xs">Upload image</span>
+                    <img src={preview} alt="" className="h-full w-full object-cover" />
+                    <span className="absolute inset-0 hidden items-center justify-center bg-gray-900/50 text-xs font-medium text-white group-hover:flex">
+                      Remplacer
+                    </span>
                   </>
+                ) : (
+                  /* Formats and size limit live inside the tile: as a caption under a narrow
+                     column they wrapped onto two ragged lines. */
+                  <span className="flex flex-col items-center gap-1.5 px-6 text-center">
+                    <FiImage className="text-3xl" />
+                    <span className="text-sm font-medium">Ajouter une image</span>
+                    <span className="text-[11px] leading-4 text-gray-400">
+                      PNG, JPG, WebP ou AVIF — 5 Mo max.
+                    </span>
+                  </span>
                 )}
                 <input
                   type="file"
@@ -499,15 +536,47 @@ const Products = () => {
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 />
               </label>
+              {imageFile && (
+                <button
+                  type="button"
+                  onClick={() => setImageFile(null)}
+                  className="mt-2 text-xs font-medium text-gray-500 underline-offset-2 hover:text-red-500 hover:underline"
+                >
+                  Retirer l&apos;image choisie
+                </button>
+              )}
             </div>
 
-            {/* main fields */}
-            <div className="flex-1 space-y-4">
-              <label className="block text-sm">
-                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                  Product name
+            {/* Visibility belongs with the object, not at the bottom of a list of numbers. */}
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3.5 transition-colors hover:border-gray-200 dark:border-gray-700 dark:bg-gray-700/30">
+              <input
+                type="checkbox"
+                checked={form.active}
+                onChange={(e) => setForm({ ...form, active: e.target.checked })}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-emerald-500 focus:ring-emerald-400"
+              />
+              <span className="text-sm">
+                <span className="block font-medium text-gray-700 dark:text-gray-200">
+                  Produit actif
                 </span>
-                <Input
+                <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
+                  {form.active
+                    ? "Visible en boutique et commandable."
+                    : "Masqué de la boutique : personne ne peut le commander."}
+                </span>
+              </span>
+            </label>
+          </aside>
+
+          {/* min-w-0 so a long product name cannot stretch the grid column. */}
+          <div className="min-w-0 space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-sm">
+                <span className={labelCls}>
+                  Product name <span className="text-red-400">*</span>
+                </span>
+                <input
+                  type="text"
                   className={inputCls}
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -515,11 +584,12 @@ const Products = () => {
                   required
                 />
               </label>
+
               {/* A <div>, not a <label>: a label forwards its click to the button inside,
                   which would toggle the dropdown twice and leave it closed. */}
               <div className="text-sm">
-                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                  Category
+                <span className={labelCls}>
+                  Category <span className="text-red-400">*</span>
                 </span>
                 <FilterDropdown
                   ariaLabel="Category"
@@ -533,80 +603,106 @@ const Products = () => {
                 />
               </div>
             </div>
+
+            <label className="block text-sm">
+              <span className={labelCls}>Description</span>
+              <textarea
+                className={`${inputCls} h-20 resize-y py-2.5 leading-6`}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Short description shown on the product page…"
+              />
+            </label>
+
+            {/* Prices are editable at creation only. Once a product exists its grid belongs to
+                the 💲 screen: two screens writing the same ladder is how a rung set there gets
+                overwritten by someone here who only meant to fix the stock. */}
+            {editingId ? (
+              /* The price this product was created with. The 💲 screen holds a different
+                 thing - the per-segment ladders - and reading those back into this card is
+                 what made one number look like it kept changing on its own. */
+              <section className="rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                      Prix du produit
+                    </h4>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                      Défini à la création. Cet écran ne le modifie pas.
+                    </p>
+                  </div>
+                  <span className="whitespace-nowrap text-lg font-semibold text-gray-800 dark:text-gray-100">
+                    {currency}
+                    {Number(form.referencePrice || 0).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-200 pt-3 dark:border-gray-600">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Les prix par type de client et les paliers de quantité (≥3, ≥8…) se
+                    règlent sur leur propre écran.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const row = rows.find((r) => r._id === editingId);
+                      setModalOpen(false);
+                      if (row) setPriceTarget(row);
+                    }}
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:border-emerald-200 hover:text-emerald-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                  >
+                    <FiDollarSign className="h-4 w-4" />
+                    Ouvrir la grille
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <SegmentPriceEditor
+                clientTypes={clientTypes}
+                value={form.typePrices}
+                onChange={(typePrices) => setForm({ ...form, typePrices })}
+                currency={currency}
+                hint="N'ajoutez que les types auxquels vous vendez ce produit. Les autres ne le verront pas du tout en boutique."
+                emptyWarning="Aucun type tarifé : ce produit ne sera visible pour aucun client."
+              />
+            )}
+
+            <section className="space-y-3 border-t border-gray-100 pt-5 dark:border-gray-700">
+              <h4 className={sectionCls}>Stock &amp; conditionnement</h4>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <label className="block text-sm">
+                  <span className={labelCls}>Unit</span>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    value={form.unit}
+                    onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                    placeholder="kg, L, unité…"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className={labelCls}>Stock</span>
+                  <input
+                    type="number"
+                    min="0"
+                    className={inputCls}
+                    value={form.stock}
+                    onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className={labelCls}>Min. order</span>
+                  <input
+                    type="number"
+                    min="1"
+                    className={inputCls}
+                    value={form.minOrderQuantity}
+                    onChange={(e) => setForm({ ...form, minOrderQuantity: e.target.value })}
+                  />
+                </label>
+              </div>
+            </section>
           </div>
-
-          <label className="block text-sm">
-            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Description
-            </span>
-            <textarea
-              className={`${inputCls} h-24 py-2`}
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Short description shown on the product page…"
-            />
-          </label>
-
-          <SegmentPriceEditor
-            clientTypes={clientTypes}
-            value={form.typePrices}
-            onChange={(typePrices) => setForm({ ...form, typePrices })}
-            currency={currency}
-            hint="N'ajoutez que les types auxquels vous vendez ce produit. Les autres ne le verront pas du tout en boutique."
-            emptyWarning="Aucun type tarifé : ce produit ne sera visible pour aucun client."
-          />
-
-          {editingId && (
-            <p className="-mt-2 text-xs text-gray-400">
-              Les paliers de quantité (≥3, ≥8…) se règlent avec l&apos;icône 💲 de la liste.
-            </p>
-          )}
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Unit
-              </span>
-              <Input
-                className={inputCls}
-                value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                placeholder="kg, L, unité…"
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Stock
-              </span>
-              <Input
-                type="number"
-                className={inputCls}
-                value={form.stock}
-                onChange={(e) => setForm({ ...form, stock: e.target.value })}
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Min. order
-              </span>
-              <Input
-                type="number"
-                min="1"
-                className={inputCls}
-                value={form.minOrderQuantity}
-                onChange={(e) => setForm({ ...form, minOrderQuantity: e.target.value })}
-              />
-            </label>
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => setForm({ ...form, active: e.target.checked })}
-            />
-            Active - visible in the storefront
-          </label>
         </form>
       </Modal>
 

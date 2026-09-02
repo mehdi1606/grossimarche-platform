@@ -104,7 +104,7 @@ const Customers = () => {
               type="button"
               onClick={clearSearch}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
             </button>
@@ -113,7 +113,7 @@ const Customers = () => {
       </div>
 
       {loading ? (
-        <TableSkeleton rows={8} cols={6} />
+        <TableSkeleton rows={8} cols={7} />
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiUsers}
@@ -126,6 +126,7 @@ const Customers = () => {
             <TableHeader>
               <tr>
                 <TableCell>Customer</TableCell>
+                <TableCell>Type d&apos;activité</TableCell>
                 <TableCell>Contact</TableCell>
                 <TableCell>Orders</TableCell>
                 <TableCell>Total spent</TableCell>
@@ -145,6 +146,17 @@ const Customers = () => {
                       </Avatar>
                       <span className="font-medium">{row.name}</span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {/* A pill, not plain text: the segment is a category, and it is what
+                        selects the price grid the customer is charged. */}
+                    {row.clientType ? (
+                      <span className="inline-block whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        {row.clientType}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">Non défini</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">{row.email || "-"}</div>

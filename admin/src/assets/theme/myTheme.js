@@ -26,25 +26,36 @@ const myTheme = {
   tableFooter: {
     base: "px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-white text-gray-500 dark:text-gray-400 dark:bg-gray-800",
   },
-  // TableRow
+  // ---------------------------------------------------------------------------------
+  // Tables. Every list screen (products, orders, customers, approvals, bundles…) renders
+  // through these four entries, so the treatment is defined once here rather than being
+  // re-styled per page.
+  // ---------------------------------------------------------------------------------
+  // TableRow — banding to follow a wide row across the page, and a tinted hover. The first
+  // attempt used hover:bg-gray-50, which is the admin's own page background: the highlight
+  // was invisible. The hover is now brand-tinted so it reads against both bands.
   tableRow: {
-    base: "",
+    base: "transition-colors duration-150 even:bg-gray-50/70 hover:bg-emerald-50 dark:even:bg-gray-700/20 dark:hover:bg-emerald-500/10",
   },
-  // TableHeader
+  // TableHeader — quieter than the old solid gray-100 band: smaller caps, wider tracking,
+  // and a tinted surface that separates the header without competing with the data.
   tableHeader: {
-    base: "text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800",
+    base: "text-[11px] font-semibold uppercase tracking-wider text-left text-gray-500 border-b-2 border-gray-200 bg-white dark:text-gray-400 dark:border-gray-700 dark:bg-gray-800",
   },
-  // TableContainer
+  // TableContainer — overflow-x-auto, not overflow-hidden: a six-column table was simply
+  // cut off on a narrow window instead of scrolling.
   tableContainer: {
-    base: "w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg",
+    base: "w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800",
   },
-  // TableCell
+  // TableCell — no font-size here: the same component renders header and body cells, and a
+  // size set at this level would override the header's own. py-4 gives a row enough height
+  // for a 44px thumbnail or a status pill without the text drifting off its own line.
   tableCell: {
-    base: "px-4 py-2",
+    base: "px-5 py-4 align-middle",
   },
   // TableBody
   tableBody: {
-    base: "bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-800 dark:text-gray-400",
+    base: "bg-white divide-y divide-gray-100 text-sm text-gray-700 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-400",
   },
   // DropdownItem
   // this is the <li> that lives inside the Dropdown <ul>

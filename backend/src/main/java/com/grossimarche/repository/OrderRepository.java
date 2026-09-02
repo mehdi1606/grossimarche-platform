@@ -72,4 +72,28 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
         BigDecimal getTotal();
     }
+
+    /**
+     * Deliveries per city, busiest first.
+     *
+     * Native, because the city lives inside the order's address snapshot: the delivery address
+     * is frozen as JSON at checkout so a later edit of the customer's address cannot rewrite
+     * where an order actually went. Cancelled orders are excluded - nothing was delivered.
+     */
+    @Query(value = """
+            select coalesce(nullif(trim(address_snapshot ->> 'city'), ''), 'Non précisée') as label,
+                   count(*) as total
+            from orders
+            where status <> 'CANCELLED'
+            group by 1
+            order by total desc, label asc
+            """, nativeQuery = true)
+    List<LabelCount> countDeliveriesByCity();
+
+    /** Projection for the dashboard breakdowns. */
+    interface LabelCount {
+        String getLabel();
+
+        long getTotal();
+    }
 }

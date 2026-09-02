@@ -4,7 +4,6 @@ import {
   Badge,
   Button,
   Input,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -19,6 +18,7 @@ import dayjs from "dayjs";
 import PageTitle from "@/components/Typography/PageTitle";
 import AdminServices from "@/services/AdminServices";
 import Modal from "@/components/common/Modal";
+import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
@@ -27,6 +27,24 @@ const EMPTY = { name: "", email: "", phone: "", role: "Store Manager" };
 
 const nameOf = (row) =>
   typeof row?.name === "object" ? row?.name?.en || "-" : row?.name || "-";
+
+/**
+ * What each role can reach, in the words an admin thinks in. The list drives both the
+ * picker and the explanation under it - one place to change when the split moves
+ * (utils/access.js is the enforcing copy).
+ */
+const ROLES = [
+  {
+    value: "Admin",
+    label: "Admin",
+    summary: "Accès complet, y compris le staff, les coupons et les réglages.",
+  },
+  {
+    value: "Store Manager",
+    label: "Store Manager",
+    summary: "Commandes, produits, catégories, clients et offres. Pas de staff ni de réglages.",
+  },
+];
 
 const Staff = () => {
   const [rows, setRows] = useState([]);
@@ -263,12 +281,21 @@ const Staff = () => {
         icon={FiUser}
         footer={
           <>
-            <Button layout="outline" onClick={() => setModalOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
               Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="h-11 whitespace-nowrap rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {saving ? "Saving…" : editing ? "Save changes" : "Add staff"}
-            </Button>
+            </button>
           </>
         }
       >
@@ -315,20 +342,26 @@ const Staff = () => {
               </div>
             </>
           )}
-          <label className="block text-sm">
+          {/* A <div>, not a <label>: a label forwards its click to the button inside, which
+              would toggle the dropdown twice and leave it closed. */}
+          <div className="text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
               Role
             </span>
-            <Select
+            <FilterDropdown
+              ariaLabel="Role"
+              allLabel={ROLES[0].label}
+              resetValue={ROLES[0].value}
               value={form.role}
-              onChange={(e) => setForm({ ...form, role: e.target.value })}
-            >
-              <option value="Admin">Admin - full access</option>
-              <option value="Store Manager">
-                Store Manager - orders, products, categories, customers
-              </option>
-            </Select>
-          </label>
+              onChange={(role) => setForm({ ...form, role })}
+              options={ROLES.slice(1).map(({ value, label }) => ({ value, label }))}
+            />
+            {/* The permissions moved out of the option labels: a dropdown row is not the
+                place for a sentence, and the reader only needs the one that applies. */}
+            <p className="mt-1.5 text-xs leading-5 text-gray-500 dark:text-gray-400">
+              {(ROLES.find((r) => r.value === form.role) || ROLES[0]).summary}
+            </p>
+          </div>
           {editing ? (
             <p className="text-xs text-gray-400">
               Name, email and phone are set when the account is created.

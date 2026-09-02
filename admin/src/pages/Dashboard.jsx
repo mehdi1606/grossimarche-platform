@@ -14,7 +14,7 @@ import {
   FiArrowUpRight,
 } from "react-icons/fi";
 import "chart.js/auto";
-import { Line, Doughnut } from "react-chartjs-2";
+import { Line, Doughnut, Pie, Bar } from "react-chartjs-2";
 import dayjs from "dayjs";
 
 //internal import
@@ -115,6 +115,16 @@ const Dashboard = () => {
   const { data: bestSellers, loading: loadingBest } = useAsync(
     OrderServices.getBestSellerProductChart
   );
+
+  // Where deliveries go, and who buys. Both come from the API rather than being derived from
+  // the orders already on screen: that list is the ten most recent, which would make the
+  // charts a picture of this morning instead of the business.
+  const { data: cityRows, loading: loadingCities } = useAsync(
+    OrderServices.getDeliveriesByCity
+  );
+  const { data: typeRows, loading: loadingTypes } = useAsync(
+    OrderServices.getCustomersByType
+  );
   const { data: recent, loading: loadingRecent } = useAsync(() =>
     OrderServices.getDashboardRecentOrder({ limit: 8 })
   );
@@ -189,6 +199,86 @@ const Dashboard = () => {
     (s, e) => s + Number(summary?.[e.key] || 0),
     0
   );
+
+  // One palette for both breakdowns, so a city and a segment never fight over the same hue
+  // inside one screen. Ordered so neighbouring slices stay distinguishable.
+  const BREAKDOWN_COLORS = [
+    "#10b981",
+    "#3b82f6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#ef4444",
+    "#14b8a6",
+    "#ec4899",
+    "#6366f1",
+    "#84cc16",
+    "#f97316",
+    "#94a3b8",
+  ];
+
+  const cityList = Array.isArray(cityRows) ? cityRows : [];
+  const typeList = Array.isArray(typeRows) ? typeRows : [];
+  const cityTotal = cityList.reduce((sum, r) => sum + Number(r.count || 0), 0);
+
+  const cityPieData = {
+    labels: cityList.map((r) => r.label),
+    datasets: [
+      {
+        data: cityList.map((r) => Number(r.count || 0)),
+        backgroundColor: cityList.map(
+          (_, i) => BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length]
+        ),
+        borderColor: "#fff",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const cityPieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          // A slice means nothing without its share of the whole.
+          label: (ctx) => {
+            const value = Number(ctx.parsed) || 0;
+            const share = cityTotal ? Math.round((value / cityTotal) * 100) : 0;
+            return ` ${ctx.label} : ${value} livraison${value > 1 ? "s" : ""} (${share} %)`;
+          },
+        },
+      },
+    },
+  };
+
+  const typeBarData = {
+    labels: typeList.map((r) => r.label),
+    datasets: [
+      {
+        label: "Clients",
+        data: typeList.map((r) => Number(r.count || 0)),
+        // One colour per segment, from the same palette as the pie: a segment keeps the same
+        // hue wherever it appears on the dashboard.
+        backgroundColor: typeList.map(
+          (_, i) => BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length]
+        ),
+        borderRadius: 6,
+        maxBarThickness: 46,
+      },
+    ],
+  };
+
+  const typeBarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      // Counts are whole clients: a "2.5" gridline would be nonsense.
+      y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "rgba(0,0,0,0.05)" } },
+    },
+  };
 
   return (
     <>
@@ -305,6 +395,75 @@ const Dashboard = () => {
                 </li>
               ))}
             </ul>
+          </SectionCard>
+        </div>
+
+        {/* Deliveries per city + customers per trade */}
+        <div className="mt-6 grid gap-4 xl:grid-cols-3">
+          <SectionCard
+            title="Livraisons par ville"
+            action={
+              cityTotal > 0 && (
+                <span className="text-xs font-medium text-gray-400">
+                  {cityTotal} livraison{cityTotal > 1 ? "s" : ""}
+                </span>
+              )
+            }
+          >
+            <div className="h-60">
+              {loadingCities ? (
+                <div className="gm-skeleton h-full w-full rounded-xl" />
+              ) : cityList.length === 0 ? (
+                <div className="grid h-full place-items-center text-sm text-gray-400">
+                  Aucune livraison enregistrée.
+                </div>
+              ) : (
+                <Pie data={cityPieData} options={cityPieOptions} />
+              )}
+            </div>
+
+            {/* Legend as a list, not chart.js's own: it carries the counts, and it wraps
+                instead of squeezing the pie when a city name is long. */}
+            {cityList.length > 0 && (
+              <ul className="mt-4 space-y-1.5">
+                {cityList.map((row, i) => (
+                  <li
+                    key={row.label}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{
+                          background: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length],
+                        }}
+                      />
+                      <span className="truncate">{row.label}</span>
+                    </span>
+                    <span className="shrink-0 font-semibold text-gray-800 dark:text-gray-100">
+                      {row.count}
+                      <span className="ml-1.5 text-xs font-normal text-gray-400">
+                        {cityTotal ? Math.round((row.count / cityTotal) * 100) : 0} %
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Clients par type d&apos;activité" className="xl:col-span-2">
+            <div className="h-72">
+              {loadingTypes ? (
+                <div className="gm-skeleton h-full w-full rounded-xl" />
+              ) : typeList.length === 0 ? (
+                <div className="grid h-full place-items-center text-sm text-gray-400">
+                  Aucun client enregistré.
+                </div>
+              ) : (
+                <Bar data={typeBarData} options={typeBarOptions} />
+              )}
+            </div>
           </SectionCard>
         </div>
 

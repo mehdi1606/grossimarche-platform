@@ -2,6 +2,7 @@ package com.grossimarche.service;
 
 import com.grossimarche.dto.dashboard.BestSellerResponse;
 import com.grossimarche.dto.dashboard.DashboardSummaryResponse;
+import com.grossimarche.dto.dashboard.LabelCountResponse;
 import com.grossimarche.dto.dashboard.SalesPointResponse;
 import com.grossimarche.dto.mapper.OrderMapper;
 import com.grossimarche.dto.order.OrderSummaryResponse;
@@ -107,5 +108,35 @@ public class DashboardService {
         var pageable = PageRequest.of(0, Math.min(Math.max(limit, 1), 50),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         return orderRepository.findAll(pageable).map(orderMapper::toSummary).getContent();
+    }
+
+    /**
+     * Deliveries per city, for the dashboard breakdown. Capped so one chart cannot turn into a
+     * legend of forty slices; anything past the top ten is summed into "Autres" rather than
+     * dropped, which keeps the total honest.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional(readOnly = true)
+    public List<LabelCountResponse> deliveriesByCity(int limit) {
+        List<OrderRepository.LabelCount> rows = orderRepository.countDeliveriesByCity();
+        int keep = Math.min(Math.max(limit, 1), 20);
+        List<LabelCountResponse> top = rows.stream()
+                .limit(keep)
+                .map(r -> new LabelCountResponse(r.getLabel(), r.getTotal()))
+                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+        long rest = rows.stream().skip(keep).mapToLong(OrderRepository.LabelCount::getTotal).sum();
+        if (rest > 0) {
+            top.add(new LabelCountResponse("Autres", rest));
+        }
+        return top;
+    }
+
+    /** Customers per trade segment, for the dashboard breakdown. */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional(readOnly = true)
+    public List<LabelCountResponse> customersByClientType() {
+        return userRepository.countCustomersByClientType().stream()
+                .map(row -> new LabelCountResponse((String) row[0], ((Number) row[1]).longValue()))
+                .toList();
     }
 }
