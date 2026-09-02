@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   Input,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -25,6 +24,7 @@ import {
 import PageTitle from "@/components/Typography/PageTitle";
 import BundleServices from "@/services/BundleServices";
 import PricingServices from "@/services/PricingServices";
+import SegmentPriceEditor from "@/components/pricing/SegmentPriceEditor";
 import ClientTypeServices from "@/services/ClientTypeServices";
 import ProductServices from "@/services/ProductServices";
 import Modal from "@/components/common/Modal";
@@ -110,11 +110,6 @@ const Bundles = () => {
   // No local components total any more. It used to be summed from the products' own price, but
   // that figure is now an internal reference nobody is charged - the real total differs per
   // segment, and only the server can work it out from each component's price there.
-
-  /** Segments not already on a row, i.e. what "Ajouter un type" can still offer. */
-  const availableTypes = clientTypes.filter(
-    (t) => !form.typePrices.some((r) => r.clientTypeId === t.id)
-  );
 
   const openAdd = () => {
     setEditing(null);
@@ -576,139 +571,46 @@ const Bundles = () => {
             )}
           </div>
 
-          {/* Pricing, per segment. Added one at a time, like a product's: an offer usually
-              targets one trade, and listing every segment with an empty box would read as work
-              left undone rather than a deliberate "not offered here". */}
-          <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Prix du panier par type de client
-              </span>
-              {availableTypes.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm({
-                      ...form,
-                      typePrices: [
-                        ...form.typePrices,
-                        { clientTypeId: availableTypes[0].id, price: "" },
-                      ],
-                    })
-                  }
-                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+          <SegmentPriceEditor
+            clientTypes={clientTypes}
+            value={form.typePrices}
+            onChange={(typePrices) => setForm({ ...form, typePrices })}
+            currency={currency}
+            title="Prix du panier par type de client"
+            hint="Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise non plus. Le prix doit rester inférieur au total des produits de ce type."
+            emptyWarning="Aucun type tarifé : ce panier ne sera proposé à personne."
+            renderInfo={(row) => {
+              const info = gridInfo[row.clientTypeId];
+              if (!info) return null;
+              const total = info.componentsTotal;
+
+              // Only known once the bundle exists: the components' total is resolved
+              // server-side, per segment, from prices this form does not hold.
+              if (total === null || total === undefined) {
+                return (
+                  <p className="mt-1.5 pl-12 text-xs text-amber-600">
+                    Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
+                  </p>
+                );
+              }
+              if (row.price === "") return null;
+
+              const saving = Number(total) - Number(row.price);
+              return (
+                <p
+                  className={`mt-1.5 pl-12 text-xs ${
+                    saving > 0 ? "text-emerald-600" : "text-red-500"
+                  }`}
                 >
-                  <FiPlus className="h-3 w-3" />
-                  Ajouter un type
-                </button>
-              )}
-            </div>
-            <p className="mb-3 text-xs text-gray-400">
-              Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise
-              non plus. Le prix doit rester inférieur au total des produits dans ce type.
-            </p>
-
-            {form.typePrices.length === 0 ? (
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-500/10">
-                Aucun type tarifé : ce panier ne sera proposé à personne.
-              </p>
-            ) : (
-              <div className="grid gap-2">
-                {form.typePrices.map((row, index) => {
-                  const info = gridInfo[row.clientTypeId];
-                  const total = info?.componentsTotal;
-                  const blocked = info && total === null;
-                  const saving =
-                    total != null && row.price !== ""
-                      ? Number(total) - Number(row.price)
-                      : null;
-
-                  return (
-                    <div key={index}>
-                      <div className="flex items-center gap-2">
-                        <Select
-                          className="h-9 flex-1 text-sm"
-                          value={row.clientTypeId}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              typePrices: form.typePrices.map((x, i) =>
-                                i === index ? { ...x, clientTypeId: e.target.value } : x
-                              ),
-                            })
-                          }
-                        >
-                          {clientTypes
-                            .filter(
-                              (t) =>
-                                t.id === row.clientTypeId ||
-                                !form.typePrices.some((x) => x.clientTypeId === t.id)
-                            )
-                            .map((t) => (
-                              <option key={t.id} value={t.id}>
-                                {t.name}
-                              </option>
-                            ))}
-                        </Select>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          className="h-9 w-32"
-                          placeholder="0.00"
-                          value={row.price}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              typePrices: form.typePrices.map((x, i) =>
-                                i === index ? { ...x, price: e.target.value } : x
-                              ),
-                            })
-                          }
-                        />
-                        <span className="w-8 shrink-0 text-xs text-gray-400">{currency}</span>
-                        <button
-                          type="button"
-                          title="Ne pas proposer à ce type"
-                          onClick={() =>
-                            setForm({
-                              ...form,
-                              typePrices: form.typePrices.filter((_, i) => i !== index),
-                            })
-                          }
-                          className="text-gray-300 transition hover:text-red-500"
-                        >
-                          <FiX className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      {/* Only known once the bundle exists: the components' total is resolved
-                          server-side, per segment, from prices this form does not hold. */}
-                      {blocked && (
-                        <p className="mt-1 pl-1 text-xs text-amber-600">
-                          Produits sans prix pour ce type :{" "}
-                          {info.unpricedComponents?.join(", ")}
-                        </p>
-                      )}
-                      {saving !== null && (
-                        <p
-                          className={`mt-1 pl-1 text-xs ${
-                            saving > 0 ? "text-emerald-600" : "text-red-500"
-                          }`}
-                        >
-                          Produits : {currency}
-                          {Number(total).toFixed(2)}
-                          {saving > 0
-                            ? ` - remise ${currency}${saving.toFixed(2)}`
-                            : " - aucune remise"}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  Produits : {currency}
+                  {Number(total).toFixed(2)}
+                  {saving > 0
+                    ? ` — remise ${currency}${saving.toFixed(2)}`
+                    : " — aucune remise"}
+                </p>
+              );
+            }}
+          />
 
           <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
             <input

@@ -13,6 +13,7 @@ import FilterDropdown from "@components/common/FilterDropdown";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
 import CategoryServices from "@services/CategoryServices";
+import { serverToken } from "@lib/server-token";
 
 const Search = ({ products, attributes, categories }) => {
   const router = useRouter();
@@ -107,6 +108,10 @@ export default Search;
 export const getServerSideProps = async (context) => {
   const { query, _id, min, max, stock } = context.query;
 
+  // See the note in pages/index.js: without the caller's token this server-side fetch asks the
+  // API anonymously, and a signed-in shopper gets a catalogue with every price withheld.
+  const token = await serverToken(context);
+
   const [data, categories, attributes] = await Promise.all([
     ProductServices.getShowingStoreProducts({
       category: _id ? _id : "",
@@ -114,6 +119,7 @@ export const getServerSideProps = async (context) => {
       minPrice: min || "",
       maxPrice: max || "",
       inStock: stock === "1",
+      token,
     }),
     CategoryServices.getShowingCategory(),
     AttributeServices.getShowingAttributes({}),

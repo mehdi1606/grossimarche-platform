@@ -1,7 +1,15 @@
 import requests from "./httpServices";
 import { adaptProduct, adaptProducts, isUuid, pageContent } from "./adapters";
+import { authHeader } from "@lib/server-token";
 
-// Grossimarché catalogue: GET /products (search) and GET /products/{idOrSlug} (detail).
+/**
+ * Grossimarché catalogue: GET /products (search) and GET /products/{idOrSlug} (detail).
+ *
+ * Every read takes an optional `token`. In the browser the axios instance already carries the
+ * signed-in customer's header, but server-rendered pages run where that default does not exist,
+ * and the API resolves prices from whoever is asking - so an SSR call without it returns a
+ * catalogue with no prices at all.
+ */
 const searchProducts = async ({
   category = "",
   title = "",
@@ -9,6 +17,7 @@ const searchProducts = async ({
   maxPrice = "",
   inStock = false,
   size = 100,
+  token = null,
 } = {}) => {
   const params = new URLSearchParams();
   if (category && isUuid(category)) params.set("categoryId", category);
@@ -20,7 +29,7 @@ const searchProducts = async ({
     params.set("maxPrice", String(maxPrice));
   if (inStock) params.set("inStock", "true");
   params.set("size", String(size));
-  const res = await requests.get(`/products?${params.toString()}`);
+  const res = await requests.get(`/products?${params.toString()}`, authHeader(token));
   return adaptProducts(pageContent(res));
 };
 
@@ -39,11 +48,14 @@ const ProductServices = {
     minPrice = "",
     maxPrice = "",
     inStock = false,
+    token = null,
   } = {}) => {
     if (slug) {
-      const product = adaptProduct(await requests.get(`/products/${slug}`));
+      const product = adaptProduct(
+        await requests.get(`/products/${slug}`, authHeader(token))
+      );
       const related = product?.category?._id
-        ? await searchProducts({ category: product.category._id, size: 12 })
+        ? await searchProducts({ category: product.category._id, size: 12, token })
         : [];
       return {
         products: product ? [product] : [],
@@ -59,6 +71,7 @@ const ProductServices = {
       maxPrice,
       inStock,
       size: 100,
+      token,
     });
     return {
       products,

@@ -18,6 +18,7 @@ import CategoryRail from "@components/category/CategoryRail";
 import BundleRail from "@components/bundle/BundleRail";
 import Reveal from "@components/common/Reveal";
 import Hero from "@components/home/Hero";
+import { serverToken } from "@lib/server-token";
 
 const VALUE_PROPS = [
   { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
@@ -109,10 +110,16 @@ export const getServerSideProps = async (context) => {
   const { cookies } = context.req;
   const { query, _id } = context.query;
 
+  // Prices are resolved from whoever is asking, and this runs on the Next server, where the
+  // axios header set at sign-in does not exist. Without the token a signed-in shopper gets the
+  // anonymous catalogue back: every product present, every price withheld.
+  const token = await serverToken(context);
+
   const [data, categories, attributes] = await Promise.all([
     ProductServices.getShowingStoreProducts({
       category: _id ? _id : "",
       title: query ? query : "",
+      token,
     }),
     CategoryServices.getShowingCategory(),
     AttributeServices.getShowingAttributes(),

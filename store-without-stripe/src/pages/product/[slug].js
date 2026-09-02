@@ -22,6 +22,7 @@ import VariantList from "@components/variants/VariantList";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
 import ProductServices from "@services/ProductServices";
+import { serverToken } from "@lib/server-token";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import Discount from "@components/common/Discount";
 import ImageCarousel from "@components/carousel/ImageCarousel";
@@ -537,10 +538,16 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 export const getServerSideProps = async (context) => {
   const { slug } = context.params;
 
+  // See the note in pages/index.js: this runs on the Next server, where the sign-in header does
+  // not exist. Without the token the detail page is fetched anonymously - and an anonymous
+  // detail request for a product priced only for the caller's segment is a 404.
+  const token = await serverToken(context);
+
   const [data, attributes] = await Promise.all([
     ProductServices.getShowingStoreProducts({
       category: "",
       slug: slug,
+      token,
     }),
 
     AttributeServices.getShowingAttributes({}),

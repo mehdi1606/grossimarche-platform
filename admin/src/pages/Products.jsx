@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   Input,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +26,7 @@ import {
 import PageTitle from "@/components/Typography/PageTitle";
 import ProductServices from "@/services/ProductServices";
 import PriceGridModal from "@/components/pricing/PriceGridModal";
+import SegmentPriceEditor from "@/components/pricing/SegmentPriceEditor";
 import PricingServices from "@/services/PricingServices";
 import ClientTypeServices from "@/services/ClientTypeServices";
 import CategoryServices from "@/services/CategoryServices";
@@ -80,11 +80,6 @@ const Products = () => {
   // The product's full grid as loaded, so saving a base price does not silently wipe the
   // quantity tiers set on the 💲 screen - the grid endpoint replaces everything it is sent.
   const [loadedGrid, setLoadedGrid] = useState([]);
-
-  /** Segments not already on a row, i.e. what "Ajouter un type" can still offer. */
-  const available = clientTypes.filter(
-    (t) => !form.typePrices.some((r) => r.clientTypeId === t.id)
-  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -552,111 +547,20 @@ const Products = () => {
             />
           </label>
 
-          {/* Per-segment pricing. Types are added one at a time rather than all listed with
-              empty boxes: most products are sold to some segments and not others, and a column
-              of blanks reads as work to do instead of a deliberate "not sold here". */}
-          <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Prix par type de client
-              </span>
-              {available.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm({
-                      ...form,
-                      typePrices: [
-                        ...form.typePrices,
-                        { clientTypeId: available[0].id, price: "" },
-                      ],
-                    })
-                  }
-                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
-                >
-                  <FiPlus className="h-3 w-3" />
-                  Ajouter un type
-                </button>
-              )}
-            </div>
-            <p className="mb-3 text-xs text-gray-400">
-              N&apos;ajoutez que les types auxquels vous vendez ce produit. Les autres ne le
-              verront pas du tout en boutique.
+          <SegmentPriceEditor
+            clientTypes={clientTypes}
+            value={form.typePrices}
+            onChange={(typePrices) => setForm({ ...form, typePrices })}
+            currency={currency}
+            hint="N'ajoutez que les types auxquels vous vendez ce produit. Les autres ne le verront pas du tout en boutique."
+            emptyWarning="Aucun type tarifé : ce produit ne sera visible pour aucun client."
+          />
+
+          {editingId && (
+            <p className="-mt-2 text-xs text-gray-400">
+              Les paliers de quantité (≥3, ≥8…) se règlent avec l&apos;icône 💲 de la liste.
             </p>
-
-            {form.typePrices.length === 0 ? (
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-500/10">
-                Aucun type tarifé : ce produit ne sera visible pour aucun client.
-              </p>
-            ) : (
-              <div className="grid gap-2">
-                {form.typePrices.map((row, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Select
-                      className="h-9 flex-1 text-sm"
-                      value={row.clientTypeId}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          typePrices: form.typePrices.map((x, i) =>
-                            i === index ? { ...x, clientTypeId: e.target.value } : x
-                          ),
-                        })
-                      }
-                    >
-                      {clientTypes
-                        .filter(
-                          (t) =>
-                            t.id === row.clientTypeId ||
-                            !form.typePrices.some((x) => x.clientTypeId === t.id)
-                        )
-                        .map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name}
-                          </option>
-                        ))}
-                    </Select>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      className="h-9 w-32"
-                      placeholder="0.00"
-                      value={row.price}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          typePrices: form.typePrices.map((x, i) =>
-                            i === index ? { ...x, price: e.target.value } : x
-                          ),
-                        })
-                      }
-                    />
-                    <span className="w-8 shrink-0 text-xs text-gray-400">{currency}</span>
-                    <button
-                      type="button"
-                      title="Ne pas vendre à ce type"
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          typePrices: form.typePrices.filter((_, i) => i !== index),
-                        })
-                      }
-                      className="text-gray-300 transition hover:text-red-500"
-                    >
-                      <FiX className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {editingId && (
-              <p className="mt-3 text-xs text-gray-400">
-                Les paliers de quantité se règlent ensuite avec l&apos;icône 💲 de la liste.
-              </p>
-            )}
-          </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="block text-sm">
