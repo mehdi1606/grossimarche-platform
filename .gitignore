@@ -1,4 +1,3 @@
 # Local compose configuration and secrets - never commit. Use .env.example as the template.
-.env
-.env.*
+
 !.env.example
