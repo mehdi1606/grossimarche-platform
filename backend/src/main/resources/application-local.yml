@@ -11,9 +11,15 @@ spring:
     redis:
       host: localhost
       port: 6380
-  # Seed data (V2) loads only here, via the extra location.
+  # Demo data is NOT loaded. db/seed still holds it (V2 catalogue, V4 coupons) but the
+  # location is deliberately left out: this is a real shop, and its catalogue is the one the
+  # merchant enters, not four invented stores and a handful of sample products that reappear
+  # at every reset.
+  #
+  # Re-adding `,classpath:db/seed` here also fails Flyway validation on any database that was
+  # created without it - and the reverse. Change it only against a fresh volume.
   flyway:
-    locations: classpath:db/migration,classpath:db/seed
+    locations: classpath:db/migration
 
 # Full health detail locally so `GET /actuator/health` shows db + redis components.
 management:
