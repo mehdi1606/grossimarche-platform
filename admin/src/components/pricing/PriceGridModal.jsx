@@ -131,7 +131,10 @@ const PriceGridModal = ({ isOpen, onClose, product, currency = "DH", onSaved }) 
       isOpen={isOpen}
       onClose={onClose}
       title="Grille de prix"
-      subtitle={product?.title || product?.name || grid?.productName}
+      // `title` is the multilingual object the adapters wrap names in ({ en: "…" }), not a
+      // string. Rendering it straight threw React #31 - "objects are not valid as a React
+      // child" - which unmounts the whole tree: the screen went white, not just this modal.
+      subtitle={product?.title?.en || product?.name || grid?.productName || ""}
       icon={FiDollarSign}
       size="xl"
       footer={
