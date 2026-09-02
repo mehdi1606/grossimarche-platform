@@ -5,7 +5,7 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 import { FiGrid } from "react-icons/fi";
 
 //internal import
-import Category from "@components/category/Category";
+import CategoryMenu from "@components/category/CategoryMenu";
 import LanguageMenu from "@components/common/LanguageMenu";
 import { SidebarContext } from "@context/SidebarContext";
 import { useTranslate } from "@context/TranslationContext";
@@ -47,10 +47,12 @@ const NavbarPromo = () => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-1"
             >
-              <Popover.Panel className="absolute z-10 -ml-1 mt-1 transform w-screen max-w-xs c-h-65vh bg-white">
-                <div className="rounded-md shadow-lg ring-1 ring-black ring-opacity-5 overflow-y-scroll flex-grow scrollbar-hide w-full h-full">
-                  <Category />
-                </div>
+              <Popover.Panel className="absolute left-0 z-20 mt-1 w-80">
+                {({ close }) => (
+                  <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-luxe-lg">
+                    <CategoryMenu onNavigate={close} />
+                  </div>
+                )}
               </Popover.Panel>
             </Transition>
           </Popover>

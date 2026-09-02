@@ -181,6 +181,16 @@ public class AuthService {
         staffPasswordService.assign(user, password, false);
         user = saveNewCustomer(user);
 
+        // Same ledger row the one-time-code sign-up creates. Without it the customer's first
+        // checkout failed outright: awarding points looks the account up and 404s when it is
+        // missing, and that rolls the whole order back.
+        loyaltyAccountRepository.save(LoyaltyAccount.builder()
+                .userId(user.getId())
+                .pointsBalance(0)
+                .lifetimePoints(0)
+                .tier(LoyaltyTier.BRONZE)
+                .build());
+
         // The delivery address, captured once here rather than asked for again at the first
         // checkout - and it is what the delivery fee is resolved from, so a shop that has
         // registered already knows what delivery will cost it.

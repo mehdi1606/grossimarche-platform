@@ -7,6 +7,7 @@ public record AddressResponse(
         UUID id,
         String label,
         String city,
+        String district,
         String addressLine,
         Double lat,
         Double lng,

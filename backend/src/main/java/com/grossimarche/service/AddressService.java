@@ -37,7 +37,8 @@ public class AddressService {
         }
         Address address = addressRepository.save(Address.builder()
                 .user(userRepository.getReferenceById(userId))
-                .label(req.label()).city(req.city()).addressLine(req.addressLine())
+                .label(req.label()).city(req.city()).district(req.district())
+                .addressLine(req.addressLine())
                 .lat(req.lat()).lng(req.lng()).isDefault(makeDefault)
                 .build());
         return toResponse(address);
@@ -51,6 +52,7 @@ public class AddressService {
         }
         address.setLabel(req.label());
         address.setCity(req.city());
+        address.setDistrict(req.district());
         address.setAddressLine(req.addressLine());
         address.setLat(req.lat());
         address.setLng(req.lng());
@@ -76,7 +78,7 @@ public class AddressService {
     }
 
     private static AddressResponse toResponse(Address a) {
-        return new AddressResponse(a.getId(), a.getLabel(), a.getCity(), a.getAddressLine(),
-                a.getLat(), a.getLng(), a.isDefault());
+        return new AddressResponse(a.getId(), a.getLabel(), a.getCity(), a.getDistrict(),
+                a.getAddressLine(), a.getLat(), a.getLng(), a.isDefault());
     }
 }

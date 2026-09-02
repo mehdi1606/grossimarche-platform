@@ -52,6 +52,16 @@ const CustomerServices = {
   addShippingAddress: async ({ shippingAddressData }) => {
     return requests.post("/me/addresses", shippingAddressData);
   },
+
+  // Editing and removing an address were reachable from the account page but had no service
+  // behind them.
+  updateShippingAddress: async (id, shippingAddressData) => {
+    return requests.patch(`/me/addresses/${id}`, shippingAddressData);
+  },
+
+  deleteShippingAddress: async (id) => {
+    return requests.delete(`/me/addresses/${id}`);
+  },
 };
 
 export default CustomerServices;

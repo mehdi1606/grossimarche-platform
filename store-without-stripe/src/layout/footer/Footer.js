@@ -65,7 +65,7 @@ const Footer = () => {
     ? [
         { label: "Mon compte", href: "/user/dashboard" },
         { label: "Mes commandes", href: "/user/my-orders" },
-        { label: "Mes adresses", href: "/user/add-shipping-address" },
+        { label: "Mes adresses", href: "/user/my-account#adresses" },
       ]
     : [
         { label: "Se connecter", href: "/auth/login" },

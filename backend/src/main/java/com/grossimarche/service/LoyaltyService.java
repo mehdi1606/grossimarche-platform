@@ -8,7 +8,6 @@ import com.grossimarche.entity.LoyaltyTransaction;
 import com.grossimarche.entity.User;
 import com.grossimarche.entity.enums.LoyaltyTier;
 import com.grossimarche.entity.enums.LoyaltyTransactionType;
-import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.LoyaltyAccountRepository;
 import com.grossimarche.repository.LoyaltyTransactionRepository;
 import com.grossimarche.repository.OrderRepository;
@@ -89,7 +88,8 @@ public class LoyaltyService {
 
     @Transactional(readOnly = true)
     public LoyaltyResponse getSummary(UUID userId) {
-        LoyaltyAccount account = account(userId);
+        // Read-only: report an empty account rather than opening one, which a read must not do.
+        LoyaltyAccount account = accountRepository.findById(userId).orElseGet(() -> newAccount(userId));
         LoyaltyTier tier = account.getTier();
         int lifetime = account.getLifetimePoints();
         int toNext;
@@ -130,8 +130,25 @@ public class LoyaltyService {
         account.setTier(props.tierForLifetime(account.getLifetimePoints()));
     }
 
+    /**
+     * The user's account, opened on first use.
+     *
+     * It used to throw when the row was missing, which made a bookkeeping detail fatal to the
+     * thing being booked: points are awarded inside the checkout transaction, so a customer
+     * created by a path that forgot the row - every storefront sign-up did - could not place an
+     * order at all. An empty ledger is the correct state for a new customer, not an error.
+     */
     private LoyaltyAccount account(UUID userId) {
         return accountRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Compte fidélité", userId));
+                .orElseGet(() -> accountRepository.save(newAccount(userId)));
+    }
+
+    private LoyaltyAccount newAccount(UUID userId) {
+        return LoyaltyAccount.builder()
+                .userId(userId)
+                .pointsBalance(0)
+                .lifetimePoints(0)
+                .tier(LoyaltyTier.BRONZE)
+                .build();
     }
 }

@@ -8,9 +8,7 @@ import {
   FiCheck,
   FiGrid,
   FiList,
-  FiMapPin,
   FiRefreshCw,
-  FiSettings,
   FiShoppingCart,
   FiTruck,
   FiUser,
@@ -30,9 +28,9 @@ import Loading from "@components/preloader/Loading";
 const SIDEBAR = [
   { title: "Tableau de bord", href: "/user/dashboard", icon: FiGrid },
   { title: "Mes commandes", href: "/user/my-orders", icon: FiList },
-  { title: "Mes adresses", href: "/user/add-shipping-address", icon: FiMapPin },
+  // Addresses and the profile form both live inside the account page now, reached from the
+  // cards there - listing them again here was three entries for one destination.
   { title: "Mon compte", href: "/user/my-account", icon: FiUser },
-  { title: "Modifier le profil", href: "/user/update-profile", icon: FiSettings },
 ];
 
 const Dashboard = ({ title, description, children }) => {
