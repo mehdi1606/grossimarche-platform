@@ -58,6 +58,24 @@ public interface ProductTypePriceRepository extends JpaRepository<ProductTypePri
     @Query("select distinct p.clientType.id from ProductTypePrice p where p.product.id = :productId")
     Set<UUID> findPricedClientTypeIds(@Param("productId") UUID productId);
 
+    /**
+     * How many active products each category holds *for this segment*.
+     *
+     * Drives which categories a customer is shown at all. A category with no row here does not
+     * exist for them: a pastry shop has no business in "Poisson", and offering the aisle only to
+     * land them on an empty shelf is worse than not offering it.
+     *
+     * Counted in one grouped query rather than per category, which would be an N+1 on a menu
+     * rendered at the top of every page.
+     */
+    @Query("""
+            select p.product.category.id, count(distinct p.product.id)
+            from ProductTypePrice p
+            where p.clientType.id = :clientTypeId and p.product.active = true
+            group by p.product.category.id
+            """)
+    List<Object[]> countActiveProductsByCategory(@Param("clientTypeId") UUID clientTypeId);
+
     void deleteByProductIdAndClientTypeId(UUID productId, UUID clientTypeId);
 
     void deleteByProductId(UUID productId);

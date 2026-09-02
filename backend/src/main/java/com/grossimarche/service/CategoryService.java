@@ -9,6 +9,7 @@ import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.CategoryRepository;
 import com.grossimarche.repository.ProductRepository;
+import com.grossimarche.repository.ProductTypePriceRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /** Category reads (cached) and admin writes (cache-evicting). */
 @Service
@@ -25,21 +28,57 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final ProductTypePriceRepository typePriceRepository;
+    private final CatalogueViewer catalogueViewer;
     private final CategoryMapper categoryMapper;
 
     public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository,
+                           ProductTypePriceRepository typePriceRepository,
+                           CatalogueViewer catalogueViewer,
                            CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
+        this.typePriceRepository = typePriceRepository;
+        this.catalogueViewer = catalogueViewer;
         this.categoryMapper = categoryMapper;
     }
 
-    @Cacheable(CacheConfig.CATEGORIES)
+    /**
+     * The categories a shopper is offered, and how much each holds.
+     *
+     * For a signed-in customer: only the categories carrying at least one product priced for
+     * their segment, and the count is that segment's rather than the catalogue's. A pastry shop
+     * has no business in "Poisson", and showing the aisle only to land them on an empty shelf is
+     * worse than not showing it at all. One priced product is enough to bring a category back,
+     * so a forgotten price costs that product and never the nine beside it.
+     *
+     * A visitor with no segment still sees everything, priceless - browsing is what brings
+     * people to register.
+     *
+     * The cache key carries the segment. Keyed on nothing, as it was, the first caller's menu
+     * would be served to every other segment: a grocer shown a pastry shop's aisles.
+     */
+    @Cacheable(value = CacheConfig.CATEGORIES, key = "@catalogueViewer.cacheKey()")
     @Transactional(readOnly = true)
     public List<CategoryResponse> listActive() {
-        return categoryRepository.findByActiveTrueOrderByDisplayOrderAsc().stream()
-                .map(c -> categoryMapper.toResponse(c,
-                        productRepository.countByCategoryIdAndActiveTrue(c.getId())))
+        List<Category> active = categoryRepository.findByActiveTrueOrderByDisplayOrderAsc();
+        UUID clientTypeId = catalogueViewer.currentClientTypeId().orElse(null);
+
+        if (clientTypeId == null) {
+            return active.stream()
+                    .map(c -> categoryMapper.toResponse(c,
+                            productRepository.countByCategoryIdAndActiveTrue(c.getId())))
+                    .toList();
+        }
+
+        Map<UUID, Long> priced = typePriceRepository.countActiveProductsByCategory(clientTypeId)
+                .stream()
+                .filter(row -> row[0] != null)
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
+
+        return active.stream()
+                .filter(c -> priced.containsKey(c.getId()))
+                .map(c -> categoryMapper.toResponse(c, priced.get(c.getId()).intValue()))
                 .toList();
     }
 

@@ -1,5 +1,6 @@
 package com.grossimarche.service;
 
+import com.grossimarche.config.CacheConfig;
 import com.grossimarche.dto.pricing.PriceGridRequest;
 import com.grossimarche.dto.pricing.PriceGridResponse;
 import com.grossimarche.entity.ClientType;
@@ -11,6 +12,7 @@ import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.ClientTypeRepository;
 import com.grossimarche.repository.ProductRepository;
 import com.grossimarche.repository.ProductTypePriceRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +92,15 @@ public class ProductPricingService {
         return new PriceGridResponse(product.getId(), product.getName(), product.getPrice(), grids);
     }
 
-    /** Replace a product's whole grid. */
+    /**
+     * Replace a product's whole grid.
+     *
+     * Both caches are cleared because a price decides *visibility*, not just a figure: pricing
+     * the first product of a category makes that whole category appear for the segment, and
+     * removing the last one makes it vanish. Left cached, an admin would price a product and
+     * see nothing change in the shop.
+     */
+    @CacheEvict(value = {CacheConfig.CATEGORIES, CacheConfig.PRODUCT_DETAIL}, allEntries = true)
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional
     public PriceGridResponse replaceGrid(UUID productId, PriceGridRequest req) {
