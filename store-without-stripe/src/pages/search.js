@@ -125,7 +125,7 @@ export const getServerSideProps = async (context) => {
       { products: [] },
       "search products"
     ),
-    safe(CategoryServices.getShowingCategory(), [], "search categories"),
+    safe(CategoryServices.getShowingCategory(token), [], "search categories"),
     safe(AttributeServices.getShowingAttributes({}), [], "search attributes"),
   ]);
 
