@@ -7,7 +7,6 @@ import {
   FiSlack,
   FiGift,
   FiBell,
-  FiPercent,
   FiPackage,
   FiStar,
   FiTag,
@@ -69,17 +68,13 @@ const sidebar = [
   },
   // ---- Commercial + administration ----
   // Visibility is per entry, not per block: SidebarContent filters each path against the
-  // signed-in role (utils/access.js). Coupons, OurStaff and Settings are ADMIN-only there;
-  // Offers and Notifications are also open to a STORE_MANAGER.
+  // signed-in role (utils/access.js). Coupons, ClientTypes, Delivery, OurStaff and Settings
+  // are ADMIN-only there; Bundles, Reviews, Approvals and Notifications are also open to a
+  // STORE_MANAGER.
   {
     path: "/coupons",
     icon: FiGift,
     name: "Coupons",
-  },
-  {
-    path: "/offers",
-    icon: FiPercent,
-    name: "Offers",
   },
   {
     path: "/bundles",
