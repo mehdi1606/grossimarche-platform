@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Input,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -12,7 +13,6 @@ import {
 } from "@windmill/react-ui";
 import {
   FiImage,
-  FiDollarSign,
   FiPackage,
   FiPlus,
   FiSearch,
@@ -24,7 +24,8 @@ import {
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import BundleServices from "@/services/BundleServices";
-import BundlePriceGridModal from "@/components/pricing/BundlePriceGridModal";
+import PricingServices from "@/services/PricingServices";
+import ClientTypeServices from "@/services/ClientTypeServices";
 import ProductServices from "@/services/ProductServices";
 import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
@@ -32,7 +33,20 @@ import TableSkeleton from "@/components/common/TableSkeleton";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
-const EMPTY_FORM = { name: "", description: "", imageUrl: "", price: "", active: true };
+const EMPTY_FORM = {
+  name: "",
+  description: "",
+  imageUrl: "",
+  /**
+   * What the basket costs each segment it is offered to.
+   *
+   * Replaces the single price the form used to ask for. The components themselves do not cost
+   * a pastry shop and a grocer the same, so one offer price could not be right for both - and
+   * the storefront resolves it per segment anyway, which left that field meaning nothing.
+   */
+  typePrices: [],
+  active: true,
+};
 
 const IMAGE_TYPES = "image/png,image/jpeg,image/webp,image/avif";
 
@@ -67,7 +81,9 @@ const Bundles = () => {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [announceTarget, setAnnounceTarget] = useState(null);
-  const [priceTarget, setPriceTarget] = useState(null);
+  const [clientTypes, setClientTypes] = useState([]);
+  // Per-segment component totals for the bundle being edited, keyed by client type.
+  const [gridInfo, setGridInfo] = useState({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -85,16 +101,20 @@ const Bundles = () => {
     load();
   }, [load]);
 
-  // What the chosen products cost separately - the number the offer price has to beat, shown
-  // live so nobody has to open a calculator to price a basket.
-  const componentsTotal = useMemo(
-    () => items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0),
-    [items]
+  useEffect(() => {
+    ClientTypeServices.getAll()
+      .then((res) => setClientTypes((res || []).filter((t) => t.active)))
+      .catch((err) => notifyError(err?.response?.data?.message || err?.message));
+  }, []);
+
+  // No local components total any more. It used to be summed from the products' own price, but
+  // that figure is now an internal reference nobody is charged - the real total differs per
+  // segment, and only the server can work it out from each component's price there.
+
+  /** Segments not already on a row, i.e. what "Ajouter un type" can still offer. */
+  const availableTypes = clientTypes.filter(
+    (t) => !form.typePrices.some((r) => r.clientTypeId === t.id)
   );
-  const savings = componentsTotal - Number(form.price || 0);
-  const savingsPercent =
-    componentsTotal > 0 ? Math.round((savings / componentsTotal) * 100) : 0;
-  const priceValid = Number(form.price) > 0 && savings > 0;
 
   const openAdd = () => {
     setEditing(null);
@@ -103,18 +123,36 @@ const Bundles = () => {
     setResults([]);
     setSearch("");
     setImageFile(null);
+    setGridInfo({});
     setModalOpen(true);
   };
 
   const openEdit = async (row) => {
     try {
-      const bundle = await BundleServices.getById(row.id);
+      const [bundle, grid] = await Promise.all([
+        BundleServices.getById(row.id),
+        PricingServices.getBundleGrid(row.id),
+      ]);
       setEditing(bundle);
+
+      // What the components come to in each segment, so the saving is visible while typing.
+      // Only the server can work this out: it needs every component's price in that segment.
+      setGridInfo(
+        Object.fromEntries(
+          (grid.prices || []).map((p) => [
+            p.clientTypeId,
+            { componentsTotal: p.componentsTotal, unpricedComponents: p.unpricedComponents },
+          ])
+        )
+      );
+
       setForm({
         name: bundle.name || "",
         description: bundle.description || "",
         imageUrl: bundle.imageUrl || "",
-        price: String(bundle.price ?? ""),
+        typePrices: (grid.prices || [])
+          .filter((p) => p.price !== null && p.price !== undefined)
+          .map((p) => ({ clientTypeId: p.clientTypeId, price: String(p.price) })),
         active: bundle.active,
       });
       setItems(
@@ -187,11 +225,11 @@ const Bundles = () => {
     if (items.length === 0) {
       return notifyError("Ajoutez au moins un produit à l'offre.");
     }
-    if (!priceValid) {
-      return notifyError(
-        "Le prix du panier doit être inférieur au total des produits."
-      );
+    const priced = form.typePrices.filter((r) => r.clientTypeId && r.price !== "");
+    if (priced.length !== form.typePrices.length) {
+      return notifyError("Indiquez un prix pour chaque type ajouté, ou retirez la ligne.");
     }
+
     setSaving(true);
     try {
       const body = {
@@ -200,13 +238,26 @@ const Bundles = () => {
         // Carried through unchanged when no new file was picked, so editing a bundle does not
         // wipe the picture it already has.
         imageUrl: form.imageUrl.trim() || null,
-        price: Number(form.price),
+        // bundles.price is NOT NULL and no longer customer-facing: it follows the cheapest
+        // segment rather than asking for a figure nobody is charged.
+        price: priced.length ? Math.min(...priced.map((r) => Number(r.price))) : 0,
         active: form.active,
         items: items.map(({ productId, quantity }) => ({ productId, quantity })),
       };
       const saved = editing
         ? await BundleServices.update(editing.id, body)
         : await BundleServices.create(body);
+
+      // Saved after the bundle exists, and after its items: the server checks each price
+      // against what the components cost that segment, which it cannot do until both are in
+      // place. A rejection here leaves a real bundle with no price, which is recoverable -
+      // the message names the segment and why.
+      if (saved?.id) {
+        await PricingServices.saveBundleGrid(
+          saved.id,
+          priced.map((r) => ({ clientTypeId: r.clientTypeId, price: Number(r.price) }))
+        );
+      }
 
       // The image is uploaded after the bundle exists: it needs an id to be attached to, and
       // a failed upload must not lose the offer that was just described.
@@ -343,13 +394,6 @@ const Bundles = () => {
                     <div className="flex justify-end gap-3 text-gray-400">
                       <button
                         className="transition hover:text-emerald-600"
-                        onClick={() => setPriceTarget(row)}
-                        title="Prix par type de client"
-                      >
-                        <FiDollarSign />
-                      </button>
-                      <button
-                        className="transition hover:text-emerald-600"
                         onClick={() => setAnnounceTarget(row)}
                         title="Envoyer aux clients par e-mail"
                       >
@@ -383,7 +427,10 @@ const Bundles = () => {
             <Button layout="outline" onClick={() => setModalOpen(false)}>
               Annuler
             </Button>
-            <Button onClick={save} disabled={saving || !priceValid || items.length === 0}>
+            {/* No price check here any more: whether a price is a real discount depends on what
+                the components cost that segment, which only the server knows. It refuses with a
+                message naming the segment. */}
+            <Button onClick={save} disabled={saving || items.length === 0}>
               {saving ? "Enregistrement…" : editing ? "Enregistrer" : "Créer le panier"}
             </Button>
           </>
@@ -529,49 +576,138 @@ const Bundles = () => {
             )}
           </div>
 
-          {/* Pricing */}
-          <div className="grid gap-4 rounded-xl bg-gray-50 p-4 sm:grid-cols-2 dark:bg-gray-900/40">
-            <div>
-              <span className="block text-xs uppercase tracking-wide text-gray-400">
-                Valeur des produits
+          {/* Pricing, per segment. Added one at a time, like a product's: an offer usually
+              targets one trade, and listing every segment with an empty box would read as work
+              left undone rather than a deliberate "not offered here". */}
+          <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                Prix du panier par type de client
               </span>
-              <p className="mt-1 text-lg font-semibold text-gray-700 dark:text-gray-200">
-                {currency}
-                {componentsTotal.toFixed(2)}
-              </p>
-            </div>
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                Prix du panier
-              </span>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                className={inputCls}
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                placeholder="0.00"
-                required
-              />
-            </label>
-            <div className="sm:col-span-2">
-              {items.length === 0 ? (
-                <p className="text-xs text-gray-400">
-                  Ajoutez des produits pour voir la remise.
-                </p>
-              ) : priceValid ? (
-                <p className="text-sm font-semibold text-emerald-600">
-                  Remise client : {currency}
-                  {savings.toFixed(2)} ({savingsPercent}%)
-                </p>
-              ) : (
-                <p className="text-sm font-medium text-red-500">
-                  Le prix du panier doit être inférieur à {currency}
-                  {componentsTotal.toFixed(2)}.
-                </p>
+              {availableTypes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm({
+                      ...form,
+                      typePrices: [
+                        ...form.typePrices,
+                        { clientTypeId: availableTypes[0].id, price: "" },
+                      ],
+                    })
+                  }
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+                >
+                  <FiPlus className="h-3 w-3" />
+                  Ajouter un type
+                </button>
               )}
             </div>
+            <p className="mb-3 text-xs text-gray-400">
+              Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise
+              non plus. Le prix doit rester inférieur au total des produits dans ce type.
+            </p>
+
+            {form.typePrices.length === 0 ? (
+              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-500/10">
+                Aucun type tarifé : ce panier ne sera proposé à personne.
+              </p>
+            ) : (
+              <div className="grid gap-2">
+                {form.typePrices.map((row, index) => {
+                  const info = gridInfo[row.clientTypeId];
+                  const total = info?.componentsTotal;
+                  const blocked = info && total === null;
+                  const saving =
+                    total != null && row.price !== ""
+                      ? Number(total) - Number(row.price)
+                      : null;
+
+                  return (
+                    <div key={index}>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          className="h-9 flex-1 text-sm"
+                          value={row.clientTypeId}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              typePrices: form.typePrices.map((x, i) =>
+                                i === index ? { ...x, clientTypeId: e.target.value } : x
+                              ),
+                            })
+                          }
+                        >
+                          {clientTypes
+                            .filter(
+                              (t) =>
+                                t.id === row.clientTypeId ||
+                                !form.typePrices.some((x) => x.clientTypeId === t.id)
+                            )
+                            .map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.name}
+                              </option>
+                            ))}
+                        </Select>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="h-9 w-32"
+                          placeholder="0.00"
+                          value={row.price}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              typePrices: form.typePrices.map((x, i) =>
+                                i === index ? { ...x, price: e.target.value } : x
+                              ),
+                            })
+                          }
+                        />
+                        <span className="w-8 shrink-0 text-xs text-gray-400">{currency}</span>
+                        <button
+                          type="button"
+                          title="Ne pas proposer à ce type"
+                          onClick={() =>
+                            setForm({
+                              ...form,
+                              typePrices: form.typePrices.filter((_, i) => i !== index),
+                            })
+                          }
+                          className="text-gray-300 transition hover:text-red-500"
+                        >
+                          <FiX className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      {/* Only known once the bundle exists: the components' total is resolved
+                          server-side, per segment, from prices this form does not hold. */}
+                      {blocked && (
+                        <p className="mt-1 pl-1 text-xs text-amber-600">
+                          Produits sans prix pour ce type :{" "}
+                          {info.unpricedComponents?.join(", ")}
+                        </p>
+                      )}
+                      {saving !== null && (
+                        <p
+                          className={`mt-1 pl-1 text-xs ${
+                            saving > 0 ? "text-emerald-600" : "text-red-500"
+                          }`}
+                        >
+                          Produits : {currency}
+                          {Number(total).toFixed(2)}
+                          {saving > 0
+                            ? ` - remise ${currency}${saving.toFixed(2)}`
+                            : " - aucune remise"}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
@@ -585,14 +721,6 @@ const Bundles = () => {
           </label>
         </form>
       </Modal>
-
-      <BundlePriceGridModal
-        isOpen={!!priceTarget}
-        onClose={() => setPriceTarget(null)}
-        bundle={priceTarget}
-        currency={currency}
-        onSaved={load}
-      />
 
       {/* Announce */}
       <Modal
