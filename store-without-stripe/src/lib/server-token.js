@@ -32,3 +32,23 @@ export const serverToken = async (context) => {
 /** Axios config carrying the caller's token, or nothing when there is none. */
 export const authHeader = (token) =>
   token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+
+/**
+ * Resolve a server-side fetch, or fall back rather than take the page down with it.
+ *
+ * `getServerSideProps` has no error boundary: one rejected promise turns the whole storefront
+ * into a bare "500 Internal Server Error". A shop is the last place that should happen - a
+ * backend restart, a timeout, a slow query, and the customer sees a broken site instead of a
+ * page with a section missing.
+ *
+ * Each call is guarded separately, so a failing catalogue does not also cost the categories or
+ * the attributes. The failure is logged where the operator can find it, and the page renders.
+ */
+export const safe = async (promise, fallback, label) => {
+  try {
+    return await promise;
+  } catch (err) {
+    console.error(`[ssr] ${label} failed:`, err?.message || err);
+    return fallback;
+  }
+};

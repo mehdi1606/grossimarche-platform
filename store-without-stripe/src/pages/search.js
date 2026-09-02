@@ -13,7 +13,7 @@ import FilterDropdown from "@components/common/FilterDropdown";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
 import CategoryServices from "@services/CategoryServices";
-import { serverToken } from "@lib/server-token";
+import { safe, serverToken } from "@lib/server-token";
 
 const Search = ({ products, attributes, categories }) => {
   const router = useRouter();
@@ -113,23 +113,27 @@ export const getServerSideProps = async (context) => {
   const token = await serverToken(context);
 
   const [data, categories, attributes] = await Promise.all([
-    ProductServices.getShowingStoreProducts({
-      category: _id ? _id : "",
-      title: query ? encodeURIComponent(query) : "",
-      minPrice: min || "",
-      maxPrice: max || "",
-      inStock: stock === "1",
-      token,
-    }),
-    CategoryServices.getShowingCategory(),
-    AttributeServices.getShowingAttributes({}),
+    safe(
+      ProductServices.getShowingStoreProducts({
+        category: _id ? _id : "",
+        title: query ? encodeURIComponent(query) : "",
+        minPrice: min || "",
+        maxPrice: max || "",
+        inStock: stock === "1",
+        token,
+      }),
+      { products: [] },
+      "search products"
+    ),
+    safe(CategoryServices.getShowingCategory(), [], "search categories"),
+    safe(AttributeServices.getShowingAttributes({}), [], "search attributes"),
   ]);
 
   return {
     props: {
-      attributes,
-      categories,
-      products: data?.products,
+      attributes: attributes || [],
+      categories: categories || [],
+      products: data?.products || [],
     },
   };
 };

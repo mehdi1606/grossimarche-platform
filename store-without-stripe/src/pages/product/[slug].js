@@ -22,7 +22,7 @@ import VariantList from "@components/variants/VariantList";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
 import ProductServices from "@services/ProductServices";
-import { serverToken } from "@lib/server-token";
+import { safe, serverToken } from "@lib/server-token";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import Discount from "@components/common/Discount";
 import ImageCarousel from "@components/carousel/ImageCarousel";
@@ -544,25 +544,33 @@ export const getServerSideProps = async (context) => {
   const token = await serverToken(context);
 
   const [data, attributes] = await Promise.all([
-    ProductServices.getShowingStoreProducts({
-      category: "",
-      slug: slug,
-      token,
-    }),
-
-    AttributeServices.getShowingAttributes({}),
+    safe(
+      ProductServices.getShowingStoreProducts({
+        category: "",
+        slug: slug,
+        token,
+      }),
+      { products: [], relatedProducts: [] },
+      `product ${slug}`
+    ),
+    safe(AttributeServices.getShowingAttributes({}), [], "product attributes"),
   ]);
-  let product = {};
 
-  if (slug) {
-    product = data?.products?.find((p) => p.slug === slug);
+  const product = slug ? data?.products?.find((p) => p.slug === slug) : null;
+
+  // A missing product is a 404, not a page about nothing. Three cases look identical from here
+  // - it does not exist, it is not sold to this customer's segment, or the API was unreachable
+  // - and "not found" is the honest answer to all three. It used to render an empty product
+  // page instead, which reads as a broken shop.
+  if (!product) {
+    return { notFound: true };
   }
 
   return {
     props: {
       product,
-      attributes,
-      relatedProducts: data?.relatedProducts,
+      attributes: attributes || [],
+      relatedProducts: data?.relatedProducts || [],
     },
   };
 };

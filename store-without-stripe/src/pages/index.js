@@ -18,7 +18,7 @@ import CategoryRail from "@components/category/CategoryRail";
 import BundleRail from "@components/bundle/BundleRail";
 import Reveal from "@components/common/Reveal";
 import Hero from "@components/home/Hero";
-import { serverToken } from "@lib/server-token";
+import { safe, serverToken } from "@lib/server-token";
 
 const VALUE_PROPS = [
   { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
@@ -115,22 +115,28 @@ export const getServerSideProps = async (context) => {
   // anonymous catalogue back: every product present, every price withheld.
   const token = await serverToken(context);
 
+  // Guarded one by one: a backend that is restarting used to turn the whole shop into a bare
+  // 500, and a failing catalogue should not also cost the categories.
   const [data, categories, attributes] = await Promise.all([
-    ProductServices.getShowingStoreProducts({
-      category: _id ? _id : "",
-      title: query ? query : "",
-      token,
-    }),
-    CategoryServices.getShowingCategory(),
-    AttributeServices.getShowingAttributes(),
+    safe(
+      ProductServices.getShowingStoreProducts({
+        category: _id ? _id : "",
+        title: query ? query : "",
+        token,
+      }),
+      { popularProducts: [] },
+      "home products"
+    ),
+    safe(CategoryServices.getShowingCategory(), [], "home categories"),
+    safe(AttributeServices.getShowingAttributes(), [], "home attributes"),
   ]);
 
   return {
     props: {
       cookies: cookies || null,
-      popularProducts: data.popularProducts,
-      categories,
-      attributes,
+      popularProducts: data.popularProducts || [],
+      categories: categories || [],
+      attributes: attributes || [],
     },
   };
 };
