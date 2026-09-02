@@ -19,7 +19,12 @@ public record RegisterRequest(
         @NotBlank @Size(max = 150) String businessName,
         @NotBlank @Email @Size(max = 255) String email,
         @NotBlank @Size(max = 20) String phone,
-        @Size(max = 100) String city,
+        /** Chosen from the cities we actually deliver to, not typed. */
+        @NotBlank @Size(max = 100) String city,
+        /** The district within that city; absent when the city has none listed. */
+        @Size(max = 120) String district,
+        /** Street and number. Asked once here so it is not retyped at every checkout. */
+        @NotBlank @Size(max = 255) String addressLine,
         @NotNull UUID clientTypeId,
         /** Checked against the same strength rule as staff passwords. */
         @NotBlank @Size(max = 100) String password

@@ -194,7 +194,8 @@ public class CheckoutService {
         // The rate comes from the delivery-zone table the admin edits, not from the
         // application.yml map it replaced - otherwise every price change is a redeploy.
         PricingService.Totals totals = pricingService.computeTotals(pricingLines,
-                address.getCity(), deliveryZones.rateFor(address.getCity()).orElse(null));
+                address.getCity(),
+                deliveryZones.rateFor(address.getCity(), address.getDistrict()).orElse(null));
 
         // 5b. Apply an optional coupon: validated server-side against the fresh subtotal,
         //     snapshotted on the order. An invalid/expired code aborts checkout (no order).

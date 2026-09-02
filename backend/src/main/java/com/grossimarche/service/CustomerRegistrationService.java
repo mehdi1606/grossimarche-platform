@@ -3,6 +3,8 @@ package com.grossimarche.service;
 import com.grossimarche.dto.auth.RegisterRequest;
 import com.grossimarche.dto.user.UserResponse;
 import com.grossimarche.entity.ClientType;
+import com.grossimarche.exception.BusinessException;
+import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.ClientTypeRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,13 +24,16 @@ public class CustomerRegistrationService {
 
     private final AuthService authService;
     private final ClientTypeRepository clientTypeRepository;
+    private final DeliveryZoneService deliveryZones;
     private final ApplicationEventPublisher events;
 
     public CustomerRegistrationService(AuthService authService,
                                        ClientTypeRepository clientTypeRepository,
+                                       DeliveryZoneService deliveryZones,
                                        ApplicationEventPublisher events) {
         this.authService = authService;
         this.clientTypeRepository = clientTypeRepository;
+        this.deliveryZones = deliveryZones;
         this.events = events;
     }
 
@@ -37,8 +42,16 @@ public class CustomerRegistrationService {
         ClientType type = clientTypeRepository.findById(req.clientTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Type de client", req.clientTypeId()));
 
+        // Refuse a city we do not serve. The form only offers delivered cities, so reaching
+        // here means the payload was hand-made - and an account whose address cannot be
+        // delivered to is a problem discovered at the first order instead of now.
+        if (deliveryZones.rateFor(req.city(), req.district()).isEmpty()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Nous ne livrons pas encore cette ville.");
+        }
+
         UserResponse created = authService.register(req.fullName(), req.businessName(), req.email(),
-                req.phone(), req.city(), type, req.password(), ip);
+                req.phone(), req.city(), req.district(), req.addressLine(), type, req.password(), ip);
 
         // A pending account earns nothing until someone looks at it, so the back-office is told
         // straight away rather than discovering the queue on its next visit.

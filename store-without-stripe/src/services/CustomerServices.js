@@ -26,6 +26,16 @@ const CustomerServices = {
     return requests.get("/client-types");
   },
 
+  /**
+   * The cities we deliver to, each with its districts.
+   *
+   * The sign-up form offers these instead of a free-text city, because an address typed by hand
+   * is an address nobody can price: the delivery fee is resolved from exactly these names.
+   */
+  getDeliveryCities: async () => {
+    return requests.get("/delivery-cities");
+  },
+
   // Profile & addresses.
   getCustomer: async () => {
     return requests.get("/me");

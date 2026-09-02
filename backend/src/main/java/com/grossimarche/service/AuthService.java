@@ -3,6 +3,7 @@ package com.grossimarche.service;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.TokenResponse;
 import com.grossimarche.dto.user.UserResponse;
+import com.grossimarche.entity.Address;
 import com.grossimarche.entity.ClientType;
 import com.grossimarche.entity.LoyaltyAccount;
 import com.grossimarche.entity.User;
@@ -14,6 +15,7 @@ import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.RateLimitExceededException;
+import com.grossimarche.repository.AddressRepository;
 import com.grossimarche.repository.LoyaltyAccountRepository;
 import com.grossimarche.repository.UserRepository;
 import com.grossimarche.security.JwtService;
@@ -56,12 +58,13 @@ public class AuthService {
     private final AuditService auditService;
     private final StaffPasswordService staffPasswordService;
     private final RateLimitService rateLimiter;
+    private final AddressRepository addressRepository;
 
     public AuthService(OtpService otpService, UserRepository userRepository,
                        LoyaltyAccountRepository loyaltyAccountRepository, JwtService jwtService,
                        RefreshTokenService refreshTokenService, TokenDenylistService denylistService,
                        AuditService auditService, StaffPasswordService staffPasswordService,
-                       RateLimitService rateLimiter) {
+                       RateLimitService rateLimiter, AddressRepository addressRepository) {
         this.otpService = otpService;
         this.userRepository = userRepository;
         this.loyaltyAccountRepository = loyaltyAccountRepository;
@@ -71,6 +74,7 @@ public class AuthService {
         this.auditService = auditService;
         this.staffPasswordService = staffPasswordService;
         this.rateLimiter = rateLimiter;
+        this.addressRepository = addressRepository;
     }
 
     public OtpRequestResponse requestOtp(OtpChannel channel, String destination, String ip) {
@@ -137,7 +141,8 @@ public class AuthService {
      */
     @Transactional
     public UserResponse register(String fullName, String businessName, String email, String phone,
-                                 String city, ClientType clientType, String password, String ip) {
+                                 String city, String district, String addressLine,
+                                 ClientType clientType, String password, String ip) {
         String normalisedEmail = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
         String normalisedPhone = phone == null ? null : phone.trim();
 
@@ -171,6 +176,18 @@ public class AuthService {
         // change at first sign-in.
         staffPasswordService.assign(user, password, false);
         user = saveNewCustomer(user);
+
+        // The delivery address, captured once here rather than asked for again at the first
+        // checkout - and it is what the delivery fee is resolved from, so a shop that has
+        // registered already knows what delivery will cost it.
+        addressRepository.save(Address.builder()
+                .user(user)
+                .label("Commerce")
+                .city(city.trim())
+                .district(district == null || district.isBlank() ? null : district.trim())
+                .addressLine(addressLine.trim())
+                .isDefault(true)
+                .build());
 
         auditService.record(user.getId(), "CUSTOMER_REGISTERED", "User", user.getId().toString(),
                 null, null, "En attente de validation");

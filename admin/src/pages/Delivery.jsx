@@ -10,18 +10,42 @@ import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
-const EMPTY_FORM = { name: "", deliveryFee: "", districts: "", sortOrder: 0, active: true };
+const EMPTY_FORM = { name: "", deliveryFee: "", districts: [], sortOrder: 0, active: true };
+
+/** Turn a pasted block into district rows, dropping blanks and repeats. */
+const parseBulk = (text, existing) => {
+  const seen = new Set(existing.map((d) => d.name.trim().toLowerCase()));
+  const added = [];
+  text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .forEach((name) => {
+      const key = name.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      added.push({ name, deliveryFee: "" });
+    });
+  return added;
+};
 
 /**
  * Delivery rounds and their rates.
  *
- * One rate per city, because a city is one round for one van. The districts underneath are not
- * priced - they exist so a delivery address is picked from a list rather than typed, since
+ * A rate per city, and optionally per district. Most districts have none and follow their city
+ * automatically - including when the city's rate changes later, which is what makes twenty-one
+ * Casablanca districts maintainable instead of twenty-one numbers to remember. A district only
+ * gets its own price where the round genuinely differs: crossing the city to Aïn Harrouda is
+ * not the drop in Maârif.
+ *
+ * Empty is therefore not zero. Empty means "same as the city"; zero would mean free delivery to
+ * that district, which is a different promise.
+ *
+ * Districts also exist so an address is picked from a list rather than typed: free-typed,
  * "ain sebaa", "Aïn Sebaâ" and "AinSebaa" are three different places to whoever is driving.
  *
- * Districts are edited as one textarea, one per line. A repeating add/remove row for twenty-one
- * Casablanca districts is twenty-one clicks and a scroll; pasting a list is one paste, and that
- * is how this data actually arrives.
+ * The rows can be filled by pasting a list, because that is how this data arrives - twenty-one
+ * "Ajouter" clicks for Casablanca is not how anyone would actually enter it.
  */
 const Delivery = () => {
   const [rows, setRows] = useState([]);
@@ -30,6 +54,7 @@ const Delivery = () => {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [retireTarget, setRetireTarget] = useState(null);
+  const [bulk, setBulk] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,7 +80,12 @@ const Delivery = () => {
     setForm({
       name: row.name || "",
       deliveryFee: String(row.deliveryFee ?? ""),
-      districts: (row.districts || []).map((d) => d.name).join("\n"),
+      districts: (row.districts || []).map((d) => ({
+        name: d.name,
+        deliveryFee: d.deliveryFee === null || d.deliveryFee === undefined
+          ? ""
+          : String(d.deliveryFee),
+      })),
       sortOrder: row.sortOrder ?? 0,
       active: !!row.active,
     });
@@ -80,10 +110,14 @@ const Delivery = () => {
         sortOrder: Number(form.sortOrder) || 0,
         active: form.active,
         districts: form.districts
-          .split("\n")
-          .map((l) => l.trim())
-          .filter(Boolean)
-          .map((name) => ({ name, active: true })),
+          .filter((d) => d.name.trim())
+          .map((d) => ({
+            name: d.name.trim(),
+            // Empty means "same as the city", which is not the same as zero - zero would be
+            // free delivery to that district.
+            deliveryFee: d.deliveryFee === "" ? null : Number(d.deliveryFee),
+            active: true,
+          })),
       };
       if (editing?.id) {
         await DeliveryServices.update(editing.id, body);
@@ -198,9 +232,21 @@ const Delivery = () => {
                     {row.districts.map((d) => (
                       <span
                         key={d.id}
-                        className="rounded-lg bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                        className={`rounded-lg px-2 py-0.5 text-xs ${
+                          d.deliveryFee === null || d.deliveryFee === undefined
+                            ? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                            : "bg-emerald-50 font-medium text-emerald-700 dark:bg-emerald-500/10"
+                        }`}
+                        title={
+                          d.deliveryFee === null || d.deliveryFee === undefined
+                            ? "Tarif de la ville"
+                            : "Tarif propre a ce quartier"
+                        }
                       >
                         {d.name}
+                        {d.deliveryFee !== null && d.deliveryFee !== undefined && (
+                          <> - {Number(d.deliveryFee).toFixed(2)} DH</>
+                        )}
                       </span>
                     ))}
                   </div>
@@ -260,19 +306,115 @@ const Delivery = () => {
             </Label>
           </div>
 
-          <Label>
-            <span>Quartiers - un par ligne</span>
-            <Textarea
-              className="mt-1 font-mono text-xs"
-              rows={8}
-              value={form.districts}
-              onChange={(e) => setForm({ ...form, districts: e.target.value })}
-              placeholder={"Anfa\nMaârif\nSidi Bernoussi"}
-            />
-          </Label>
-          <p className="-mt-2 text-xs text-gray-400">
-            Collez votre liste directement. Les lignes vides et les doublons sont ignorés.
-          </p>
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Quartiers
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({
+                    ...form,
+                    districts: [...form.districts, { name: "", deliveryFee: "" }],
+                  })
+                }
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+              >
+                <FiPlus className="h-3 w-3" />
+                Ajouter
+              </button>
+            </div>
+
+            <p className="mb-3 text-xs text-gray-400">
+              Laissez le prix vide pour appliquer le tarif de la ville. Ne le remplissez que
+              pour un quartier plus cher ou moins cher que le reste.
+            </p>
+
+            {form.districts.length > 0 && (
+              <div className="mb-3 grid max-h-64 gap-2 overflow-y-auto pr-1">
+                {form.districts.map((d, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      className="h-9 flex-1"
+                      value={d.name}
+                      placeholder="Nom du quartier"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          districts: form.districts.map((x, i) =>
+                            i === index ? { ...x, name: e.target.value } : x
+                          ),
+                        })
+                      }
+                    />
+                    <Input
+                      className="h-9 w-28"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={d.deliveryFee}
+                      placeholder="ville"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          districts: form.districts.map((x, i) =>
+                            i === index ? { ...x, deliveryFee: e.target.value } : x
+                          ),
+                        })
+                      }
+                    />
+                    <span className="w-6 shrink-0 text-xs text-gray-400">DH</span>
+                    <button
+                      type="button"
+                      title="Retirer"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          districts: form.districts.filter((_, i) => i !== index),
+                        })
+                      }
+                      className="text-gray-300 transition hover:text-red-500"
+                    >
+                      <FiSlash className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Bulk paste, because this data arrives as a list. Twenty-one "Ajouter" clicks for
+                Casablanca is not how anyone would actually enter it. */}
+            <details className="rounded-xl border border-gray-200 p-3 dark:border-gray-700">
+              <summary className="cursor-pointer text-xs font-medium text-gray-500">
+                Coller une liste de quartiers
+              </summary>
+              <Textarea
+                className="mt-2 font-mono text-xs"
+                rows={5}
+                value={bulk}
+                onChange={(e) => setBulk(e.target.value)}
+                placeholder={"Anfa\nMaârif\nSidi Bernoussi"}
+              />
+              <Button
+                size="small"
+                layout="outline"
+                className="mt-2"
+                onClick={() => {
+                  const added = parseBulk(bulk, form.districts);
+                  if (!added.length) {
+                    notifyError("Rien a ajouter : lignes vides ou deja presentes.");
+                    return;
+                  }
+                  setForm({ ...form, districts: [...form.districts, ...added] });
+                  setBulk("");
+                  notifySuccess(`${added.length} quartier(s) ajoute(s).`);
+                }}
+              >
+                Ajouter a la liste
+              </Button>
+            </details>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Label>

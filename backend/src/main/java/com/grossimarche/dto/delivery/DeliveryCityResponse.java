@@ -23,10 +23,13 @@ public record DeliveryCityResponse(
                 city.getDistricts().stream().map(District::from).toList());
     }
 
-    public record District(UUID id, String name, int sortOrder, boolean active) {
+    /** {@code deliveryFee} null means the district follows its city's rate. */
+    public record District(UUID id, String name, BigDecimal deliveryFee, int sortOrder,
+                           boolean active) {
 
         static District from(DeliveryDistrict d) {
-            return new District(d.getId(), d.getName(), d.getSortOrder(), d.isActive());
+            return new District(d.getId(), d.getName(), d.getDeliveryFee(), d.getSortOrder(),
+                    d.isActive());
         }
     }
 }

@@ -6,6 +6,7 @@ import {
   FiArrowLeft,
   FiBriefcase,
   FiCheck,
+  FiHome,
   FiLock,
   FiMail,
   FiMapPin,
@@ -38,6 +39,9 @@ const Signup = () => {
   const [loadingTypes, setLoadingTypes] = useState(true);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [cityName, setCityName] = useState("");
+  const [district, setDistrict] = useState("");
 
   const {
     register,
@@ -70,7 +74,36 @@ const Signup = () => {
     };
   }, [router.query.type]);
 
+  useEffect(() => {
+    let cancelled = false;
+    CustomerServices.getDeliveryCities()
+      .then((res) => {
+        if (!cancelled) setCities(res || []);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          notifyError("Impossible de charger les villes de livraison.");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const currentCity = cities.find((c) => c.name === cityName) || null;
+  const districts = currentCity?.districts || [];
+
   const submitHandler = async (data) => {
+    if (!cityName) {
+      notifyError("Choisissez votre ville de livraison.");
+      return;
+    }
+    // Only block on a missing district where the city actually has some - Benslimane has none
+    // listed, and demanding one there would make the form unsubmittable.
+    if (districts.length > 0 && !district) {
+      notifyError("Choisissez votre quartier.");
+      return;
+    }
     setLoading(true);
     try {
       await CustomerServices.register({
@@ -78,7 +111,9 @@ const Signup = () => {
         businessName: data.businessName.trim(),
         email: data.email.trim(),
         phone: data.phone.trim(),
-        city: data.city?.trim() || null,
+        city: cityName,
+        district: district || null,
+        addressLine: data.addressLine.trim(),
         clientTypeId: selected.id,
         password: data.password,
       });
@@ -225,29 +260,90 @@ const Signup = () => {
                     <Error errorName={errors.fullName} />
                   </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <InputArea
-                        register={register}
-                        label="Telephone"
-                        name="phone"
-                        type="tel"
-                        placeholder="06 12 34 56 78"
-                        Icon={FiPhone}
-                      />
-                      <Error errorName={errors.phone} />
+                  <div>
+                    <InputArea
+                      register={register}
+                      label="Telephone"
+                      name="phone"
+                      type="tel"
+                      placeholder="06 12 34 56 78"
+                      Icon={FiPhone}
+                    />
+                    <Error errorName={errors.phone} />
+                  </div>
+
+                  {/* Delivery address. Asked once, here: it is what the delivery fee is
+                      resolved from, so a free-typed city would be an address nobody can
+                      price. */}
+                  <div className="rounded-xl border border-line bg-cream/60 p-4">
+                    <p className="mb-3 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-luxe text-ink-400">
+                      <FiMapPin className="h-3 w-3" />
+                      Adresse de livraison
+                    </p>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-semibold text-ink-700">Ville</label>
+                        <select
+                          value={cityName}
+                          onChange={(e) => {
+                            setCityName(e.target.value);
+                            // The districts belong to the city; keeping the old one would
+                            // send a Casablanca district with a Bouznika address.
+                            setDistrict("");
+                          }}
+                          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-800 focus:border-emerald-500 focus:outline-none"
+                        >
+                          <option value="" disabled>
+                            Choisissez votre ville
+                          </option>
+                          {cities.map((c) => (
+                            <option key={c.id} value={c.name}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-ink-700">
+                          Quartier
+                        </label>
+                        <select
+                          value={district}
+                          disabled={districts.length === 0}
+                          onChange={(e) => setDistrict(e.target.value)}
+                          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-800 focus:border-emerald-500 focus:outline-none disabled:bg-sand disabled:text-ink-400"
+                        >
+                          <option value="">
+                            {cityName
+                              ? districts.length
+                                ? "Choisissez votre quartier"
+                                : "Aucun quartier a preciser"
+                              : "Choisissez d'abord la ville"}
+                          </option>
+                          {districts.map((d) => (
+                            <option key={d.id} value={d.name}>
+                              {d.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <div>
+
+                    <div className="mt-4">
                       <InputArea
                         register={register}
-                        label="Ville"
-                        name="city"
+                        label="Rue et numero"
+                        name="addressLine"
                         type="text"
-                        required={false}
-                        placeholder="Casablanca"
-                        Icon={FiMapPin}
+                        placeholder="12, rue Ibn Batouta"
+                        Icon={FiHome}
                       />
-                      <Error errorName={errors.city} />
+                      <Error errorName={errors.addressLine} />
+                      <p className="mt-1.5 text-xs text-ink-400">
+                        Saisie une seule fois : elle sera reprise a chaque commande.
+                      </p>
                     </div>
                   </div>
 

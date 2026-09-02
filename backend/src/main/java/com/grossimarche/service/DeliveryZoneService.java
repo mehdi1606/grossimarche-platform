@@ -37,23 +37,49 @@ public class DeliveryZoneService {
         this.repository = repository;
     }
 
-    /**
-     * The rate for a city name as typed on an address, or empty if the shop has no round there.
-     *
-     * Matched on a normalised form: an address says "casablanca", " Casablanca " or
-     * "CASABLANCA", and all three are the same van.
-     */
+    /** The rate for a city, ignoring districts. */
     @Transactional(readOnly = true)
     public Optional<BigDecimal> rateFor(String cityName) {
+        return rateFor(cityName, null);
+    }
+
+    /**
+     * The rate for an address: the district's own if it has one, otherwise its city's.
+     *
+     * Matched on a normalised form, because an address says "casablanca", " Casablanca " or
+     * "CASABLANCA" and all three are the same van. Empty means the shop has no round there at
+     * all, and the caller falls back to the flat fee.
+     */
+    @Transactional(readOnly = true)
+    public Optional<BigDecimal> rateFor(String cityName, String districtName) {
         if (cityName == null || cityName.isBlank()) {
             return Optional.empty();
         }
-        String wanted = normalise(cityName);
-        return repository.findAllWithDistricts().stream()
+        String wantedCity = normalise(cityName);
+        Optional<DeliveryCity> city = repository.findAllWithDistricts().stream()
                 .filter(DeliveryCity::isActive)
-                .filter(c -> normalise(c.getName()).equals(wanted) || c.getSlug().equals(wanted))
-                .findFirst()
-                .map(DeliveryCity::getDeliveryFee);
+                .filter(c -> normalise(c.getName()).equals(wantedCity)
+                        || c.getSlug().equals(wantedCity))
+                .findFirst();
+        if (city.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (districtName != null && !districtName.isBlank()) {
+            String wantedDistrict = normalise(districtName);
+            Optional<BigDecimal> own = city.get().getDistricts().stream()
+                    .filter(DeliveryDistrict::isActive)
+                    .filter(d -> normalise(d.getName()).equals(wantedDistrict))
+                    .findFirst()
+                    .map(DeliveryDistrict::getDeliveryFee);
+            // Only an actual rate overrides; a district with none follows its city, which is
+            // why this is not simply `own.or(cityRate)` on an Optional that could be empty for
+            // two different reasons.
+            if (own.isPresent()) {
+                return own;
+            }
+        }
+        return Optional.of(city.get().getDeliveryFee());
     }
 
     /** What the storefront offers in its address form: served cities and their districts. */
@@ -152,6 +178,7 @@ public class DeliveryZoneService {
             city.getDistricts().add(DeliveryDistrict.builder()
                     .city(city)
                     .name(name)
+                    .deliveryFee(d.deliveryFee())
                     .sortOrder(order++)
                     .active(d.active() == null || d.active())
                     .build());

@@ -26,8 +26,10 @@ public record DeliveryCityRequest(
         @Valid List<District> districts
 ) {
 
+    /** {@code deliveryFee} null means "same rate as the city", which is the common case. */
     public record District(
             @NotBlank @Size(max = 120) String name,
+            @DecimalMin("0.0") BigDecimal deliveryFee,
             Boolean active
     ) {
     }

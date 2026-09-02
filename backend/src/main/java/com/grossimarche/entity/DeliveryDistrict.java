@@ -35,6 +35,16 @@ public class DeliveryDistrict extends BaseEntity {
     @Column(name = "name", nullable = false, length = 120)
     private String name;
 
+    /**
+      * This district's own rate, or null to follow its city.
+      *
+      * Null is the useful value: a district left alone tracks its city automatically, including
+      * when the city's rate changes later. That is what makes twenty-one districts maintainable
+      * instead of twenty-one numbers to remember to update.
+      */
+    @Column(name = "delivery_fee", precision = 12, scale = 2)
+    private java.math.BigDecimal deliveryFee;
+
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
 

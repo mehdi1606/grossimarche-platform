@@ -35,6 +35,15 @@ public class Address extends CreatedAtEntity {
     @Column(name = "address_line", nullable = false)
     private String addressLine;
 
+    /**
+     * The delivery district, chosen from the city's list rather than typed.
+     *
+     * Kept as the name, not a foreign key: an address is a historical fact about where a parcel
+     * went, and renaming or retiring a district must not rewrite it.
+     */
+    @Column(name = "district", length = 120)
+    private String district;
+
     @Column(name = "lat")
     private Double lat;
 
