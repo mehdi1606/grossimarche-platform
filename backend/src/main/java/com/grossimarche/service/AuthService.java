@@ -21,6 +21,8 @@ import com.grossimarche.repository.UserRepository;
 import com.grossimarche.security.JwtService;
 import com.grossimarche.security.RefreshTokenService;
 import com.grossimarche.security.TokenDenylistService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -39,6 +41,8 @@ import java.util.Locale;
  */
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private static final String CONSENT_VERSION = "1.0";
 
@@ -180,14 +184,18 @@ public class AuthService {
         // The delivery address, captured once here rather than asked for again at the first
         // checkout - and it is what the delivery fee is resolved from, so a shop that has
         // registered already knows what delivery will cost it.
-        addressRepository.save(Address.builder()
-                .user(user)
-                .label("Commerce")
-                .city(city.trim())
-                .district(district == null || district.isBlank() ? null : district.trim())
-                .addressLine(addressLine.trim())
-                .isDefault(true)
-                .build());
+        try {
+            addressRepository.saveAndFlush(Address.builder()
+                    .user(user)
+                    .label("Commerce")
+                    .city(city.trim())
+                    .district(district == null || district.isBlank() ? null : district.trim())
+                    .addressLine(addressLine.trim())
+                    .isDefault(true)
+                    .build());
+        } catch (DataIntegrityViolationException e) {
+            throw duplicate(e);
+        }
 
         auditService.record(user.getId(), "CUSTOMER_REGISTERED", "User", user.getId().toString(),
                 null, null, "En attente de validation");
@@ -210,19 +218,37 @@ public class AuthService {
         try {
             return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {
-            String detail = e.getMostSpecificCause().getMessage();
-            String hint = detail == null ? "" : detail.toLowerCase(Locale.ROOT);
-            if (hint.contains("phone")) {
-                throw new ConflictException("Un compte existe déjà avec ce numéro de téléphone.");
-            }
-            if (hint.contains("email")) {
-                throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
-            }
-            // Anything else is genuinely unexpected; say so plainly rather than blaming a field
-            // the applicant may have filled in correctly.
-            throw new ConflictException(
-                    "Ces informations sont déjà utilisées par un compte existant.");
+            throw duplicate(e);
         }
+    }
+
+    /**
+     * Name the field a unique-constraint violation actually landed on.
+     *
+     * The constraint name is read from the driver's own message rather than guessed from what
+     * the form contained: by the time this runs, several rows have been written, and blaming
+     * the e-mail for a clash on the address would send the applicant to change the one thing
+     * that was correct.
+     *
+     * Logged as well as translated. A violation reaching here at all means a pre-check missed
+     * something, and that is worth seeing in the log rather than only in a toast.
+     */
+    private ConflictException duplicate(DataIntegrityViolationException e) {
+        String detail = e.getMostSpecificCause().getMessage();
+        String hint = detail == null ? "" : detail.toLowerCase(Locale.ROOT);
+        log.warn("Registration hit a constraint the pre-checks did not catch: {}", detail);
+
+        if (hint.contains("phone")) {
+            return new ConflictException("Un compte existe déjà avec ce numéro de téléphone.");
+        }
+        if (hint.contains("email")) {
+            return new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
+        }
+        if (hint.contains("address")) {
+            return new ConflictException("Une adresse est déjà enregistrée pour ce compte.");
+        }
+        return new ConflictException(
+                "Ces informations sont déjà utilisées par un compte existant.");
     }
 
     /**
