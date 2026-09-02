@@ -19,6 +19,7 @@ import com.grossimarche.repository.UserRepository;
 import com.grossimarche.security.JwtService;
 import com.grossimarche.security.RefreshTokenService;
 import com.grossimarche.security.TokenDenylistService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
@@ -169,11 +170,42 @@ public class AuthService {
         // Their own password, chosen by them: unlike a staff invitation there is nothing to
         // change at first sign-in.
         staffPasswordService.assign(user, password, false);
-        user = userRepository.save(user);
+        user = saveNewCustomer(user);
 
         auditService.record(user.getId(), "CUSTOMER_REGISTERED", "User", user.getId().toString(),
                 null, null, "En attente de validation");
         return UserResponse.from(user);
+    }
+
+    /**
+     * Insert the account, turning a unique-constraint violation into something the applicant
+     * can act on.
+     *
+     * The checks above catch the ordinary cases, but they read and write in one transaction, so
+     * two people registering the same address in the same second both pass them and the second
+     * INSERT loses. Left alone that surfaces as the generic "conflit avec l'état actuel des
+     * données", which tells someone filling in a form precisely nothing.
+     *
+     * Flushed here on purpose: without it the violation would not be thrown until commit, long
+     * after this method could still explain it.
+     */
+    private User saveNewCustomer(User user) {
+        try {
+            return userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException e) {
+            String detail = e.getMostSpecificCause().getMessage();
+            String hint = detail == null ? "" : detail.toLowerCase(Locale.ROOT);
+            if (hint.contains("phone")) {
+                throw new ConflictException("Un compte existe déjà avec ce numéro de téléphone.");
+            }
+            if (hint.contains("email")) {
+                throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
+            }
+            // Anything else is genuinely unexpected; say so plainly rather than blaming a field
+            // the applicant may have filled in correctly.
+            throw new ConflictException(
+                    "Ces informations sont déjà utilisées par un compte existant.");
+        }
     }
 
     /**
