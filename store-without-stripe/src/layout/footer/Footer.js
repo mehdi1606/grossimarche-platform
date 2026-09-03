@@ -1,5 +1,6 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 import {
   FiFacebook,
   FiInstagram,
@@ -13,28 +14,30 @@ import {
 import { getUserSession } from "@lib/auth";
 import BrandMark from "@components/common/BrandMark";
 
+// Keys, not sentences: the columns are built at module load, before any hook exists, so both
+// the headings and the link labels are resolved at render in the reader's language.
 const COLUMNS = [
   {
-    title: "Boutique",
+    title: "footer.shop",
     links: [
-      { label: "Accueil", href: "/" },
-      { label: "Tous les produits", href: "/search" },
-      { label: "Paniers & offres", href: "/offer" },
+      { label: "common.home", href: "/" },
+      { label: "common.all_products", href: "/search" },
+      { label: "common.bundles_offers", href: "/offer" },
     ],
   },
   {
-    title: "Société",
+    title: "footer.company",
     links: [
-      { label: "À propos", href: "/about-us" },
-      { label: "Contact", href: "/contact-us" },
-      { label: "FAQ", href: "/faq" },
+      { label: "common.about", href: "/about-us" },
+      { label: "common.contact", href: "/contact-us" },
+      { label: "common.faq", href: "/faq" },
     ],
   },
   {
-    title: "Légal",
+    title: "footer.legal",
     links: [
-      { label: "Confidentialité", href: "/privacy-policy" },
-      { label: "Conditions", href: "/terms-and-conditions" },
+      { label: "footer.privacy", href: "/privacy-policy" },
+      { label: "footer.terms", href: "/terms-and-conditions" },
     ],
   },
 ];
@@ -59,23 +62,24 @@ const SOCIALS = [
  * so both sides of the grid carry real weight.
  */
 const Footer = () => {
+  const { t } = useTranslation();
   const userInfo = getUserSession();
 
   const accountLinks = userInfo?.email
     ? [
-        { label: "Mon compte", href: "/user/dashboard" },
-        { label: "Mes commandes", href: "/user/my-orders" },
-        { label: "Mes adresses", href: "/user/my-account#adresses" },
+        { label: "common.account", href: "/user/dashboard" },
+        { label: "common.my_orders", href: "/user/my-orders" },
+        { label: "common.my_addresses", href: "/user/my-account#adresses" },
       ]
     : [
-        { label: "Se connecter", href: "/auth/login" },
-        { label: "Suivre ma commande", href: "/auth/login?redirectUrl=orders" },
+        { label: "common.sign_in", href: "/auth/login" },
+        { label: "common.track_order", href: "/auth/login?redirectUrl=orders" },
       ];
 
-  const columns = [...COLUMNS, { title: "Compte", links: accountLinks }];
+  const columns = [...COLUMNS, { title: "footer.account", links: accountLinks }];
 
   return (
-    <footer className="relative bg-emerald-900 text-emerald-50">
+    <footer data-no-translate className="relative bg-emerald-900 text-emerald-50">
       {/* A single brass hairline along the top edge - the one bright note, and what stops the
           dark block from reading as a plain slab. */}
       <span
@@ -90,8 +94,7 @@ const Footer = () => {
             <BrandMark variant="light" />
 
             <p className="mt-6 max-w-sm text-sm leading-7 text-emerald-100/70">
-              Votre marché de gros en ligne au Maroc - produits en gros, tarifs dégressifs
-              et livraison rapide dans tout le Royaume.
+              {t("footer.tagline")}
             </p>
 
             <ul className="mt-8 space-y-3.5">
@@ -123,7 +126,7 @@ const Footer = () => {
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10">
                   <FiMapPin className="h-4 w-4" />
                 </span>
-                Mohammedia · Casablanca · Benslimane
+                {t("footer.cities")}
               </li>
             </ul>
           </div>
@@ -133,7 +136,7 @@ const Footer = () => {
             {columns.map((col) => (
               <div key={col.title}>
                 <h3 className="mb-5 text-2xs font-semibold uppercase tracking-luxe text-brass-300/80">
-                  {col.title}
+                  {t(col.title)}
                 </h3>
                 <ul className="space-y-3 text-sm">
                   {col.links.map((l) => (
@@ -142,7 +145,7 @@ const Footer = () => {
                         href={l.href}
                         className="text-emerald-100/75 underline-offset-4 transition hover:text-white hover:underline"
                       >
-                        {l.label}
+                        {t(l.label)}
                       </Link>
                     </li>
                   ))}
@@ -157,12 +160,12 @@ const Footer = () => {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-screen-2xl flex-col items-center justify-between gap-5 px-4 py-6 sm:px-10 md:flex-row">
           <p className="order-2 text-xs text-emerald-100/50 md:order-1">
-            © {new Date().getFullYear()} Grossimarché. Tous droits réservés.
+            {t("footer.rights", { year: new Date().getFullYear() })}
           </p>
 
           <div className="order-1 flex items-center gap-5 md:order-2">
             <span className="hidden rounded-full bg-white/5 px-3 py-1.5 text-2xs font-medium uppercase tracking-luxe text-emerald-100/70 ring-1 ring-inset ring-white/10 sm:inline">
-              Paiement à la livraison
+              {t("common.cod")}
             </span>
             <div className="flex items-center gap-2.5">
               {SOCIALS.map(({ Icon, href, label }) => (

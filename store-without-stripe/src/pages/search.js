@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import { FiSearch } from "react-icons/fi";
 
 //internal import
@@ -16,6 +17,7 @@ import CategoryServices from "@services/CategoryServices";
 import { safe, serverToken } from "@lib/server-token";
 
 const Search = ({ products, attributes, categories }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
   const [visibleProduct, setVisibleProduct] = useState(18);
@@ -28,31 +30,34 @@ const Search = ({ products, attributes, categories }) => {
   const queryText = router.query?.query;
 
   return (
-    <Layout title="Recherche" description="Parcourez le catalogue Grossimarché">
-      <div className="mx-auto max-w-screen-2xl px-3 py-10 sm:px-10 lg:py-12">
+    <Layout title={t("search.title")} description={t("search.meta")}>
+      <div data-no-translate className="mx-auto max-w-screen-2xl px-3 py-10 sm:px-10 lg:py-12">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-display text-3xl font-semibold tracking-tight text-ink-900">
-              {queryText ? `Résultats pour « ${queryText} »` : "Nos produits"}
+              {queryText
+                ? t("search.heading_query", { query: queryText })
+                : t("search.heading")}
             </h1>
             {productData?.length > 0 && (
+              // Counted through i18next rather than an inline "s": French needs two forms,
+              // Arabic six, and the catalogue is read in both.
               <p className="mt-1 text-sm text-gray-500">
-                {productData.length} produit{productData.length > 1 ? "s" : ""} trouvé
-                {productData.length > 1 ? "s" : ""}
+                {t("search.results_count", { count: productData.length })}
               </p>
             )}
           </div>
           {productData?.length > 0 && (
             <FilterDropdown
               className="w-full sm:w-44"
-              ariaLabel="Trier les produits"
-              placeholder="Trier par prix"
+              ariaLabel={t("search.sort_label")}
+              placeholder={t("search.sort_placeholder")}
               value={sortedField}
               onChange={setSortedField}
               options={[
-                { value: "Low", label: "Prix croissant" },
-                { value: "High", label: "Prix décroissant" },
+                { value: "Low", label: t("search.sort_asc") },
+                { value: "High", label: t("search.sort_desc") },
               ]}
             />
           )}
@@ -70,10 +75,11 @@ const Search = ({ products, attributes, categories }) => {
                 <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-gray-100 text-gray-400">
                   <FiSearch className="text-2xl" />
                 </span>
-                <h2 className="font-display text-lg font-semibold text-ink-800">Aucun produit trouvé</h2>
+                <h2 className="font-display text-lg font-semibold text-ink-800">
+                  {t("search.empty_title")}
+                </h2>
                 <p className="mt-1 max-w-sm text-sm text-gray-500">
-                  Essayez un autre mot-clé, élargissez la fourchette de prix ou
-                  réinitialisez les filtres.
+                  {t("search.empty_text")}
                 </p>
               </div>
             ) : (
@@ -90,7 +96,7 @@ const Search = ({ products, attributes, categories }) => {
                       onClick={() => setVisibleProduct((pre) => pre + 12)}
                       className="rounded-full border border-emerald-200 px-8 py-3 text-sm font-medium text-emerald-600 transition hover:bg-emerald-500 hover:text-white"
                     >
-                      Voir plus
+                      {t("search.load_more")}
                     </button>
                   </div>
                 )}

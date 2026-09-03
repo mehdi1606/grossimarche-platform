@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import { FiFilter, FiX } from "react-icons/fi";
 
 //internal import
@@ -15,6 +16,7 @@ import CategoryIcon from "@components/category/CategoryIcon";
  * items, so the "N produits trouvés" count and any deeper result would drift.
  */
 const ProductFilters = ({ categories = [] }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showingTranslateValue } = useUtilsFunction();
 
@@ -72,16 +74,19 @@ const ProductFilters = ({ categories = [] }) => {
     }`;
 
   const panel = (
-    <div className="space-y-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <div
+      data-no-translate
+      className="space-y-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+    >
       {/* Categories */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-gray-800">Catégories</h3>
+        <h3 className="mb-3 text-sm font-semibold text-gray-800">{t("filters.categories")}</h3>
         <div className="space-y-1">
           <button type="button" onClick={() => selectCategory(null)} className={rowCls(!activeCategory)}>
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gray-100 text-xs">
               ★
             </span>
-            <span className="flex-1 truncate">Toutes les catégories</span>
+            <span className="flex-1 truncate">{t("filters.all_categories")}</span>
           </button>
           {categories.map((c) => (
             <button
@@ -101,14 +106,14 @@ const ProductFilters = ({ categories = [] }) => {
 
       {/* Price */}
       <div className="border-t border-gray-100 pt-5">
-        <h3 className="mb-3 text-sm font-semibold text-gray-800">Prix (DH)</h3>
+        <h3 className="mb-3 text-sm font-semibold text-gray-800">{t("filters.price")}</h3>
         <form onSubmit={applyPrice} className="space-y-3">
           <div className="flex items-center gap-2">
             <input
               type="number"
               min="0"
               inputMode="numeric"
-              placeholder="Min"
+              placeholder={t("filters.min")}
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
@@ -118,7 +123,7 @@ const ProductFilters = ({ categories = [] }) => {
               type="number"
               min="0"
               inputMode="numeric"
-              placeholder="Max"
+              placeholder={t("filters.max")}
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
@@ -128,14 +133,14 @@ const ProductFilters = ({ categories = [] }) => {
             type="submit"
             className="h-10 w-full rounded-lg bg-emerald-500 text-sm font-medium text-white transition hover:bg-emerald-600"
           >
-            Appliquer
+            {t("filters.apply")}
           </button>
         </form>
       </div>
 
       {/* Availability */}
       <div className="border-t border-gray-100 pt-5">
-        <h3 className="mb-3 text-sm font-semibold text-gray-800">Disponibilité</h3>
+        <h3 className="mb-3 text-sm font-semibold text-gray-800">{t("filters.availability")}</h3>
         <label className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-600">
           <input
             type="checkbox"
@@ -143,7 +148,7 @@ const ProductFilters = ({ categories = [] }) => {
             onChange={(e) => pushQuery({ stock: e.target.checked ? "1" : "" })}
             className="h-4 w-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-400"
           />
-          En stock uniquement
+          {t("filters.in_stock_only")}
         </label>
       </div>
 
@@ -153,7 +158,7 @@ const ProductFilters = ({ categories = [] }) => {
           onClick={resetAll}
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-300 hover:text-gray-800"
         >
-          <FiX className="h-4 w-4" /> Réinitialiser les filtres
+          <FiX className="h-4 w-4" /> {t("filters.reset")}
         </button>
       )}
     </div>
@@ -165,13 +170,14 @@ const ProductFilters = ({ categories = [] }) => {
       <button
         type="button"
         onClick={() => setOpenOnMobile((prev) => !prev)}
+        data-no-translate
         className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-700 lg:hidden"
       >
         <FiFilter className="h-4 w-4" />
-        {openOnMobile ? "Masquer les filtres" : "Filtres"}
+        {openOnMobile ? t("filters.hide") : t("filters.show")}
         {hasFilters && (
           <span className="rounded-full bg-emerald-100 px-2 text-xs font-semibold text-emerald-700">
-            actifs
+            {t("filters.active")}
           </span>
         )}
       </button>

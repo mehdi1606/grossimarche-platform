@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { IoClose } from "react-icons/io5";
 import {
   FiGift,
@@ -26,12 +27,12 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
  * untranslated keys ("offer-page", "checkout-page") - they were rendering literally.
  */
 const PAGES = [
-  { title: "Paniers & offres", href: "/offer", icon: FiGift },
-  { title: "Tous les produits", href: "/search", icon: FiPackage },
-  { title: "Mon compte", href: "/user/dashboard", icon: FiUser },
-  { title: "À propos", href: "/about-us", icon: FiInfo },
-  { title: "Contact", href: "/contact-us", icon: FiMail },
-  { title: "FAQ", href: "/faq", icon: FiHelpCircle },
+  { title: "common.bundles_offers", href: "/offer", icon: FiGift },
+  { title: "common.all_products", href: "/search", icon: FiPackage },
+  { title: "common.account", href: "/user/dashboard", icon: FiUser },
+  { title: "common.about", href: "/about-us", icon: FiInfo },
+  { title: "common.contact", href: "/contact-us", icon: FiMail },
+  { title: "common.faq", href: "/faq", icon: FiHelpCircle },
 ];
 
 /**
@@ -46,6 +47,7 @@ const PAGES = [
  * a notched device.
  */
 const Category = () => {
+  const { t } = useTranslation();
   const { closeCategoryDrawer } = useContext(SidebarContext);
   const { showingTranslateValue } = useUtilsFunction();
 
@@ -57,13 +59,13 @@ const Category = () => {
   const categories = data?.[0]?.children || [];
 
   return (
-    <div className="flex h-full w-full flex-col bg-white">
+    <div data-no-translate className="flex h-full w-full flex-col bg-white">
       {/* Header - stays put while the list scrolls under it. */}
       <div className="flex shrink-0 items-center justify-between gap-3 bg-emerald-700 px-5 py-4">
         <BrandMark variant="light" href="/" />
         <button
           onClick={closeCategoryDrawer}
-          aria-label="Fermer le menu"
+          aria-label={t("common.close_menu")}
           className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white"
         >
           <IoClose className="text-xl" />
@@ -73,7 +75,7 @@ const Category = () => {
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <h2 className="px-5 pb-2 pt-5 text-2xs font-semibold uppercase tracking-luxe text-ink-400">
-          Catégories
+          {t("common.categories")}
         </h2>
 
         {isLoading ? (
@@ -83,9 +85,7 @@ const Category = () => {
             {error?.response?.data?.message || error?.message}
           </p>
         ) : categories.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-ink-400">
-            Aucune catégorie pour le moment.
-          </p>
+          <p className="px-5 py-6 text-sm text-ink-400">{t("common.no_categories")}</p>
         ) : (
           <div className="grid gap-0.5 px-3 pb-2">
             {categories.map((category) => (
@@ -101,7 +101,7 @@ const Category = () => {
         )}
 
         <h2 className="mt-4 border-t border-line px-5 pb-2 pt-5 text-2xs font-semibold uppercase tracking-luxe text-ink-400">
-          Pages
+          {t("common.pages")}
         </h2>
         <nav className="grid gap-0.5 px-3 pb-6">
           {PAGES.map((item) => (
@@ -114,7 +114,7 @@ const Category = () => {
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-sand text-ink-500">
                 <item.icon className="h-4 w-4" aria-hidden="true" />
               </span>
-              {item.title}
+              {t(item.title)}
             </Link>
           ))}
         </nav>

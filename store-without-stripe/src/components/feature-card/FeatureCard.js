@@ -1,13 +1,15 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { FiTruck, FiHeadphones, FiDollarSign, FiTag } from "react-icons/fi";
 
 // Real Grossimarché value props (Morocco, MAD, cash-on-delivery). No online payment yet, so
-// there is no "secure payment" card - the promise is payment on delivery.
+// there is no "secure payment" card - the promise is payment on delivery. Keys rather than
+// sentences: this list is built at module load, where no hook exists yet.
 const FEATURES = [
-  { id: 1, title: "Livraison offerte", text: "Dès 1000 DH d'achat", Icon: FiTruck },
-  { id: 2, title: "Support 7j/7", text: "Une équipe qui répond", Icon: FiHeadphones },
-  { id: 3, title: "Paiement à la livraison", text: "Aucune carte requise", Icon: FiDollarSign },
-  { id: 4, title: "Prix de gros", text: "Tarifs dégressifs", Icon: FiTag },
+  { key: "shipping", Icon: FiTruck },
+  { key: "support", Icon: FiHeadphones },
+  { key: "cod", Icon: FiDollarSign },
+  { key: "wholesale", Icon: FiTag },
 ];
 
 /**
@@ -19,19 +21,26 @@ const FEATURES = [
  * words instead of decorating a container.
  */
 const FeatureCard = () => {
+  const { t } = useTranslation();
+
   return (
-    <div className="mx-auto grid grid-cols-2 gap-y-8 divide-y divide-line sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
-      {FEATURES.map(({ id, title, text, Icon }) => (
+    <div
+      data-no-translate
+      className="mx-auto grid grid-cols-2 gap-y-8 divide-y divide-line sm:divide-y-0 lg:grid-cols-4 lg:divide-x"
+    >
+      {FEATURES.map(({ key, Icon }) => (
         <div
-          key={id}
+          key={key}
           className="group flex items-center justify-center gap-4 px-6 py-2 text-start"
         >
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 transition duration-300 group-hover:bg-emerald-600 group-hover:text-white">
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
-            <p className="text-sm font-semibold leading-5 text-ink-800">{title}</p>
-            <p className="mt-0.5 text-xs text-ink-500">{text}</p>
+            <p className="text-sm font-semibold leading-5 text-ink-800">
+              {t(`features.${key}_title`)}
+            </p>
+            <p className="mt-0.5 text-xs text-ink-500">{t(`features.${key}_text`)}</p>
           </div>
         </div>
       ))}
