@@ -84,17 +84,17 @@ const useProductSubmit = (id) => {
     // console.log('data is data',data)
     try {
       setIsSubmitting(true);
-      if (!imageUrl) return notifyError("Image is required!");
+      if (!imageUrl) return notifyError("L'image est obligatoire.");
 
       if (data.originalPrice < data.price) {
         setIsSubmitting(false);
         return notifyError(
-          "Sale Price must be less then or equal of product price!"
+          "Le prix promotionnel doit être inférieur ou égal au prix du produit."
         );
       }
       if (!defaultCategory[0]) {
         setIsSubmitting(false);
-        return notifyError("Default Category is required!");
+        return notifyError("La catégorie par défaut est obligatoire.");
       }
 
       const updatedVariants = variants.map((v, i) => {
@@ -222,10 +222,10 @@ const useProductSubmit = (id) => {
           setIsBasicComplete(true);
           setIsSubmitting(false);
           handleProductTap("Combination", true);
-          notifySuccess("Product Added Successfully!");
+          notifySuccess("Produit ajouté.");
         } else {
           setIsUpdate(true);
-          notifySuccess("Product Added Successfully!");
+          notifySuccess("Produit ajouté.");
         }
 
         if (
@@ -412,7 +412,7 @@ const useProductSubmit = (id) => {
   //generate all combination combination
   const handleGenerateCombination = () => {
     if (Object.keys(values).length === 0) {
-      return notifyError("Please select a variant first!");
+      return notifyError("Choisissez d'abord une variante.");
     }
 
     const result = variants.filter(
@@ -524,7 +524,7 @@ const useProductSubmit = (id) => {
   const handleIsCombination = () => {
     if ((isCombination && variantTitle.length) > 0) {
       swal({
-        title: "Are you sure to remove combination from this product!",
+        title: "Voulez-vous vraiment retirer cette combinaison du produit ?",
         text: "(It will be delete all your combination and extras)",
         icon: "warning",
         buttons: true,
@@ -593,7 +593,7 @@ const useProductSubmit = (id) => {
     // );
     if (name === "originalPrice" && Number(value) < Number(variant.price)) {
       // variants[id][name] = Number(variant.originalPrice);
-      notifyError("Price must be more then or equal of originalPrice!");
+      notifyError("Le prix doit être supérieur ou égal au prix initial.");
       setValue("originalPrice", variant.originalPrice);
       setIsBulkUpdate(true);
       const timeOutId = setTimeout(() => setIsBulkUpdate(false), 100);
@@ -601,7 +601,7 @@ const useProductSubmit = (id) => {
     }
     if (name === "price" && Number(variant.originalPrice) < Number(value)) {
       // variants[id][name] = Number(variant.originalPrice);
-      notifyError("Sale Price must be less then or equal of product price!");
+      notifyError("Le prix promotionnel doit être inférieur ou égal au prix du produit.");
       setValue("price", variant.originalPrice);
       setIsBulkUpdate(true);
       const timeOutId = setTimeout(() => setIsBulkUpdate(false), 100);

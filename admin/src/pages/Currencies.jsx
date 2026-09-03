@@ -111,7 +111,7 @@ const Currencies = () => {
               required
             />
             <Input
-              placeholder="Name"
+              placeholder="Nom"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
@@ -138,7 +138,7 @@ const Currencies = () => {
               Default
             </label>
             <Button type="submit" disabled={saving}>
-              Add currency
+              Ajouter une devise
             </Button>
           </form>
         </CardBody>
@@ -149,8 +149,8 @@ const Currencies = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiDollarSign}
-          title="No currencies yet"
-          description="Add your first currency above. The default currency drives the prices shown across the storefront."
+          title="Aucune devise"
+          description="Ajoutez votre première devise ci-dessus. La devise par défaut est celle affichée dans toute la boutique."
         />
       ) : (
         <TableContainer className="mb-8">
@@ -158,11 +158,11 @@ const Currencies = () => {
             <TableHeader>
               <tr>
                 <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Symbol</TableCell>
-                <TableCell>Rate</TableCell>
-                <TableCell>Default</TableCell>
-                <TableCell>Enabled</TableCell>
+                <TableCell>Nom</TableCell>
+                <TableCell>Symbole</TableCell>
+                <TableCell>Taux</TableCell>
+                <TableCell>Par défaut</TableCell>
+                <TableCell>Activée</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -187,7 +187,7 @@ const Currencies = () => {
                   </TableCell>
                   <TableCell>
                     <Badge type={row.status === "show" ? "success" : "neutral"}>
-                      {row.status === "show" ? "Enabled" : "Disabled"}
+                      {row.status === "show" ? "Activée" : "Désactivée"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -206,7 +206,7 @@ const Currencies = () => {
                         <button
                           className="text-red-500"
                           onClick={() => remove(row)}
-                          title="Delete"
+                          title="Supprimer"
                         >
                           <FiTrash2 />
                         </button>

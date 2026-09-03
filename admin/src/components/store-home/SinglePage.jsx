@@ -25,7 +25,7 @@ const SinglePageSetting = ({
           <Button disabled={true} type="button" className="h-10 px-6">
             <img
               src={spinnerLoadingImage}
-              alt="Loading"
+              alt="Chargement"
               width={20}
               height={10}
             />{" "}

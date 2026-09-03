@@ -92,11 +92,11 @@ const BulkActionDrawer = ({
     const checkId = isCheck?.find((data) => data === key);
 
     if (isCheck?.length === data[0]?.children?.length) {
-      return notifyError("This can't be select as a parent category!");
+      return notifyError("Une catégorie ne peut pas être sa propre catégorie parente.");
     } else if (checkId !== undefined) {
-      return notifyError("This can't be select as a parent category!");
+      return notifyError("Une catégorie ne peut pas être sa propre catégorie parente.");
     } else if (key === childId) {
-      return notifyError("This can't be select as a parent category!");
+      return notifyError("Une catégorie ne peut pas être sa propre catégorie parente.");
     } else {
       if (key === undefined) return;
       setChecked(key);
@@ -157,7 +157,7 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Default Category" />
+                      <LabelArea label="Catégorie par défaut" />
                       <div className="col-span-8 sm:col-span-4">
                         <Multiselect
                           displayValue="name"
@@ -171,13 +171,13 @@ const BulkActionDrawer = ({
                           onSelect={(v) => setDefaultCategory(v)}
                           selectedValues={defaultCategory}
                           options={selectedCategory}
-                          placeholder={"Default Category"}
+                          placeholder={"Catégorie par défaut"}
                         ></Multiselect>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           handleProcess={setPublished}
@@ -188,10 +188,10 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Product Tags" />
+                      <LabelArea label="Étiquettes" />
                       <div className="col-span-8 sm:col-span-4">
                         <ReactTagInput
-                          placeholder="Product Tag (Write then press enter to add new tag )"
+                          placeholder="Étiquette (tapez puis Entrée pour l'ajouter)"
                           tags={tag}
                           onChange={(newTags) => setTag(newTags)}
                         />
@@ -203,39 +203,39 @@ const BulkActionDrawer = ({
                 {title === "Coupons" && (
                   <>
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Start Time" />
+                      <LabelArea label="Début" />
                       <div className="col-span-8 sm:col-span-4">
                         <Input
                           {...register(`startTime`, {
                             required: "Coupon Validation Start Time",
                           })}
-                          label="Coupon Validation Start Time"
+                          label="Début de validité du coupon"
                           name="startTime"
                           type="datetime-local"
-                          placeholder="Start Time"
+                          placeholder="Début"
                         />
 
                         <Error errorName={errors.startTime} />
                       </div>
                     </div>
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="End Time" />
+                      <LabelArea label="Fin" />
                       <div className="col-span-8 sm:col-span-4">
                         <Input
                           {...register(`endTime`, {
                             required: "Coupon Validation End Time",
                           })}
-                          label="Coupon Validation End Time"
+                          label="Fin de validité du coupon"
                           name="endTime"
                           type="datetime-local"
-                          placeholder="End Time"
+                          placeholder="Fin"
                         />
 
                         <Error errorName={errors.endTime} />
                       </div>
                     </div>
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           handleProcess={setPublished}
@@ -250,7 +250,7 @@ const BulkActionDrawer = ({
                 {title === "Languages" && (
                   <>
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -265,7 +265,7 @@ const BulkActionDrawer = ({
                 {title === "Currencies" && (
                   <>
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Enabled" />
+                      <LabelArea label="Activé" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -287,14 +287,14 @@ const BulkActionDrawer = ({
                           label="Description"
                           name="description"
                           type="text"
-                          placeholder="Category Description"
+                          placeholder="Description de la catégorie"
                         />
                         <Error errorName={errors.description} />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Parent Category" />
+                      <LabelArea label="Catégorie parente" />
                       <div className="col-span-8 sm:col-span-4">
                         <Input
                           readOnly
@@ -303,7 +303,7 @@ const BulkActionDrawer = ({
                           })}
                           name="parent"
                           value={
-                            selectCategoryName ? selectCategoryName : "Home"
+                            selectCategoryName ? selectCategoryName : "Aucune"
                           }
                           placeholder="parent category"
                           type="text"
@@ -323,7 +323,7 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -345,14 +345,14 @@ const BulkActionDrawer = ({
                           label="Description"
                           name="description"
                           type="text"
-                          placeholder="Category Description"
+                          placeholder="Description de la catégorie"
                         />
                         <Error errorName={errors.description} />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Parent Category" />
+                      <LabelArea label="Catégorie parente" />
                       <div className="col-span-8 sm:col-span-4">
                         <Input
                           readOnly
@@ -361,7 +361,7 @@ const BulkActionDrawer = ({
                           })}
                           name="parent"
                           value={
-                            selectCategoryName ? selectCategoryName : "Home"
+                            selectCategoryName ? selectCategoryName : "Aucune"
                           }
                           placeholder="parent category"
                           type="text"
@@ -381,7 +381,7 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -401,7 +401,7 @@ const BulkActionDrawer = ({
                         <Select
                           name="option"
                           {...register(`option`, {
-                            required: `Option is required!`,
+                            required: `L'option est obligatoire.`,
                           })}
                         >
                           <option value="" defaultValue hidden>
@@ -416,7 +416,7 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -455,7 +455,7 @@ const BulkActionDrawer = ({
                     </div>
 
                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                      <LabelArea label="Published" />
+                      <LabelArea label="Publié" />
                       <div className="col-span-8 sm:col-span-4">
                         <SwitchToggle
                           title={""}
@@ -475,7 +475,7 @@ const BulkActionDrawer = ({
                     className=" text-red-500 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700"
                     layout="outline"
                   >
-                    Cancel
+                    Annuler
                   </Button>
                 </div>
                 <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">

@@ -16,7 +16,7 @@ const UploaderThree = ({ imageUrl, handleSelectImage }) => {
             ))
           ) : (
             <div className="p-8 text-red-500 dark:text-red-400">
-              No Product Image Uploaded Yet!
+              Aucune image pour ce produit
             </div>
           )}
         </aside>

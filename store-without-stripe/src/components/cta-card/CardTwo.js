@@ -59,7 +59,7 @@ const CardTwo = () => {
             <Image
               width={373}
               height={250}
-              alt="Quick Delivery to Your Home"
+              alt="Livraison rapide chez vous"
               className="block w-auto object-contain"
               src={
                 storeCustomizationSetting?.home?.quick_delivery_img ||

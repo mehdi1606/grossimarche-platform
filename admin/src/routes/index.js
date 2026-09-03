@@ -2,8 +2,6 @@ import { lazy } from "react";
 
 // use lazy for better code splitting
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Attributes = lazy(() => import("@/pages/Attributes"));
-const ChildAttributes = lazy(() => import("@/pages/ChildAttributes"));
 const Products = lazy(() => import("@/pages/Products"));
 const Bundles = lazy(() => import("@/pages/Bundles"));
 const Reviews = lazy(() => import("@/pages/Reviews"));
@@ -46,14 +44,6 @@ const routes = [
   {
     path: "/products",
     component: Products,
-  },
-  {
-    path: "/attributes",
-    component: Attributes,
-  },
-  {
-    path: "/attributes/:id",
-    component: ChildAttributes,
   },
   {
     path: "/product/:id",
@@ -144,33 +134,32 @@ const routeAccessList = [
   //   label: "Root",
   //   value: "/",
   // },
-  { label: "Dashboard", value: "dashboard" },
-  { label: "Products", value: "products" },
-  { label: "Categories", value: "categories" },
-  { label: "Attributes", value: "attributes" },
+  { label: "Tableau de bord", value: "dashboard" },
+  { label: "Produits", value: "products" },
+  { label: "Catégories", value: "categories" },
   { label: "Coupons", value: "coupons" },
-  { label: "Bundles", value: "bundles" },
-  { label: "Reviews", value: "reviews" },
-  { label: "Customers", value: "customers" },
-  { label: "ClientTypes", value: "client-types" },
-  { label: "Approvals", value: "approvals" },
-  { label: "Delivery", value: "delivery" },
-  { label: "Orders", value: "orders" },
-  { label: "Staff", value: "our-staff" },
-  { label: "Settings", value: "settings" },
-  { label: "Languages", value: "languages" },
-  { label: "Currencies", value: "currencies" },
+  { label: "Paniers", value: "bundles" },
+  { label: "Avis", value: "reviews" },
+  { label: "Clients", value: "customers" },
+  { label: "Types de client", value: "client-types" },
+  { label: "Validations", value: "approvals" },
+  { label: "Livraison", value: "delivery" },
+  { label: "Commandes", value: "orders" },
+  { label: "Équipe", value: "our-staff" },
+  { label: "Réglages", value: "settings" },
+  { label: "Langues", value: "languages" },
+  { label: "Devises", value: "currencies" },
   { label: "ViewStore", value: "store" },
   { label: "StoreCustomization", value: "customization" },
   { label: "StoreSettings", value: "store-settings" },
-  { label: "Product Details", value: "product" },
-  { label: "Order Invoice", value: "order" },
-  { label: "Edit Profile", value: "edit-profile" },
+  { label: "Fiche produit", value: "product" },
+  { label: "Facture de commande", value: "order" },
+  { label: "Modifier le profil", value: "edit-profile" },
   {
-    label: "Customer Order",
+    label: "Commandes du client",
     value: "customer-order",
   },
-  { label: "Notification", value: "notifications" },
+  { label: "Notifications", value: "notifications" },
   { label: "Coming Soon", value: "coming-soon" },
 ];
 

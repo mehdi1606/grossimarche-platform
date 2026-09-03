@@ -16,7 +16,7 @@ const InputValue = ({
 }) => {
   const value = {
     valueAsNumber: true,
-    required: required ? `${label} is required!` : false,
+    required: required ? `${label} est obligatoire.` : false,
     max: {
       value: maxValue,
       message: `Maximum value ${maxValue}!`,

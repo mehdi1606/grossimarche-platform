@@ -96,10 +96,10 @@ const Coupons = () => {
     try {
       if (editingId) {
         await CouponServices.updateCoupon(editingId, body);
-        notifySuccess("Coupon updated.");
+        notifySuccess("Coupon mis à jour.");
       } else {
         await CouponServices.addCoupon(body);
-        notifySuccess("Coupon created.");
+        notifySuccess("Coupon créé.");
       }
       setModalOpen(false);
       await load();
@@ -133,7 +133,7 @@ const Coupons = () => {
   const confirmDelete = async () => {
     try {
       await CouponServices.deleteCoupon(deleteTarget._id);
-      notifySuccess("Coupon deleted.");
+      notifySuccess("Coupon supprimé.");
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -154,7 +154,7 @@ const Coupons = () => {
       <div className="flex items-center justify-between">
         <PageTitle>Coupons</PageTitle>
         <Button onClick={openAdd} className="h-11 rounded-lg">
-          <FiPlus className="mr-2" /> Add coupon
+          <FiPlus className="mr-2" /> Ajouter un coupon
         </Button>
       </div>
 
@@ -163,9 +163,9 @@ const Coupons = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiGift}
-          title="No coupons yet"
-          description="Create your first discount code. Coupons are validated and applied server-side at checkout."
-          actionLabel="Add coupon"
+          title="Aucun coupon"
+          description="Créez votre premier code de réduction. Les coupons sont vérifiés et appliqués côté serveur, au moment de la commande."
+          actionLabel="Ajouter un coupon"
           onAction={openAdd}
         />
       ) : (
@@ -174,11 +174,11 @@ const Coupons = () => {
             <TableHeader>
               <tr>
                 <TableCell>Code</TableCell>
-                <TableCell>Discount</TableCell>
-                <TableCell>Min. order</TableCell>
-                <TableCell>Starts</TableCell>
-                <TableCell>Expires</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Remise</TableCell>
+                <TableCell>Cde min.</TableCell>
+                <TableCell>Début</TableCell>
+                <TableCell>Fin</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -201,7 +201,7 @@ const Coupons = () => {
                   <TableCell>
                     <button onClick={() => toggle(row)}>
                       <Badge type={row.status === "show" ? "success" : "neutral"}>
-                        {row.status === "show" ? "Active" : "Hidden"}
+                        {row.status === "show" ? "Actif" : "Masqué"}
                       </Badge>
                     </button>
                   </TableCell>
@@ -210,14 +210,14 @@ const Coupons = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
-                        title="Edit"
+                        title="Modifier"
                       >
                         <FiEdit />
                       </button>
                       <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
-                        title="Delete"
+                        title="Supprimer"
                       >
                         <FiTrash2 />
                       </button>
@@ -234,16 +234,16 @@ const Coupons = () => {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingId ? "Edit coupon" : "New coupon"}
-        subtitle="Discounts are computed server-side at checkout."
+        title={editingId ? "Modifier le coupon" : "Nouveau coupon"}
+        subtitle="La remise est calculée côté serveur au moment de la commande."
         icon={FiGift}
         footer={
           <>
             <Button layout="outline" onClick={() => setModalOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving…" : editingId ? "Save changes" : "Create coupon"}
+              {saving ? "Enregistrement…" : editingId ? "Enregistrer" : "Créer le coupon"}
             </Button>
           </>
         }
@@ -269,13 +269,13 @@ const Coupons = () => {
               value={form.type}
               onChange={(e) => setForm({ ...form, type: e.target.value })}
             >
-              <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed ({currency})</option>
+              <option value="percentage">Pourcentage (%)</option>
+              <option value="fixed">Montant fixe ({currency})</option>
             </Select>
           </label>
           <label className="text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Value
+              Valeur
             </span>
             <Input
               type="number"
@@ -288,7 +288,7 @@ const Coupons = () => {
           </label>
           <label className="col-span-2 text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Minimum order amount
+              Montant minimum de commande
             </span>
             <Input
               type="number"
@@ -301,7 +301,7 @@ const Coupons = () => {
           </label>
           <label className="text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Starts
+              Début
             </span>
             <Input
               type="date"
@@ -312,7 +312,7 @@ const Coupons = () => {
           </label>
           <label className="text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Expires
+              Fin
             </span>
             <Input
               type="date"
@@ -327,7 +327,7 @@ const Coupons = () => {
               checked={form.active}
               onChange={(e) => setForm({ ...form, active: e.target.checked })}
             />
-            Active
+            Coupon actif
           </label>
         </form>
       </Modal>
@@ -336,24 +336,24 @@ const Coupons = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete coupon"
+        title="Supprimer le coupon"
         icon={FiTrash2}
         footer={
           <>
             <Button layout="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              Annuler
             </Button>
             <Button
               className="!bg-red-500 hover:!bg-red-600"
               onClick={confirmDelete}
             >
-              Delete
+              Supprimer
             </Button>
           </>
         }
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          Delete coupon{" "}
+          Supprimer le coupon{" "}
           <span className="font-semibold uppercase">{deleteTarget?.couponCode}</span>? This
           can't be undone.
         </p>

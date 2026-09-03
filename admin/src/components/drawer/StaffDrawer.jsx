@@ -98,35 +98,35 @@ const StaffDrawer = ({ id }) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="px-6 pt-8 flex-grow scrollbar-hide w-full max-h-full pb-40">
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <LabelArea label="Name" />
+                  <LabelArea label="Nom" />
                   <div className="col-span-8 sm:col-span-4">
                     <InputArea
                       required={true}
                       register={register}
-                      label="Name"
+                      label="Nom"
                       name="name"
                       type="text"
                       autoComplete="username"
-                      placeholder="Staff name"
+                      placeholder="Nom du membre"
                     />
                     <Error errorName={errors.name} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <LabelArea label="Email" />
+                  <LabelArea label="E-mail" />
                   <div className="col-span-8 sm:col-span-4">
                     <InputArea
                       required={true}
                       register={register}
-                      label="Email"
+                      label="E-mail"
                       name="email"
                       type="text"
                       autoComplete="username"
                       pattern={
                         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
                       }
-                      placeholder="Email"
+                      placeholder="E-mail"
                     />
                     <Error errorName={errors.email} />
                   </div>
@@ -143,16 +143,16 @@ const StaffDrawer = ({ id }) => {
                       minLength={6}
                       maxLength={15}
                       type="text"
-                      placeholder="Phone number"
+                      placeholder="Numéro de téléphone"
                     />
                     <Error errorName={errors.phone} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <LabelArea label="Staff Role" />
+                  <LabelArea label="Rôle" />
                   <div className="col-span-8 sm:col-span-4">
-                    <SelectRole register={register} label="Role" name="role" />
+                    <SelectRole register={register} label="Rôle" name="role" />
                     <Error errorName={errors.role} />
                   </div>
                 </div>
@@ -166,7 +166,7 @@ const StaffDrawer = ({ id }) => {
 
               <DrawerButton
                 id={id}
-                title="Staff"
+                title="Membre"
                 zIndex="z-5"
                 isSubmitting={isSubmitting}
               />

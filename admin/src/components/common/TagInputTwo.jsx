@@ -26,7 +26,7 @@ const TagInputTwo = ({ notes, addNote, removeNote }) => {
         onBlur={(event) => addNote(event)}
         onKeyDown={(event) => (event.key === 'Enter' ? addNote(event) : null)}
         // onKeyDown={(event) => console.log(event.key)}
-        placeholder="Press enter to add variant"
+        placeholder="Tapez puis appuyez sur Entrée"
       />
     </div>
   );

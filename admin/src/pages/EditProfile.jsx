@@ -11,7 +11,7 @@ import cookieOptions from "@/utils/cookieOptions";
 
 const ROLE_LABEL = {
   ADMIN: "Administrator",
-  STORE_MANAGER: "Store manager",
+  STORE_MANAGER: "Responsable de magasin",
 };
 
 const ROLE_STYLE = {
@@ -80,7 +80,7 @@ const EditProfile = () => {
       const next = { ...adminInfo, name: updated?.fullName || adminInfo?.name };
       dispatch({ type: "USER_LOGIN", payload: next });
       Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 30 }));
-      notifySuccess("Profile updated.");
+      notifySuccess("Profil mis à jour.");
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
     } finally {
@@ -127,7 +127,7 @@ const EditProfile = () => {
   if (loading) {
     return (
       <>
-        <PageTitle>Edit profile</PageTitle>
+        <PageTitle>Modifier le profil</PageTitle>
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="h-64 animate-pulse rounded-2xl bg-white dark:bg-gray-800" />
           <div className="h-64 animate-pulse rounded-2xl bg-white lg:col-span-2 dark:bg-gray-800" />
@@ -138,7 +138,7 @@ const EditProfile = () => {
 
   return (
     <>
-      <PageTitle>Edit profile</PageTitle>
+      <PageTitle>Modifier le profil</PageTitle>
 
       {mustChangePassword && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
@@ -266,7 +266,7 @@ const EditProfile = () => {
                 disabled={!dirty || !fullName.trim() || saving}
                 className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving ? "Saving…" : "Save changes"}
+                {saving ? "Enregistrement…" : "Enregistrer"}
               </button>
             </div>
           </form>

@@ -118,7 +118,7 @@ const AttributeListTable = ({
                 id={i}
                 // readOnly
                 name="originalPrice"
-                placeholder="Original Price"
+                placeholder="Prix initial"
                 variant={variant}
                 isBulkUpdate={isBulkUpdate}
                 value={variant.originalPrice || ""}
@@ -130,7 +130,7 @@ const AttributeListTable = ({
               <CombinationInput
                 id={i}
                 name="price"
-                placeholder="Sale price"
+                placeholder="Prix promotionnel"
                 variant={variant}
                 isBulkUpdate={isBulkUpdate}
                 value={variant.price || ""}
@@ -142,7 +142,7 @@ const AttributeListTable = ({
               <CombinationInput
                 id={i}
                 name="quantity"
-                placeholder="Quantity"
+                placeholder="Quantité"
                 variant={variant}
                 isBulkUpdate={isBulkUpdate}
                 handleQuantityPrice={handleQuantityPrice}

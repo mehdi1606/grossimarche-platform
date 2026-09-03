@@ -17,12 +17,12 @@ const SelectCurrency = ({
   return (
     <>
       {loading ? (
-        "Loading..."
+        "Chargement…"
       ) : (
         <Select
           name={name}
           {...register(`${name}`, {
-            required: required ? `${label} is required!` : false,
+            required: required ? `${label} est obligatoire.` : false,
           })}
         >
           {data?.map((currency) => (

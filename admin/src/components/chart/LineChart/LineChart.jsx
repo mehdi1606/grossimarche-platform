@@ -44,7 +44,7 @@ const LineChart = ({ salesReport }) => {
               yAxisID: "y",
             }
           : {
-              label: "Order",
+              label: "Commandes",
               data: updatedSalesReport
                 ?.sort((a, b) => new Date(a.date) - new Date(b.date))
                 ?.map((or) => or.order),

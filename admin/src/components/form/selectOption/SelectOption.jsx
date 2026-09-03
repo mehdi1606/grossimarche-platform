@@ -7,7 +7,7 @@ const SelectOption = ({ register, name, label }) => {
       <Select
         name={name}
         {...register(`${name}`, {
-          required: `${label} is required!`,
+          required: `${label} est obligatoire.`,
         })}
       >
         <option value="" defaultValue hidden>

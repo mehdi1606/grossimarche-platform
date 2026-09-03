@@ -23,7 +23,7 @@ const useLanguageSubmit = (id) => {
 
   const onSubmit = async ({ name, iso_code, language_code }) => {
     // console.log(name, iso_code, language_code)
-    // return notifyError("This option disabled for this option!");
+    // return notifyError("Cette action n'est pas disponible ici.");
     try {
       setIsSubmitting(true);
       const languageData = {

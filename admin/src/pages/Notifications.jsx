@@ -66,7 +66,7 @@ const Notifications = () => {
   const markAll = async () => {
     try {
       await NotificationServices.markAllRead();
-      notifySuccess("All notifications marked as read.");
+      notifySuccess("Toutes les notifications ont été marquées comme lues.");
       await load();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
@@ -103,7 +103,7 @@ const Notifications = () => {
           className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
         >
           <FiCheck className="h-4 w-4" />
-          Mark all read
+          Tout marquer comme lu
         </button>
       </div>
 
@@ -112,8 +112,8 @@ const Notifications = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiBell}
-          title="You're all caught up"
-          description="New orders and low-stock alerts will appear here in real time as they happen."
+          title="Aucune notification"
+          description="Les nouvelles commandes et les alertes de stock apparaissent ici, en temps réel."
         />
       ) : (
         <TableContainer className="mb-8">
@@ -122,8 +122,8 @@ const Notifications = () => {
               <tr>
                 <TableCell>Type</TableCell>
                 <TableCell>Message</TableCell>
-                <TableCell>When</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -154,7 +154,7 @@ const Notifications = () => {
                     </TableCell>
                     <TableCell>
                       <Badge type={row.read ? "neutral" : "success"}>
-                        {row.read ? "Read" : "Unread"}
+                        {row.read ? "Lue" : "Non lue"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -162,7 +162,7 @@ const Notifications = () => {
                         {!row.read && (
                           <button
                             className="text-emerald-600"
-                            title="Mark read"
+                            title="Marquer comme lue"
                             onClick={() => markRead(row)}
                           >
                             <FiCheck />
@@ -170,7 +170,7 @@ const Notifications = () => {
                         )}
                         <button
                           className="text-red-500"
-                          title="Delete"
+                          title="Supprimer"
                           onClick={() => remove(row)}
                         >
                           <FiTrash2 />

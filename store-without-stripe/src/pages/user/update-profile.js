@@ -81,7 +81,7 @@ const UpdateProfile = () => {
           <div className="col-span-6 sm:col-span-3">
             <InputArea
               register={register}
-              label="Email"
+              label="E-mail"
               name="email"
               type="email"
               readOnly={true}

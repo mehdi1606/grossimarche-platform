@@ -51,7 +51,9 @@ const Category = () => {
   const { closeCategoryDrawer } = useContext(SidebarContext);
   const { showingTranslateValue } = useUtilsFunction();
 
-  const { data, error, isLoading } = useQuery({
+  // `isPending`, not `isLoading`: the latter is false on the very first render, before the fetch
+  // starts, so a drawer that had just been re-created announced "no categories" for a frame.
+  const { data, error, isPending } = useQuery({
     queryKey: ["category"],
     queryFn: async () => await CategoryServices.getShowingCategory(),
   });
@@ -78,8 +80,8 @@ const Category = () => {
           {t("common.categories")}
         </h2>
 
-        {isLoading ? (
-          <Loading loading={isLoading} />
+        {isPending ? (
+          <Loading loading={true} />
         ) : error ? (
           <p className="px-5 py-6 text-sm text-red-500">
             {error?.response?.data?.message || error?.message}

@@ -16,7 +16,7 @@ const EditDeleteButtonTwo = ({
             // onClick={() => handleEditVariant(variant)}
             className="p-2 cursor-pointer text-gray-400 hover:text-emerald-600"
           >
-            <Tooltip id="edit" Icon={FiEdit} title="Edit" bgColor="#14b8a6" />
+            <Tooltip id="edit" Icon={FiEdit} title="Modifier" bgColor="#14b8a6" />
           </div>
         )}
 
@@ -27,7 +27,7 @@ const EditDeleteButtonTwo = ({
           <Tooltip
             id="delete"
             Icon={FiTrash2}
-            title="Delete"
+            title="Supprimer"
             bgColor="#EF4444"
           />
         </div>

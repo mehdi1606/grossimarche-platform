@@ -14,7 +14,7 @@ const TextAreaCom = ({
     <>
       <Textarea
         {...register(`${name}`, {
-          required: required ? `${label} is required!` : false,
+          required: required ? `${label} est obligatoire.` : false,
         })}
         type={type}
         placeholder={placeholder}

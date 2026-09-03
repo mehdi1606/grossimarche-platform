@@ -66,7 +66,7 @@ const Modal = ({
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label="Fermer"
             className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700"
           >
             <IoClose className="text-xl" />

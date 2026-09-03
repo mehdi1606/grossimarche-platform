@@ -51,7 +51,7 @@ const PrintReceipt = ({ orderId }) => {
   const handlePrint = useReactToPrint({
     content: () => printRefTwo.current,
     pageStyle: pageStyle,
-    documentTitle: "Invoice",
+    documentTitle: "Facture",
   });
 
   const handlePrintReceipt = async (id) => {
@@ -85,7 +85,7 @@ const PrintReceipt = ({ orderId }) => {
         <Tooltip
           id="receipt"
           Icon={FiPrinter}
-          title="Print Receipt"
+          title="Imprimer le ticket"
           bgColor="#f59e0b"
         />
       </button>

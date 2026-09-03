@@ -46,10 +46,10 @@ const CurrencyDrawer = ({ id }) => {
                 <InputArea
                   required={true}
                   register={register}
-                  label="Name"
+                  label="Nom"
                   name="name"
                   type="text"
-                  placeholder="Name"
+                  placeholder="Nom"
                 />
                 <Error errorName={errors.name} />
               </div>

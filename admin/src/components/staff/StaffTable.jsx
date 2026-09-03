@@ -115,7 +115,7 @@ const StaffTable = ({ staffs, lang }) => {
                   <Tooltip
                     id="view"
                     Icon={FiZoomIn}
-                    title="View Access Route"
+                    title="Voir les accès"
                     bgColor="#059669"
                   />
                 </button>

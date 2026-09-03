@@ -59,7 +59,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
               <SelectTimeZone
                 register={register}
                 name="default_time_zone"
-                label="Time Zone"
+                label="Fuseau horaire"
               />
               <Error errorName={errors.default_time_zone} />
             </div>
@@ -73,7 +73,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className="sm:col-span-3">
               <Select
                 {...register(`default_date_format`, {
-                  required: "Default date formate is required",
+                  required: "Le format de date est obligatoire.",
                 })}
               >
                 <option value="" defaultValue hidden>
@@ -93,7 +93,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             </label>
             <div className="sm:col-span-3">
               <SelectReceiptSize
-                label="Role"
+                label="Rôle"
                 register={register}
                 name="receipt_size"
                 required={true}
@@ -142,7 +142,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className="sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Address"
+                label="Adresse"
                 name="vat_number"
                 type="text"
                 placeholder="Vat Number"
@@ -157,10 +157,10 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className="sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Address"
+                label="Adresse"
                 name="address"
                 type="text"
-                placeholder="Address"
+                placeholder="Adresse"
               />
               <Error errorName={errors.address} />
             </div>
@@ -173,7 +173,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className="sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Address"
+                label="Adresse"
                 name="post_code"
                 type="text"
                 placeholder="Post Code"
@@ -189,7 +189,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className=" sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Phone"
+                label="Téléphone"
                 name="contact"
                 type="text"
                 placeholder="Contact Number"
@@ -205,10 +205,10 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className=" sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Email"
+                label="E-mail"
                 name="email"
                 type="text"
-                placeholder="Email"
+                placeholder="E-mail"
               />
               <Error errorName={errors.email} />
             </div>
@@ -220,7 +220,7 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
             <div className=" sm:col-span-3">
               <InputAreaTwo
                 register={register}
-                label="Email"
+                label="E-mail"
                 name="website"
                 type="text"
                 placeholder="Web Site"
@@ -233,16 +233,16 @@ const CommonSetting = ({ errors, register, isSave, isSubmitting }) => {
               <Button disabled={true} type="button" className="h-12">
                 <img
                   src={spinnerLoadingImage}
-                  alt="Loading"
+                  alt="Chargement"
                   width={20}
                   height={10}
                 />{" "}
-                <span className="font-serif ml-2 font-light">Processing</span>
+                <span className="font-serif ml-2 font-light">Traitement…</span>
               </Button>
             ) : (
               <Button type="submit" className="h-12 px-8">
                 {" "}
-                {isSave ? "Save" : "Update"}
+                {isSave ? t("SaveBtn") : t("UpdateBtn")}
               </Button>
             )}
           </div>

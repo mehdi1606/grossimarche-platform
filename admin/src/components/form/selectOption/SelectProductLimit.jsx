@@ -8,7 +8,7 @@ const SelectProductLimit = ({ register, name, label, required }) => {
       <Select
         name={name}
         {...register(`${name}`, {
-          required: required ? `${label} is required!` : false,
+          required: required ? `${label} est obligatoire.` : false,
         })}
       >
         <option value="" defaultValue hidden>

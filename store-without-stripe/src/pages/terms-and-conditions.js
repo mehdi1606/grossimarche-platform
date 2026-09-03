@@ -14,7 +14,7 @@ const TermAndConditions = () => {
   return (
     <Layout
       title="Terms & Conditions"
-      description="This is terms and conditions page"
+      description="Conditions générales de vente de Grossimarché"
     >
       <PageHeader
         headerBg={storeCustomizationSetting?.term_and_condition?.header_bg}

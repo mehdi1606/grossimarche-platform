@@ -73,7 +73,7 @@ const CouponDrawer = ({ id }) => {
                 <InputArea
                   required={true}
                   register={register}
-                  label="Coupon title"
+                  label="Nom du coupon"
                   name="title"
                   type="text"
                   placeholder={t("CampaignName")}
@@ -88,7 +88,7 @@ const CouponDrawer = ({ id }) => {
                 <InputArea
                   required={true}
                   register={register}
-                  label="Coupon Code"
+                  label="Code du coupon"
                   name="couponCode"
                   type="text"
                   placeholder={t("CampaignCode")}
@@ -104,7 +104,7 @@ const CouponDrawer = ({ id }) => {
                   {...register(`endTime`, {
                     required: "Coupon Validation End Time",
                   })}
-                  label="Coupon Validation End Time"
+                  label="Fin de validité du coupon"
                   name="endTime"
                   type="datetime-local"
                   placeholder={t("CouponValidityTime")}
@@ -134,7 +134,7 @@ const CouponDrawer = ({ id }) => {
                   register={register}
                   maxValue={discountType ? 99 : 1000}
                   minValue={1}
-                  label="Discount"
+                  label="Remise"
                   name="discountPercentage"
                   type="number"
                   placeholder={discountType ? "Percentage" : "Fixed Amount"}

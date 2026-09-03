@@ -19,7 +19,6 @@ import {
   FiVolumeX,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 
 //internal import
@@ -34,7 +33,6 @@ import useNotification, {
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
 import NotificationServices from "@/services/NotificationServices";
-import LanguageMenu from "@/components/header/LanguageMenu";
 import { notifyError } from "@/utils/toast";
 
 const Header = () => {
@@ -46,7 +44,6 @@ const Header = () => {
   const pRef = useRef();
   const nRef = useRef();
 
-  const currentLanguageCode = cookies.get("i18next") || "en";
   const { t } = useTranslation();
   const { updated, setUpdated } = useNotification();
   const { showDateTimeFormat } = useUtilsFunction();
@@ -63,8 +60,6 @@ const Header = () => {
   }, []);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
-
-  // console.log("currentLanguageCode", currentLanguageCode);
 
   const handleLogOut = () => {
     dispatch({ type: "USER_LOGOUT" });
@@ -158,10 +153,6 @@ const Header = () => {
           <span></span>
 
           <ul className="flex justify-end items-center flex-shrink-0 space-x-6">
-            <li className="flex">
-              <LanguageMenu />
-            </li>
-
             {/* <!-- Theme toggler --> */}
 
             <li className="flex">
@@ -248,7 +239,7 @@ const Header = () => {
                             You&apos;re all caught up
                           </p>
                           <p className="mt-1 text-xs text-gray-400">
-                            New orders and low-stock alerts show up here.
+                            Les nouvelles commandes et les alertes de stock apparaissent ici.
                           </p>
                         </div>
                       ) : (
@@ -392,7 +383,7 @@ const Header = () => {
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
-                        {adminInfo?.name || "Staff"}
+                        {adminInfo?.name || "Membre"}
                       </p>
                       <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                         {adminInfo?.email || adminInfo?.phone || ""}

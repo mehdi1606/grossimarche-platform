@@ -59,7 +59,7 @@ const useProductFilter = (data) => {
       return; // Exit the function if the feature is disabled
     }
     if (newProducts.length < 1) {
-      notifyError("Please upload/select csv file first!");
+      notifyError("Choisissez d'abord un fichier CSV.");
     } else {
       if (handleDisableForDemo()) {
         return; // Exit the function if the feature is disabled
@@ -144,7 +144,7 @@ const useProductFilter = (data) => {
       setFileName(file?.name);
       setIsDisable(true);
 
-      notifyError("Unsupported file type!");
+      notifyError("Type de fichier non pris en charge.");
     }
   };
 
@@ -175,7 +175,7 @@ const useProductFilter = (data) => {
           });
       } else {
         setLoading(false);
-        notifyError("Please enter valid data!");
+        notifyError("Les données saisies ne sont pas valides.");
       }
     } else {
       setLoading(false);

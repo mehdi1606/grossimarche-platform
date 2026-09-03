@@ -281,11 +281,11 @@ const UploadMany = ({
                 <Button className="ml-2 h-10">
                   <img
                     src={spinnerLoadingImage}
-                    alt="Loading"
+                    alt="Chargement"
                     width={20}
                     height={10}
                   />{" "}
-                  <span className="font-serif ml-2 font-light">Processing</span>
+                  <span className="font-serif ml-2 font-light">Traitement…</span>
                 </Button>
               ) : (
                 <Button

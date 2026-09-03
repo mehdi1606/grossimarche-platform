@@ -39,7 +39,7 @@ const useShippingAddressSubmit = (id) => {
       !selectedValue?.city ||
       !selectedValue?.area
     ) {
-      return notifyError("Country, city and area is required!");
+      return notifyError("La ville et le quartier sont obligatoires.");
     }
     setIsSubmitting(true);
     try {

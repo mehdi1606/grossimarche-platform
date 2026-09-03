@@ -214,6 +214,54 @@ p:not(:last-of-type) {
   right: 1px;
   transform: translateX(1px);
 }
+
+/* A closed drawer stays off-screen, whatever the writing direction.
+ *
+ * Switching the shop to Arabic used to drag the cart and the category menu across the middle of
+ * the page and leave them there. Two things did it, and both are fixed here:
+ *
+ * 1. The wrapper had no horizontal anchor of its own, so it lined up against whichever edge the
+ *    writing direction starts from. Flipping to RTL moved it a full panel width sideways, on top
+ *    of the transform already hiding it. The offsets below are physical on purpose.
+ *
+ * 2. rc-drawer hides a closed panel with an inline `transform` it rewrites from JS. When the
+ *    direction flips, that value changes sign - and since the wrapper carried a 0.3s transition,
+ *    the panel *slid* from one side to the other, straight through the middle of the screen. The
+ *    template's easing (a long flat middle) parked it there for most of the animation, and the
+ *    machine translation running at that exact moment held the main thread long enough to freeze
+ *    it in place. So a hidden panel no longer animates at all: its position is pinned with
+ *    `!important` and its transition removed, which leaves nothing to play out. Only a drawer the
+ *    shopper actually opened animates, and briefly.
+ */
+.drawer-left .drawer-content-wrapper {
+  left: 0;
+  right: auto;
+}
+.drawer-right .drawer-content-wrapper {
+  left: auto;
+  right: 0;
+}
+.drawer:not(.drawer-open) .drawer-content-wrapper {
+  transition: none !important;
+  /* Nothing left to animate, so hiding it outright costs no animation and guarantees that no
+     stray transform on the container can leave a sliver of panel over the page edge. */
+  visibility: hidden;
+}
+.drawer.drawer-open .drawer-content-wrapper {
+  visibility: visible;
+}
+.drawer-left:not(.drawer-open) .drawer-content-wrapper {
+  transform: translateX(-100%) !important;
+}
+.drawer-right:not(.drawer-open) .drawer-content-wrapper {
+  transform: translateX(100%) !important;
+}
+.drawer-left.drawer-open .drawer-content-wrapper,
+.drawer-right.drawer-open .drawer-content-wrapper {
+  transform: translateX(0);
+  transition: transform 0.2s ease-out;
+}
+
 .drawer-top,
 .drawer-bottom {
   width: 100%;

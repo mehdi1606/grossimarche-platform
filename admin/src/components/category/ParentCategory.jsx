@@ -76,7 +76,7 @@ const ParentCategory = ({
       );
 
       if (getCategory.length !== 0) {
-        return notifySuccess("This category already selected!");
+        return notifyError("Cette catégorie est déjà sélectionnée.");
       }
 
       setSelectedCategory((pre) => [
@@ -113,7 +113,7 @@ const ParentCategory = ({
           onSelect={(v) => handleSelect(v)}
           // options={selectedCategory}
           selectedValues={selectedCategory}
-          placeholder={"Select Category"}
+          placeholder={"Choisir une catégorie"}
         ></Multiselect>
       </div>
 

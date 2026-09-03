@@ -43,7 +43,7 @@ const ContactUs = ({
             <Button disabled={true} type="button" className="h-10 px-6">
               <img
                 src={spinnerLoadingImage}
-                alt="Loading"
+                alt="Chargement"
                 width={20}
                 height={10}
               />{" "}
@@ -250,7 +250,7 @@ const ContactUs = ({
               <div className="sm:col-span-4">
                 <InputAreaTwo
                   register={register}
-                  label="Phone"
+                  label="Téléphone"
                   name="callUs_box_phone"
                   type="text"
                   placeholder={t("CallUsboxPhone")}

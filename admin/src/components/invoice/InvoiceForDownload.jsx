@@ -293,7 +293,7 @@ const InvoiceForDownload = ({
                 {t("invoice")}
               </Text>
               <Text style={styles.info}>
-                Status :{" "}
+                Statut :{" "}
                 {data?.status === "Merged" && (
                   <Text style={{ color: "#eab308" }}>{data?.status}</Text>
                 )}

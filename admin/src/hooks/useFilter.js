@@ -377,7 +377,7 @@ const useFilter = (data) => {
   };
   const handleUploadProducts = () => {
     if (newProducts.length < 1) {
-      notifyError("Please upload/select csv file first!");
+      notifyError("Choisissez d'abord un fichier CSV.");
     } else {
       if (handleDisableForDemo()) {
         return; // Exit the function if the feature is disabled
@@ -538,7 +538,7 @@ const useFilter = (data) => {
       setFileName(file?.name);
       setIsDisable(true);
 
-      notifyError("Unsupported file type!");
+      notifyError("Type de fichier non pris en charge.");
     }
   };
 
@@ -569,7 +569,7 @@ const useFilter = (data) => {
               notifyError(err ? err.response.data.message : err.message);
             });
         } else {
-          notifyError("Please enter valid data!");
+          notifyError("Les données saisies ne sont pas valides.");
         }
       }
       if (location.pathname === "/customers") {
@@ -596,7 +596,7 @@ const useFilter = (data) => {
               notifyError(err ? err.response.data.message : err.message);
             });
         } else {
-          notifyError("Please enter valid data!");
+          notifyError("Les données saisies ne sont pas valides.");
         }
       }
       if (location.pathname === "/coupons") {
@@ -620,7 +620,7 @@ const useFilter = (data) => {
               notifyError(err ? err.response.data.message : err.message);
             });
         } else {
-          notifyError("Please enter valid data!");
+          notifyError("Les données saisies ne sont pas valides.");
         }
       }
       if (location.pathname === "/attributes") {
@@ -644,7 +644,7 @@ const useFilter = (data) => {
               notifyError(err ? err.response.data.message : err.message);
             });
         } else {
-          notifyError("Please enter valid data!");
+          notifyError("Les données saisies ne sont pas valides.");
         }
       }
 
@@ -670,7 +670,7 @@ const useFilter = (data) => {
           );
       }
     } else {
-      notifyError("Please select a valid .JSON/.CSV/.XLS file first!");
+      notifyError("Choisissez un fichier .JSON, .CSV ou .XLS valide.");
     }
   };
 

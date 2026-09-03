@@ -17,7 +17,7 @@ const ShowHideButton = ({ id, status, category, currencyStatusName }) => {
   const { setIsUpdate } = useContext(SidebarContext);
 
   const handleChangeStatus = async (id) => {
-    // return notifyError("This option disabled for this option!");
+    // return notifyError("Cette action n'est pas disponible ici.");
     try {
       let newStatus;
       if (status === "show") {

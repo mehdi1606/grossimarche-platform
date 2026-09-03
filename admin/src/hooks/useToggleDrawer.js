@@ -33,7 +33,7 @@ const useToggleDrawer = () => {
   const handleDeleteMany = async (id, products) => {
     setAllId(id);
     toggleModal();
-    setTitle("Selected Products");
+    setTitle("Produits sélectionnés");
   };
 
   return {

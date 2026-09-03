@@ -131,7 +131,7 @@ const Uploader = ({
           data: formData,
         })
           .then((res) => {
-            notifySuccess("Image Uploaded successfully!");
+            notifySuccess("Image envoyée.");
             setLoading(false);
             if (product) {
               setImageUrl((imgUrl) => [...imgUrl, res.data.secure_url]);
@@ -170,7 +170,7 @@ const Uploader = ({
   const handleRemoveImage = async (img) => {
     try {
       setLoading(false);
-      notifyError("Image delete successfully!");
+      notifyError("Image supprimée.");
       if (product) {
         const result = imageUrl?.filter((i) => i !== img);
         setImageUrl(result);

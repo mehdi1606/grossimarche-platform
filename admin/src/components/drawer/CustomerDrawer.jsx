@@ -20,13 +20,13 @@ const CustomerDrawer = ({ id }) => {
       <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
         {id ? (
           <Title
-            title={"Update Customer"}
-            description={"Update your Customer necessary information from here"}
+            title={"Modifier le client"}
+            description={"Modifiez ici les informations du client"}
           />
         ) : (
           <Title
-            title={"Add Customer"}
-            description={"Add your Customer necessary information from here"}
+            title={"Ajouter un client"}
+            description={"Renseignez ici les informations du client"}
           />
         )}
       </div>
@@ -35,65 +35,65 @@ const CustomerDrawer = ({ id }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="px-6 pt-8 flex-grow scrollbar-hide w-full max-h-full pb-40">
             <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label={"Name"} />
+              <LabelArea label={"Nom"} />
               <div className="col-span-8 sm:col-span-4">
                 <InputArea
                   required={true}
                   register={register}
-                  label="Name"
+                  label="Nom"
                   name="name"
                   type="text"
-                  placeholder={"Name"}
+                  placeholder={"Nom"}
                 />
                 <Error errorName={errors.name} />
               </div>
             </div>
 
             <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label={"Email"} />
+              <LabelArea label={"E-mail"} />
               <div className="col-span-8 sm:col-span-4">
                 <InputArea
                   required={true}
                   register={register}
-                  label="Email"
+                  label="E-mail"
                   name="email"
                   type="email"
-                  placeholder={"Email"}
+                  placeholder={"E-mail"}
                 />
                 <Error errorName={errors.email} />
               </div>
             </div>
 
             <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label={"Phone"} />
+              <LabelArea label={"Téléphone"} />
               <div className="col-span-8 sm:col-span-4">
                 <InputArea
                   register={register}
-                  label="Phone"
+                  label="Téléphone"
                   name="phone"
                   type="text"
-                  placeholder={"Phone"}
+                  placeholder={"Téléphone"}
                 />
                 <Error errorName={errors.phone} />
               </div>
             </div>
 
             <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label={"Address"} />
+              <LabelArea label={"Adresse"} />
               <div className="col-span-8 sm:col-span-4">
                 <InputArea
                   register={register}
-                  label="Address"
+                  label="Adresse"
                   name="address"
                   type="text"
-                  placeholder={"Address"}
+                  placeholder={"Adresse"}
                 />
                 <Error errorName={errors.address} />
               </div>
             </div>
           </div>
 
-          <DrawerButton id={id} title="Customer" isSubmitting={isSubmitting} />
+          <DrawerButton id={id} title="Client" isSubmitting={isSubmitting} />
         </form>
       </Scrollbars>
     </>

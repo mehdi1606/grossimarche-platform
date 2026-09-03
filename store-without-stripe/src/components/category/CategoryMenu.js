@@ -18,7 +18,9 @@ import CategoryIcon from "@components/category/CategoryIcon";
 const CategoryMenu = ({ onNavigate }) => {
   const { showingTranslateValue } = useUtilsFunction();
 
-  const { data, error, isLoading } = useQuery({
+  // `isPending` rather than `isLoading`: the latter is false on the first render, before the
+  // fetch starts, which showed "no categories" for a frame instead of the skeleton.
+  const { data, error, isPending } = useQuery({
     queryKey: ["category"],
     queryFn: async () => await CategoryServices.getShowingCategory(),
   });
@@ -31,7 +33,7 @@ const CategoryMenu = ({ onNavigate }) => {
   return (
     // One scroll container, and only past 70% of the viewport: a short list keeps a short panel.
     <div className="max-h-[70vh] overflow-y-auto overscroll-contain p-2">
-      {isLoading ? (
+      {isPending ? (
         <div className="space-y-1 p-1">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-3 px-1.5 py-2">

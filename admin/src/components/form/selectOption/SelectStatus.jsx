@@ -10,7 +10,7 @@ const SelectStatus = ({ id, order }) => {
   // console.log('id',id ,'order',order)
   const { setIsUpdate } = useContext(SidebarContext);
   const handleChangeStatus = (id, status) => {
-    // return notifyError("This option disabled for this option!");
+    // return notifyError("Cette action n'est pas disponible ici.");
     OrderServices.updateOrder(id, { status: status })
       .then((res) => {
         notifySuccess(res.message);
@@ -29,19 +29,19 @@ const SelectStatus = ({ id, order }) => {
           {order?.status}
         </option>
         <option defaultValue={order?.status === "Delivered"} value="Delivered">
-          Delivered
+          Livrée
         </option>
         <option defaultValue={order?.status === "Pending"} value="Pending">
-          Pending
+          En attente
         </option>
         <option
           defaultValue={order?.status === "Processing"}
           value="Processing"
         >
-          Processing
+          En préparation
         </option>
         <option defaultValue={order?.status === "Cancel"} value="Cancel">
-          Cancel
+          Annulée
         </option>
       </Select>
     </>

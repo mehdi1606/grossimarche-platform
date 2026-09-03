@@ -42,7 +42,7 @@ const useGetSetting = () => {
     }
 
     if (!lang) {
-      Cookies.set("_lang", "en", cookieOptions());
+      Cookies.set("_lang", "fr", cookieOptions());
     }
   }, [data, isFetched, lang]);
 

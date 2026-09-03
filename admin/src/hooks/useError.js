@@ -23,7 +23,7 @@ const useError = () => {
       dispatch({ type: "USER_LOGOUT" });
       Cookies.remove("adminInfo");
 
-      // notifyError("Your Session is expired! Please Click on Login again");
+      // notifyError("Votre session a expiré. Reconnectez-vous.");
       const timeoutId = setTimeout(() => {
         // history?.replace(`/login`);
         window.location.replace(

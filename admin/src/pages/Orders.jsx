@@ -62,8 +62,8 @@ const OrderStatusTracker = ({ status }) => {
           <FiXCircle className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-red-700 dark:text-red-300">Order cancelled</p>
-          <p className="text-xs text-red-500/80">This order is no longer being processed.</p>
+          <p className="text-sm font-semibold text-red-700 dark:text-red-300">Commande annulée</p>
+          <p className="text-xs text-red-500/80">Cette commande n'est plus en préparation.</p>
         </div>
       </div>
     );
@@ -115,13 +115,13 @@ const OrderStatusTracker = ({ status }) => {
     </div>
   );
 };
-// Filter entries; the "All statuses" row is added by FilterDropdown itself.
+// Filter entries; the "Tous les statuts" row is added by FilterDropdown itself.
 const STATUS_FILTERS = [
-  { value: "Pending", label: "Pending" },
-  { value: "Processing", label: "Processing" },
-  { value: "Out for Delivery", label: "Out for Delivery" },
-  { value: "Delivered", label: "Delivered" },
-  { value: "Cancel", label: "Cancelled" },
+  { value: "Pending", label: "En attente" },
+  { value: "Processing", label: "En préparation" },
+  { value: "Out for Delivery", label: "En cours de livraison" },
+  { value: "Delivered", label: "Livrée" },
+  { value: "Cancel", label: "Annulée" },
 ];
 const LIMIT = 10;
 
@@ -174,7 +174,7 @@ const Orders = () => {
     setUpdating(true);
     try {
       await OrderServices.updateOrder(detail._id, { status: newStatus });
-      notifySuccess("Order status updated.");
+      notifySuccess("Statut de la commande mis à jour.");
       setDetail(null);
       await load();
     } catch (err) {
@@ -194,8 +194,8 @@ const Orders = () => {
         <PageTitle>Orders</PageTitle>
         <FilterDropdown
           className="w-52"
-          ariaLabel="Filter by status"
-          allLabel="All statuses"
+          ariaLabel="Filtrer par statut"
+          allLabel="Tous les statuts"
           value={statusFilter}
           onChange={setStatusFilter}
           options={STATUS_FILTERS}
@@ -207,8 +207,8 @@ const Orders = () => {
       ) : visible.length === 0 ? (
         <EmptyState
           icon={FiShoppingBag}
-          title="No orders yet"
-          description="When customers place orders they'll appear here, newest first."
+          title="Aucune commande"
+          description="Les commandes de vos clients apparaîtront ici, de la plus récente à la plus ancienne."
         />
       ) : (
         <TableContainer
@@ -219,13 +219,13 @@ const Orders = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Order</TableCell>
+                <TableCell>Commande</TableCell>
                 <TableCell>Date</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Payment</TableCell>
+                <TableCell>Client</TableCell>
+                <TableCell>Paiement</TableCell>
                 <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell className="text-right">Details</TableCell>
+                <TableCell>Statut</TableCell>
+                <TableCell className="text-right">Détails</TableCell>
               </tr>
             </TableHeader>
             <TableBody>
@@ -281,7 +281,7 @@ const Orders = () => {
           <div className="flex w-full flex-col gap-4">
             <div>
               <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Update status
+                Mettre à jour le statut
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 {STATUS_OPTIONS.map((s) => {
@@ -289,7 +289,7 @@ const Orders = () => {
                     detail?.status === s || (s === "Cancel" && isCancelledStatus(detail?.status));
                   const selected = newStatus === s;
                   const danger = s === "Cancel";
-                  const label = s === "Cancel" ? "Cancel order" : s;
+                  const label = s === "Cancel" ? "Annuler la commande" : s;
                   return (
                     <button
                       key={s}
@@ -318,17 +318,17 @@ const Orders = () => {
             </div>
             <div className="flex items-center justify-end gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
               <Button layout="outline" onClick={() => setDetail(null)}>
-                Close
+                Fermer
               </Button>
               <Button disabled={!newStatus || updating} onClick={updateStatus}>
-                {updating ? "Updating…" : "Update status"}
+                {updating ? "Updating…" : "Mettre à jour le statut"}
               </Button>
             </div>
           </div>
         }
       >
         {detailLoading ? (
-          <Loader label="Loading order…" />
+          <Loader label="Chargement de la commande…" />
         ) : detail ? (
           <div className="space-y-6">
             {/* Lifecycle tracker */}
@@ -387,7 +387,7 @@ const Orders = () => {
             <div className="ml-auto w-full max-w-xs space-y-1.5 text-sm">
               <Row label="Subtotal" value={`${currency}${Number(detail.subTotal || 0).toFixed(2)}`} />
               <Row label="Shipping" value={`${currency}${Number(detail.shippingCost || 0).toFixed(2)}`} />
-              <Row label="Discount" value={`- ${currency}${Number(detail.discount || 0).toFixed(2)}`} />
+              <Row label="Remise" value={`- ${currency}${Number(detail.discount || 0).toFixed(2)}`} />
               <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-2 text-base font-bold dark:border-gray-700">
                 <span>Total</span>
                 <span>

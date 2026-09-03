@@ -128,10 +128,10 @@ const Products = () => {
   useEffect(() => {
     CategoryServices.getAllCategory()
       .then(setCategories)
-      // A silent catch here left the filter showing only "All categories" with no clue why.
+      // A silent catch here left the filter showing only "Toutes les catégories" with no clue why.
       .catch((err) =>
         notifyError(
-          err?.response?.data?.message || "Categories could not be loaded."
+          err?.response?.data?.message || "Les catégories n'ont pas pu être chargées."
         )
       );
   }, []);
@@ -169,7 +169,7 @@ const Products = () => {
 
   const handleSave = async (e) => {
     e?.preventDefault();
-    if (!form.categoryId) return notifyError("Please choose a category.");
+    if (!form.categoryId) return notifyError("Choisissez une catégorie.");
 
     // Prices are only ever written when creating. Editing a product is about what it is and
     // how much of it there is; what it costs lives on the 💲 grid, and one screen owning the
@@ -223,7 +223,7 @@ const Products = () => {
         await PricingServices.saveProductGrid(productId, buildGrids(priced));
       }
 
-      notifySuccess(editingId ? "Product updated." : "Product created.");
+      notifySuccess(editingId ? "Produit mis à jour." : "Produit créé.");
       setModalOpen(false);
       await load();
     } catch (err) {
@@ -275,7 +275,7 @@ const Products = () => {
   const confirmDelete = async () => {
     try {
       await ProductServices.deleteProduct(deleteTarget._id);
-      notifySuccess("Product deactivated.");
+      notifySuccess("Produit désactivé.");
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -318,7 +318,7 @@ const Products = () => {
       <div className="flex items-center justify-between">
         <PageTitle>Products</PageTitle>
         <Button onClick={openAdd} className="h-11 rounded-lg">
-          <FiPlus className="mr-2" /> Add product
+          <FiPlus className="mr-2" /> Ajouter un produit
         </Button>
       </div>
 
@@ -336,8 +336,8 @@ const Products = () => {
           <input
             type="text"
             className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
-            placeholder="Search products…"
-            aria-label="Search products"
+            placeholder="Rechercher un produit…"
+            aria-label="Rechercher un produit"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -345,7 +345,7 @@ const Products = () => {
             <button
               type="button"
               onClick={clearSearch}
-              aria-label="Clear search"
+              aria-label="Effacer la recherche"
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
@@ -354,8 +354,8 @@ const Products = () => {
         </form>
         <FilterDropdown
           className="w-full sm:w-60"
-          ariaLabel="Filter by category"
-          allLabel="All categories"
+          ariaLabel="Filtrer par catégorie"
+          allLabel="Toutes les catégories"
           value={categoryFilter}
           onChange={(next) => {
             setPage(1);
@@ -373,9 +373,9 @@ const Products = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiBox}
-          title="No products yet"
-          description="Add your first product to start building the catalogue."
-          actionLabel="Add product"
+          title="Aucun produit"
+          description="Ajoutez votre premier produit pour commencer le catalogue."
+          actionLabel="Ajouter un produit"
           onAction={openAdd}
         />
       ) : (
@@ -387,11 +387,11 @@ const Products = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Product</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Price</TableCell>
+                <TableCell>Produit</TableCell>
+                <TableCell>Catégorie</TableCell>
+                <TableCell>Prix</TableCell>
                 <TableCell>Stock</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -425,7 +425,7 @@ const Products = () => {
                   <TableCell>
                     <button onClick={() => toggle(row)}>
                       <Badge type={row.status === "show" ? "success" : "neutral"}>
-                        {row.status === "show" ? "Active" : "Hidden"}
+                        {row.status === "show" ? "Actif" : "Masqué"}
                       </Badge>
                     </button>
                   </TableCell>
@@ -441,14 +441,14 @@ const Products = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
-                        title="Edit"
+                        title="Modifier"
                       >
                         <FiEdit />
                       </button>
                       <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
-                        title="Delete"
+                        title="Supprimer"
                       >
                         <FiTrash2 />
                       </button>
@@ -473,7 +473,7 @@ const Products = () => {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingId ? "Edit product" : "Add product"}
+        title={editingId ? "Modifier le produit" : "Ajouter un produit"}
         subtitle={
           editingId
             ? "Les changements sont visibles en boutique dès l'enregistrement."
@@ -488,7 +488,7 @@ const Products = () => {
               onClick={() => setModalOpen(false)}
               className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="button"
@@ -496,7 +496,7 @@ const Products = () => {
               disabled={saving}
               className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving…" : editingId ? "Save changes" : "Add product"}
+              {saving ? "Enregistrement…" : editingId ? "Enregistrer" : "Ajouter un produit"}
             </button>
           </>
         }
@@ -570,10 +570,30 @@ const Products = () => {
 
           {/* min-w-0 so a long product name cannot stretch the grid column. */}
           <div className="min-w-0 space-y-5">
+            {/* Category first: it is the decision that places the product, and the name is
+                easier to write once you know which aisle you are filling. */}
             <div className="grid gap-4 sm:grid-cols-2">
+              {/* A <div>, not a <label>: a label forwards its click to the button inside,
+                  which would toggle the dropdown twice and leave it closed. */}
+              <div className="text-sm">
+                <span className={labelCls}>
+                  Catégorie <span className="text-red-400">*</span>
+                </span>
+                <FilterDropdown
+                  ariaLabel="Catégorie"
+                  allLabel="Choisissez une catégorie…"
+                  value={form.categoryId}
+                  onChange={(next) => setForm({ ...form, categoryId: next })}
+                  options={categories.map((c) => ({
+                    value: c._id,
+                    label: c.name?.en || "-",
+                  }))}
+                />
+              </div>
+
               <label className="block text-sm">
                 <span className={labelCls}>
-                  Product name <span className="text-red-400">*</span>
+                  Nom du produit <span className="text-red-400">*</span>
                 </span>
                 <input
                   type="text"
@@ -584,24 +604,6 @@ const Products = () => {
                   required
                 />
               </label>
-
-              {/* A <div>, not a <label>: a label forwards its click to the button inside,
-                  which would toggle the dropdown twice and leave it closed. */}
-              <div className="text-sm">
-                <span className={labelCls}>
-                  Category <span className="text-red-400">*</span>
-                </span>
-                <FilterDropdown
-                  ariaLabel="Category"
-                  allLabel="Select a category…"
-                  value={form.categoryId}
-                  onChange={(next) => setForm({ ...form, categoryId: next })}
-                  options={categories.map((c) => ({
-                    value: c._id,
-                    label: c.name?.en || "-",
-                  }))}
-                />
-              </div>
             </div>
 
             <label className="block text-sm">
@@ -610,7 +612,7 @@ const Products = () => {
                 className={`${inputCls} h-20 resize-y py-2.5 leading-6`}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Short description shown on the product page…"
+                placeholder="Courte description affichée sur la fiche produit…"
               />
             </label>
 
@@ -691,7 +693,7 @@ const Products = () => {
                   />
                 </label>
                 <label className="block text-sm">
-                  <span className={labelCls}>Min. order</span>
+                  <span className={labelCls}>Cde min.</span>
                   <input
                     type="number"
                     min="1"
@@ -718,22 +720,22 @@ const Products = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete product"
+        title="Supprimer le produit"
         icon={FiTrash2}
         footer={
           <>
             <Button layout="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              Annuler
             </Button>
             <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
-              Delete
+              Supprimer
             </Button>
           </>
         }
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          Delete <span className="font-semibold">{deleteTarget?.title?.en}</span>? It will be
-          removed from the storefront.
+          Supprimer <span className="font-semibold">{deleteTarget?.title?.en}</span> ? Le produit
+          ne sera plus visible en boutique.
         </p>
       </Modal>
     </>

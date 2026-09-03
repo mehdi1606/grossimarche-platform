@@ -36,15 +36,21 @@ const nameOf = (row) =>
 const ROLES = [
   {
     value: "Admin",
-    label: "Admin",
+    label: "Administrateur",
     summary: "Accès complet, y compris le staff, les coupons et les réglages.",
   },
   {
     value: "Store Manager",
-    label: "Store Manager",
+    label: "Responsable de magasin",
     summary: "Commandes, produits, catégories, clients et offres. Pas de staff ni de réglages.",
   },
 ];
+
+/** The API stores these in English; the table shows them in French. */
+const roleLabel = (value) =>
+  (ROLES.find((r) => r.value === value) || {}).label || value;
+
+const STATUS_LABELS = { Active: "Actif", Blocked: "Bloqué", Inactive: "Inactif" };
 
 const Staff = () => {
   const [rows, setRows] = useState([]);
@@ -97,7 +103,7 @@ const Staff = () => {
     try {
       if (editing) {
         await AdminServices.updateStaff(editing._id, { role: form.role });
-        notifySuccess("Staff updated.");
+        notifySuccess("Membre mis à jour.");
       } else {
         const res = await AdminServices.addStaff({
           name: form.name,
@@ -162,7 +168,7 @@ const Staff = () => {
   const confirmDelete = async () => {
     try {
       await AdminServices.deleteStaff(deleteTarget._id);
-      notifySuccess("Staff member removed.");
+      notifySuccess("Membre supprimé.");
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -178,7 +184,7 @@ const Staff = () => {
       <div className="flex items-center justify-between">
         <PageTitle>Staff</PageTitle>
         <Button onClick={openAdd} className="h-11 rounded-lg">
-          <FiPlus className="mr-2" /> Add staff
+          <FiPlus className="mr-2" /> Ajouter un membre
         </Button>
       </div>
 
@@ -187,9 +193,9 @@ const Staff = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiUser}
-          title="No staff yet"
-          description="Invite your team. Staff sign in with a one-time code - access is decided by their role."
-          actionLabel="Add staff"
+          title="Aucun membre"
+          description="Invitez votre équipe. Chaque membre se connecte avec son mot de passe ; son rôle décide de ce qu'il voit."
+          actionLabel="Ajouter un membre"
           onAction={openAdd}
         />
       ) : (
@@ -197,11 +203,11 @@ const Staff = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Name</TableCell>
+                <TableCell>Nom</TableCell>
                 <TableCell>Contact</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Joined</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Rôle</TableCell>
+                <TableCell>Inscrit le</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -227,7 +233,7 @@ const Staff = () => {
                   </TableCell>
                   <TableCell>
                     <Badge type={row.role === "Admin" ? "success" : "neutral"}>
-                      {row.role}
+                      {roleLabel(row.role)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
@@ -236,7 +242,7 @@ const Staff = () => {
                   <TableCell>
                     <button onClick={() => toggle(row)}>
                       <Badge type={row.status === "Active" ? "success" : "danger"}>
-                        {row.status}
+                        {STATUS_LABELS[row.status] || row.status}
                       </Badge>
                     </button>
                   </TableCell>
@@ -245,7 +251,7 @@ const Staff = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
-                        title="Edit role"
+                        title="Modifier le rôle"
                       >
                         <FiEdit />
                       </button>
@@ -259,7 +265,7 @@ const Staff = () => {
                       <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
-                        title="Remove"
+                        title="Supprimer"
                       >
                         <FiTrash2 />
                       </button>
@@ -276,7 +282,7 @@ const Staff = () => {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? "Edit staff" : "Add staff"}
+        title={editing ? "Modifier le membre" : "Ajouter un membre"}
         subtitle="Un mot de passe provisoire est généré et envoyé par e-mail."
         icon={FiUser}
         footer={
@@ -286,7 +292,7 @@ const Staff = () => {
               onClick={() => setModalOpen(false)}
               className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="button"
@@ -294,7 +300,7 @@ const Staff = () => {
               disabled={saving}
               className="h-11 whitespace-nowrap rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving…" : editing ? "Save changes" : "Add staff"}
+              {saving ? "Enregistrement…" : editing ? "Enregistrer" : "Ajouter un membre"}
             </button>
           </>
         }
@@ -304,20 +310,20 @@ const Staff = () => {
             <>
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                  Full name
+                  Nom complet
                 </span>
                 <Input
                   className={inputCls}
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Jane Doe"
+                  placeholder="Nom et prénom"
                   required
                 />
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <label className="block text-sm">
                   <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                    Email
+                    E-mail
                   </span>
                   <Input
                     type="email"
@@ -330,7 +336,7 @@ const Staff = () => {
                 </label>
                 <label className="block text-sm">
                   <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                    Phone
+                    Téléphone
                   </span>
                   <Input
                     className={inputCls}
@@ -346,10 +352,10 @@ const Staff = () => {
               would toggle the dropdown twice and leave it closed. */}
           <div className="text-sm">
             <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Role
+              Rôle
             </span>
             <FilterDropdown
-              ariaLabel="Role"
+              ariaLabel="Rôle"
               allLabel={ROLES[0].label}
               resetValue={ROLES[0].value}
               value={form.role}
@@ -364,7 +370,7 @@ const Staff = () => {
           </div>
           {editing ? (
             <p className="text-xs text-gray-400">
-              Name, email and phone are set when the account is created.
+              Le nom, l'e-mail et le téléphone sont fixés à la création du compte.
             </p>
           ) : (
             <p className="text-xs text-gray-400">
@@ -436,12 +442,12 @@ const Staff = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Remove staff member"
+        title="Supprimer le membre"
         icon={FiTrash2}
         footer={
           <>
             <Button layout="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              Annuler
             </Button>
             <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
               Remove

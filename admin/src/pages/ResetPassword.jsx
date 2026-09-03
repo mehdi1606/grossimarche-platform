@@ -66,26 +66,26 @@ const ResetPassword = () => {
               </h1>
 
               <form onSubmit={handleSubmit(submitHandler)}>
-                <LabelArea label="Password" />
+                <LabelArea label="Mot de passe" />
                 <Input
-                  label="Password"
+                  label="Mot de passe"
                   name="newPassword"
                   type="password"
                   autocomplete="current-password"
-                  placeholder="Password"
+                  placeholder="Mot de passe"
                   {...register("newPassword", {
                     required: "You must specify a password",
                     minLength: {
                       value: 10,
-                      message: "Password must have at least 10 characters",
+                      message: "Le mot de passe doit contenir au moins 10 caractères.",
                     },
                   })}
                 />
                 <Error errorName={errors.newPassword} />
                 <div className="mt-6"></div>
-                <LabelArea label="Confirm Password" />
+                <LabelArea label="Confirmer le mot de passe" />
                 <Input
-                  label="Confirm Password"
+                  label="Confirmer le mot de passe"
                   name="confirm_password"
                   type="password"
                   autocomplete="current-password"

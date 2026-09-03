@@ -50,7 +50,7 @@ const useStaffSubmit = (id) => {
           Cookies.set("adminInfo", JSON.stringify(updated), cookieOptions({ expires: 30 }));
         }
         setIsUpdate(true);
-        notifySuccess("Staff Updated Successfully!");
+        notifySuccess("Membre mis à jour.");
       } else {
         const res = await AdminServices.addStaff({
           name: data.name,

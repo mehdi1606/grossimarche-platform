@@ -15,7 +15,7 @@ const TextAreaCom = ({
       <Textarea
         className="border text-sm border-gray-200 focus:border-gray-300 block w-full bg-gray-100"
         {...register(`${name}`, {
-          required: required ? `${label} is required!` : false,
+          required: required ? `${label} est obligatoire.` : false,
         })}
         type={type}
         placeholder={placeholder}

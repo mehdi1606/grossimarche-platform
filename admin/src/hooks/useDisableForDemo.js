@@ -5,7 +5,7 @@ const useDisableForDemo = () => {
     const isDisableForDemoEnable =
       import.meta.env.VITE_APP_DISABLE_FOR_DEMO === "true";
     if (isDisableForDemoEnable) {
-      notifyError("This feature is disabled for demo!");
+      notifyError("Fonctionnalité désactivée en démonstration.");
       return true; // Indicate that the feature is disabled
     }
     return false; // Indicate that the feature is enabled

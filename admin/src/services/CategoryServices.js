@@ -67,7 +67,7 @@ const CategoryServices = {
   deleteManyCategory: async (body) => {
     const ids = body?.ids || [];
     await Promise.all(ids.map((id) => requests.delete(`/admin/categories/${id}`)));
-    return { message: "Categories deleted" };
+    return { message: "Catégories supprimées" };
   },
 };
 

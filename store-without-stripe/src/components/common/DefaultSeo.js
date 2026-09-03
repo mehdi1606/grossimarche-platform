@@ -11,15 +11,15 @@ const DefaultSeo = () => {
     <NextSeo
       title={
         globalSetting?.meta_title ||
-        "KachaBazar - React Grocery & Organic Food Store e-commerce Template"
+        "Grossimarché - Marché de gros en ligne au Maroc"
       }
       openGraph={{
         type: "website",
-        locale: "en_IE",
-        url: globalSetting?.meta_url || "https://kachabazar-store.vercel.app/",
+        locale: "fr_MA",
+        url: globalSetting?.meta_url || "https://grossimarche.ma/",
         site_name:
           globalSetting?.meta_title ||
-          "KachaBazar - React Grocery & Organic Food Store e-commerce Template",
+          "Grossimarché - Marché de gros en ligne au Maroc",
       }}
       twitter={{
         handle: "@handle",

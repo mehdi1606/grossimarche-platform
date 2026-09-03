@@ -92,7 +92,7 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
           setIsSubmitting(false);
         } else {
           if (id === undefined || !id) {
-            notifyError("Please select a category first!");
+            notifyError("Choisissez d'abord une catégorie.");
             setIsSubmitting(false);
             return closeModal();
           }
@@ -110,7 +110,7 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
       ) {
         // console.log('delete modal ')
         if (id === undefined || !id) {
-          notifyError("Please select a category first!");
+          notifyError("Choisissez d'abord une catégorie.");
           setIsSubmitting(false);
           return closeModal();
         }
@@ -272,7 +272,7 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
               >
                 <img
                   src={spinnerLoadingImage}
-                  alt="Loading"
+                  alt="Chargement"
                   width={20}
                   height={10}
                 />{" "}

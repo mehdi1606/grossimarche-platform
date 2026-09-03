@@ -67,7 +67,7 @@ const Customers = () => {
       await CustomerServices.updateCustomer(row._id, {
         status: row.status === "Active" ? "Inactive" : "Active",
       });
-      notifySuccess(row.status === "Active" ? "Customer blocked." : "Customer unblocked.");
+      notifySuccess(row.status === "Active" ? "Client bloqué." : "Client débloqué.");
       setDetail(null);
       await load();
     } catch (err) {
@@ -94,8 +94,8 @@ const Customers = () => {
           <input
             type="text"
             className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
-            placeholder="Search by name, email or phone…"
-            aria-label="Search customers"
+            placeholder="Rechercher par nom, e-mail ou téléphone…"
+            aria-label="Rechercher un client"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -103,7 +103,7 @@ const Customers = () => {
             <button
               type="button"
               onClick={clearSearch}
-              aria-label="Clear search"
+              aria-label="Effacer la recherche"
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
@@ -117,20 +117,20 @@ const Customers = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiUsers}
-          title="No customers yet"
-          description="Shoppers appear here after their first sign-in on the storefront."
+          title="Aucun client"
+          description="Les clients apparaissent ici après leur première connexion à la boutique."
         />
       ) : (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Customer</TableCell>
+                <TableCell>Client</TableCell>
                 <TableCell>Type d&apos;activité</TableCell>
                 <TableCell>Contact</TableCell>
-                <TableCell>Orders</TableCell>
-                <TableCell>Total spent</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Commandes</TableCell>
+                <TableCell>Total dépensé</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -177,7 +177,7 @@ const Customers = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => setDetail(row)}
-                        title="View"
+                        title="Voir"
                       >
                         <FiEye />
                       </button>
@@ -211,7 +211,7 @@ const Customers = () => {
         footer={
           <>
             <Button layout="outline" onClick={() => setDetail(null)}>
-              Close
+              Fermer
             </Button>
             <Button
               className={detail?.status === "Active" ? "!bg-red-500 hover:!bg-red-600" : ""}
@@ -225,11 +225,11 @@ const Customers = () => {
         {detail && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <Info label="Email" value={detail.email || "-"} />
-              <Info label="Phone" value={detail.phone || "-"} />
+              <Info label="E-mail" value={detail.email || "-"} />
+              <Info label="Téléphone" value={detail.phone || "-"} />
               <Info label="Orders" value={detail.orderCount} />
               <Info
-                label="Total spent"
+                label="Total dépensé"
                 value={`${currency}${Number(detail.totalSpent || 0).toFixed(2)}`}
               />
               <Info

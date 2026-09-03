@@ -52,10 +52,10 @@ const LanguageDrawer = ({ id }) => {
                 <InputArea
                   required={true}
                   register={register}
-                  label="Language name"
+                  label="Nom de la langue"
                   name="name"
                   type="text"
-                  placeholder="Language name"
+                  placeholder="Nom de la langue"
                 />
                 <Error errorName={errors.name} />
               </div>

@@ -310,11 +310,11 @@ const StoreSetting = ({
               <Button disabled={true} type="button" className="h-12">
                 <img
                   src={spinnerLoadingImage}
-                  alt="Loading"
+                  alt="Chargement"
                   width={20}
                   height={10}
                 />{" "}
-                <span className="font-serif ml-2 font-light">Processing</span>
+                <span className="font-serif ml-2 font-light">Traitement…</span>
               </Button>
             ) : (
               <Button type="submit" className="h-12 px-8">

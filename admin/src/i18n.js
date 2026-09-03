@@ -1,43 +1,32 @@
 import i18n from "i18next";
-import Cookies from "js-cookie";
-import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
+import fr from "@/utils/translation/fr.json";
 import en from "@/utils/translation/en.json";
-import de from "@/utils/translation/de.json";
-import bn from "@/utils/translation/bn.json";
-import hi from "@/utils/translation/hi.json";
 
-/** The language to open in, if one was picked before. Only ever the *initial* choice. */
-const initialLanguage = Cookies.get("i18next") || "en";
+/**
+ * The back-office speaks French.
+ *
+ * It used to open in whatever the browser asked for, through a language detector, against
+ * bundles that existed only in English, German, Bengali and Hindi - so a French machine fell
+ * back to English, and the labels the template never defined ("OurStaff", "ClientTypes")
+ * rendered as their own key. Nothing in the interface switches language, so detection had
+ * nothing to offer but that failure mode: the language is now simply French.
+ *
+ * English stays behind it as a second fallback. It is not a language anyone is offered - it is
+ * insurance, so a key that slipped through the French bundle shows a word rather than
+ * "AddCategoryDescription".
+ */
+i18n.use(initReactI18next).init({
+  resources: {
+    fr: { translation: fr },
+    en: { translation: en },
+  },
+  lng: "fr",
+  fallbackLng: ["fr", "en"],
+  debug: false,
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { translation: en },
-      de: { translation: de },
-      bn: { translation: bn },
-      hi: { translation: hi },
-    },
-    lng: initialLanguage,
-    debug: false,
-    /**
-     * The fallback has to be a language that actually has a bundle here.
-     *
-     * It used to be this same cookie, which the detector fills with whatever the browser asks
-     * for - "fr" on a French machine. There is no French bundle, so the fallback pointed at
-     * nothing and every label rendered as its own key: that is why the sidebar read "OurStaff"
-     * and "ClientTypes" instead of their labels. A fallback that can be missing is not a
-     * fallback.
-     */
-    fallbackLng: "en",
-    nonExplicitSupportedLngs: true,
-    interpolation: {
-      escapeValue: false,
-    },
-    detection: {
-      //order: ['path', 'cookie', 'htmlTag'],
-      caches: ["cookie"],
-    },
-  });
+export default i18n;

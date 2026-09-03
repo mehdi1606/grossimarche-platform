@@ -16,7 +16,7 @@ const FilterDropdown = ({
   options = [],
   value = "",
   onChange,
-  allLabel = "All",
+  allLabel = "Tous",
   ariaLabel,
   className = "",
   placement = "bottom",

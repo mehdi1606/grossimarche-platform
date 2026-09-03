@@ -15,7 +15,7 @@ const SelectLanguageTwo = ({ handleSelectLanguage, register }) => {
       <select
         name="language"
         {...register(`language`, {
-          required: `language is required!`,
+          required: `La langue est obligatoire.`,
         })}
         onChange={(e) => handleSelectLanguage(e.target.value)}
         className="block w-20 h-10 border border-emerald-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:bg-white dark:focus:bg-gray-700"

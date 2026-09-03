@@ -122,7 +122,7 @@ const HomePage = ({
           <Button disabled={true} type="button" className="h-10 px-6">
             <img
               src={spinnerLoadingImage}
-              alt="Loading"
+              alt="Chargement"
               width={20}
               height={10}
             />{" "}
@@ -1226,7 +1226,7 @@ const HomePage = ({
 
             {/* <div className="flex flex-row-reverse pb-6">
                   <Button type="submit" className="h-10 px-6">
-                    Save
+                    Enregistrer
                   </Button>
                 </div> */}
           </div>
@@ -1314,7 +1314,7 @@ const HomePage = ({
 
             {/* <div className="flex flex-row-reverse pb-6">
                   <Button type="submit" className="h-10 px-6">
-                    Save
+                    Enregistrer
                   </Button>
                 </div> */}
           </div>
@@ -1528,7 +1528,7 @@ const HomePage = ({
 
             {/* <div className="flex flex-row-reverse pb-6">
                   <Button type="submit" className="h-10 px-6">
-                    Save
+                    Enregistrer
                   </Button>
                 </div> */}
           </div>
@@ -2300,7 +2300,7 @@ const HomePage = ({
                     label="Title"
                     name="footer_block_four_address"
                     type="text"
-                    placeholder="Address"
+                    placeholder="Adresse"
                   />
                   <Error errorName={errors.footer_block_four_address} />
                 </div>
@@ -2332,7 +2332,7 @@ const HomePage = ({
                     label="Title"
                     name="footer_block_four_email"
                     type="text"
-                    placeholder="Email"
+                    placeholder="E-mail"
                   />
                   <Error errorName={errors.footer_block_four_email} />
                 </div>

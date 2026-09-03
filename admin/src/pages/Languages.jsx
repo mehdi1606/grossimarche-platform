@@ -125,7 +125,7 @@ const Languages = () => {
               Default
             </label>
             <Button type="submit" disabled={saving}>
-              Add language
+              Ajouter une langue
             </Button>
           </form>
         </CardBody>
@@ -136,7 +136,7 @@ const Languages = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiGlobe}
-          title="No languages yet"
+          title="Aucune langue"
           description="Add the languages your storefront should offer. The default one is what shoppers see first."
         />
       ) : (
@@ -144,11 +144,11 @@ const Languages = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Flag</TableCell>
-                <TableCell>Name</TableCell>
+                <TableCell>Drapeau</TableCell>
+                <TableCell>Nom</TableCell>
                 <TableCell>ISO</TableCell>
-                <TableCell>Default</TableCell>
-                <TableCell>Enabled</TableCell>
+                <TableCell>Par défaut</TableCell>
+                <TableCell>Activée</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -172,7 +172,7 @@ const Languages = () => {
                   </TableCell>
                   <TableCell>
                     <Badge type={row.status === "show" ? "success" : "neutral"}>
-                      {row.status === "show" ? "Enabled" : "Disabled"}
+                      {row.status === "show" ? "Activée" : "Désactivée"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -191,7 +191,7 @@ const Languages = () => {
                         <button
                           className="text-red-500"
                           onClick={() => remove(row)}
-                          title="Delete"
+                          title="Supprimer"
                         >
                           <FiTrash2 />
                         </button>

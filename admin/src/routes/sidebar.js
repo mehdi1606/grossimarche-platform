@@ -31,18 +31,16 @@ const sidebar = [
   {
     icon: FiSlack,
     name: "Catalog",
+    // Categories first: a product cannot be created without one, so the menu follows the order
+    // the work is actually done in.
     routes: [
-      {
-        path: "/products",
-        name: "Products",
-      },
       {
         path: "/categories",
         name: "Categories",
       },
       {
-        path: "/attributes",
-        name: "Attributes",
+        path: "/products",
+        name: "Products",
       },
     ],
   },

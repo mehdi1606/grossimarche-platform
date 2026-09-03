@@ -497,6 +497,49 @@ const Bundles = () => {
             </div>
           </div>
 
+          {/* Prices first: the segments a bundle is sold to decide what belongs in it, and
+              the "no segment priced" warning is worth reading before filling the basket. */}
+          <SegmentPriceEditor
+            clientTypes={clientTypes}
+            value={form.typePrices}
+            onChange={(typePrices) => setForm({ ...form, typePrices })}
+            currency={currency}
+            title="Prix du panier par type de client"
+            hint="Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise non plus. Le prix doit rester inférieur au total des produits de ce type."
+            emptyWarning="Aucun type tarifé : ce panier ne sera proposé à personne."
+            renderInfo={(row) => {
+              const info = gridInfo[row.clientTypeId];
+              if (!info) return null;
+              const total = info.componentsTotal;
+
+              // Only known once the bundle exists: the components' total is resolved
+              // server-side, per segment, from prices this form does not hold.
+              if (total === null || total === undefined) {
+                return (
+                  <p className="mt-1.5 pl-12 text-xs text-amber-600">
+                    Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
+                  </p>
+                );
+              }
+              if (row.price === "") return null;
+
+              const saving = Number(total) - Number(row.price);
+              return (
+                <p
+                  className={`mt-1.5 pl-12 text-xs ${
+                    saving > 0 ? "text-emerald-600" : "text-red-500"
+                  }`}
+                >
+                  Produits : {currency}
+                  {Number(total).toFixed(2)}
+                  {saving > 0
+                    ? ` — remise ${currency}${saving.toFixed(2)}`
+                    : " — aucune remise"}
+                </p>
+              );
+            }}
+          />
+
           {/* Product picker */}
           <div>
             <span className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -570,47 +613,6 @@ const Bundles = () => {
               </ul>
             )}
           </div>
-
-          <SegmentPriceEditor
-            clientTypes={clientTypes}
-            value={form.typePrices}
-            onChange={(typePrices) => setForm({ ...form, typePrices })}
-            currency={currency}
-            title="Prix du panier par type de client"
-            hint="Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise non plus. Le prix doit rester inférieur au total des produits de ce type."
-            emptyWarning="Aucun type tarifé : ce panier ne sera proposé à personne."
-            renderInfo={(row) => {
-              const info = gridInfo[row.clientTypeId];
-              if (!info) return null;
-              const total = info.componentsTotal;
-
-              // Only known once the bundle exists: the components' total is resolved
-              // server-side, per segment, from prices this form does not hold.
-              if (total === null || total === undefined) {
-                return (
-                  <p className="mt-1.5 pl-12 text-xs text-amber-600">
-                    Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
-                  </p>
-                );
-              }
-              if (row.price === "") return null;
-
-              const saving = Number(total) - Number(row.price);
-              return (
-                <p
-                  className={`mt-1.5 pl-12 text-xs ${
-                    saving > 0 ? "text-emerald-600" : "text-red-500"
-                  }`}
-                >
-                  Produits : {currency}
-                  {Number(total).toFixed(2)}
-                  {saving > 0
-                    ? ` — remise ${currency}${saving.toFixed(2)}`
-                    : " — aucune remise"}
-                </p>
-              );
-            }}
-          />
 
           <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
             <input

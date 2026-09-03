@@ -139,7 +139,7 @@ const Dashboard = () => {
     labels: salesPoints.map((p) => dayjs(p.date).format("DD/MM")),
     datasets: [
       {
-        label: "Revenue",
+        label: "Chiffre d'affaires",
         data: salesPoints.map((p) => Number(p.revenue || 0)),
         borderColor: "#10b981",
         backgroundColor: (ctx) => {
@@ -176,7 +176,7 @@ const Dashboard = () => {
     { key: "pendingOrders", label: t("OrderPending"), color: "#f59e0b" },
     { key: "processingOrders", label: t("OrderProcessing"), color: "#3b82f6" },
     { key: "deliveredOrders", label: t("OrderDelivered"), color: "#10b981" },
-    { key: "cancelledOrders", label: "Cancelled", color: "#ef4444" },
+    { key: "cancelledOrders", label: "Annulées", color: "#ef4444" },
   ];
   const doughnutData = {
     labels: statusEntries.map((s) => s.label),
@@ -289,7 +289,7 @@ const Dashboard = () => {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
           </span>
-          Live data · {dayjs().format("DD MMM YYYY")}
+          Données en direct · {dayjs().format("DD MMM YYYY")}
         </span>
       </div>
 
@@ -301,38 +301,38 @@ const Dashboard = () => {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               icon={FiTrendingUp}
-              label="Revenue today"
+              label="Chiffre d'affaires du jour"
               value={summary?.revenueToday}
               money
               currency={currency}
-              sub={`This month: ${money(summary?.revenueMonth)}`}
+              sub={`Ce mois-ci : ${money(summary?.revenueMonth)}`}
               gradient="linear-gradient(135deg,#059669,#10b981)"
               delay={0}
             />
             <StatCard
               icon={FiShoppingBag}
-              label="Orders today"
+              label="Commandes du jour"
               value={summary?.ordersToday}
               currency={currency}
-              sub={`This month: ${summary?.ordersMonth ?? 0}`}
+              sub={`Ce mois-ci : ${summary?.ordersMonth ?? 0}`}
               gradient="linear-gradient(135deg,#2563eb,#3b82f6)"
               delay={80}
             />
             <StatCard
               icon={FiUsers}
-              label="Customers"
+              label="Clients"
               value={summary?.totalCustomers}
               currency={currency}
-              sub="Registered shoppers"
+              sub="Comptes clients inscrits"
               gradient="linear-gradient(135deg,#7c3aed,#a855f7)"
               delay={160}
             />
             <StatCard
               icon={FiPackage}
-              label="Total orders"
+              label="Total des commandes"
               value={summary?.totalOrders}
               currency={currency}
-              sub={`${summary?.deliveredOrders ?? 0} delivered`}
+              sub={`${summary?.deliveredOrders ?? 0} livrées`}
               gradient="linear-gradient(135deg,#ea580c,#f97316)"
               delay={240}
             />
@@ -342,7 +342,7 @@ const Dashboard = () => {
         {/* Sales chart + order status */}
         <div className="mt-6 grid gap-4 xl:grid-cols-3">
           <SectionCard
-            title="Revenue · last 30 days"
+            title="Chiffre d'affaires · 30 derniers jours"
             className="xl:col-span-2"
             action={
               <span className="text-xs font-medium text-emerald-600">
@@ -355,7 +355,7 @@ const Dashboard = () => {
                 <div className="gm-skeleton h-full w-full rounded-xl" />
               ) : salesPoints.length === 0 ? (
                 <div className="grid h-full place-items-center text-sm text-gray-400">
-                  No sales data yet.
+                  Aucune vente pour le moment.
                 </div>
               ) : (
                 <Line data={lineData} options={lineOptions} />
@@ -363,7 +363,7 @@ const Dashboard = () => {
             </div>
           </SectionCard>
 
-          <SectionCard title="Orders by status">
+          <SectionCard title="Commandes par statut">
             <div className="relative mx-auto h-44 w-44">
               {loadingSummary ? (
                 <div className="gm-skeleton h-full w-full rounded-full" />
@@ -469,7 +469,7 @@ const Dashboard = () => {
 
         {/* Best sellers + recent orders */}
         <div className="mt-6 grid gap-4 xl:grid-cols-3">
-          <SectionCard title="Best sellers">
+          <SectionCard title="Meilleures ventes">
             {loadingBest ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -478,7 +478,7 @@ const Dashboard = () => {
               </div>
             ) : bestList.length === 0 ? (
               <p className="py-8 text-center text-sm text-gray-400">
-                No sales recorded yet.
+                Aucune vente enregistrée pour le moment.
               </p>
             ) : (
               <ul className="space-y-1">
@@ -517,7 +517,7 @@ const Dashboard = () => {
                 href="/orders"
                 className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline"
               >
-                View all <FiArrowUpRight />
+                Tout voir <FiArrowUpRight />
               </a>
             }
           >
@@ -526,8 +526,8 @@ const Dashboard = () => {
             ) : recentOrders.length === 0 ? (
               <EmptyState
                 icon={FiShoppingBag}
-                title="No orders yet"
-                description="When customers place orders, the latest ones will appear here."
+                title="Aucune commande"
+                description="Les dernières commandes passées apparaîtront ici."
               />
             ) : (
               <TableContainer className="rounded-lg">

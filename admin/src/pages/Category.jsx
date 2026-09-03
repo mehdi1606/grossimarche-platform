@@ -79,10 +79,10 @@ const Category = () => {
     try {
       if (form.id) {
         await CategoryServices.updateCategory(form.id, body);
-        notifySuccess("Category updated.");
+        notifySuccess("Catégorie mise à jour.");
       } else {
         await CategoryServices.addCategory(body);
-        notifySuccess("Category created.");
+        notifySuccess("Catégorie créée.");
       }
       setModalOpen(false);
       await load();
@@ -107,7 +107,7 @@ const Category = () => {
   const confirmDelete = async () => {
     try {
       await CategoryServices.deleteCategory(deleteTarget._id);
-      notifySuccess("Category deactivated.");
+      notifySuccess("Catégorie désactivée.");
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -150,7 +150,7 @@ const Category = () => {
       <div className="flex items-center justify-between">
         <PageTitle>{t("Category")}</PageTitle>
         <Button onClick={openAdd} className="h-11 rounded-lg">
-          <FiPlus className="mr-2" /> Add category
+          <FiPlus className="mr-2" /> Ajouter une catégorie
         </Button>
       </div>
 
@@ -161,8 +161,8 @@ const Category = () => {
           <input
             type="text"
             className={`${controlCls} pl-10 ${search ? "pr-10" : "pr-3"}`}
-            placeholder="Search categories…"
-            aria-label="Search categories"
+            placeholder="Rechercher une catégorie…"
+            aria-label="Rechercher une catégorie"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -170,7 +170,7 @@ const Category = () => {
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label="Clear search"
+              aria-label="Effacer la recherche"
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
             >
               <FiX className="h-4 w-4" />
@@ -184,17 +184,17 @@ const Category = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiLayers}
-          title="No categories yet"
-          description="Create your first category to organise the catalogue."
-          actionLabel="Add category"
+          title="Aucune catégorie"
+          description="Créez votre première catégorie pour organiser le catalogue."
+          actionLabel="Ajouter une catégorie"
           onAction={openAdd}
         />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={FiSearch}
-          title="No categories match"
+          title="Aucune catégorie ne correspond"
           description={`Nothing found for “${search}”. Try another name or slug.`}
-          actionLabel="Clear search"
+          actionLabel="Effacer la recherche"
           onAction={() => setSearch("")}
         />
       ) : (
@@ -202,10 +202,10 @@ const Category = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Category</TableCell>
+                <TableCell>Catégorie</TableCell>
                 <TableCell>Slug</TableCell>
-                <TableCell>Products</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Produits</TableCell>
+                <TableCell>Statut</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -235,14 +235,14 @@ const Category = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
-                        title="Edit"
+                        title="Modifier"
                       >
                         <FiEdit />
                       </button>
                       <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
-                        title="Delete"
+                        title="Supprimer"
                       >
                         <FiTrash2 />
                       </button>
@@ -259,7 +259,7 @@ const Category = () => {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={form.id ? "Edit category" : "New category"}
+        title={form.id ? "Modifier la catégorie" : "Nouvelle catégorie"}
         subtitle="L’icône et le nom sont ce que le client voit en boutique."
         icon={FiLayers}
         footer={
@@ -269,7 +269,7 @@ const Category = () => {
               onClick={() => setModalOpen(false)}
               className="h-11 rounded-lg px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="button"
@@ -277,7 +277,7 @@ const Category = () => {
               disabled={saving}
               className="h-11 rounded-lg bg-emerald-500 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving…" : form.id ? "Save changes" : "Create category"}
+              {saving ? "Enregistrement…" : form.id ? "Enregistrer" : "Créer la catégorie"}
             </button>
           </>
         }
@@ -439,15 +439,15 @@ const Category = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete category"
+        title="Supprimer la catégorie"
         icon={FiTrash2}
         footer={
           <>
             <Button layout="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              Annuler
             </Button>
             <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
-              Delete
+              Supprimer
             </Button>
           </>
         }

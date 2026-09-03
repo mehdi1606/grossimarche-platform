@@ -92,9 +92,9 @@ const CategoryDrawer = ({ id, data }) => {
       const parentCategoryId = await CategoryServices.getCategoryById(key);
 
       if (id === key) {
-        return notifyError("This can't be select as a parent category!");
+        return notifyError("Une catégorie ne peut pas être sa propre catégorie parente.");
       } else if (id === parentCategoryId.parentId) {
-        return notifyError("This can't be select as a parent category!");
+        return notifyError("Une catégorie ne peut pas être sa propre catégorie parente.");
       } else {
         if (key === undefined) return;
         setChecked(key);
@@ -144,7 +144,7 @@ const CategoryDrawer = ({ id, data }) => {
                 <InputArea
                   required={true}
                   register={register}
-                  label="Category title"
+                  label="Nom de la catégorie"
                   name="name"
                   type="text"
                   placeholder={t("ParentCategoryPlaceholder")}
@@ -161,7 +161,7 @@ const CategoryDrawer = ({ id, data }) => {
                   label="Description"
                   name="description"
                   type="text"
-                  placeholder="Category Description"
+                  placeholder="Description de la catégorie"
                 />
                 <Error errorName={errors.description} />
               </div>
@@ -176,7 +176,7 @@ const CategoryDrawer = ({ id, data }) => {
                     required: false,
                   })}
                   name="parent"
-                  value={selectCategoryName ? selectCategoryName : "Home"}
+                  value={selectCategoryName ? selectCategoryName : "Aucune"}
                   placeholder={t("ParentCategory")}
                   type="text"
                 />
@@ -219,7 +219,7 @@ const CategoryDrawer = ({ id, data }) => {
             </div>
           </div>
 
-          <DrawerButton id={id} title="Category" isSubmitting={isSubmitting} />
+          <DrawerButton id={id} title="Catégorie" isSubmitting={isSubmitting} />
         </form>
       </Scrollbars>
     </>

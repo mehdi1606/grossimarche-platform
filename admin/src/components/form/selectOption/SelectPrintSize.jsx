@@ -15,7 +15,7 @@ const SelectReceiptSize = ({
         className={`${pos ? "h-10" : "h-12"}`}
         name={name}
         {...register(`${name}`, {
-          required: required ? `${label} is required!` : false,
+          required: required ? `${label} est obligatoire.` : false,
         })}
       >
         {/* <option value="" defaultValue hidden>

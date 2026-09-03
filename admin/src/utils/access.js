@@ -2,8 +2,8 @@
 // route guard (layout/Main.jsx, via hooks/useGetCData) both read.
 //
 // Mirrors the backend authorization split (SecurityConfig + @PreAuthorize):
-//   - STORE_MANAGER → core store operations: dashboard, products, categories, attributes,
-//     customers, orders, notifications (+ their detail sub-routes and the profile page).
+//   - STORE_MANAGER → core store operations: dashboard, products, categories, customers,
+//     orders, notifications (+ their detail sub-routes and the profile page).
 //   - ADMIN → everything above PLUS the exclusive areas: staff, coupons, settings (stores)
 //     and the currency/language configuration.
 //
@@ -16,7 +16,6 @@ const STORE_MANAGER_ROUTES = [
   "products",
   "product", // product detail
   "categories",
-  "attributes",
   "customers",
   "approvals", // customer validation queue - day-to-day judgement, not policy
   "customer-order", // a customer's order detail

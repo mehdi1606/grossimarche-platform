@@ -79,10 +79,10 @@ const Setting = () => {
     try {
       if (form.id) {
         await StoreServices.updateStore(form.id, body);
-        notifySuccess("Store updated.");
+        notifySuccess("Magasin mis à jour.");
       } else {
         await StoreServices.addStore(body);
-        notifySuccess("Store added.");
+        notifySuccess("Magasin ajouté.");
       }
       setModalOpen(false);
       await load();
@@ -96,7 +96,7 @@ const Setting = () => {
   const confirmDelete = async () => {
     try {
       await StoreServices.deleteStore(deleteTarget._id);
-      notifySuccess("Store removed.");
+      notifySuccess("Magasin supprimé.");
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -121,9 +121,9 @@ const Setting = () => {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={FiMapPin}
-          title="No stores yet"
+          title="Aucun magasin"
           description="Add your first magasin - name, city, address and map coordinates. These power the store locator."
-          actionLabel="Add store"
+          actionLabel="Ajouter un magasin"
           onAction={openAdd}
         />
       ) : (
@@ -131,10 +131,10 @@ const Setting = () => {
           <Table>
             <TableHeader>
               <tr>
-                <TableCell>Name</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Address</TableCell>
-                <TableCell>Phone</TableCell>
+                <TableCell>Nom</TableCell>
+                <TableCell>Ville</TableCell>
+                <TableCell>Adresse</TableCell>
+                <TableCell>Téléphone</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>
             </TableHeader>
@@ -150,14 +150,14 @@ const Setting = () => {
                       <button
                         className="transition hover:text-emerald-600"
                         onClick={() => openEdit(row)}
-                        title="Edit"
+                        title="Modifier"
                       >
                         <FiEdit />
                       </button>
                       <button
                         className="transition hover:text-red-500"
                         onClick={() => setDeleteTarget(row)}
-                        title="Delete"
+                        title="Supprimer"
                       >
                         <FiTrash2 />
                       </button>
@@ -174,17 +174,17 @@ const Setting = () => {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={form.id ? "Edit store" : "New store"}
+        title={form.id ? "Modifier le magasin" : "Nouveau magasin"}
         subtitle="Physical magasin shown in the storefront locator."
         icon={FiMapPin}
         size="lg"
         footer={
           <>
             <Button layout="outline" onClick={() => setModalOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving…" : form.id ? "Save changes" : "Add store"}
+              {saving ? "Enregistrement…" : form.id ? "Enregistrer" : "Ajouter un magasin"}
             </Button>
           </>
         }
@@ -268,12 +268,12 @@ const Setting = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Remove store"
+        title="Supprimer le magasin"
         icon={FiTrash2}
         footer={
           <>
             <Button layout="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              Annuler
             </Button>
             <Button className="!bg-red-500 hover:!bg-red-600" onClick={confirmDelete}>
               Remove

@@ -171,7 +171,7 @@ const ProductDrawer = ({ id }) => {
                 <div className="col-span-8 sm:col-span-4">
                   <Input
                     {...register(`title`, {
-                      required: "TItle is required!",
+                      required: "Le nom est obligatoire.",
                     })}
                     name="title"
                     type="text"
@@ -264,20 +264,20 @@ const ProductDrawer = ({ id }) => {
                     onSelect={(v) => setDefaultCategory(v)}
                     selectedValues={defaultCategory}
                     options={selectedCategory}
-                    placeholder={"Default Category"}
+                    placeholder={"Catégorie par défaut"}
                   ></Multiselect>
                 </div>
               </div>
 
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <LabelArea label="Product Price" />
+                <LabelArea label="Prix du produit" />
                 <div className="col-span-8 sm:col-span-4">
                   <InputValue
                     disabled={isCombination}
                     register={register}
                     maxValue={2000}
                     minValue={1}
-                    label="Original Price"
+                    label="Prix initial"
                     name="originalPrice"
                     type="number"
                     placeholder="OriginalPrice"
@@ -300,10 +300,10 @@ const ProductDrawer = ({ id }) => {
                     minValue={0}
                     defaultValue={0.0}
                     required={true}
-                    label="Sale price"
+                    label="Prix promotionnel"
                     name="price"
                     type="number"
-                    placeholder="Sale price"
+                    placeholder="Prix promotionnel"
                     currency={currency}
                   />
                   <Error errorName={errors.price} />
@@ -319,7 +319,7 @@ const ProductDrawer = ({ id }) => {
                     register={register}
                     minValue={0}
                     defaultValue={0}
-                    label="Quantity"
+                    label="Quantité"
                     name="stock"
                     type="number"
                     placeholder={t("ProductQuantity")}
@@ -333,7 +333,7 @@ const ProductDrawer = ({ id }) => {
                 <div className="col-span-8 sm:col-span-4">
                   <Input
                     {...register(`slug`, {
-                      required: "slug is required!",
+                      required: "Le slug est obligatoire.",
                     })}
                     className=" mr-2 p-2"
                     name="slug"
@@ -401,7 +401,7 @@ const ProductDrawer = ({ id }) => {
                   {attributes?.map((attribute, i) => (
                     <div key={attribute._id}>
                       <div className="flex w-full h-10 justify-between font-sans rounded-tl rounded-tr bg-gray-200 px-4 py-3 text-left text-sm font-normal text-gray-700 hover:bg-gray-200">
-                        {"Select"}
+                        {"Choisir "}
                         {showingTranslateValue(attribute?.title)}
                       </div>
 
@@ -440,16 +440,16 @@ const ProductDrawer = ({ id }) => {
             <DrawerButton
               id={id}
               save
-              title="Product"
+              title="Produit"
               isSubmitting={isSubmitting}
               handleProductTap={handleProductTap}
             />
           ) : (
-            <DrawerButton id={id} title="Product" isSubmitting={isSubmitting} />
+            <DrawerButton id={id} title="Produit" isSubmitting={isSubmitting} />
           )}
 
           {tapValue === "Combination" && (
-            <DrawerButton id={id} title="Product" isSubmitting={isSubmitting} />
+            <DrawerButton id={id} title="Produit" isSubmitting={isSubmitting} />
           )}
         </form>
 

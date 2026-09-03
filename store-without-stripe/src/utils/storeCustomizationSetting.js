@@ -8,54 +8,67 @@ export const storeCustomization = {
     privacy_policy_status: true,
     faq_status: true,
     help_text: {
+      fr: "Nous sommes disponibles 7j/7. Besoin d'aide ?",
       en: "We are available 24/7, Need help?",
       de: "Wir sind erreichbar 24/7, Brauchen Sie Hilfe?",
     },
     categories: {
+      fr: "Catégories",
       en: "Categories",
       de: "Kategorien",
     },
     about_us: {
+      fr: "À propos",
       en: "About Us",
       de: "Uber Uns",
     },
     contact_us: {
+      fr: "Nous contacter",
       en: "Contact Us",
       de: "Kontaktiere Uns",
     },
     offers: {
+      fr: "Offres",
       en: "Offers",
       de: "Bietet an",
     },
     faq: {
+      fr: "FAQ",
       en: "FAQ",
       de: "FAQ",
     },
     privacy_policy: {
+      fr: "Politique de confidentialité",
       en: "Privacy Policy",
       de: "Datenschutzrichtlinie",
     },
     term_and_condition: {
+      fr: "Conditions générales",
       en: "Terms & Conditions",
       de: "Terms & Bedingungen",
     },
     pages: {
+      fr: "Pages",
       en: "Pages",
       de: "Seiten",
     },
     my_account: {
+      fr: "Mon compte",
       en: "My Account",
       de: "Mein Konto",
     },
     login: {
+      fr: "Connexion",
       en: "Login",
       de: "Anmeldung",
     },
     logout: {
+      fr: "Se déconnecter",
       en: "Logout",
       de: "Ausloggen",
     },
     checkout: {
+      fr: "Commande",
       en: "Checkout",
       de: "Kasse",
     },
@@ -75,10 +88,12 @@ export const storeCustomization = {
     discount_coupon_code: ["WINTER21", "OCTOBER21"],
     place_holder_img: "",
     discount_title: {
+      fr: "Code promo en cours",
       en: "Latest Super Discount Active Coupon Code",
       de: "Neuester aktiver Super-Rabatt-Gutscheincode",
     },
     promotion_title: {
+      fr: "Des produits de qualité, sélectionnés",
       en: "100% Natural Quality Organic Product",
       de: "100 % natürliches Bio-Qualitätsprodukt",
     },
@@ -87,20 +102,24 @@ export const storeCustomization = {
       de: "Sehen Sie sich hier unsere neuesten reduzierten Produkte an und sichern Sie sich ein spezielles Rabattprodukt",
     },
     promotion_button_name: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
     promotion_button_link: "/search?category=breakfast",
     feature_title: {
+      fr: "Catégories mises en avant",
       en: "Featured Categories",
       de: "Beliebte Kategorien",
     },
     feature_description: {
+      fr: "Choisissez vos produits dans ces catégories.",
       en: "Choose your necessary products from this feature categories.",
       de: "Wählen Sie aus diesen Funktionskategorien die gewünschten Produkte aus.",
     },
     feature_product_limit: 18,
     popular_title: {
+      fr: "Produits les plus commandés",
       en: "Popular Products for Daily Shopping",
       de: "Beliebte Produkte für den täglichen Einkauf",
     },
@@ -110,10 +129,12 @@ export const storeCustomization = {
     },
     popular_product_limit: 18,
     quick_delivery_subtitle: {
+      fr: "Produits alimentaires et essentiels",
       en: "Organic Products and Food",
       de: "Bio-Produkte und Lebensmittel",
     },
     quick_delivery_title: {
+      fr: "Livraison rapide chez vous",
       en: "Quick Delivery to Your Home",
       de: "Schnelle Lieferung zu Ihnen nach Hause",
     },
@@ -122,6 +143,7 @@ export const storeCustomization = {
       de: "Es gibt viele Produkte, die Sie in unserem Shop finden. Wählen Sie Ihr täglich benötigtes Produkt aus unserem KachaBazar-Shop und erhalten Sie einige Sonderangebote. Sehen Sie sich hier unsere neuesten reduzierten Produkte an und sichern Sie sich einen Sonderrabatt.",
     },
     quick_delivery_button: {
+      fr: "Télécharger l'application",
       en: "Download App",
       de: "Lade App herunter",
     },
@@ -129,6 +151,7 @@ export const storeCustomization = {
     quick_delivery_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688032/settings/delivery-boy_rluuoq.webp",
     latest_discount_title: {
+      fr: "Derniers produits en promotion",
       en: "Latest Discounted Products",
       de: "Neueste reduzierte Produkte",
     },
@@ -182,6 +205,7 @@ export const storeCustomization = {
     founder_six_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-6_gmlts4.webp",
     title: {
+      fr: "À propos",
       en: "About Us",
       de: "Über uns",
     },
@@ -198,6 +222,7 @@ export const storeCustomization = {
       de: "10K",
     },
     card_one_sub: {
+      fr: "Produits au catalogue",
       en: "Listed Products",
       de: "Gelistete Produkte",
     },
@@ -210,6 +235,7 @@ export const storeCustomization = {
       de: "8 TAUSEND",
     },
     card_two_sub: {
+      fr: "Clients satisfaits",
       en: "Lovely Customer",
       de: "Lieber Kunde",
     },
@@ -226,6 +252,7 @@ export const storeCustomization = {
       de: "Visualisieren Sie marktgesteuerte Daten angemessen vor Eins-zu-eins-Szenarien. Erzielen Sie gemeinsam multifunktionale Renditen durch intuitive Lieferketten. Nutzen Sie mit Begeisterung revolutionäre Mehrwert- und prozessorientierte Services. Nutzen Sie intuitive Informationen kompetent nach interoperablen Märkten. Revolutionieren Sie interaktiv zukunftssichere Werte vor granularen Quellen. Umfassen Sie dynamisch unterschiedliche Kundendienst- und Installed-Base-Paradigmen. Nutzen Sie glaubwürdig unternehmensweite Erfahrungen für End-to-End-Daten. Professionelles Branding flexibler Ausrichtungen und kostengünstiger Architekturen. Schaffen Sie enthusiastische Anreize für nahtlose Gemeinschaften, indem Sie revolutionäre Metriken mit strategischen Themenbereichen nahtlos erleichtern.",
     },
     founder_title: {
+      fr: "Notre équipe",
       en: "Our Team",
       de: "Unser Gründer",
     },
@@ -294,10 +321,12 @@ export const storeCustomization = {
     left_col_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697472924/settings/contact-us_zvwn2n.png",
     title: {
+      fr: "Nous contacter",
       en: "Contact Us",
       de: "Kontaktiere uns",
     },
     email_box_title: {
+      fr: "Écrivez-nous",
       en: "Email Us",
       de: "Schreiben Sie uns eine E-Mail",
     },
@@ -310,6 +339,7 @@ export const storeCustomization = {
       de: " Interactively grow empowered for process-centric total linkage.",
     },
     call_box_title: {
+      fr: "Téléphone ",
       en: "Call Us ",
       de: "Rufen Sie uns an",
     },
@@ -322,6 +352,7 @@ export const storeCustomization = {
       de: "Distinctively disseminate focused solutions clicks-and-mortar ministate.",
     },
     address_box_title: {
+      fr: "Adresse ",
       en: "Location ",
       de: "Ort",
     },
@@ -338,6 +369,7 @@ export const storeCustomization = {
       de: "United States 96522",
     },
     form_title: {
+      fr: "Une question ? Écrivez-nous ",
       en: "For any suppoort just send your query ",
       de: "Für Unterstützung senden Sie einfach Ihre Anfrage",
     },
@@ -351,6 +383,7 @@ export const storeCustomization = {
     header_bg:
       "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
     title: {
+      fr: "Offre spéciale",
       en: "Mega Offer",
       de: "Mega Angebot",
     },
@@ -361,6 +394,7 @@ export const storeCustomization = {
     header_bg:
       "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
     title: {
+      fr: "Politique de confidentialité",
       en: "Privacy Policy",
       de: "Datenschutz-Bestimmungen",
     },
@@ -373,6 +407,7 @@ export const storeCustomization = {
     header_bg:
       "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
     title: {
+      fr: "Conditions générales",
       en: "Terms & Conditions",
       de: "Terms & Bedingungen",
     },
@@ -389,6 +424,7 @@ export const storeCustomization = {
     left_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697687955/settings/faq_qr1y1h.svg",
     title: {
+      fr: "FAQ",
       en: "FAQs",
       de: "Häufig gestellte Fragen",
     },
@@ -464,14 +500,17 @@ export const storeCustomization = {
     first_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-1_rl8qdc.jpg",
     first_title: {
+      fr: "La qualité, garantie",
       en: "The Best Quality Products Guaranteed!",
       de: "Die besten Qualitätsprodukte garantiert!",
     },
     first_description: {
+      fr: "La qualité, garantie",
       en: "The Best Quality Products Guaranteed!",
       de: "Die besten Qualitätsprodukte garantiert!",
     },
     first_button: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
@@ -479,6 +518,7 @@ export const storeCustomization = {
     second_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
     second_title: {
+      fr: "Tous vos produits d'épicerie en gros",
       en: "Best Different Type of Grocery Store",
       de: "Bestes anderes Lebensmittelgeschäft",
     },
@@ -487,6 +527,7 @@ export const storeCustomization = {
       de: "Schnelle Bündelung leistungsstarker Netzwerke nach neuen Produkten ...",
     },
     second_button: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
@@ -494,6 +535,7 @@ export const storeCustomization = {
     third_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688492/settings/slider-3_iw4nnf.jpg",
     third_title: {
+      fr: "Fraîcheur et qualité garanties",
       en: "Quality Freshness Guaranteed!",
       de: "Qualitätsfrische garantiert!",
     },
@@ -502,12 +544,14 @@ export const storeCustomization = {
       de: "Gestalten Sie Produkte grundsätzlich auf Leistung und nicht auf konkrete Vorteile ...",
     },
     third_button: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
     third_link: "/search?category=fruits-vegetable",
     four_img: "https://i.postimg.cc/rscqZJNz/slider-1.webp",
     four_title: {
+      fr: "La qualité, garantie",
       en: "The Best Quality Products Guaranteed!",
       de: "Die besten Qualitätsprodukte garantiert!",
     },
@@ -516,6 +560,7 @@ export const storeCustomization = {
       de: "Ermöglichen Sie eine effektive Gesamtverknüpfung für weitere Prozesse erheblich.",
     },
     four_button: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
@@ -523,6 +568,7 @@ export const storeCustomization = {
     five_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
     five_title: {
+      fr: "Tous vos produits d'épicerie en gros",
       en: "Best Different Type of Grocery Store",
       de: "Bestes anderes Lebensmittelgeschäft",
     },
@@ -531,6 +577,7 @@ export const storeCustomization = {
       de: "Schnelle Bündelung leistungsstarker Netzwerke nach neuen Produkten ...",
     },
     five_button: {
+      fr: "Acheter maintenant",
       en: "Shop Now",
       de: "Jetzt einkaufen",
     },
@@ -538,46 +585,57 @@ export const storeCustomization = {
   },
   checkout: {
     personal_details: {
+      fr: "Informations personnelles",
       en: "Personal Details",
       de: "Persönliche Daten",
     },
     first_name: {
+      fr: "Prénom",
       en: "First Name",
       de: "Vorname",
     },
     last_name: {
+      fr: "Nom",
       en: "Last Name",
       de: "Familienname, Nachname",
     },
     email_address: {
+      fr: "Adresse e-mail",
       en: "Email Address",
       de: "E-Mail-Adresse",
     },
     checkout_phone: {
+      fr: "Numéro de téléphone",
       en: "Phone Number",
       de: "Telefonnummer",
     },
     shipping_details: {
+      fr: "Adresse de livraison",
       en: "Shipping Details",
       de: "Versanddetails",
     },
     street_address: {
+      fr: "Adresse",
       en: "Street Address",
       de: "Straßenadresse",
     },
     city: {
+      fr: "Ville",
       en: "City",
       de: "Stadt",
     },
     country: {
+      fr: "Pays",
       en: "Country",
       de: "Land",
     },
     zip_code: {
+      fr: "Code postal",
       en: "Zip Code",
       de: "PLZ",
     },
     shipping_cost: {
+      fr: "Frais de livraison",
       en: "Shipping Cost",
       de: "Versandkosten",
     },
@@ -587,6 +645,7 @@ export const storeCustomization = {
     },
     shipping_one_cost: 60,
     shipping_one_desc: {
+      fr: "Livraison aujourd'hui - frais :",
       en: "Delivery: Today Cost :",
       de: "Lieferung: Heute Kosten :",
     },
@@ -595,121 +654,150 @@ export const storeCustomization = {
       de: "UPS",
     },
     shipping_two_desc: {
+      fr: "Livraison sous 7 jours - frais :",
       en: "Delivery: 7 Days Cost :",
       de: "Lieferung: 7 Tage. Kosten :",
     },
     shipping_two_cost: 20,
     payment_method: {
+      fr: "Mode de paiement",
       en: "Payment Method",
       de: "Bezahlverfahren",
     },
     continue_button: {
+      fr: "Retour à la livraison",
       en: "Continue Shipping",
       de: "Weiterversand",
     },
     confirm_button: {
+      fr: "Confirmer la commande",
       en: "Confirm Order",
       de: "Bestellung bestätigen",
     },
     order_summary: {
+      fr: "Récapitulatif",
       en: "Order Summary",
       de: "Bestellübersicht",
     },
     apply_button: {
+      fr: "Appliquer",
       en: "Apply",
       de: "Anwenden",
     },
     sub_total: {
+      fr: "Sous-total",
       en: "Subtotal",
       de: "Zwischensumme",
     },
     discount: {
+      fr: "Remise",
       en: "Discount",
       de: "Rabatt",
     },
     total_cost: {
+      fr: "TOTAL",
       en: "TOTAL COST",
       de: "GESAMTKOSTEN",
     },
   },
   dashboard: {
     invoice_message_first: {
+      fr: "Merci",
       en: "Thank You",
       de: "Danke",
     },
     invoice_message_last: {
+      fr: "Votre commande a bien été reçue.",
       en: "Your order have been received !",
       de: "Ihre Bestellung ist eingegangen!",
     },
     print_button: {
+      fr: "Imprimer la facture",
       en: "Print Invoice",
       de: "Rechnung Drucken",
     },
     download_button: {
+      fr: "Télécharger la facture",
       en: "Download Invoice",
       de: "Download Rechnung",
     },
     dashboard_title: {
+      fr: "Tableau de bord",
       en: "Dashboard",
       de: "Armaturenbrett",
     },
     total_order: {
+      fr: "Commandes",
       en: "Total Orders",
       de: "Gesamtbestellungen",
     },
     pending_order: {
+      fr: "En attente",
       en: "Pending Orders",
       de: "Ausstehende Bestellungen",
     },
     processing_order: {
+      fr: "En préparation",
       en: "Processing Order",
       de: "Bearbeitungsauftrag",
     },
     complete_order: {
+      fr: "Livrées",
       en: "Complete Orders",
       de: "Bestellungen abschließen",
     },
     recent_order: {
+      fr: "Commandes récentes",
       en: "Recent Orders",
       de: "letzte Bestellungen",
     },
     my_order: {
+      fr: "Mes commandes",
       en: "My Orders",
       de: "Meine Bestellungen",
     },
     update_profile: {
+      fr: "Modifier le profil",
       en: "Update Profile",
       de: "Profil aktualisieren",
     },
     full_name: {
+      fr: "Nom complet",
       en: "Full Name",
       de: "Vollständiger Name",
     },
     address: {
+      fr: "Adresse",
       en: "Address",
       de: "Adresse",
     },
     user_phone: {
+      fr: "Téléphone",
       en: "Phone/Mobile",
       de: "Mobiltelefon",
     },
     user_email: {
+      fr: "Adresse e-mail",
       en: "Email Address",
       de: "E-Mail-Adresse",
     },
     update_button: {
+      fr: "Modifier le profil",
       en: "Update Profile",
       de: "Profil aktualisieren",
     },
     current_password: {
+      fr: "Mot de passe actuel",
       en: "Current Password",
       de: "Aktuelles Passwort",
     },
     new_password: {
+      fr: "Nouveau mot de passe",
       en: "New Password",
       de: "Neues Kennwort",
     },
     change_password: {
+      fr: "Changer le mot de passe",
       en: "Change Password",
       de: "Kennwort ändern",
     },
@@ -728,85 +816,103 @@ export const storeCustomization = {
       de: "Kostenloser Versand ab 500,00 €",
     },
     support_card: {
+      fr: "Assistance 7j/7",
       en: "Support 24/7  At Anytime",
       de: "Support rund um die Uhr und jederzeit",
     },
     payment_card: {
+      fr: "Paiement sécurisé",
       en: "Secure Payment  Totally Safe",
       de: "Sichere Zahlung, absolut sicher",
     },
     offer_card: {
+      fr: "Offre du moment : jusqu'à 20 % de remise",
       en: "Latest Offer Upto 20% Off",
       de: "Aktuelles Angebot: Bis zu 20 % Rabatt",
     },
     block1_title: {
+      fr: "Société",
       en: "Company",
       de: "Unternehmen",
     },
     block1_sub_title1: {
+      fr: "À propos",
       en: "About Us",
       de: "Über uns",
     },
     block1_sub_link1: "/about-us",
     block1_sub_title2: {
+      fr: "Nous contacter",
       en: "Contact Us",
       de: "Kontaktiere uns",
     },
     block1_sub_link2: "/contact-us",
     block1_sub_title3: {
+      fr: "Recrutement",
       en: "Careers",
       de: "Karriere",
     },
     block1_sub_link3: "#",
     block1_sub_title4: {
+      fr: "Actualités",
       en: "Latest News",
       de: "Neueste Nachrichten",
     },
     block1_sub_link4: "#",
     block2_title: {
+      fr: "Actualités",
       en: "Latest News",
       de: "Neueste Nachrichten",
     },
     block2_sub_title1: {
+      fr: "Poisson et viande",
       en: "Fish & Meat",
       de: "Fisch Fleisch",
     },
     block2_sub_link1: "/search?category=fish-meat",
     block2_sub_title2: {
+      fr: "Boissons",
       en: "Soft Drink",
       de: "Erfrischungsgetränk",
     },
     block2_sub_link2: "/search?category=drinks",
     block2_sub_title3: {
+      fr: "Lait et produits laitiers",
       en: "Milk & Dairy",
       de: "Milch und Milchprodukte",
     },
     block2_sub_link3: "/search?category=milk-dairy",
     block2_sub_title4: {
+      fr: "Beauté et santé",
       en: "Beauty & Health",
       de: "Schönheit und Gesundheit",
     },
     block2_sub_link4: "/search?category=beauty-health",
     block3_title: {
+      fr: "Mon compte",
       en: "My Account",
       de: "Mein Konto",
     },
     block3_sub_title1: {
+      fr: "Tableau de bord",
       en: "Dashboard",
       de: "Armaturenbrett",
     },
     block3_sub_link1: "/user/dashboard",
     block3_sub_title2: {
+      fr: "Mes commandes",
       en: "My Orders",
       de: "Meine Bestellungen",
     },
     block3_sub_link2: "/user/my-orders",
     block3_sub_title3: {
+      fr: "Commandes récentes",
       en: "Recent Orders",
       de: "letzte Bestellungen",
     },
     block3_sub_link3: "/user/dashboard",
     block3_sub_title4: {
+      fr: "Modifier le profil",
       en: "Update Profile",
       de: "Profil aktualisieren",
     },
@@ -835,22 +941,27 @@ export const storeCustomization = {
       de: "Kostenloser Versand gilt für alle Bestellungen über 100 € Versandkosten",
     },
     card_description_two: {
+      fr: "Livraison à domicile",
       en: "Home Delivery within 1 Hour",
       de: "Lieferung nach Hause innerhalb von 1 Stunde",
     },
     card_description_three: {
+      fr: "Paiement à la livraison",
       en: "Cash on Delivery Available",
       de: "Lieferung per Nachnahme möglich",
     },
     card_description_four: {
+      fr: "Retour sous 7 jours",
       en: "7 Days returns money back guarantee",
       de: "7 Tage Geld-zurück-Garantie",
     },
     card_description_five: {
+      fr: "Aucune garantie sur cet article",
       en: "Warranty not available for this item",
       de: "Für diesen Artikel ist keine Garantie verfügbar",
     },
     card_description_six: {
+      fr: "Des produits contrôlés, livrés partout au Maroc.",
       en: "Guaranteed 100% organic from natural products.",
       de: "Garantiert 100 % biologisch aus Naturprodukten.",
     },

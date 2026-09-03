@@ -30,11 +30,11 @@ const DrawerButton = ({ id, title, isSubmitting, zIndex = "z-10" }) => {
             <Button disabled={true} type="button" className="w-full h-12">
               <img
                 src={spinnerLoadingImage}
-                alt="Loading"
+                alt="Chargement"
                 width={20}
                 height={10}
               />{" "}
-              <span className="font-serif ml-2 font-light">Processing</span>
+              <span className="font-serif ml-2 font-light">Traitement…</span>
             </Button>
           ) : (
             <Button type="submit" className="w-full h-12">
@@ -43,7 +43,9 @@ const DrawerButton = ({ id, title, isSubmitting, zIndex = "z-10" }) => {
                   {t("UpdateBtn")} {title}
                 </span>
               ) : (
-                <span>Add {title}</span>
+                <span>
+                  {t("AddBtn")} {title}
+                </span>
               )}
             </Button>
           )}

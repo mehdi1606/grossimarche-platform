@@ -34,7 +34,7 @@ const AccessListModal = ({ isOpen, onClose, staff, showingTranslateValue }) => {
           layout="delete"
           onClick={onClose}
         >
-          Close
+          Fermer
         </Button>
       </ModalFooter>
     </Modal>

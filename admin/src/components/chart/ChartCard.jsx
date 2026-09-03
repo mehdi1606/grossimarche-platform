@@ -18,7 +18,7 @@ const Chart = ({ children, title, loading, mode }) => {
         )}
       </p>
 
-      {title === "Best Selling Products" ? (
+      {title === "Meilleures ventes" ? (
         <>
           {loading ? (
             <div className="flex justify-center">

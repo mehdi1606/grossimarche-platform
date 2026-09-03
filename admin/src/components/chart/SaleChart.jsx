@@ -27,7 +27,7 @@ const SaleChart = ({ salesReport }) => {
               yAxisID: "y",
             }
           : {
-              label: "Order",
+              label: "Commandes",
               data: salesReport?.map((or) => or.order),
               borderColor: "#F97316",
               backgroundColor: "#F97316",
@@ -64,10 +64,10 @@ const SaleChart = ({ salesReport }) => {
 
           <li className="mr-2">
             <button
-              onClick={() => handleClick({ title: "Orders", color: "red" })}
+              onClick={() => handleClick({ title: "Commandes", color: "red" })}
               type="button"
               className={`inline-block p-2 rounded-t-lg border-b-2 border-transparent ${
-                activeButton.title === "Orders"
+                activeButton.title === "Commandes"
                   ? "text-orange-500 border-orange-500 dark:text-orange-500 dark:border-orange-500"
                   : "hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
               }  focus:outline-none`}

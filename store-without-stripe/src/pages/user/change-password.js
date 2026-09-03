@@ -51,7 +51,7 @@ const ChangePassword = () => {
       title={showingTranslateValue(
         storeCustomizationSetting?.dashboard?.change_password
       )}
-      description="This is change-password page"
+      description="Changer le mot de passe de votre compte"
     >
       <h2 className="text-xl font-serif font-semibold mb-5">
         {showingTranslateValue(
@@ -110,11 +110,11 @@ const ChangePassword = () => {
                       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/
                     }
                     patternMessage={[
-                      "1. Password must be at least 8 characters long.",
-                      "2. Password must contain at least one uppercase letter.",
-                      "3. Password must contain at least one lowercase letter.",
-                      "4. Password must contain at least one number.",
-                      "5. Password must contain at least one special character.",
+                      "1. Au moins 8 caractères.",
+                      "2. Au moins une majuscule.",
+                      "3. Au moins une minuscule.",
+                      "4. Au moins un chiffre.",
+                      "5. Au moins un caractère spécial.",
                     ]}
                   />
                   <Error errorName={errors.newPassword} />
@@ -132,11 +132,11 @@ const ChangePassword = () => {
             >
               <img
                 src="/loader/spinner.gif"
-                alt="Loading"
+                alt="Chargement"
                 width={20}
                 height={10}
               />
-              <span className="font-serif ms-2 font-light">Processing</span>
+              <span className="font-serif ms-2 font-light">Enregistrement…</span>
             </button>
           ) : (
             <button

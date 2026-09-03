@@ -11,10 +11,10 @@ const ActiveInActiveButton = ({ id, status, option, staff }) => {
   const { setIsUpdate } = useContext(SidebarContext);
   const { role } = useGetCData();
   const handleChangeStatus = async (id, staff) => {
-    // return notifyError("This option disabled for this option!");
+    // return notifyError("Cette action n'est pas disponible ici.");
     if (!(role === "Super Admin" || role === "Admin"))
       return notifyError(
-        "Only Super Admin and Admin can enable/disable any staff!"
+        "Seul un administrateur peut activer ou désactiver un membre."
       );
     try {
       let newStatus;

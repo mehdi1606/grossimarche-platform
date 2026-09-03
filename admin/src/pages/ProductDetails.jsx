@@ -194,7 +194,7 @@ const ProductDetails = () => {
                 totalResults={totalResults}
                 resultsPerPage={resultsPerPage}
                 onChange={handleChangePage}
-                label="Product Page Navigation"
+                label="Navigation entre les produits"
               />
             </TableFooter>
           </TableContainer>

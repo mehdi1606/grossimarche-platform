@@ -42,11 +42,11 @@ const Login = () => {
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)}>
-                <LabelArea label="Email" />
+                <LabelArea label="E-mail" />
                 <InputArea
                   required={true}
                   register={register}
-                  label="Email"
+                  label="E-mail"
                   name="email"
                   type="email"
                   autoComplete="username"

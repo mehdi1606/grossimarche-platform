@@ -42,32 +42,32 @@ const SignUp = () => {
                 {t("CreateAccount")}
               </h1>
               <form onSubmit={handleSubmit(onSubmit)}>
-                <LabelArea label="Name" />
+                <LabelArea label="Nom" />
                 <InputArea
                   required={true}
                   register={register}
-                  label="Name"
+                  label="Nom"
                   name="name"
                   type="text"
                   placeholder="Admin"
                 />
                 <Error errorName={errors.name} />
-                <LabelArea label="Email" />
+                <LabelArea label="E-mail" />
                 <InputArea
                   required={true}
                   register={register}
-                  label="Email"
+                  label="E-mail"
                   name="email"
                   type="email"
                   placeholder="john@doe.com"
                 />
                 <Error errorName={errors.email} />
 
-                <LabelArea label="Password" />
+                <LabelArea label="Mot de passe" />
                 <InputArea
                   required={true}
                   register={register}
-                  label="Password"
+                  label="Mot de passe"
                   name="password"
                   type="password"
                   autocomplete="current-password"
@@ -75,9 +75,9 @@ const SignUp = () => {
                 />
                 <Error errorName={errors.password} />
 
-                <LabelArea label="Staff Role" />
+                <LabelArea label="Rôle" />
                 <div className="col-span-8 sm:col-span-4">
-                  <SelectRole register={register} label="Role" name="role" />
+                  <SelectRole register={register} label="Rôle" name="role" />
                   <Error errorName={errors.role} />
                 </div>
 

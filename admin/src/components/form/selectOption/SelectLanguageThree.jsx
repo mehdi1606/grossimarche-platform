@@ -28,7 +28,7 @@ const SelectLanguageThree = ({
         name={name}
         value={selectedLanguage || ""}
         {...register(name, {
-          required: required ? false : `${label} is required!`,
+          required: required ? false : `${label} est obligatoire.`,
         })}
         onChange={(e) => {
           setValue(name, e.target.value); // Update the value in React Hook Form

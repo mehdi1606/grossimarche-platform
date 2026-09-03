@@ -68,22 +68,22 @@ const pages = [
 
 const userSidebar = [
   {
-    title: "Dashboard",
+    title: "Tableau de bord",
     href: "/user/dashboard",
     icon: FiGrid,
   },
   {
-    title: "My Orders",
+    title: "Mes commandes",
     href: "/user/my-orders",
     icon: FiList,
   },
   {
-    title: "Update Profile",
+    title: "Modifier le profil",
     href: "/user/update-profile",
     icon: FiSettings,
   },
   {
-    title: "Change Password",
+    title: "Changer le mot de passe",
     href: "/user/change-password",
     icon: FiFileText,
   },

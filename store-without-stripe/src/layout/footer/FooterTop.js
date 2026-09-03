@@ -22,7 +22,7 @@ const FooterTop = () => {
                 storeCustomizationSetting?.home?.daily_need_img_left ||
                 "/app-download-img-left.png"
               }
-              alt="app download"
+              alt="Télécharger l'application"
               width={500}
               height={394}
               priority
@@ -66,7 +66,7 @@ const FooterTop = () => {
                     storeCustomizationSetting?.home?.button1_img ||
                     "/app/app-store.svg"
                   }
-                  alt="app store"
+                  alt="App Store"
                 />
               </Link>
               <Link
@@ -85,7 +85,7 @@ const FooterTop = () => {
                     storeCustomizationSetting?.home?.button2_img ||
                     "/app/play-store.svg"
                   }
-                  alt="play store"
+                  alt="Google Play"
                 />
               </Link>
             </div>
@@ -100,7 +100,7 @@ const FooterTop = () => {
                 width={500}
                 height={394}
                 priority
-                alt="app download"
+                alt="Télécharger l'application"
                 className="block w-auto"
               />
             </div>

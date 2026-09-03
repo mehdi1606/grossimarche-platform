@@ -84,7 +84,7 @@ const ProductServices = {
   deleteManyProducts: async (body) => {
     const ids = body?.ids || [];
     await Promise.all(ids.map((id) => requests.delete(`/admin/products/${id}`)));
-    return { message: "Products deleted" };
+    return { message: "Produits supprimés" };
   },
 
   updateManyProducts: async () => ({ message: "Bulk update is not supported." }),

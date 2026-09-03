@@ -34,6 +34,18 @@ import { notifyError } from "@utils/toast";
  *
  * Only then does the form appear, with the choice still on screen and still changeable.
  */
+
+/**
+ * The trade cards, centred whatever their number.
+ *
+ * A four-column grid left the three trades this shop offers packed against the left edge with a
+ * hole where the fourth would be, under a heading that is centred - so the row read as
+ * misaligned rather than as a choice. Tracks are sized to their content and the row is centred,
+ * which holds for three trades and for a dozen.
+ */
+const tradeGridCls =
+  "grid justify-center gap-4 grid-cols-[repeat(auto-fit,minmax(8.5rem,11rem))]";
+
 const Signup = () => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -148,8 +160,8 @@ const Signup = () => {
             </div>
 
             {loadingTypes ? (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {[...Array(8)].map((_, i) => (
+              <div className={tradeGridCls}>
+                {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
                     className="aspect-[4/3] animate-pulse rounded-2xl bg-sand"
@@ -162,7 +174,7 @@ const Signup = () => {
                 {t("auth.trade_none")}
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              <div className={tradeGridCls}>
                 {types.map((type) => {
                   const Icon = clientTypeIcon(type.icon);
                   return (

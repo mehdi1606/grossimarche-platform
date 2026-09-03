@@ -109,7 +109,7 @@ const ChildCategory = () => {
 
       <BulkActionDrawer
         ids={allId}
-        title="Child Categories"
+        title="Sous-catégories"
         lang={lang}
         data={data}
         childId={id}
@@ -224,7 +224,7 @@ const ChildCategory = () => {
           </TableFooter>
         </TableContainer>
       ) : (
-        <NotFound title="Sorry, There are no categories right now." />
+        <NotFound title="Aucune catégorie pour le moment." />
       )}
     </>
   );

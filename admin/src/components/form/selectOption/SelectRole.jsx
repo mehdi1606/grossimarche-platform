@@ -10,14 +10,14 @@ const SelectRole = ({ setRole, register, name, label }) => {
         onChange={(e) => setRole && setRole(e.target.value)}
         name={name}
         {...register(`${name}`, {
-          required: `${label} is required!`,
+          required: `${label} est obligatoire.`,
         })}
       >
         <option value="" defaultValue hidden>
-          Staff role
+          Rôle du membre
         </option>
-        <option value="Admin">Admin</option>
-        <option value="Store Manager">Store Manager</option>
+        <option value="Admin">Administrateur</option>
+        <option value="Store Manager">Responsable de magasin</option>
       </Select>
     </>
   );

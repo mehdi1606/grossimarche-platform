@@ -173,7 +173,7 @@ const OrderInvoice = () => {
                 <TableHeader>
                   <tr>
                     <TableCell>{t("Sr")}</TableCell>
-                    <TableCell>Product Title</TableCell>
+                    <TableCell>Produit</TableCell>
                     <TableCell className="text-center">
                       {t("Quantity")}
                     </TableCell>
@@ -251,7 +251,7 @@ const OrderInvoice = () => {
           >
             {({ blob, url, loading, error }) =>
               loading ? (
-                "Loading..."
+                "Chargement…"
               ) : (
                 <button className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-emerald-500 border border-transparent active:bg-emerald-600 hover:bg-emerald-600  w-auto cursor-pointer">
                   Download Invoice
@@ -274,7 +274,7 @@ const OrderInvoice = () => {
                   >
                     <img
                       src={spinnerLoadingImage}
-                      alt="Loading"
+                      alt="Chargement"
                       width={20}
                       height={10}
                     />{" "}
