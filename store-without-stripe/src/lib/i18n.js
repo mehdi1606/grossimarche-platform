@@ -18,10 +18,9 @@ import ar from "@locales/ar.json";
  * French is the source. An Arabic key that is missing falls back to the French rather than
  * showing a blank or a raw key: a shop with holes in it is worse than a shop in French.
  *
- * The Arabic is written the way Moroccan shopkeepers speak, not in literary standard Arabic.
- * The customers here are grocers and pastry shops, and "سلتك خاوية" is what one of them would
- * actually say - "سلتك فارغة" is what a textbook would. Keep that register when adding keys:
- * it is a wholesaler talking to its trade, not an announcement.
+ * The Arabic is Modern Standard Arabic, not Moroccan dialect. Keep that register when adding
+ * keys: it reads correctly to every Arabic speaker, it is what a professional shop is expected
+ * to sound like in writing, and it does not force a reader to parse spoken forms.
  */
 export const SOURCE_LOCALE = "fr";
 export const SUPPORTED_LOCALES = ["fr", "ar"];

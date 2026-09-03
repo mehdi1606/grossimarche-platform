@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import {
   FiArrowRight,
   FiTruck,
@@ -20,14 +21,17 @@ import Reveal from "@components/common/Reveal";
 import Hero from "@components/home/Hero";
 import { safe, serverToken } from "@lib/server-token";
 
+// Keys, not sentences: this list is built once at module load, where no hook can run, so the
+// words have to be looked up at render time instead of frozen in French here.
 const VALUE_PROPS = [
-  { Icon: FiTag, title: "Prix de gros", text: "Tarifs dégressifs à la quantité" },
-  { Icon: FiTruck, title: "Livraison rapide", text: "Partout au Maroc" },
-  { Icon: FiCreditCard, title: "Paiement à la livraison", text: "Payez en toute confiance" },
-  { Icon: FiPackage, title: "Large catalogue", text: "Des milliers de références" },
+  { Icon: FiTag, key: "price" },
+  { Icon: FiTruck, key: "delivery" },
+  { Icon: FiCreditCard, key: "cod" },
+  { Icon: FiPackage, key: "catalog" },
 ];
 
 const Home = ({ popularProducts, categories, attributes }) => {
+  const { t } = useTranslation();
   const cats = categories?.[0]?.children || [];
   const products = popularProducts || [];
 
@@ -38,11 +42,11 @@ const Home = ({ popularProducts, categories, attributes }) => {
       {/* Value props - `relative z-10` is what keeps these on top: the cards are pulled onto
           the hero with -mt-8, and the hero is positioned, so a static section here would be
           painted underneath it and lose its titles behind the green. */}
-      <section className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
+      <section data-no-translate className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-10">
         <div className="-mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {VALUE_PROPS.map(({ Icon, title, text }, i) => (
+          {VALUE_PROPS.map(({ Icon, key }, i) => (
             <Reveal
-              key={title}
+              key={key}
               delay={i * 90}
               className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-5 shadow-luxe transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-luxe-lg"
             >
@@ -50,8 +54,10 @@ const Home = ({ popularProducts, categories, attributes }) => {
                 <Icon className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-ink-800">{title}</p>
-                <p className="text-xs text-ink-500">{text}</p>
+                <p className="text-sm font-semibold text-ink-800">
+                  {t(`home.value_${key}_title`)}
+                </p>
+                <p className="text-xs text-ink-500">{t(`home.value_${key}_text`)}</p>
               </div>
             </Reveal>
           ))}
@@ -66,18 +72,20 @@ const Home = ({ popularProducts, categories, attributes }) => {
       <BundleRail />
 
       {/* Products */}
-      <section className="bg-white">
+      <section data-no-translate className="bg-white">
         <div className="mx-auto max-w-screen-2xl px-4 py-20 sm:px-10">
           <Reveal className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-3xl font-semibold tracking-tight text-ink-900">Nos produits</h2>
-              <p className="mt-2 text-sm text-ink-500">Sélection disponible à la commande.</p>
+              <h2 className="font-display text-3xl font-semibold tracking-tight text-ink-900">
+                {t("home.products_title")}
+              </h2>
+              <p className="mt-2 text-sm text-ink-500">{t("home.products_subtitle")}</p>
             </div>
             <Link
               href="/search"
               className="hidden items-center gap-1 text-sm font-medium text-emerald-700 hover:underline sm:flex"
             >
-              Tout voir <FiArrowRight />
+              {t("home.see_all")} <FiArrowRight />
             </Link>
           </Reveal>
 
@@ -86,10 +94,10 @@ const Home = ({ popularProducts, categories, attributes }) => {
               <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600">
                 <FiShoppingBag className="text-2xl" />
               </span>
-              <h3 className="font-display text-lg font-semibold text-ink-800">Catalogue en préparation</h3>
-              <p className="mt-1 max-w-sm text-sm text-ink-500">
-                De nouveaux produits arrivent très bientôt. Revenez d'ici peu !
-              </p>
+              <h3 className="font-display text-lg font-semibold text-ink-800">
+                {t("home.empty_title")}
+              </h3>
+              <p className="mt-1 max-w-sm text-sm text-ink-500">{t("home.empty_text")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6 2xl:grid-cols-5">

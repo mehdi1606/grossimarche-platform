@@ -1,6 +1,7 @@
 import { Fragment, useContext } from "react";
 import Link from "next/link";
 import { Transition, Popover } from "@headlessui/react";
+import { useTranslation } from "react-i18next";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { FiGrid } from "react-icons/fi";
 
@@ -8,22 +9,24 @@ import { FiGrid } from "react-icons/fi";
 import CategoryMenu from "@components/category/CategoryMenu";
 import LanguageMenu from "@components/common/LanguageMenu";
 import { SidebarContext } from "@context/SidebarContext";
-import { useTranslate } from "@context/TranslationContext";
 
+// Keys, not labels: this array is built at module load, where no hook can run.
 const NAV_LINKS = [
-  { href: "/search", label: "Tous les produits" },
-  { href: "/offer", label: "Offres" },
-  { href: "/about-us", label: "À propos" },
-  { href: "/contact-us", label: "Contact" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/search", key: "all_products" },
+  { href: "/offer", key: "offers" },
+  { href: "/about-us", key: "about" },
+  { href: "/contact-us", key: "contact" },
+  { href: "/faq", key: "faq" },
 ];
 
 const NavbarPromo = () => {
   const { isLoading, setIsLoading } = useContext(SidebarContext);
-  const { t } = useTranslate();
+  // The catalogue, not the LibreTranslate helper this used to call. Navigation is read on
+  // every page: it has to be instant, and it has to be exactly right.
+  const { t } = useTranslation();
 
   return (
-    <div className="hidden border-b border-line bg-white lg:block">
+    <div data-no-translate className="hidden border-b border-line bg-white lg:block">
       <div className="max-w-screen-2xl mx-auto px-3 sm:px-10 h-12 flex justify-between items-center">
         {/* Left: navigation */}
         <Popover.Group as="nav" className="flex items-center space-x-8">
@@ -31,7 +34,7 @@ const NavbarPromo = () => {
           <Popover className="relative">
             <Popover.Button className="group inline-flex items-center py-2 text-sm font-medium text-ink-700 transition hover:text-emerald-700 focus:outline-none">
               <FiGrid className="mr-2 h-4 w-4" />
-              <span>{t("Catégories")}</span>
+              <span>{t("common.categories")}</span>
               <ChevronDownIcon
                 className="ml-1 h-3 w-3 transition group-hover:text-emerald-700"
                 aria-hidden="true"
@@ -64,7 +67,7 @@ const NavbarPromo = () => {
               onClick={() => setIsLoading(!isLoading)}
               className="py-2 text-sm font-medium text-ink-700 transition hover:text-emerald-700"
             >
-              {t(item.label)}
+              {t(`common.${item.key}`)}
             </Link>
           ))}
         </Popover.Group>

@@ -7,11 +7,13 @@ import { FiPhoneCall, FiUser, FiMail } from "react-icons/fi";
 import { signOut } from "next-auth/react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 //internal import
 import { getUserSession } from "@lib/auth";
 
 const NavBarTop = () => {
+  const { t } = useTranslation();
   const userInfo = getUserSession();
   const router = useRouter();
 
@@ -36,7 +38,7 @@ const NavBarTop = () => {
   }, [userInfo]);
 
   return (
-    <div className="hidden border-b border-line bg-cream lg:block">
+    <div data-no-translate className="hidden border-b border-line bg-cream lg:block">
       <div className="max-w-screen-2xl mx-auto px-3 sm:px-10">
         <div className="flex items-center justify-between py-2 font-sans text-xs font-medium text-ink-500">
           {/* Left: contact */}
@@ -61,9 +63,7 @@ const NavBarTop = () => {
 
           {/* Right: account */}
           <div className="flex items-center gap-4">
-            <span className="hidden text-ink-400 xl:inline">
-              Livraison partout au Maroc - Paiement à la livraison
-            </span>
+            <span className="hidden text-ink-400 xl:inline">{t("common.promo_bar")}</span>
             {userInfo?.email ? (
               <>
                 <Link
@@ -71,7 +71,7 @@ const NavBarTop = () => {
                   className="flex items-center font-medium transition hover:text-emerald-700"
                 >
                   <FiUser className="mr-1" />
-                  Mon compte
+                  {t("common.account")}
                 </Link>
                 <span className="text-line">|</span>
                 <button
@@ -79,7 +79,7 @@ const NavBarTop = () => {
                   className="flex items-center font-medium transition hover:text-emerald-700"
                 >
                   <IoLockOpenOutline className="mr-1" />
-                  Se déconnecter
+                  {t("common.sign_out")}
                 </button>
               </>
             ) : (
@@ -88,7 +88,7 @@ const NavBarTop = () => {
                 className="flex items-center font-medium transition hover:text-emerald-700"
               >
                 <FiUser className="mr-1" />
-                Se connecter
+                {t("common.sign_in")}
               </Link>
             )}
           </div>
