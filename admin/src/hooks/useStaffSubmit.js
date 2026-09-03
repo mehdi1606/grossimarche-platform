@@ -47,7 +47,7 @@ const useStaffSubmit = (id) => {
         if (isSameAdmin && res) {
           const updated = { ...adminInfo, role: res.role || adminInfo.role };
           dispatch({ type: "USER_LOGIN", payload: updated });
-          Cookies.set("adminInfo", JSON.stringify(updated), cookieOptions({ expires: 0.5 }));
+          Cookies.set("adminInfo", JSON.stringify(updated), cookieOptions({ expires: 30 }));
         }
         setIsUpdate(true);
         notifySuccess("Staff Updated Successfully!");

@@ -53,7 +53,9 @@ const useLoginSubmit = () => {
         mustChangePassword: !!user.mustChangePassword,
       };
       dispatch({ type: "USER_LOGIN", payload: adminInfo });
-      Cookies.set("adminInfo", JSON.stringify(adminInfo), cookieOptions({ expires: 0.5 }));
+      // 30 days, matching the refresh token: the session is ended by the API refusing to
+      // renew it, not by the browser forgetting who you are overnight.
+      Cookies.set("adminInfo", JSON.stringify(adminInfo), cookieOptions({ expires: 30 }));
 
       if (adminInfo.mustChangePassword) {
         notifySuccess("Connexion réussie. Choisissez un nouveau mot de passe.");

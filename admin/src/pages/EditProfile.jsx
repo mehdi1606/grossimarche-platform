@@ -79,7 +79,7 @@ const EditProfile = () => {
       // Keep the header avatar and the session cookie in step with the new name.
       const next = { ...adminInfo, name: updated?.fullName || adminInfo?.name };
       dispatch({ type: "USER_LOGIN", payload: next });
-      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 0.5 }));
+      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 30 }));
       notifySuccess("Profile updated.");
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
@@ -104,7 +104,7 @@ const EditProfile = () => {
       setProfile((p) => (p ? { ...p, mustChangePassword: false } : p));
       const next = { ...adminInfo, mustChangePassword: false };
       dispatch({ type: "USER_LOGIN", payload: next });
-      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 0.5 }));
+      Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 30 }));
       notifySuccess("Mot de passe mis à jour.");
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
