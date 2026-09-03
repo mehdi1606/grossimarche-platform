@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   FiArrowLeft,
   FiBriefcase,
@@ -34,6 +35,7 @@ import { notifyError } from "@utils/toast";
  * Only then does the form appear, with the choice still on screen and still changeable.
  */
 const Signup = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [types, setTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
@@ -63,7 +65,7 @@ const Signup = () => {
       })
       .catch(() => {
         if (!cancelled) {
-          notifyError("Impossible de charger les activites. Rechargez la page.");
+          notifyError(t("auth.trade_load_failed"));
         }
       })
       .finally(() => {
@@ -82,7 +84,7 @@ const Signup = () => {
       })
       .catch(() => {
         if (!cancelled) {
-          notifyError("Impossible de charger les villes de livraison.");
+          notifyError(t("auth.cities_load_failed"));
         }
       });
     return () => {
@@ -95,13 +97,13 @@ const Signup = () => {
 
   const submitHandler = async (data) => {
     if (!cityName) {
-      notifyError("Choisissez votre ville de livraison.");
+      notifyError(t("auth.choose_city_error"));
       return;
     }
     // Only block on a missing district where the city actually has some - Benslimane has none
     // listed, and demanding one there would make the form unsubmittable.
     if (districts.length > 0 && !district) {
-      notifyError("Choisissez votre quartier.");
+      notifyError(t("auth.choose_district_error"));
       return;
     }
     setLoading(true);
@@ -119,7 +121,7 @@ const Signup = () => {
       });
       router.push("/auth/pending");
     } catch (err) {
-      notifyError(err?.response?.data?.message || err?.message || "Inscription impossible.");
+      notifyError(err?.response?.data?.message || err?.message || t("auth.signup_failed"));
     } finally {
       setLoading(false);
     }
@@ -128,21 +130,20 @@ const Signup = () => {
   const SelectedIcon = selected ? clientTypeIcon(selected.icon) : null;
 
   return (
-    <Layout title="Ouvrir un compte" description="Demande de compte professionnel">
-      <div className="mx-auto max-w-screen-2xl px-3 py-8 sm:px-10 lg:py-14">
+    <Layout title={t("auth.signup_open_account")} description={t("auth.signup_meta")}>
+      <div data-no-translate className="mx-auto max-w-screen-2xl px-3 py-8 sm:px-10 lg:py-14">
         {!selected ? (
           /* ---- Step 1: the trade ---- */
           <div className="mx-auto max-w-4xl">
             <div className="mb-10 text-center">
               <span className="inline-flex items-center gap-2 rounded-full bg-brass-50 px-3 py-1 text-2xs font-semibold uppercase tracking-luxe text-brass-600 ring-1 ring-inset ring-brass-200">
-                Etape 1 sur 2
+                {t("auth.step_1_of_2")}
               </span>
               <h1 className="mt-4 font-display text-3xl font-semibold text-ink-900 lg:text-4xl">
-                Quelle est votre activite ?
+                {t("auth.trade_question")}
               </h1>
               <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-ink-500 md:text-base">
-                Nos tarifs de gros dependent de votre metier. Choisissez le votre pour
-                continuer.
+                {t("auth.trade_intro")}
               </p>
             </div>
 
@@ -158,8 +159,7 @@ const Signup = () => {
               </div>
             ) : types.length === 0 ? (
               <p className="rounded-2xl border border-line bg-white p-8 text-center text-sm text-ink-500">
-                Aucune activite n&apos;est proposee pour le moment. Contactez-nous et nous
-                ouvrirons votre compte manuellement.
+                {t("auth.trade_none")}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -185,9 +185,9 @@ const Signup = () => {
             )}
 
             <p className="mt-10 text-center text-sm text-ink-500">
-              Vous avez deja un compte ?{" "}
+              {t("auth.have_account")}{" "}
               <Link href="/auth/login" className="font-semibold text-emerald-700 hover:underline">
-                Se connecter
+                {t("auth.sign_in")}
               </Link>
             </p>
           </div>
@@ -200,7 +200,7 @@ const Signup = () => {
               className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-ink-500 transition hover:text-emerald-700"
             >
               <FiArrowLeft className="h-4 w-4" />
-              Changer d&apos;activite
+              {t("auth.change_trade")}
             </button>
 
             <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-luxe">
@@ -212,7 +212,7 @@ const Signup = () => {
                 </span>
                 <div className="min-w-0">
                   <p className="text-2xs font-semibold uppercase tracking-luxe text-ink-400">
-                    Votre activite
+                    {t("auth.your_trade")}
                   </p>
                   <p className="truncate font-display text-lg font-semibold text-ink-900">
                     {selected.name}
@@ -224,14 +224,13 @@ const Signup = () => {
               <div className="px-6 py-8 sm:px-10">
                 <div className="mb-6">
                   <span className="text-2xs font-semibold uppercase tracking-luxe text-brass-600">
-                    Etape 2 sur 2
+                    {t("auth.step_2_of_2")}
                   </span>
                   <h1 className="mt-2 font-display text-2xl font-semibold text-ink-900">
-                    Votre commerce
+                    {t("auth.your_business")}
                   </h1>
                   <p className="mt-2 text-sm leading-relaxed text-ink-500">
-                    Votre demande est validee par notre equipe, puis vous recevez un e-mail
-                    pour vous connecter.
+                    {t("auth.business_validated")}
                   </p>
                 </div>
 
@@ -239,10 +238,10 @@ const Signup = () => {
                   <div>
                     <InputArea
                       register={register}
-                      label="Nom du commerce"
+                      label={t("auth.business_name")}
                       name="businessName"
                       type="text"
-                      placeholder="Patisserie Al Manar"
+                      placeholder={t("auth.business_name_placeholder")}
                       Icon={FiBriefcase}
                     />
                     <Error errorName={errors.businessName} />
@@ -251,10 +250,10 @@ const Signup = () => {
                   <div>
                     <InputArea
                       register={register}
-                      label="Votre nom"
+                      label={t("auth.your_name")}
                       name="fullName"
                       type="text"
-                      placeholder="Prenom et nom"
+                      placeholder={t("auth.your_name_placeholder")}
                       Icon={FiUser}
                     />
                     <Error errorName={errors.fullName} />
@@ -263,7 +262,7 @@ const Signup = () => {
                   <div>
                     <InputArea
                       register={register}
-                      label="Telephone"
+                      label={t("auth.phone")}
                       name="phone"
                       type="tel"
                       placeholder="06 12 34 56 78"
@@ -278,12 +277,12 @@ const Signup = () => {
                   <div className="rounded-xl border border-line bg-cream/60 p-4">
                     <p className="mb-3 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-luxe text-ink-400">
                       <FiMapPin className="h-3 w-3" />
-                      Adresse de livraison
+                      {t("auth.delivery_address")}
                     </p>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-semibold text-ink-700">Ville</label>
+                        <label className="block text-sm font-semibold text-ink-700">{t("auth.city")}</label>
                         <select
                           value={cityName}
                           onChange={(e) => {
@@ -295,7 +294,7 @@ const Signup = () => {
                           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-800 focus:border-emerald-500 focus:outline-none"
                         >
                           <option value="" disabled>
-                            Choisissez votre ville
+                            {t("auth.choose_city")}
                           </option>
                           {cities.map((c) => (
                             <option key={c.id} value={c.name}>
@@ -307,7 +306,7 @@ const Signup = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-ink-700">
-                          Quartier
+                          {t("auth.district")}
                         </label>
                         <select
                           value={district}
@@ -318,9 +317,9 @@ const Signup = () => {
                           <option value="">
                             {cityName
                               ? districts.length
-                                ? "Choisissez votre quartier"
-                                : "Aucun quartier a preciser"
-                              : "Choisissez d'abord la ville"}
+                                ? t("auth.choose_district")
+                                : t("auth.no_district")
+                              : t("auth.city_first")}
                           </option>
                           {districts.map((d) => (
                             <option key={d.id} value={d.name}>
@@ -334,15 +333,15 @@ const Signup = () => {
                     <div className="mt-4">
                       <InputArea
                         register={register}
-                        label="Rue et numero"
+                        label={t("auth.street")}
                         name="addressLine"
                         type="text"
-                        placeholder="12, rue Ibn Batouta"
+                        placeholder={t("auth.street_placeholder")}
                         Icon={FiHome}
                       />
                       <Error errorName={errors.addressLine} />
                       <p className="mt-1.5 text-xs text-ink-400">
-                        Saisie une seule fois : elle sera reprise a chaque commande.
+                        {t("auth.address_once")}
                       </p>
                     </div>
                   </div>
@@ -350,10 +349,10 @@ const Signup = () => {
                   <div>
                     <InputArea
                       register={register}
-                      label="Adresse e-mail"
+                      label={t("auth.email")}
                       name="email"
                       type="email"
-                      placeholder="vous@votre-commerce.ma"
+                      placeholder={t("auth.email_placeholder")}
                       Icon={FiMail}
                     />
                     <Error errorName={errors.email} />
@@ -362,15 +361,15 @@ const Signup = () => {
                   <div>
                     <InputArea
                       register={register}
-                      label="Mot de passe"
+                      label={t("auth.password")}
                       name="password"
                       type="password"
-                      placeholder="10 caracteres minimum"
+                      placeholder={t("auth.password_min_placeholder")}
                       Icon={FiLock}
                     />
                     <Error errorName={errors.password} />
                     <p className="mt-1.5 text-xs text-ink-400">
-                      Au moins 10 caracteres. C&apos;est vous qui le choisissez.
+                      {t("auth.password_hint")}
                     </p>
                   </div>
 
@@ -379,17 +378,17 @@ const Signup = () => {
                     disabled={loading}
                     className="h-12 w-full rounded-xl bg-emerald-700 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                   >
-                    {loading ? "Envoi..." : "Envoyer ma demande"}
+                    {loading ? t("auth.sending") : t("auth.submit_request")}
                   </button>
                 </form>
 
                 <div className="mt-8 border-t border-line pt-6 text-center">
-                  <p className="text-sm text-ink-500">Vous avez deja un compte ?</p>
+                  <p className="text-sm text-ink-500">{t("auth.have_account")}</p>
                   <Link
                     href="/auth/login"
                     className="mt-2 inline-block text-sm font-semibold text-emerald-700 hover:underline"
                   >
-                    Se connecter
+                    {t("auth.sign_in")}
                   </Link>
                 </div>
               </div>
