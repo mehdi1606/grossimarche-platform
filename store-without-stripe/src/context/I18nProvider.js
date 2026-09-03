@@ -12,23 +12,27 @@ import i18n, { SOURCE_LOCALE, SUPPORTED_LOCALES, isRtl } from "@lib/i18n";
  * Reads the locale from the same `_lang` cookie the rest of the storefront already uses, so
  * there is one language setting and not two that can disagree.
  *
- * The switch happens in an effect rather than during init, on purpose: the server renders in
- * French, so a client that started in Arabic would produce different HTML on the first pass and
- * React would discard the whole tree. Switching after mount costs one extra render and keeps
- * hydration intact.
+ * The switch happens during render, not in an effect. An effect here runs *after* the children's
+ * effects, so a page that fetched on mount and reported a failure got its message in French
+ * while the rest of the page was already Arabic - the language changed a beat too late.
  *
- * It also sets `lang` and `dir` on the document. `dir` is what actually makes Arabic readable -
- * a perfect translation laid out left-to-right is still the wrong shop.
+ * Rendering is the right moment because the locale is in the URL, which the server knows too:
+ * both sides render the same language, so there is no hydration mismatch to avoid. The call is
+ * synchronous - every catalogue is bundled, nothing is fetched - and idempotent.
+ *
+ * The effect keeps only what belongs to the document: `lang`, and `dir`, which is what actually
+ * makes Arabic readable. A perfect translation laid out left-to-right is still the wrong shop.
  */
 const I18nProvider = ({ children }) => {
   const router = useRouter();
   const locale = router?.locale || Cookies.get("_lang") || SOURCE_LOCALE;
   const active = SUPPORTED_LOCALES.includes(locale) ? locale : SOURCE_LOCALE;
 
+  if (i18n.language !== active) {
+    i18n.changeLanguage(active);
+  }
+
   useEffect(() => {
-    if (i18n.language !== active) {
-      i18n.changeLanguage(active);
-    }
     if (typeof document !== "undefined") {
       document.documentElement.lang = active;
       document.documentElement.dir = isRtl(active) ? "rtl" : "ltr";
