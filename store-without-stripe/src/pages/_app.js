@@ -18,6 +18,7 @@ import DefaultSeo from "@components/common/DefaultSeo";
 import AutoTranslate from "@components/common/AutoTranslate";
 import { SidebarProvider } from "@context/SidebarContext";
 import { TranslationProvider } from "@context/TranslationContext";
+import I18nProvider from "@context/I18nProvider";
 import SettingServices from "@services/SettingServices";
 
 let persistor = persistStore(store);
@@ -85,11 +86,16 @@ function MyApp({ Component, pageProps }) {
                 <SidebarProvider>
                   <CartProvider>
                     <TranslationProvider>
-                      {/* Translates the rendered page through LibreTranslate. Inert on the
-                          source locale (French), so it costs nothing by default. */}
-                      <AutoTranslate />
-                      <DefaultSeo />
-                      <Component {...pageProps} />
+                      <I18nProvider>
+                        {/* Interface text now comes from the hand-written catalogues in
+                            src/locales. AutoTranslate still covers the screens not yet
+                            converted; each one that moves to t() is wrapped in
+                            [data-no-translate] so the two never touch the same words. It goes
+                            away once the last screen is converted. */}
+                        <AutoTranslate />
+                        <DefaultSeo />
+                        <Component {...pageProps} />
+                      </I18nProvider>
                     </TranslationProvider>
                   </CartProvider>
                 </SidebarProvider>

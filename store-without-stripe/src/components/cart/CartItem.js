@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "react-use-cart";
+import { useTranslation } from "react-i18next";
 import { FiPlus, FiMinus, FiTrash2 } from "react-icons/fi";
 
 //internal import
@@ -20,6 +21,7 @@ import { basePriceOf, nextTier } from "@utils/pricing";
  * closed within the grace period, leaving an item the shopper believes they removed.
  */
 const CartItem = ({ item, currency, compact = false, onRemove }) => {
+  const { t } = useTranslation();
   const { removeItem } = useCart();
   const { closeCartDrawer } = useContext(SidebarContext);
   const { handleIncreaseQuantity, handleDecreaseQuantity, handleSetQuantity, minOf } =
@@ -72,7 +74,7 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
           </Link>
           <button
             onClick={remove}
-            aria-label={`Retirer ${item.title}`}
+            aria-label={t("cart.remove_named", { name: item.title })}
             className="shrink-0 rounded-full p-1.5 text-ink-300 transition hover:bg-red-50 hover:text-red-500"
           >
             <FiTrash2 className="h-4 w-4" />
@@ -88,7 +90,7 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
           )}
           <span className={discounted ? "font-semibold text-emerald-700" : "text-ink-400"}>
             {currency}
-            {Number(item.price).toFixed(2)} / {item.unit || "unité"}
+            {Number(item.price).toFixed(2)} / {item.unit || t("cart.unit_default")}
           </span>
         </span>
 
@@ -96,7 +98,7 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
           <div className="flex h-8 items-center rounded-lg border border-line bg-white">
             <button
               onClick={() => handleDecreaseQuantity(item)}
-              aria-label="Diminuer la quantité"
+              aria-label={t("cart.decrease")}
               className="grid h-full w-7 place-items-center text-ink-500 transition hover:text-emerald-700"
             >
               <FiMinus className="h-3.5 w-3.5" />
@@ -105,7 +107,7 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
               type="text"
               inputMode="numeric"
               value={draft}
-              aria-label="Quantité"
+              aria-label={t("cart.quantity")}
               onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ""))}
               onBlur={() => handleSetQuantity(item, draft)}
               onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
@@ -113,7 +115,7 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
             />
             <button
               onClick={() => handleIncreaseQuantity(item)}
-              aria-label="Augmenter la quantité"
+              aria-label={t("cart.increase")}
               className="grid h-full w-7 place-items-center text-ink-500 transition hover:text-emerald-700"
             >
               <FiPlus className="h-3.5 w-3.5" />
@@ -128,24 +130,27 @@ const CartItem = ({ item, currency, compact = false, onRemove }) => {
 
         {discounted && (
           <p className="mt-1 text-2xs font-medium text-emerald-700">
-            Tarif dégressif appliqué
+            {t("cart.tier_applied")}
           </p>
         )}
 
         {!compact && (min > 1 || upcoming || lowStock) && (
           <div className="mt-1.5 space-y-0.5">
             {min > 1 && (
-              <p className="text-2xs text-ink-400">Commande minimum : {min}</p>
+              <p className="text-2xs text-ink-400">{t("cart.min_order", { count: min })}</p>
             )}
             {upcoming && (
               <p className="text-2xs font-medium text-brass-600">
-                Passez à {upcoming.minQuantity} → {currency}
-                {Number(upcoming.unitPrice).toFixed(2)} / {item.unit || "unité"}
+                {t("cart.next_tier", {
+                  quantity: upcoming.minQuantity,
+                  price: `${currency}${Number(upcoming.unitPrice).toFixed(2)}`,
+                  unit: item.unit || t("cart.unit_default"),
+                })}
               </p>
             )}
             {lowStock && (
               <p className="text-2xs font-medium text-amber-600">
-                Plus que {stock} en stock
+                {t("cart.low_stock", { count: stock })}
               </p>
             )}
           </div>

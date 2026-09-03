@@ -18,16 +18,16 @@ module.exports = withPWA({
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  // Locale *routing* only - there are no message catalogues behind these. Content is
-  // authored in French and machine-translated at runtime through the backend's
-  // LibreTranslate endpoint (see src/context/TranslationContext.js), so adding a language
-  // here is the whole job: no locales/<lang>/common.json to write or keep in sync.
+  // Locale routing. The locale in the URL is what src/context/I18nProvider reads to pick the
+  // message catalogue in src/locales - interface text is written by hand there, not machine
+  // translated on display. Catalogue text (product names, descriptions) still goes through
+  // LibreTranslate for the screens not yet converted.
   //
-  // These used to be declared twice - once here as ["en","es","fr","de"] with an English
-  // default, and again in i18n.json, whose values silently won because next-translate's
-  // plugin was spread in last.
+  // French and Arabic only. English came from the template and served nobody here; dropping it
+  // halves the words to write and check, and one faultless Arabic is worth more to a Moroccan
+  // wholesaler than two approximate languages.
   i18n: {
-    locales: ["fr", "ar", "en"],
+    locales: ["fr", "ar"],
     defaultLocale: "fr",
     // Keep the visitor on the URL they typed; the language menu switches locale explicitly.
     localeDetection: false,

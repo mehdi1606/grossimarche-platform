@@ -13,7 +13,8 @@
       "@redux/*": ["src/redux/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@locales/*": ["src/locales/*"]
     }
   },
   "include": ["."],

@@ -1,0 +1,33 @@
+{
+  "cart": {
+    "title": "Mon panier",
+    "close": "Fermer le panier",
+    "removed": "retiré",
+    "undo": "Annuler",
+    "empty_title": "Votre panier est vide",
+    "empty_text": "Ajoutez des produits pour commencer votre commande.",
+    "keep_shopping": "Continuer mes achats",
+    "suggestions_title": "Ajoutez aussi",
+    "suggestions_subtitle": "Souvent commandés ensemble",
+    "free_shipping_remaining": "Plus que <0>{{amount}}</0> pour la <1>livraison offerte</1>",
+    "free_shipping_unlocked": "Livraison offerte débloquée",
+    "subtotal": "Sous-total",
+    "shipping_estimated": "Livraison estimée",
+    "shipping_free": "Offerte",
+    "bundle_savings_one": "Offre « {{name}} »",
+    "bundle_savings_other": "Offres paniers ({{count}})",
+    "total": "Total",
+    "delivery_estimate": "Livraison estimée le <0>{{date}}</0> · frais définitifs selon la ville choisie.",
+    "checkout": "Passer la commande",
+    "cod_notice": "Paiement à la livraison - aucune carte requise",
+    "decrease": "Diminuer la quantité",
+    "quantity": "Quantité",
+    "increase": "Augmenter la quantité",
+    "remove_named": "Retirer {{name}}",
+    "unit_default": "unité",
+    "tier_applied": "Tarif dégressif appliqué",
+    "min_order": "Commande minimum : {{count}}",
+    "next_tier": "Passez à {{quantity}} → {{price}} / {{unit}}",
+    "low_stock": "Plus que {{count}} en stock"
+  }
+}
