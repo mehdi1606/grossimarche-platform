@@ -49,7 +49,7 @@ const Offer = () => {
     >
       {/* Hero */}
       <section className="relative overflow-hidden bg-emerald-800">
-        <div className="gm-float pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl" />
+        <div className="gm-float pointer-events-none absolute -end-16 -top-16 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl" />
         <div className="relative mx-auto max-w-screen-2xl px-4 py-20 text-center sm:px-10">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-2xs font-medium uppercase tracking-luxe text-emerald-50 ring-1 ring-white/20">
             <FiPackage /> Nos paniers
@@ -104,7 +104,7 @@ const Offer = () => {
                   href="/search"
                   className="hidden items-center gap-1 text-sm font-medium text-emerald-700 hover:underline sm:flex"
                 >
-                  Tout le catalogue <FiArrowRight />
+                  Tout le catalogue <FiArrowRight className="gm-dir-icon" />
                 </Link>
               </div>
 

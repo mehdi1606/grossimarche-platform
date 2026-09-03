@@ -65,7 +65,7 @@ const ProductFilters = ({ categories = [] }) => {
   };
 
   const rowCls = (active) =>
-    `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition ${
+    `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-start text-sm transition ${
       active
         ? "bg-emerald-50 font-medium text-emerald-700"
         : "text-gray-600 hover:bg-gray-50"

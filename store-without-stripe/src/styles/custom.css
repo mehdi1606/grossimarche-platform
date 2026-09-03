@@ -1816,23 +1816,44 @@ body {
 /* ---------------------------------------------------------------------------
    Right-to-left support.
 
-   Content is machine-translated at runtime (see AutoTranslate), so Arabic can appear on any
-   page without a per-page RTL pass. These rules cover what breaks *regardless* of layout:
-   literals that must stay left-to-right even inside an RTL paragraph.
+   Layout follows the `dir` on <html>, set from the routed locale in _document.js. Everything
+   in the components uses logical properties - `ms-`/`me-`, `ps-`/`pe-`, `start-`/`end-`,
+   `text-start`/`text-end` - so margins, padding and anchoring mirror on their own. What
+   follows is only what cannot mirror automatically.
+
+   One rule used to live here that did real damage: `[dir="rtl"] [data-no-translate]` forced
+   `direction: ltr`. That attribute meant "a literal - a price, the brand" when it was written,
+   but it has since come to mean "this screen already has real translations, leave it alone",
+   and it is now on whole pages. The result was an entire Arabic page laid out left-to-right:
+   grid columns unmirrored, text hugging the wrong edge. Isolating a literal is opt-in through
+   `.gm-ltr` now, so the two ideas cannot be confused again.
    --------------------------------------------------------------------------- */
 
-/* Anything excluded from translation is a literal - a price, an invoice number, a phone
-   number, the brand. Bidi reordering would scramble those inside RTL text, so isolate them. */
-[dir="rtl"] [data-no-translate],
+/* A literal that must read left-to-right whatever surrounds it: an invoice number, a phone
+   number, an e-mail, a latin brand. `isolate` stops it from reordering the Arabic around it. */
+[dir="rtl"] .gm-ltr,
 [dir="rtl"] .tabular-nums,
 [dir="rtl"] .product-price {
   direction: ltr;
   unicode-bidi: isolate;
 }
 
-/* Keep number-led lines (totals, quantities) reading naturally when the label is Arabic. */
+/* Prices sit inside Arabic sentences, so they are isolated above; keep them visually where
+   the reader expects rather than pinned to the left of their box. */
+[dir="rtl"] .product-price {
+  text-align: end;
+}
+
+/* An address or a phone number is latin whatever the page is, so the caret has to move
+   left-to-right in them or typing one is a fight. They sit at the field's left edge, where
+   their own script starts - only a short code (an OTP) is centred, because it is read as a
+   block rather than as a line. */
 [dir="rtl"] input[type="tel"],
-[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="email"] {
+  direction: ltr;
+  text-align: left;
+}
+
 [dir="rtl"] input[inputmode="numeric"] {
   direction: ltr;
   text-align: center;
@@ -1840,6 +1861,28 @@ body {
 
 [dir="rtl"] .paginationOrder .pagination {
   direction: ltr;
+}
+
+/* Tailwind's `space-x-*` writes a physical margin-left and does not mirror. Rather than
+   rewrite every call site, flip the reverse flag the utility itself reads: the selector is
+   more specific than the utility's own, so it wins. Same for `divide-x-*`. */
+[dir="rtl"] [class*="space-x-"] > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+[dir="rtl"] [class*="divide-x"] > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-x-reverse: 1;
+}
+
+/* An arrow means "forward", not "rightward". Mark the ones that point somewhere - a next
+   slide, a next step, a link that carries on - and they turn around with the page. Icons that
+   are pictures rather than directions (a cart, a lock) must not carry this class. */
+[dir="rtl"] .gm-dir-icon {
+  transform: scaleX(-1);
+}
+
+/* Decorative sweeps and shimmers travel with the reading direction too. */
+[dir="rtl"] .gm-shimmer::after {
+  animation-direction: reverse;
 }
 
 /* ---------------------------------------------------------------------------

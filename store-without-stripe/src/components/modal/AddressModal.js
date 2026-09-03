@@ -127,14 +127,14 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
                           role="radio"
                           aria-checked={selected}
                           onClick={() => onChange(city)}
-                          className={`relative flex flex-col items-start gap-1 rounded-xl border p-3.5 text-left transition ${
+                          className={`relative flex flex-col items-start gap-1 rounded-xl border p-3.5 text-start transition ${
                             selected
                               ? "border-emerald-500 bg-emerald-50/60 ring-1 ring-emerald-500"
                               : "border-line bg-white hover:border-emerald-200 hover:bg-cream"
                           }`}
                         >
                           {selected && (
-                            <span className="absolute right-2.5 top-2.5 grid h-4 w-4 place-items-center rounded-full bg-emerald-600 text-white">
+                            <span className="absolute end-2.5 top-2.5 grid h-4 w-4 place-items-center rounded-full bg-emerald-600 text-white">
                               <FiCheck className="h-2.5 w-2.5" />
                             </span>
                           )}

@@ -24,7 +24,7 @@ const FeatureCard = () => {
       {FEATURES.map(({ id, title, text, Icon }) => (
         <div
           key={id}
-          className="group flex items-center justify-center gap-4 px-6 py-2 text-left"
+          className="group flex items-center justify-center gap-4 px-6 py-2 text-start"
         >
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 transition duration-300 group-hover:bg-emerald-600 group-hover:text-white">
             <Icon className="h-5 w-5" aria-hidden="true" />

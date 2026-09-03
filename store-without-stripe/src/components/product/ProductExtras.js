@@ -103,7 +103,7 @@ const ProductExtras = ({ product }) => {
             {attributes.map((a) => (
               <div key={a.id} className="flex items-baseline justify-between gap-6 py-3">
                 <dt className="text-sm text-ink-500">{a.name}</dt>
-                <dd className="text-right text-sm font-medium text-ink-800">{a.value}</dd>
+                <dd className="text-end text-sm font-medium text-ink-800">{a.value}</dd>
               </div>
             ))}
           </dl>
@@ -145,7 +145,7 @@ const ProductExtras = ({ product }) => {
         </div>
 
         {reviews.length > 0 && (
-          <ul className="mt-5 max-h-80 space-y-3 overflow-y-auto pr-1">
+          <ul className="mt-5 max-h-80 space-y-3 overflow-y-auto pe-1">
             {reviews.map((r) => {
               const name = r.authorName || "Client";
               const date = formatDate(r.createdAt);

@@ -66,29 +66,32 @@ const Navbar = () => {
                 wordmark returns once there is room for it. */}
             <BrandMark
               withWordmark={false}
-              className="mr-3 shrink-0 lg:hidden"
+              className="me-3 shrink-0 lg:hidden"
             />
-            <BrandMark className="mr-3 hidden shrink-0 lg:mr-12 lg:flex xl:mr-12" />
+            <BrandMark className="me-3 hidden shrink-0 lg:me-12 lg:flex xl:me-12" />
 
             <div className="w-full transition-all duration-200 ease-in-out md:mx-12 lg:mx-4 lg:flex lg:max-w-[520px] xl:mx-0 xl:max-w-[750px] 2xl:max-w-[900px]">
               <div className="relative z-30 flex w-full flex-shrink-0 flex-col justify-center">
                 <div className="mx-auto flex w-full flex-col">
                   <form
                     onSubmit={handleSubmit}
-                    className="relative w-full overflow-hidden rounded-xl bg-white pr-12 shadow-luxe md:pr-14"
+                    className="relative w-full overflow-hidden rounded-xl bg-white pe-12 shadow-luxe md:pe-14"
                   >
                     <label className="flex items-center py-0.5">
                       <input
                         onChange={(e) => setSearchText(e.target.value)}
                         value={searchText}
-                        className="form-input h-10 min-h-10 w-full appearance-none rounded-xl border-none bg-white pl-5 font-sans text-sm text-ink-800 outline-none transition duration-200 ease-in-out placeholder:text-ink-400 focus:outline-none focus:ring-0"
+                        // A shopper may type Arabic or a latin brand name here. `auto` lets
+                        // each entry find its own direction instead of forcing one on both.
+                        dir="auto"
+                        className="form-input h-10 min-h-10 w-full appearance-none rounded-xl border-none bg-white ps-5 font-sans text-sm text-ink-800 outline-none transition duration-200 ease-in-out placeholder:text-ink-400 focus:outline-none focus:ring-0"
                         placeholder="Rechercher un produit, une marque…"
                       />
                     </label>
                     <button
                       aria-label="Rechercher"
                       type="submit"
-                      className="absolute end-0 right-0 top-0 flex h-full w-12 items-center justify-center text-xl text-ink-400 outline-none transition duration-200 ease-in-out hover:text-emerald-700 focus:outline-none md:w-14"
+                      className="absolute end-0 top-0 flex h-full w-12 items-center justify-center text-xl text-ink-400 outline-none transition duration-200 ease-in-out hover:text-emerald-700 focus:outline-none md:w-14"
                     >
                       <IoSearchOutline />
                     </button>
@@ -97,7 +100,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <div className="hidden shrink-0 items-center gap-1 sm:ml-6 lg:flex">
+            <div className="hidden shrink-0 items-center gap-1 sm:ms-6 lg:flex">
               {/* Cart - the single desktop entry point */}
               <button
                 aria-label={
@@ -113,7 +116,7 @@ const Navbar = () => {
                 />
                 {totalItems > 0 && (
                   <span
-                    className={`absolute right-0 top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-brass-400 px-1 text-2xs font-bold leading-none tabular-nums text-emerald-900 ring-2 ring-emerald-700 ${
+                    className={`absolute end-0 top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-brass-400 px-1 text-2xs font-bold leading-none tabular-nums text-emerald-900 ring-2 ring-emerald-700 ${
                       bump ? "animate-badge-pop" : ""
                     }`}
                   >

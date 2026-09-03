@@ -70,7 +70,7 @@ const CategoryMenu = ({ onNavigate }) => {
         className="mt-1 flex items-center justify-between gap-3 rounded-xl border-t border-line px-2.5 py-3 text-sm font-medium text-emerald-700 transition hover:bg-cream"
       >
         Tous les produits
-        <FiArrowRight className="h-4 w-4" />
+        <FiArrowRight className="gm-dir-icon h-4 w-4" />
       </Link>
     </div>
   );

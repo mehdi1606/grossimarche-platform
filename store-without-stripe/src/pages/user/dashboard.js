@@ -70,7 +70,7 @@ const Dashboard = ({ title, description, children }) => {
           <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
             <div className="flex w-full flex-col py-10 lg:flex-row lg:py-12">
               {/* Sidebar */}
-              <div className="w-full flex-shrink-0 lg:mr-8 lg:w-72">
+              <div className="w-full flex-shrink-0 lg:me-8 lg:w-72">
                 <div className="sticky top-32 rounded-2xl border border-line bg-white p-4 shadow-luxe">
                   {/* user */}
                   <div className="mb-4 flex items-center gap-3 border-b border-line px-2 pb-4">

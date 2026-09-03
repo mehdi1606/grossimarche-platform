@@ -78,7 +78,7 @@ const OrderTimeline = ({ status, timeline = [] }) => {
             {!last && (
               <span
                 aria-hidden="true"
-                className={`absolute left-[19px] top-10 h-[calc(100%-2.5rem)] w-px ${
+                className={`absolute start-[19px] top-10 h-[calc(100%-2.5rem)] w-px ${
                   done ? "bg-emerald-400" : "bg-line"
                 }`}
               />

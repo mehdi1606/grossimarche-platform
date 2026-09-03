@@ -73,7 +73,7 @@ const FilterDropdown = ({
         <ul
           role="listbox"
           aria-label={ariaLabel}
-          className="gm-thin-scroll absolute right-0 z-30 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+          className="gm-thin-scroll absolute end-0 z-30 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
         >
           {items.map((option) => {
             const isSelected = option.value === selected.value;
@@ -84,7 +84,7 @@ const FilterDropdown = ({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => pick(option.value)}
-                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition ${
+                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-start text-sm transition ${
                     isSelected
                       ? "bg-emerald-50 font-medium text-emerald-700"
                       : "text-gray-600 hover:bg-gray-50"

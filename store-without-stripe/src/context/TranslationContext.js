@@ -109,12 +109,9 @@ export const TranslationProvider = ({ children }) => {
     setCache(persisted);
   }, [locale, isSource]);
 
-  // RTL: flip the document direction and language for right-to-left languages.
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.dir = RTL_LOCALES.has(locale) ? "rtl" : "ltr";
-    document.documentElement.lang = locale;
-  }, [locale]);
+  // The document's `dir` and `lang` are set once, by I18nProvider, from the same routed
+  // locale this provider reads. Two writers of one attribute is one too many: they can only
+  // ever agree or contradict each other, and the second case is a page laid out backwards.
 
   const commit = useCallback(
     (pairs) => {

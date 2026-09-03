@@ -41,10 +41,10 @@ const ImageCarousel = ({ images, handleChangeImage }) => {
           </SwiperSlide>
         ))}
         <button ref={prevRef} className="prev">
-          <IoChevronBackOutline />
+          <IoChevronBackOutline className="gm-dir-icon" />
         </button>
         <button ref={nextRef} className="next">
-          <IoChevronForward />
+          <IoChevronForward className="gm-dir-icon" />
         </button>
       </Swiper>
     </>

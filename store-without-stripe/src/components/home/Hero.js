@@ -24,9 +24,9 @@ const Hero = ({ categories = [] }) => {
   return (
     // Translated from the catalogue, so the LibreTranslate DOM pass must not touch it.
     <section data-no-translate className="relative overflow-hidden bg-emerald-800">
-      <div className="gm-float pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl" />
-      <div className="gm-float-slow pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-brass-300/10 blur-3xl" />
-      <div className="gm-float pointer-events-none absolute right-1/4 top-1/2 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
+      <div className="gm-float pointer-events-none absolute -end-16 -top-16 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl" />
+      <div className="gm-float-slow pointer-events-none absolute -bottom-24 start-1/3 h-72 w-72 rounded-full bg-brass-300/10 blur-3xl" />
+      <div className="gm-float pointer-events-none absolute end-1/4 top-1/2 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-screen-2xl px-4 py-20 sm:px-10 lg:py-28">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] xl:gap-16">
@@ -68,7 +68,7 @@ const Hero = ({ categories = [] }) => {
                 className="group inline-flex items-center gap-2 rounded-full bg-cream px-7 py-3.5 text-sm font-semibold text-emerald-800 shadow-luxe-lg transition hover:-translate-y-0.5"
               >
                 {t("home.hero_cta_products")}
-                <FiArrowRight className="transition-transform group-hover:translate-x-1" />
+                <FiArrowRight className="gm-dir-icon transition-transform group-hover:translate-x-1" />
               </Link>
               {shortcuts[0] && (
                 <Link

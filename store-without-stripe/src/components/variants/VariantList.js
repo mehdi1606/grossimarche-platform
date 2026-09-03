@@ -97,8 +97,8 @@ const VariantList = ({
                         key={i + 1}
                         className={`${
                           Object?.values(selectVariant).includes(vl[att])
-                            ? "bg-emerald-500 text-white mr-2 border-0 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-serif mt-2 focus:outline-none"
-                            : "bg-gray-100 mr-2 border-0 text-gray-600 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-serif mt-2 focus:outline-none"
+                            ? "bg-emerald-500 text-white me-2 border-0 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-serif mt-2 focus:outline-none"
+                            : "bg-gray-100 me-2 border-0 text-gray-600 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-serif mt-2 focus:outline-none"
                         }`}
                       >
                         {showingTranslateValue(el.name)}

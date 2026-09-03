@@ -5,7 +5,7 @@ const SwitchToggle = ({ id, title, handleProcess, processOption }) => {
     <>
       <div className={`${"mb-3"}`}>
         <div className="flex flex-wrap items-center">
-          <label className="text-sm font-semibold text-gray-600 mr-1">
+          <label className="text-sm font-semibold text-gray-600 me-1">
             {title}
           </label>
 
@@ -13,7 +13,7 @@ const SwitchToggle = ({ id, title, handleProcess, processOption }) => {
             id={id || title || ""}
             onChange={handleProcess}
             checked={processOption}
-            className="react-switch md:ml-0 ml-3"
+            className="react-switch md:ms-0 ms-3"
             uncheckedIcon={
               <div
                 style={{

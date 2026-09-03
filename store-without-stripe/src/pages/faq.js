@@ -61,7 +61,7 @@ const Faq = () => {
             <Disclosure key={i}>
               {({ open }) => (
                 <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
-                  <Disclosure.Button className="flex w-full items-center justify-between px-5 py-4 text-left text-base font-medium text-gray-800 transition hover:bg-gray-50 focus:outline-none">
+                  <Disclosure.Button className="flex w-full items-center justify-between px-5 py-4 text-start text-base font-medium text-gray-800 transition hover:bg-gray-50 focus:outline-none">
                     <span>{item.q}</span>
                     <ChevronUpIcon
                       className={`${

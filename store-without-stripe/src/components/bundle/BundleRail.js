@@ -44,7 +44,7 @@ const OfferTile = ({ bundle, currency, ariaHidden }) => (
     {Number(bundle.savings) > 0 && (
       <span
         data-no-translate
-        className="absolute right-3 top-3 rounded-full bg-brass-400 px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-sm"
+        className="absolute end-3 top-3 rounded-full bg-brass-400 px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-sm"
       >
         −{bundle.savingsPercent}%
       </span>
@@ -140,7 +140,7 @@ const OfferFeature = ({ bundle, currency }) => (
 
         <span className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-cream px-6 py-3 text-sm font-semibold text-emerald-800 transition group-hover:gap-3">
           Voir l&apos;offre
-          <FiArrowUpRight className="h-4 w-4" />
+          <FiArrowUpRight className="gm-dir-icon h-4 w-4" />
         </span>
       </div>
     </div>
@@ -188,7 +188,7 @@ const BundleRail = () => {
             href="/offer"
             className="hidden shrink-0 items-center gap-1.5 text-sm font-medium text-emerald-700 transition hover:gap-2.5 hover:underline sm:flex"
           >
-            Toutes les offres <FiArrowRight className="h-3.5 w-3.5" />
+            Toutes les offres <FiArrowRight className="gm-dir-icon h-3.5 w-3.5" />
           </Link>
         )}
       </div>

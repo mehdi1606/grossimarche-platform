@@ -6,7 +6,7 @@ const InputPayment = ({ register, Icon, name, value, setShowCard }) => {
       <label className="cursor-pointer label">
         <div className="flex item-center justify-between">
           <div className="flex items-center">
-            <span className="text-xl mr-3 text-gray-400">
+            <span className="text-xl me-3 text-gray-400">
               <Icon />
             </span>
             <h6 className="font-serif font-medium text-sm text-gray-600">

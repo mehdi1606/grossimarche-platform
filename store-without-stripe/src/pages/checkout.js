@@ -378,7 +378,7 @@ const Checkout = () => {
                         href="/"
                         className="flex w-full justify-center rounded-xl border border-line bg-white py-3 text-center text-sm font-medium text-ink-700 transition-all hover:border-emerald-300 hover:text-emerald-700"
                       >
-                        <span className="mr-2 text-xl">
+                        <span className="me-2 text-xl">
                           <IoReturnUpBackOutline />
                         </span>
                         {showingTranslateValue(
@@ -400,13 +400,13 @@ const Checkout = () => {
                               width={20}
                               height={10}
                             />
-                            <span className="ml-2">Traitement…</span>
+                            <span className="ms-2">Traitement…</span>
                           </span>
                         ) : (
                           <span className="flex justify-center text-center">
                             {confirmLabel}
-                            <span className="ml-2 text-xl">
-                              <IoArrowForward />
+                            <span className="ms-2 text-xl">
+                              <IoArrowForward className="gm-dir-icon" />
                             </span>
                           </span>
                         )}
@@ -428,7 +428,7 @@ const Checkout = () => {
                       </span>
                       <span className="flex items-center gap-2">
                         {isCheckoutSubmit ? "Traitement…" : confirmLabel}
-                        <IoArrowForward />
+                        <IoArrowForward className="gm-dir-icon" />
                       </span>
                     </button>
                   </div>
@@ -436,7 +436,7 @@ const Checkout = () => {
               </div>
             </div>
 
-            <div className="top-28 flex h-full flex-col md:order-2 md:ml-6 md:w-full md:sticky lg:order-2 lg:ml-10 lg:w-2/5 lg:sticky xl:ml-14">
+            <div className="top-28 flex h-full flex-col md:order-2 md:ms-6 md:w-full md:sticky lg:order-2 lg:ms-10 lg:w-2/5 lg:sticky xl:ms-14">
               <div className="order-1 rounded-2xl border border-line bg-white p-5 shadow-luxe sm:order-2 lg:px-8 lg:py-8">
                 <h2 className="pb-4 font-display text-lg font-semibold text-ink-800">
                   {showingTranslateValue(
@@ -466,7 +466,7 @@ const Checkout = () => {
                     {couponInfo.couponCode ? (
                       <span className="flex w-full justify-between rounded-xl bg-emerald-50 px-4 py-3 leading-tight">
                         <p className="text-emerald-700">Code appliqué</p>
-                        <span className="text-right font-semibold text-emerald-800">
+                        <span className="text-end font-semibold text-emerald-800">
                           {couponInfo.couponCode}
                         </span>
                       </span>
@@ -481,7 +481,7 @@ const Checkout = () => {
                         <button
                           disabled={isCouponAvailable}
                           onClick={handleCouponCode}
-                          className="mt-3 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-line px-5 py-3 text-center text-sm font-semibold leading-4 text-ink-700 transition duration-300 ease-in-out hover:bg-emerald-600 hover:text-white focus:outline-none focus-visible:outline-none sm:ml-3 sm:mt-0 sm:w-auto md:ml-3 md:mt-0 md:px-6 md:py-3.5 md:text-sm lg:ml-3 lg:mt-0 lg:px-8 lg:py-3 lg:text-base"
+                          className="mt-3 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-line px-5 py-3 text-center text-sm font-semibold leading-4 text-ink-700 transition duration-300 ease-in-out hover:bg-emerald-600 hover:text-white focus:outline-none focus-visible:outline-none sm:ms-3 sm:mt-0 sm:w-auto md:ms-3 md:mt-0 md:px-6 md:py-3.5 md:text-sm lg:ms-3 lg:mt-0 lg:px-8 lg:py-3 lg:text-base"
                         >
                           {isCouponAvailable ? (
                             <img

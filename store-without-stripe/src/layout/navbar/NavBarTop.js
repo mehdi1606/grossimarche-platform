@@ -46,17 +46,17 @@ const NavBarTop = () => {
             <a
               href="tel:+2125220000000"
               data-no-translate
-              className="flex items-center transition hover:text-emerald-700"
+              className="gm-ltr flex items-center transition hover:text-emerald-700"
             >
-              <FiPhoneCall className="mr-1.5" />
+              <FiPhoneCall className="me-1.5" />
               +212 5 22 00 00 00
             </a>
             <a
               href="mailto:contact@grossimarche.ma"
               data-no-translate
-              className="hidden items-center transition hover:text-emerald-700 xl:flex"
+              className="gm-ltr hidden items-center transition hover:text-emerald-700 xl:flex"
             >
-              <FiMail className="mr-1.5" />
+              <FiMail className="me-1.5" />
               contact@grossimarche.ma
             </a>
           </div>
@@ -70,7 +70,7 @@ const NavBarTop = () => {
                   href="/user/dashboard"
                   className="flex items-center font-medium transition hover:text-emerald-700"
                 >
-                  <FiUser className="mr-1" />
+                  <FiUser className="me-1" />
                   {t("common.account")}
                 </Link>
                 <span className="text-line">|</span>
@@ -78,7 +78,7 @@ const NavBarTop = () => {
                   onClick={handleLogOut}
                   className="flex items-center font-medium transition hover:text-emerald-700"
                 >
-                  <IoLockOpenOutline className="mr-1" />
+                  <IoLockOpenOutline className="me-1" />
                   {t("common.sign_out")}
                 </button>
               </>
@@ -87,7 +87,7 @@ const NavBarTop = () => {
                 href="/auth/login"
                 className="flex items-center font-medium transition hover:text-emerald-700"
               >
-                <FiUser className="mr-1" />
+                <FiUser className="me-1" />
                 {t("common.sign_in")}
               </Link>
             )}

@@ -89,7 +89,7 @@ const AboutUs = () => {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-2xl bg-gray-900 px-8 py-10 text-center sm:flex-row sm:text-left">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-2xl bg-gray-900 px-8 py-10 text-center sm:flex-row sm:text-start">
           <div>
             <h3 className="font-serif text-xl font-bold text-white">
               Commencez à commander en gros
@@ -102,7 +102,7 @@ const AboutUs = () => {
             href="/search"
             className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-600"
           >
-            Découvrir le catalogue <FiArrowRight />
+            Découvrir le catalogue <FiArrowRight className="gm-dir-icon" />
           </Link>
         </div>
       </section>

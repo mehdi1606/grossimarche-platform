@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { ToastContainer } from "react-toastify";
 
 //internal import
@@ -8,8 +9,14 @@ import Footer from "@layout/footer/Footer";
 import NavBarTop from "./navbar/NavBarTop";
 import MobileFooter from "@layout/footer/MobileFooter";
 import FeatureCard from "@components/feature-card/FeatureCard";
+import { isRtl } from "@lib/i18n";
 
 const Layout = ({ title, description, children }) => {
+  const router = useRouter();
+  // Toasts render in their own corner of the DOM, outside the tree that inherits `dir`, so
+  // the container is told the direction rather than left to guess it.
+  const rtl = isRtl(router?.locale);
+
   return (
     <>
       <ToastContainer
@@ -19,6 +26,7 @@ const Layout = ({ title, description, children }) => {
         closeOnClick
         pauseOnHover
         draggable
+        rtl={rtl}
         theme="light"
       />
 

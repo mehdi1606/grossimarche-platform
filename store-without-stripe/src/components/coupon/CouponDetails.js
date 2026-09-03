@@ -30,7 +30,7 @@ const CouponDetails = ({ coupon }) => {
               className="rounded-lg"
             />
           </figure>
-          <div className="ml-5">
+          <div className="ms-5">
             {dayjs().isAfter(dayjs(coupon.endTime)) ? (
               <span className="inline-block mb-2">
                 <div className="flex items-center font-semibold">
@@ -70,13 +70,13 @@ const CouponDetails = ({ coupon }) => {
             </p>
           </div>
         </div>
-        <div className="md:border-l-2 lg:border-l-2 border-dashed lg:w-1/3 md:w-1/3 relative px-6">
+        <div className="md:border-s-2 lg:border-s-2 border-dashed lg:w-1/3 md:w-1/3 relative px-6">
           <div className="info flex lg:my-6 md:my-5 mb-6 items-center">
             <div className="w-full">
               <div className="block">
                 <div className="font-serif font-medium flex items-center mb-1">
                   <span>Coupon</span>
-                  <div className="ml-2">
+                  <div className="ms-2">
                     {dayjs().isAfter(dayjs(coupon.endTime)) ? (
                       <span className="text-red-600 inline-block">
                         Inactive

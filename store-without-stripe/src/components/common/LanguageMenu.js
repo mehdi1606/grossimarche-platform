@@ -88,7 +88,7 @@ const LanguageMenu = () => {
         <ul
           role="listbox"
           aria-label="Langue"
-          className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-luxe-lg"
+          className="absolute end-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-luxe-lg"
         >
           {routable.map((language) => {
             const isActive = language.iso_code === current?.iso_code;
@@ -99,7 +99,7 @@ const LanguageMenu = () => {
                   role="option"
                   aria-selected={isActive}
                   onClick={() => pick(language)}
-                  className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${
+                  className={`flex w-full items-center gap-3 px-3 py-2 text-start text-sm transition-colors ${
                     isActive
                       ? "bg-emerald-50 font-medium text-emerald-800"
                       : "text-ink-600 hover:bg-sand"

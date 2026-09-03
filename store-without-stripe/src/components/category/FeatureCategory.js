@@ -49,7 +49,7 @@ const FeatureCategory = () => {
                     <CategoryIcon icon={category?.icon} className="h-5 w-5" />
                   </div>
 
-                  <div className="pl-4">
+                  <div className="ps-4">
                     <h3
                       onClick={() =>
                         handleCategoryClick(
@@ -65,7 +65,7 @@ const FeatureCategory = () => {
                       {category?.children?.slice(0, 3).map((child) => (
                         <li
                           key={child._id}
-                          className="hover:text-orange-500 hover:ml-2 transition-all duration-150"
+                          className="hover:text-orange-500 hover:ms-2 transition-all duration-150"
                         >
                           <a
                             onClick={() =>
@@ -77,7 +77,7 @@ const FeatureCategory = () => {
                             className="flex items-center font-serif text-xs text-gray-400 cursor-pointer"
                           >
                             <span className="text-xs text-gray-400 ">
-                              <IoChevronForwardSharp />
+                              <IoChevronForwardSharp className="gm-dir-icon" />
                             </span>
                             {showingTranslateValue(child?.name)}
                           </a>

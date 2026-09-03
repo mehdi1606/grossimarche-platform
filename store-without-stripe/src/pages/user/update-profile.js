@@ -95,7 +95,7 @@ const UpdateProfile = () => {
           usage unique.
         </p>
 
-        <div className="mt-6 text-right">
+        <div className="mt-6 text-end">
           <button
             disabled={loading}
             type="submit"

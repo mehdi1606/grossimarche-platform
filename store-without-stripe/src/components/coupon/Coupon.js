@@ -57,9 +57,9 @@ const Coupon = ({ couponInHome }) => {
                   alt={showingTranslateValue(coupon.title) || "coupon"}
                 />
               </figure>
-              <div className="ml-3">
+              <div className="ms-3">
                 <div className="flex items-center font-serif">
-                  <h6 className="pl-1 text-base font-medium text-gray-600">
+                  <h6 className="ps-1 text-base font-medium text-gray-600">
                     <span className="text-lg md:text-xl lg:text-xl text-red-500 font-bold">
                       {coupon?.discountType?.type === "fixed" ? (
                         <span>${coupon?.discountType?.value}</span>
@@ -69,7 +69,7 @@ const Coupon = ({ couponInHome }) => {
                     </span>{" "}
                     Off
                   </h6>
-                  <div className="ml-2">
+                  <div className="ms-2">
                     {dayjs().isAfter(dayjs(coupon.endTime)) ? (
                       <span className="text-red-600 inline-block px-4 py-1 rounded-full font-medium text-xs bg-red-100">
                         Inactive
@@ -81,7 +81,7 @@ const Coupon = ({ couponInHome }) => {
                     )}
                   </div>
                 </div>
-                <h2 className="pl-1 font-serif text-base text-gray-700 leading-6 font-semibold mb-2">
+                <h2 className="ps-1 font-serif text-base text-gray-700 leading-6 font-semibold mb-2">
                   {showingTranslateValue(coupon?.title)}
                 </h2>
                 {dayjs().isAfter(dayjs(coupon.endTime)) ? (
@@ -116,7 +116,7 @@ const Coupon = ({ couponInHome }) => {
                 )}
               </div>
             </div>
-            <div className="md:border-l-2 lg:border-l-2 border-dashed lg:w-1/3 md:w-1/3 relative px-4">
+            <div className="md:border-s-2 lg:border-s-2 border-dashed lg:w-1/3 md:w-1/3 relative px-4">
               <div className="info flex items-center">
                 <div className="w-full">
                   <div className="block">
@@ -167,7 +167,7 @@ const Coupon = ({ couponInHome }) => {
                   className="rounded-lg"
                 />
               </figure>
-              <div className="ml-5">
+              <div className="ms-5">
                 {dayjs().isAfter(dayjs(coupon.endTime)) ? (
                   <span className="inline-block mb-2">
                     <div className="flex items-center font-semibold">
@@ -199,7 +199,7 @@ const Coupon = ({ couponInHome }) => {
                 <h2 className="font-serif text-lg leading-6 font-medium mb-3">
                   {showingTranslateValue(coupon?.title)}
                 </h2>
-                <h2 className="pl-1 text-base font-medium text-gray-600">
+                <h2 className="ps-1 text-base font-medium text-gray-600">
                   <span className="text-lg md:text-xl lg:text-xl text-red-500 font-bold">
                     {coupon?.discountType?.type === "fixed" ? (
                       <span>${coupon?.discountType?.value}</span>
@@ -211,13 +211,13 @@ const Coupon = ({ couponInHome }) => {
                 </h2>
               </div>
             </div>
-            <div className="md:border-l-2 lg:border-l-2 border-dashed lg:w-1/3 md:w-1/3 relative px-6">
+            <div className="md:border-s-2 lg:border-s-2 border-dashed lg:w-1/3 md:w-1/3 relative px-6">
               <div className="info flex lg:my-6 md:my-5 mb-6 items-center">
                 <div className="w-full">
                   <div className="block">
                     <div className="font-serif font-medium flex items-center mb-1">
                       <span>Coupon</span>
-                      <div className="ml-2">
+                      <div className="ms-2">
                         {dayjs().isAfter(dayjs(coupon.endTime)) ? (
                           <span className="text-red-600 inline-block">
                             Inactive

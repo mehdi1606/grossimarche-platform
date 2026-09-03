@@ -6,6 +6,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useTilt from "@hooks/useTilt";
 import CategoryIcon from "@components/category/CategoryIcon";
+import { railAtEnd, railAtStart, railScrollBy } from "@utils/rail";
 
 /** A single category tile with a cursor-following 3D tilt (premium hover feel). */
 const RailCard = ({ category, title }) => {
@@ -45,9 +46,8 @@ const CategoryRail = ({ categories = [] }) => {
   const sync = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
-    // 4px tolerance: sub-pixel widths never land exactly on the boundary.
-    setAtStart(el.scrollLeft <= 4);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
+    setAtStart(railAtStart(el));
+    setAtEnd(railAtEnd(el));
   }, []);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const CategoryRail = ({ categories = [] }) => {
     if (!el) return;
     // One full page: the visible row holds exactly 4 cards, so this lands on the next 4
     // (scroll-snap absorbs the rounding).
-    el.scrollBy({ left: direction * el.clientWidth, behavior: "smooth" });
+    railScrollBy(el, direction, el.clientWidth);
   };
 
   if (!categories.length) return null;
@@ -93,7 +93,7 @@ const CategoryRail = ({ categories = [] }) => {
             aria-label="Catégories précédentes"
             className={arrowCls}
           >
-            <FiChevronLeft className="h-4 w-4" />
+            <FiChevronLeft className="gm-dir-icon h-4 w-4" />
           </button>
           <button
             type="button"
@@ -102,7 +102,7 @@ const CategoryRail = ({ categories = [] }) => {
             aria-label="Catégories suivantes"
             className={arrowCls}
           >
-            <FiChevronRight className="h-4 w-4" />
+            <FiChevronRight className="gm-dir-icon h-4 w-4" />
           </button>
         </div>
       </div>

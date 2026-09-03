@@ -60,7 +60,7 @@ const OrderCard = ({ order, currency = "" }) => {
           className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:flex-none"
         >
           Suivre ma commande
-          <FiChevronRight className="h-4 w-4" />
+          <FiChevronRight className="gm-dir-icon h-4 w-4" />
         </Link>
         <button
           onClick={() => reorder(order._id)}

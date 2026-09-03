@@ -257,14 +257,14 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
             <div className="mx-auto px-3 lg:px-10 max-w-screen-2xl">
               <div className="flex items-center pb-4">
                 <ol className="flex items-center w-full overflow-hidden font-serif">
-                  <li className="text-sm pr-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold">
+                  <li className="text-sm pe-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold">
                     <Link href="/">Accueil</Link>
                   </li>
                   <li className="text-sm mt-[1px]">
                     {" "}
-                    <FiChevronRight />{" "}
+                    <FiChevronRight className="gm-dir-icon" />{" "}
                   </li>
-                  <li className="text-sm pl-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold ">
+                  <li className="text-sm ps-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold ">
                     <Link
                       href={`/search?category=${category_name}&_id=${product?.category?._id}`}
                     >
@@ -278,7 +278,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   </li>
                   <li className="text-sm mt-[1px]">
                     {" "}
-                    <FiChevronRight />{" "}
+                    <FiChevronRight className="gm-dir-icon" />{" "}
                   </li>
                   <li className="text-sm px-1 transition duration-200 ease-in ">
                     {showingTranslateValue(product?.title)}
@@ -287,7 +287,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               </div>
               <div className="w-full rounded-2xl border border-line bg-white p-4 shadow-luxe lg:p-12">
                 <div className="flex flex-col xl:flex-row">
-                  <div className="flex-shrink-0 xl:pr-10 lg:block w-full mx-auto md:w-6/12 lg:w-5/12 xl:w-4/12">
+                  <div className="flex-shrink-0 xl:pe-10 lg:block w-full mx-auto md:w-6/12 lg:w-5/12 xl:w-4/12">
                     <Discount slug product={product} discount={discount} />
 
                     <ProductImage
@@ -442,7 +442,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               <button
                                 onClick={() => handleAddToCart(product)}
                                 disabled={stock <= 0}
-                                className="ml-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
+                                className="ms-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                               >
                                 Ajouter au panier
                               </button>
@@ -459,7 +459,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               >
                                 <button
                                   type="button"
-                                  className="text-gray-600 font-serif font-medium underline ml-2 hover:text-teal-600"
+                                  className="text-gray-600 font-serif font-medium underline ms-2 hover:text-teal-600"
                                   onClick={() => setIsLoading(!isLoading)}
                                 >
                                   {category_name}

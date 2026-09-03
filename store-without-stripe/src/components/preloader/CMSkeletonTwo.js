@@ -14,7 +14,7 @@ const CMSkeletonTwo = ({
   return (
     <>
       {loading ? (
-        <div className={textAlign ? "text-right" : "text-center"}>
+        <div className={textAlign ? "text-end" : "text-center"}>
           <Skeleton
             count={count || 6}
             height={height || 22}

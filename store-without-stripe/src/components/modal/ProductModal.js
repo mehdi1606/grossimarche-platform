@@ -252,7 +252,7 @@ const ProductModal = ({
               </div>
             </Link>
 
-            <div className="w-full flex flex-col p-5 md:p-8 text-left">
+            <div className="w-full flex flex-col p-5 md:p-8 text-start">
               <div className="mb-2 md:mb-2.5 block -mt-1.5">
                 <Link href={`/product/${product.slug}`} passHref>
                   <h1
@@ -352,7 +352,7 @@ const ProductModal = ({
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={product.quantity < 1}
-                    className="ml-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
+                    className="ms-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                   >
                     Ajouter au panier
                   </button>
@@ -369,7 +369,7 @@ const ProductModal = ({
                         >
                           <button
                             type="button"
-                            className="ml-1 font-medium text-emerald-700 underline transition hover:text-emerald-800"
+                            className="ms-1 font-medium text-emerald-700 underline transition hover:text-emerald-800"
                             onClick={() => setIsLoading(!isLoading)}
                           >
                             {category_name}

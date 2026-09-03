@@ -123,7 +123,7 @@ const ChangePassword = () => {
             </div>
           </div>
         </div>
-        <div className="mt-5 text-right">
+        <div className="mt-5 text-end">
           {loading ? (
             <button
               disabled={loading}
@@ -136,7 +136,7 @@ const ChangePassword = () => {
                 width={20}
                 height={10}
               />
-              <span className="font-serif ml-2 font-light">Processing</span>
+              <span className="font-serif ms-2 font-light">Processing</span>
             </button>
           ) : (
             <button

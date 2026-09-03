@@ -40,7 +40,7 @@ const BrandMark = ({ variant = "light", withWordmark = true, className = "", hre
   // the brand into a common noun - "Grossimarché" is a name in every language.
   if (!href) {
     return (
-      <span data-no-translate className={`flex items-center gap-2.5 ${className}`}>
+      <span data-no-translate className={`gm-ltr flex items-center gap-2.5 ${className}`}>
         {content}
       </span>
     );
@@ -51,7 +51,7 @@ const BrandMark = ({ variant = "light", withWordmark = true, className = "", hre
       href={href}
       data-no-translate
       aria-label="Grossimarché - accueil"
-      className={`flex items-center gap-2.5 ${className}`}
+      className={`gm-ltr flex items-center gap-2.5 ${className}`}
     >
       {content}
     </Link>

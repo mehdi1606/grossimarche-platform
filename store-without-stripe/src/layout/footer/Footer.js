@@ -99,7 +99,7 @@ const Footer = () => {
                 <a
                   href="mailto:contact@grossimarche.ma"
                   data-no-translate
-                  className="group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
+                  className="gm-ltr group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition group-hover:bg-white/10">
                     <FiMail className="h-4 w-4" />
@@ -111,7 +111,7 @@ const Footer = () => {
                 <a
                   href="tel:+2125220000000"
                   data-no-translate
-                  className="group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
+                  className="gm-ltr group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition group-hover:bg-white/10">
                     <FiPhone className="h-4 w-4" />

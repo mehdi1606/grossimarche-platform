@@ -62,7 +62,7 @@ const MobileFooter = () => {
         >
           {totalItems > 0 && (
             <span
-              className={`absolute right-0 top-0 z-10 grid h-[18px] min-w-[18px] translate-x-1/2 place-items-center rounded-full bg-brass-400 px-1 text-2xs font-bold leading-none tabular-nums text-emerald-900 ${
+              className={`absolute end-0 top-0 z-10 grid h-[18px] min-w-[18px] translate-x-1/2 place-items-center rounded-full bg-brass-400 px-1 text-2xs font-bold leading-none tabular-nums text-emerald-900 ${
                 bump ? "animate-badge-pop" : ""
               }`}
             >

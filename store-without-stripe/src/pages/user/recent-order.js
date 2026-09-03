@@ -30,7 +30,7 @@ const RecentOrder = ({ data, loading, error }) => {
             href="/user/my-orders"
             className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700 transition hover:underline"
           >
-            Tout voir <FiArrowRight className="h-3.5 w-3.5" />
+            Tout voir <FiArrowRight className="gm-dir-icon h-3.5 w-3.5" />
           </Link>
         )}
       </div>

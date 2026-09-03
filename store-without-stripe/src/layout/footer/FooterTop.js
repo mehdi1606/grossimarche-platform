@@ -57,7 +57,7 @@ const FooterTop = () => {
                 <Image
                   // width={170}
                   // height={50}
-                  // className="mr-2 rounded"
+                  // className="me-2 rounded"
                   width="0"
                   height="0"
                   sizes="100vw"

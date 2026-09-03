@@ -31,7 +31,7 @@ const Pending = () => {
               {t("auth.pending_text")}
             </p>
 
-            <div className="mt-8 grid gap-3 text-left">
+            <div className="mt-8 grid gap-3 text-start">
               <div className="flex items-start gap-3 rounded-xl bg-cream p-4">
                 <FiClock className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                 <p className="text-sm text-ink-600">{t("auth.pending_delay")}</p>

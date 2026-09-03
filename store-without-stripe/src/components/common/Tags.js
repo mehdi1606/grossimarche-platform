@@ -8,7 +8,7 @@ const Tags = ({ product }) => {
           {JSON.parse(product?.tag).map((t, i) => (
             <span
               key={i + 1}
-              className="bg-gray-50 mr-2 border-0 text-gray-600 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-semibold font-serif mt-2"
+              className="bg-gray-50 me-2 border-0 text-gray-600 rounded-full inline-flex items-center justify-center px-3 py-1 text-xs font-semibold font-serif mt-2"
             >
               {t}
             </span>

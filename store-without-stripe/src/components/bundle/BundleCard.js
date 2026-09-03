@@ -32,7 +32,7 @@ const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
         {bundle.savingsPercent > 0 && (
           <span
             data-no-translate
-            className="absolute right-3 top-3 rounded-full bg-brass-400 px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-sm"
+            className="absolute end-3 top-3 rounded-full bg-brass-400 px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-sm"
           >
             −{bundle.savingsPercent}%
           </span>
@@ -94,7 +94,7 @@ const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
               </p>
             </div>
             {Number(bundle.savings) > 0 && (
-              <p className="pb-1 text-right text-xs font-semibold text-brass-600">
+              <p className="pb-1 text-end text-xs font-semibold text-brass-600">
                 Vous économisez
                 <br />
                 <span data-no-translate className="tabular-nums">

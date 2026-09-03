@@ -76,7 +76,7 @@ const Order = ({ params }) => {
             href="/user/my-orders"
             className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 transition hover:text-emerald-700"
           >
-            <IoChevronBack /> Mes commandes
+            <IoChevronBack className="gm-dir-icon" /> Mes commandes
           </Link>
 
           <div className="grid gap-6 lg:grid-cols-3">
@@ -89,14 +89,14 @@ const Order = ({ params }) => {
                     <p className="text-2xs font-medium uppercase tracking-luxe text-ink-400">
                       Commande
                     </p>
-                    <h1 data-no-translate className="mt-1 font-display text-2xl font-semibold text-ink-900">
+                    <h1 data-no-translate className="gm-ltr mt-1 font-display text-2xl font-semibold text-ink-900">
                       {data?.invoice || `#${orderId?.slice(0, 8)}`}
                     </h1>
                     <p className="mt-1 text-sm text-ink-500">
                       Passée le {dayjs(data?.createdAt).format("D MMMM YYYY à HH:mm")}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <OrderStatusPill status={data?.status} />
                     <p data-no-translate className="mt-2 font-display text-xl font-semibold tabular-nums text-ink-900">
                       {currency}

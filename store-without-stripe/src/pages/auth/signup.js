@@ -199,7 +199,7 @@ const Signup = () => {
               onClick={() => setSelected(null)}
               className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-ink-500 transition hover:text-emerald-700"
             >
-              <FiArrowLeft className="h-4 w-4" />
+              <FiArrowLeft className="gm-dir-icon h-4 w-4" />
               {t("auth.change_trade")}
             </button>
 
@@ -218,7 +218,7 @@ const Signup = () => {
                     {selected.name}
                   </p>
                 </div>
-                <FiCheck className="ml-auto h-5 w-5 shrink-0 text-emerald-600" />
+                <FiCheck className="ms-auto h-5 w-5 shrink-0 text-emerald-600" />
               </div>
 
               <div className="px-6 py-8 sm:px-10">

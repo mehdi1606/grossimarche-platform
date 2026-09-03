@@ -9,6 +9,7 @@ import useAddToCart from "@hooks/useAddToCart";
 import ProductImage from "@components/product/ProductImage";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useSuggestedProducts from "@hooks/useSuggestedProducts";
+import { railAtEnd, railAtStart, railScrollBy } from "@utils/rail";
 
 const SuggestionCard = ({ product, currency }) => {
   const { inCart } = useCart();
@@ -113,9 +114,8 @@ const ProductSuggestions = ({
   const sync = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
-    // 4px tolerance: sub-pixel widths never land exactly on the boundary.
-    setAtStart(el.scrollLeft <= 4);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
+    setAtStart(railAtStart(el));
+    setAtEnd(railAtEnd(el));
   }, []);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ const ProductSuggestions = ({
     const card = el.firstElementChild;
     // One card plus the 12px gap, so a card always lands flush against the edge.
     const step = card ? card.getBoundingClientRect().width + 12 : el.clientWidth;
-    el.scrollBy({ left: direction * step, behavior: "smooth" });
+    railScrollBy(el, direction, step);
   };
 
   // Hooks first, then the early return, so their order never varies between renders.
@@ -172,13 +172,13 @@ const ProductSuggestions = ({
         {!atStart && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r ${fade.left} to-transparent`}
+            className={`pointer-events-none absolute inset-y-0 start-0 w-8 bg-gradient-to-r ${fade.left} to-transparent`}
           />
         )}
         {!atEnd && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l ${fade.right} to-transparent`}
+            className={`pointer-events-none absolute inset-y-0 end-0 w-8 bg-gradient-to-l ${fade.right} to-transparent`}
           />
         )}
 
@@ -187,9 +187,9 @@ const ProductSuggestions = ({
             type="button"
             onClick={() => page(-1)}
             aria-label="Suggestions précédentes"
-            className={`${arrowCls} left-1`}
+            className={`${arrowCls} start-1`}
           >
-            <FiChevronLeft className="h-4 w-4" />
+            <FiChevronLeft className="gm-dir-icon h-4 w-4" />
           </button>
         )}
         {!atEnd && (
@@ -197,9 +197,9 @@ const ProductSuggestions = ({
             type="button"
             onClick={() => page(1)}
             aria-label="Suggestions suivantes"
-            className={`${arrowCls} right-1`}
+            className={`${arrowCls} end-1`}
           >
-            <FiChevronRight className="h-4 w-4" />
+            <FiChevronRight className="gm-dir-icon h-4 w-4" />
           </button>
         )}
       </div>

@@ -9,7 +9,7 @@ import SettingServices from "@services/SettingServices";
 const BottomNavigation = ({ or, route, desc, pageName, loginTitle }) => {
   const buttonStyles = `
     text-sm inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center rounded-md focus:outline-none shadow-sm
-    px-3 py-4 h-12 w-full mb-6 mr-2
+    px-3 py-4 h-12 w-full mb-6 me-2
   `;
 
   const {
@@ -45,7 +45,7 @@ const BottomNavigation = ({ or, route, desc, pageName, loginTitle }) => {
               }
             >
               <ImGoogle className="text-2xl" />
-              <span className="ml-2">{loginTitle} With Google</span>
+              <span className="ms-2">{loginTitle} With Google</span>
             </button>
           )}
           {storeSetting?.facebook_login_status && (
@@ -61,7 +61,7 @@ const BottomNavigation = ({ or, route, desc, pageName, loginTitle }) => {
               }
             >
               <ImFacebook className="text-2xl" />
-              <span className="ml-2">{loginTitle} With Facebook</span>
+              <span className="ms-2">{loginTitle} With Facebook</span>
             </button>
           )}
           {storeSetting?.github_login_status && (
@@ -77,7 +77,7 @@ const BottomNavigation = ({ or, route, desc, pageName, loginTitle }) => {
               }
             >
               <ImGithub className="text-2xl" />
-              <span className="ml-2">{loginTitle} With Github</span>
+              <span className="ms-2">{loginTitle} With Github</span>
             </button>
           )}
         </div>

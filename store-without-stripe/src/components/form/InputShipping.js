@@ -16,7 +16,7 @@ const InputShipping = ({
         <label className="cursor-pointer label">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-2xl mr-3 text-gray-400">
+              <span className="text-2xl me-3 text-gray-400">
                 <FiTruck />
               </span>
               <div>

@@ -8,7 +8,7 @@ const OrderTable = ({ data, currency }) => {
     <tbody className="bg-white divide-y divide-gray-100 text-serif text-sm">
       {data?.cart?.map((item, i) => (
         <tr key={i}>
-          <th className="px-6 py-1 whitespace-nowrap font-normal text-gray-500 text-left">
+          <th className="px-6 py-1 whitespace-nowrap font-normal text-gray-500 text-start">
             {i + 1}{" "}
           </th>
           <td className="px-6 py-1 whitespace-nowrap font-normal text-gray-500">
@@ -22,7 +22,7 @@ const OrderTable = ({ data, currency }) => {
             {getNumberTwo(item.price)}
           </td>
 
-          <td className="px-6 py-1 whitespace-nowrap text-right font-bold font-DejaVu k-grid text-red-500">
+          <td className="px-6 py-1 whitespace-nowrap text-end font-bold font-DejaVu k-grid text-red-500">
             {currency}
             {getNumberTwo(item.itemTotal)}
           </td>

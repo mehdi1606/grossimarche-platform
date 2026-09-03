@@ -85,7 +85,7 @@ const Home = ({ popularProducts, categories, attributes }) => {
               href="/search"
               className="hidden items-center gap-1 text-sm font-medium text-emerald-700 hover:underline sm:flex"
             >
-              {t("home.see_all")} <FiArrowRight />
+              {t("home.see_all")} <FiArrowRight className="gm-dir-icon" />
             </Link>
           </Reveal>
 

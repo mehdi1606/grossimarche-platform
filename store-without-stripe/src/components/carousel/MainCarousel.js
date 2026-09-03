@@ -141,8 +141,8 @@ const MainCarousel = () => {
                 priority
               />
             </div>
-            <div className="absolute top-0 left-0 z-10 p-r-16 flex-col flex w-full h-full place-items-start justify-center">
-              <div className="pl-4 pr-12 sm:pl-10 sm:pr-16 w-10/12 lg:w-8/12 xl:w-7/12">
+            <div className="absolute top-0 start-0 z-10 p-r-16 flex-col flex w-full h-full place-items-start justify-center">
+              <div className="ps-4 pe-12 sm:ps-10 sm:pe-16 w-10/12 lg:w-8/12 xl:w-7/12">
                 <h1 className="mb-2 font-serif text-xl sm:text-lg md:text-2xl line-clamp-1 md:line-clamp-none  lg:line-clamp-none  lg:text-3xl font-bold text-gray-800">
                   {item.title}
                 </h1>

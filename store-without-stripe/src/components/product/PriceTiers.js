@@ -46,9 +46,9 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
       <table className="w-full text-sm">
         <thead>
           <tr className="text-2xs uppercase tracking-luxe text-emerald-700/60">
-            <th className="px-4 py-2 text-left font-medium">Quantité</th>
-            <th className="px-4 py-2 text-right font-medium">Prix / {unit}</th>
-            <th className="px-4 py-2 text-right font-medium">Économie</th>
+            <th className="px-4 py-2 text-start font-medium">Quantité</th>
+            <th className="px-4 py-2 text-end font-medium">Prix / {unit}</th>
+            <th className="px-4 py-2 text-end font-medium">Économie</th>
           </tr>
         </thead>
         <tbody>
@@ -64,12 +64,12 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
             </td>
             <td
               data-no-translate
-              className="px-4 py-2.5 text-right font-semibold tabular-nums text-ink-800"
+              className="px-4 py-2.5 text-end font-semibold tabular-nums text-ink-800"
             >
               {currency}
               {base.toFixed(2)}
             </td>
-            <td className="px-4 py-2.5 text-right text-ink-300">-</td>
+            <td className="px-4 py-2.5 text-end text-ink-300">-</td>
           </tr>
 
           {tiers.map((tier, i) => {
@@ -93,14 +93,14 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
                       : `${tier.minQuantity} et +`}
                   </span>
                   {isActive && (
-                    <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-2xs font-medium">
+                    <span className="ms-2 rounded-full bg-white/20 px-2 py-0.5 text-2xs font-medium">
                       Votre tarif
                     </span>
                   )}
                 </td>
                 <td
                   data-no-translate
-                  className={`px-4 py-2.5 text-right font-semibold tabular-nums ${
+                  className={`px-4 py-2.5 text-end font-semibold tabular-nums ${
                     isActive ? "text-white" : "text-emerald-700"
                   }`}
                 >
@@ -109,7 +109,7 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
                 </td>
                 <td
                   data-no-translate
-                  className={`px-4 py-2.5 text-right text-xs font-medium tabular-nums ${
+                  className={`px-4 py-2.5 text-end text-xs font-medium tabular-nums ${
                     isActive ? "text-emerald-50" : "text-brass-600"
                   }`}
                 >

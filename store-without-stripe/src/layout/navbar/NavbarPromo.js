@@ -33,10 +33,10 @@ const NavbarPromo = () => {
           {/* Categories mega-dropdown */}
           <Popover className="relative">
             <Popover.Button className="group inline-flex items-center py-2 text-sm font-medium text-ink-700 transition hover:text-emerald-700 focus:outline-none">
-              <FiGrid className="mr-2 h-4 w-4" />
+              <FiGrid className="me-2 h-4 w-4" />
               <span>{t("common.categories")}</span>
               <ChevronDownIcon
-                className="ml-1 h-3 w-3 transition group-hover:text-emerald-700"
+                className="ms-1 h-3 w-3 transition group-hover:text-emerald-700"
                 aria-hidden="true"
               />
             </Popover.Button>
@@ -50,7 +50,7 @@ const NavbarPromo = () => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-1"
             >
-              <Popover.Panel className="absolute left-0 z-20 mt-1 w-80">
+              <Popover.Panel className="absolute start-0 z-20 mt-1 w-80">
                 {({ close }) => (
                   <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-luxe-lg">
                     <CategoryMenu onNavigate={close} />

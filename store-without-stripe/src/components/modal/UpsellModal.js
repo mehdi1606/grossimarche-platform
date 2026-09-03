@@ -65,7 +65,7 @@ const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-600 disabled:opacity-70"
             >
               {submitting ? "Traitement…" : "Confirmer ma commande"}
-              {!submitting && <IoArrowForward />}
+              {!submitting && <IoArrowForward className="gm-dir-icon" />}
             </button>
             <button
               onClick={onClose}

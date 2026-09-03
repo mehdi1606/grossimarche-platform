@@ -62,7 +62,7 @@ const MyAccount = () => {
       <section className="relative rounded-2xl border border-line bg-white p-5 shadow-luxe">
         <Link
           href="/user/update-profile"
-          className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-500 hover:text-white"
+          className="absolute end-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-500 hover:text-white"
         >
           <FiEdit2 className="h-3 w-3" /> Modifier
         </Link>
@@ -70,7 +70,7 @@ const MyAccount = () => {
           <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-emerald-600 font-display text-2xl font-semibold text-white">
             {(userInfo?.name || userInfo?.email || "?").charAt(0).toUpperCase()}
           </span>
-          <div className="min-w-0 pr-24">
+          <div className="min-w-0 pe-24">
             <h5 className="truncate text-base font-semibold text-ink-800">
               {userInfo?.name || "Client"}
             </h5>
@@ -186,7 +186,7 @@ const MyAccount = () => {
                 <div className="mt-4 flex items-center gap-1 border-t border-line pt-3">
                   {confirmId === address.id ? (
                     <>
-                      <span className="mr-auto pl-1 text-xs text-ink-500">
+                      <span className="me-auto ps-1 text-xs text-ink-500">
                         Supprimer cette adresse ?
                       </span>
                       <button

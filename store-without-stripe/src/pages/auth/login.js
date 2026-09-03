@@ -23,7 +23,7 @@ const Login = () => {
       <div data-no-translate className="mx-auto max-w-screen-2xl px-3 sm:px-10">
         <div className="flex w-full flex-col py-4 lg:flex-row">
           <div className="w-full sm:p-5 lg:p-8">
-            <div className="mx-auto w-full max-w-lg justify-center overflow-hidden rounded-2xl border border-line bg-white px-4 py-8 text-left align-middle shadow-luxe transition-all sm:p-10">
+            <div className="mx-auto w-full max-w-lg justify-center overflow-hidden rounded-2xl border border-line bg-white px-4 py-8 text-start align-middle shadow-luxe transition-all sm:p-10">
               {fromCheckout && (
                 <div className="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 p-4">
                   <FiShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />

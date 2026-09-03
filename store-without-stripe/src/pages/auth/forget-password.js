@@ -207,7 +207,7 @@ const ForgetPassword = () => {
                     onClick={() => setStep(0)}
                     className="flex items-center gap-1.5 text-ink-500 transition hover:text-ink-800"
                   >
-                    <FiArrowLeft className="h-3.5 w-3.5" />
+                    <FiArrowLeft className="gm-dir-icon h-3.5 w-3.5" />
                     {t("auth.change_email")}
                   </button>
                   <button

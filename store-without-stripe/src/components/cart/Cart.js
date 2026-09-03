@@ -250,7 +250,7 @@ const Cart = () => {
             onClick={handleCheckout}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white shadow-luxe transition hover:-translate-y-0.5 hover:bg-emerald-700"
           >
-            {t("cart.checkout")} <IoArrowForward />
+            {t("cart.checkout")} <IoArrowForward className="gm-dir-icon" />
           </button>
           <p className="mt-2.5 flex items-center justify-center gap-1.5 text-2xs text-ink-400">
             <FiLock className="h-3 w-3" />

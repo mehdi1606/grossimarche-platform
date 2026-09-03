@@ -22,7 +22,7 @@ const Card = () => {
               priority
               className="object-cover"
             />
-            <div className="absolute top-0 left-0 z-10 p-r-16 flex-col flex w-full text-center justify-center">
+            <div className="absolute top-0 start-0 z-10 p-r-16 flex-col flex w-full text-center justify-center">
               <div className="pt-4">
                 <h2 className="font-serif text-base sm:text-lg md:text-lg lg:text-lg font-semibold text-gray-100">
                   {item.title} <br />

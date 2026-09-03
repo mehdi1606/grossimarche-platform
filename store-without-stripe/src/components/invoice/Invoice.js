@@ -24,7 +24,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
               <OrderStatusPill status={data?.status} size="sm" />
             </div>
           </div>
-          <div className="lg:text-right text-left">
+          <div className="lg:text-end text-start">
             <BrandMark variant="dark" className="lg:justify-end" />
             <p className="mt-1 text-sm text-gray-500">
               {globalSetting?.address ||
@@ -51,14 +51,14 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
               #{data?.invoice}
             </span>
           </div>
-          <div className="flex flex-col lg:text-right text-left">
+          <div className="flex flex-col lg:text-end text-start">
             <span className="font-bold font-serif text-sm uppercase text-gray-600 block">
               Facturer à
             </span>
             <span className="text-sm text-gray-500 block">
               {data?.user_info?.name} <br />
               {data?.user_info?.email}{" "}
-              <span className="ml-2">{data?.user_info?.contact}</span>
+              <span className="ms-2">{data?.user_info?.contact}</span>
               <br />
               {data?.user_info?.address}
               <br />
@@ -77,13 +77,13 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
                 <tr className="text-xs bg-gray-100">
                   <th
                     scope="col"
-                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-left"
+                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-start"
                   >
                     Sr.
                   </th>
                   <th
                     scope="col"
-                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-left"
+                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-start"
                   >
                     Produit
                   </th>
@@ -102,7 +102,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
 
                   <th
                     scope="col"
-                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-right"
+                    className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-end"
                   >
                     Montant
                   </th>
