@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import React, { createContext, useEffect, useReducer } from "react";
 
 //internal imports
@@ -46,6 +46,17 @@ export const UserProvider = ({ children }) => {
   // const status = "loading";
 
   useEffect(() => {
+    // The session survived but its tokens did not: the refresh was refused, so the account was
+    // blocked, rejected, or signed out elsewhere. Ending it here beats leaving the shopper to
+    // click through a shop that will refuse every request they make.
+    if (session?.error === "RefreshFailed") {
+      setToken(null);
+      dispatch({ type: "USER_LOGOUT" });
+      Cookies.remove("userInfo");
+      signOut({ redirect: false });
+      return;
+    }
+
     if (status === "authenticated" && session?.user) {
       setToken(session.user.token);
       // Mirror the session into userInfo (cookie + state) so components that read

@@ -43,6 +43,17 @@ const CustomerServices = {
     return requests.post("/auth/password/reset", { email, code, newPassword });
   },
 
+  /**
+   * Exchange a refresh token for a fresh access token.
+   *
+   * Called from the NextAuth jwt callback, on the server, so it deliberately does not go
+   * through the shared axios defaults: there is no signed-in header there to send, and a
+   * stale one would only confuse the request.
+   */
+  refreshToken: async (refreshToken) => {
+    return requests.post("/auth/refresh", { refreshToken });
+  },
+
   /** The segments offered at sign-up. Public: the chooser runs before anyone has an account. */
   getClientTypes: async () => {
     return requests.get("/client-types");

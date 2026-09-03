@@ -7,8 +7,8 @@ import de from "@/utils/translation/de.json";
 import bn from "@/utils/translation/bn.json";
 import hi from "@/utils/translation/hi.json";
 
-// Get default language from global settings or fallback to 'en'
-const defaultLanguage = Cookies.get("i18next") || "en";
+/** The language to open in, if one was picked before. Only ever the *initial* choice. */
+const initialLanguage = Cookies.get("i18next") || "en";
 
 i18n
   .use(LanguageDetector)
@@ -20,9 +20,18 @@ i18n
       bn: { translation: bn },
       hi: { translation: hi },
     },
-    debug: true,
-    fallbackLng: defaultLanguage,
-    // lag: "en",
+    lng: initialLanguage,
+    debug: false,
+    /**
+     * The fallback has to be a language that actually has a bundle here.
+     *
+     * It used to be this same cookie, which the detector fills with whatever the browser asks
+     * for - "fr" on a French machine. There is no French bundle, so the fallback pointed at
+     * nothing and every label rendered as its own key: that is why the sidebar read "OurStaff"
+     * and "ClientTypes" instead of their labels. A fallback that can be missing is not a
+     * fallback.
+     */
+    fallbackLng: "en",
     nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false,

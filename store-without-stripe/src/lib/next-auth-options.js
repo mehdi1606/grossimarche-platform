@@ -2,6 +2,38 @@ import Credentials from "next-auth/providers/credentials";
 
 import CustomerServices from "@services/CustomerServices";
 
+/** When an access token issued `expiresIn` seconds ago stops being accepted. */
+const expiryFrom = (expiresIn) => Date.now() + (Number(expiresIn) || 900) * 1000;
+
+/**
+ * Exchange the refresh token for a fresh access token.
+ *
+ * The access token lasts fifteen minutes. Without this, a shopper who browsed for a quarter of
+ * an hour and then added to their cart was answered 401 by an API that was perfectly willing to
+ * renew them - the storefront simply never asked.
+ *
+ * Refresh tokens rotate and are single-use, so the new one replaces the old: keeping the spent
+ * one would fail the next renewal, and the API reads a re-presented token as theft and revokes
+ * the whole family. NextAuth serialises jwt() per request, so there is no parallel-refresh race
+ * here as there is in the browser.
+ */
+const renew = async (token) => {
+  try {
+    const res = await CustomerServices.refreshToken(token.refreshToken);
+    return {
+      ...token,
+      token: res.accessToken,
+      refreshToken: res.refreshToken,
+      expiresAt: expiryFrom(res.expiresIn),
+    };
+  } catch {
+    // Revoked, expired, or the account was blocked. Marked rather than thrown: throwing here
+    // breaks the session callback, and the storefront should send them to sign in again rather
+    // than show a broken page.
+    return { ...token, token: null, refreshToken: null, error: "RefreshFailed" };
+  }
+};
+
 /**
  * Storefront sign-in: e-mail + password, through NextAuth's session machinery.
  *
@@ -39,6 +71,7 @@ export const getDynamicAuthOptions = async () => {
             address: "",
             token: res?.accessToken,
             refreshToken: res?.refreshToken,
+            expiresIn: res?.expiresIn,
           };
         } catch (error) {
           // The API distinguishes "wrong password" from "waiting for validation" on purpose;
@@ -71,11 +104,17 @@ export const getDynamicAuthOptions = async () => {
           token.address = user.address;
           token.token = user.token;
           token.refreshToken = user.refreshToken;
+          token.expiresAt = expiryFrom(user.expiresIn);
         }
         if (trigger === "update" && session) {
           return { ...token, ...session.user };
         }
-        return token;
+        // Still valid: hand it back untouched. A minute of margin, so a request that leaves now
+        // does not arrive after the token has died.
+        if (!token.expiresAt || Date.now() < token.expiresAt - 60_000) {
+          return token;
+        }
+        return renew(token);
       },
       async session({ session, token }) {
         session.user.id = token.id;
@@ -91,6 +130,9 @@ export const getDynamicAuthOptions = async () => {
         session.user.address = token.address;
         session.user.token = token.token;
         session.user.refreshToken = token.refreshToken;
+        // Surfaced so UserContext can sign the shopper out rather than leave them clicking
+        // through a shop whose every request will be refused.
+        session.error = token.error || null;
         return session;
       },
       async redirect({ url, baseUrl }) {
