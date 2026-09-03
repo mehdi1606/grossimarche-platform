@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Trans, useTranslation } from "react-i18next";
 import { FiArrowLeft, FiCheckCircle, FiLock, FiMail, FiShield } from "react-icons/fi";
 
 //internal import
@@ -8,7 +9,8 @@ import Layout from "@layout/Layout";
 import CustomerServices from "@services/CustomerServices";
 import { notifyError, notifySuccess } from "@utils/toast";
 
-const STEPS = ["Votre e-mail", "Le code reçu", "Nouveau mot de passe"];
+// Keys, resolved at render: the steps are named at module load, before any hook exists.
+const STEPS = ["step_email", "step_code", "step_password"];
 
 /**
  * Forgotten password, in three steps on one page.
@@ -25,6 +27,7 @@ const STEPS = ["Votre e-mail", "Le code reçu", "Nouveau mot de passe"];
  * what stops this page from revealing which addresses are staff.
  */
 const ForgetPassword = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -39,17 +42,16 @@ const ForgetPassword = () => {
 
   const sendCode = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return notifyError("Saisissez votre adresse e-mail.");
+    if (!email.trim()) return notifyError(t("auth.enter_email"));
     setLoading(true);
     try {
       const res = await CustomerServices.forgotPassword(email.trim());
-      // The API deliberately says the same thing for an unknown address, so the message is
-      // shown as it comes rather than turned into "code envoyé" - which would be a claim we
-      // cannot make.
-      notifySuccess(res?.message || "Si un compte existe, un code vient d'être envoyé.");
+      // The API deliberately says the same thing for an unknown address. Its message is shown
+      // as it comes rather than turned into "code sent" - a claim we cannot make.
+      notifySuccess(res?.message || t("auth.code_maybe_sent"));
       setStep(1);
     } catch (err) {
-      notifyError(err?.response?.data?.message || "Envoi impossible. Réessayez.");
+      notifyError(err?.response?.data?.message || t("auth.send_failed"));
     } finally {
       setLoading(false);
     }
@@ -57,13 +59,13 @@ const ForgetPassword = () => {
 
   const checkCode = async (e) => {
     e.preventDefault();
-    if (!code.trim()) return notifyError("Saisissez le code reçu par e-mail.");
+    if (!code.trim()) return notifyError(t("auth.enter_code"));
     setLoading(true);
     try {
       await CustomerServices.verifyResetCode({ email: email.trim(), code: code.trim() });
       setStep(2);
     } catch (err) {
-      notifyError(err?.response?.data?.message || "Code invalide ou expiré.");
+      notifyError(err?.response?.data?.message || t("auth.code_invalid"));
     } finally {
       setLoading(false);
     }
@@ -72,10 +74,10 @@ const ForgetPassword = () => {
   const savePassword = async (e) => {
     e.preventDefault();
     if (password.length < 10) {
-      return notifyError("Le mot de passe doit contenir au moins 10 caractères.");
+      return notifyError(t("auth.password_too_short"));
     }
     if (password !== confirm) {
-      return notifyError("Les deux mots de passe ne correspondent pas.");
+      return notifyError(t("auth.passwords_differ"));
     }
     setLoading(true);
     try {
@@ -84,10 +86,10 @@ const ForgetPassword = () => {
         code: code.trim(),
         newPassword: password,
       });
-      notifySuccess("Mot de passe mis à jour. Connectez-vous.");
+      notifySuccess(t("auth.password_updated"));
       router.push("/auth/login");
     } catch (err) {
-      notifyError(err?.response?.data?.message || "Réinitialisation impossible.");
+      notifyError(err?.response?.data?.message || t("auth.reset_failed"));
     } finally {
       setLoading(false);
     }
@@ -97,17 +99,17 @@ const ForgetPassword = () => {
     setLoading(true);
     try {
       await CustomerServices.forgotPassword(email.trim());
-      notifySuccess("Un nouveau code a été envoyé.");
+      notifySuccess(t("auth.code_resent"));
     } catch (err) {
-      notifyError(err?.response?.data?.message || "Envoi impossible.");
+      notifyError(err?.response?.data?.message || t("auth.send_failed"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Layout title="Mot de passe oublié" description="Réinitialisez votre mot de passe">
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
+    <Layout title={t("auth.forgot_title")} description={t("auth.forgot_meta")}>
+      <div data-no-translate className="mx-auto max-w-screen-2xl px-3 sm:px-10">
         <div className="flex w-full justify-center py-8 lg:py-14">
           <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-line bg-white px-4 py-8 shadow-luxe sm:p-10">
             <div className="mb-8 text-center">
@@ -117,17 +119,17 @@ const ForgetPassword = () => {
                 {step === 2 && <FiLock className="h-6 w-6" />}
               </span>
               <h1 className="font-display text-2xl font-semibold text-ink-900 sm:text-3xl">
-                Mot de passe oublié
+                {t("auth.forgot_title")}
               </h1>
-              <p className="mt-2 text-sm text-ink-500">{STEPS[step]}</p>
+              <p className="mt-2 text-sm text-ink-500">{t(`auth.${STEPS[step]}`)}</p>
             </div>
 
             {/* Progress. Three dots rather than a bar: the steps are few enough to count, and a
                 shopper who has waited for an e-mail wants to see how much is left. */}
             <div className="mb-8 flex items-center justify-center gap-2">
-              {STEPS.map((label, i) => (
+              {STEPS.map((key, i) => (
                 <span
-                  key={label}
+                  key={key}
                   className={`h-1.5 rounded-full transition-all ${
                     i < step
                       ? "w-8 bg-emerald-600"
@@ -143,26 +145,26 @@ const ForgetPassword = () => {
               <form onSubmit={sendCode} className="grid gap-5">
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-ink-700">
-                    Adresse e-mail du compte
+                    {t("auth.account_email")}
                   </span>
                   <input
                     type="email"
                     autoFocus
                     className={inputCls}
-                    placeholder="vous@votre-commerce.ma"
+                    placeholder={t("auth.email_placeholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </label>
                 <p className="text-xs leading-relaxed text-ink-400">
-                  Nous vous enverrons un code à 6 chiffres, valable 15 minutes.
+                  {t("auth.code_will_be_sent")}
                 </p>
                 <button
                   type="submit"
                   disabled={loading}
                   className="h-12 w-full rounded-xl bg-emerald-700 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                 >
-                  {loading ? "Envoi…" : "Recevoir le code"}
+                  {loading ? t("auth.sending") : t("auth.get_code")}
                 </button>
               </form>
             )}
@@ -170,12 +172,15 @@ const ForgetPassword = () => {
             {step === 1 && (
               <form onSubmit={checkCode} className="grid gap-5">
                 <p className="rounded-xl bg-cream px-4 py-3 text-sm text-ink-600">
-                  Code envoyé à <strong className="text-ink-800">{email}</strong>. Pensez à
-                  vérifier vos spams.
+                  <Trans
+                    i18nKey="auth.code_sent_to"
+                    values={{ email }}
+                    components={[<strong key="0" className="text-ink-800" />]}
+                  />
                 </p>
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-ink-700">
-                    Code à 6 chiffres
+                    {t("auth.code_label")}
                   </span>
                   <input
                     type="text"
@@ -194,7 +199,7 @@ const ForgetPassword = () => {
                   disabled={loading}
                   className="h-12 w-full rounded-xl bg-emerald-700 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                 >
-                  {loading ? "Vérification…" : "Vérifier le code"}
+                  {loading ? t("auth.verifying") : t("auth.verify_code")}
                 </button>
                 <div className="flex items-center justify-between text-sm">
                   <button
@@ -203,7 +208,7 @@ const ForgetPassword = () => {
                     className="flex items-center gap-1.5 text-ink-500 transition hover:text-ink-800"
                   >
                     <FiArrowLeft className="h-3.5 w-3.5" />
-                    Changer d&apos;adresse
+                    {t("auth.change_email")}
                   </button>
                   <button
                     type="button"
@@ -211,7 +216,7 @@ const ForgetPassword = () => {
                     disabled={loading}
                     className="font-medium text-emerald-700 transition hover:underline disabled:opacity-60"
                   >
-                    Renvoyer le code
+                    {t("auth.resend_code")}
                   </button>
                 </div>
               </form>
@@ -221,45 +226,44 @@ const ForgetPassword = () => {
               <form onSubmit={savePassword} className="grid gap-5">
                 <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                   <FiCheckCircle className="h-4 w-4 shrink-0" />
-                  Code vérifié. Choisissez votre nouveau mot de passe.
+                  {t("auth.code_verified")}
                 </div>
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-ink-700">
-                    Nouveau mot de passe
+                    {t("auth.new_password")}
                   </span>
                   <input
                     type="password"
                     autoFocus
                     autoComplete="new-password"
                     className={inputCls}
-                    placeholder="10 caractères minimum"
+                    placeholder={t("auth.password_min_placeholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-semibold text-ink-700">
-                    Confirmer le mot de passe
+                    {t("auth.confirm_password")}
                   </span>
                   <input
                     type="password"
                     autoComplete="new-password"
                     className={inputCls}
-                    placeholder="Ressaisissez-le"
+                    placeholder={t("auth.confirm_placeholder")}
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                   />
                 </label>
                 <p className="text-xs leading-relaxed text-ink-400">
-                  Toutes vos sessions ouvertes seront fermées : vous devrez vous reconnecter,
-                  ici et sur vos autres appareils.
+                  {t("auth.sessions_closed")}
                 </p>
                 <button
                   type="submit"
                   disabled={loading}
                   className="h-12 w-full rounded-xl bg-emerald-700 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                 >
-                  {loading ? "Enregistrement…" : "Enregistrer le mot de passe"}
+                  {loading ? t("auth.saving") : t("auth.save_password")}
                 </button>
               </form>
             )}
@@ -269,7 +273,7 @@ const ForgetPassword = () => {
                 href="/auth/login"
                 className="text-sm font-semibold text-emerald-700 hover:underline"
               >
-                Retour à la connexion
+                {t("auth.back_to_login")}
               </Link>
             </div>
           </div>
