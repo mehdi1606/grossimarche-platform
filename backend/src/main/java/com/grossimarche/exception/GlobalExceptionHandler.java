@@ -16,6 +16,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -93,6 +95,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ErrorCode.DUPLICATE_REQUEST.getStatus())
                 .body(body(ErrorCode.DUPLICATE_REQUEST,
                         "Conflit avec l'état actuel des données.", List.of()));
+    }
+
+    /**
+     * A file over the configured limit. Worth its own answer: without one the upload failed as a
+     * bare 500, and the only way to learn the photo was simply too big was to read the log.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(ErrorCode.VALIDATION_FAILED.getStatus())
+                .body(body(ErrorCode.VALIDATION_FAILED,
+                        "Fichier trop volumineux (5 Mo maximum).", List.of()));
+    }
+
+    /**
+     * A request that claims to carry a file but is not a multipart body - almost always a client
+     * that labelled the upload as JSON, so the browser never wrote the multipart boundary. That
+     * is a malformed request, not a server fault, and answering 400 with the reason means the
+     * next one is diagnosed from the response instead of from a stack trace.
+     */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiError> handleMultipart(MultipartException ex) {
+        log.warn("Malformed multipart upload [{}]: {}",
+                RequestTraceFilter.currentTraceId(), ex.getMessage());
+        return ResponseEntity.status(ErrorCode.VALIDATION_FAILED.getStatus())
+                .body(body(ErrorCode.VALIDATION_FAILED,
+                        "Le fichier n'a pas été reçu correctement. Réessayez.", List.of()));
     }
 
     @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})

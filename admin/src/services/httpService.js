@@ -40,14 +40,30 @@ instance.interceptors.request.use(function (config) {
   const adminInfo = readAdmin();
   const company = Cookies.get("company") || null;
 
-  return {
-    ...config,
-    headers: {
-      ...config.headers,
-      authorization: adminInfo ? `Bearer ${adminInfo.token}` : null,
-      company,
-    },
+  const headers = {
+    ...config.headers,
+    authorization: adminInfo ? `Bearer ${adminInfo.token}` : null,
+    company,
   };
+
+  /*
+   * A file upload must not be labelled as JSON.
+   *
+   * The instance sets `Content-Type: application/json` for every request, which is right for
+   * the twenty JSON endpoints and wrong for the three multipart ones. Axios only fills in
+   * `multipart/form-data; boundary=...` when the header is absent - so a FormData body went out
+   * announced as JSON and with no boundary, and Spring answered "Current request is not a
+   * multipart request": an unhandled exception, hence a bare 500 on every product or offer
+   * image and on the CSV import.
+   *
+   * Deleting the header here rather than at each call site means a new upload cannot forget it.
+   */
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    delete headers["Content-Type"];
+    delete headers["content-type"];
+  }
+
+  return { ...config, headers };
 });
 
 /**
