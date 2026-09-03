@@ -3,6 +3,11 @@ import { initReactI18next } from "react-i18next";
 
 import fr from "@locales/fr.json";
 import ar from "@locales/ar.json";
+// Sign-in, sign-up and password reset carry enough text to be worth their own file. Merged
+// under an "auth" namespace rather than loaded as a separate i18next namespace: one namespace
+// means every t() call in the app reads the same way.
+import authFr from "@locales/auth.fr.json";
+import authAr from "@locales/auth.ar.json";
 
 /**
  * The shop's own words, in French and Arabic.
@@ -32,8 +37,8 @@ export const isRtl = (locale) => RTL_LOCALES.includes(locale);
 
 i18n.use(initReactI18next).init({
   resources: {
-    fr: { translation: fr },
-    ar: { translation: ar },
+    fr: { translation: { ...fr, auth: authFr } },
+    ar: { translation: { ...ar, auth: authAr } },
   },
   // Initialised on the source language and switched by the provider once the visitor's choice
   // is known. Server and first client render therefore agree, which is what avoids the

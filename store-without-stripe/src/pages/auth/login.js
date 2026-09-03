@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { FiLock, FiMail, FiShoppingBag } from "react-icons/fi";
 
 //internal import
@@ -9,6 +10,7 @@ import useLoginSubmit from "@hooks/useLoginSubmit";
 import InputArea from "@components/form/InputArea";
 
 const Login = () => {
+  const { t } = useTranslation();
   const { handleSubmit, submitHandler, register, errors, loading } = useLoginSubmit();
 
   // Coming from the cart: say why the sign-in is being asked for, instead of dropping the
@@ -16,8 +18,9 @@ const Login = () => {
   const fromCheckout = useSearchParams().get("redirectUrl") === "checkout";
 
   return (
-    <Layout title="Connexion" description="Connexion a votre compte professionnel">
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
+    <Layout title={t("auth.login_title")} description={t("auth.login_meta")}>
+      {/* Translated from the catalogue, so the LibreTranslate DOM pass leaves it alone. */}
+      <div data-no-translate className="mx-auto max-w-screen-2xl px-3 sm:px-10">
         <div className="flex w-full flex-col py-4 lg:flex-row">
           <div className="w-full sm:p-5 lg:p-8">
             <div className="mx-auto w-full max-w-lg justify-center overflow-hidden rounded-2xl border border-line bg-white px-4 py-8 text-left align-middle shadow-luxe transition-all sm:p-10">
@@ -25,18 +28,18 @@ const Login = () => {
                 <div className="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 p-4">
                   <FiShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                   <p className="text-sm text-emerald-800">
-                    <span className="font-semibold">Votre panier est conserve.</span>{" "}
-                    Connectez-vous pour finaliser votre commande.
+                    <span className="font-semibold">{t("auth.cart_kept")}</span>{" "}
+                    {t("auth.cart_kept_text")}
                   </p>
                 </div>
               )}
 
               <div className="mb-8 text-center">
                 <h2 className="font-display text-3xl font-semibold text-ink-900">
-                  {fromCheckout ? "Finaliser ma commande" : "Connexion"}
+                  {fromCheckout ? t("auth.finish_order") : t("auth.login_title")}
                 </h2>
                 <p className="mt-2 text-sm text-ink-500 md:text-base">
-                  Accedez a vos tarifs professionnels.
+                  {t("auth.login_subtitle")}
                 </p>
               </div>
 
@@ -44,10 +47,10 @@ const Login = () => {
                 <div>
                   <InputArea
                     register={register}
-                    label="Adresse e-mail"
+                    label={t("auth.email")}
                     name="email"
                     type="email"
-                    placeholder="vous@votre-commerce.ma"
+                    placeholder={t("auth.email_placeholder")}
                     Icon={FiMail}
                   />
                   <Error errorName={errors.email} />
@@ -56,10 +59,10 @@ const Login = () => {
                 <div>
                   <InputArea
                     register={register}
-                    label="Mot de passe"
+                    label={t("auth.password")}
                     name="password"
                     type="password"
-                    placeholder="Votre mot de passe"
+                    placeholder={t("auth.password_placeholder")}
                     Icon={FiLock}
                   />
                   <Error errorName={errors.password} />
@@ -70,7 +73,7 @@ const Login = () => {
                     href="/auth/forget-password"
                     className="text-sm text-emerald-700 transition hover:underline"
                   >
-                    Mot de passe oublie ?
+                    {t("auth.forgot")}
                   </Link>
                 </div>
 
@@ -79,19 +82,17 @@ const Login = () => {
                   disabled={loading}
                   className="h-12 w-full rounded-xl bg-emerald-700 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                 >
-                  {loading ? "Connexion..." : "Se connecter"}
+                  {loading ? t("auth.signing_in") : t("auth.sign_in")}
                 </button>
               </form>
 
               <div className="mt-8 border-t border-line pt-6 text-center">
-                <p className="text-sm text-ink-500">
-                  Pas encore de compte professionnel ?
-                </p>
+                <p className="text-sm text-ink-500">{t("auth.no_account")}</p>
                 <Link
                   href="/auth/signup"
                   className="mt-2 inline-block text-sm font-semibold text-emerald-700 hover:underline"
                 >
-                  Demander l&apos;ouverture d&apos;un compte
+                  {t("auth.request_account")}
                 </Link>
               </div>
             </div>
