@@ -6,6 +6,7 @@ import { FiChevronRight, FiRefreshCw } from "react-icons/fi";
 import useReorder from "@hooks/useReorder";
 import OrderStatusPill from "@components/order/OrderStatusPill";
 import { ORDER_FLOW, statusStep, isCancelled } from "@utils/orderStatus";
+import { useTranslation } from "react-i18next";
 
 dayjs.locale("fr");
 
@@ -18,6 +19,7 @@ dayjs.locale("fr");
  * actions: follow this order, or order it again.
  */
 const OrderCard = ({ order, currency = "" }) => {
+  const { t } = useTranslation();
   const { reorder, reorderingId } = useReorder();
   const step = statusStep(order.status);
   const progress = isCancelled(order.status)
@@ -59,7 +61,7 @@ const OrderCard = ({ order, currency = "" }) => {
           href={`/order/${order._id}`}
           className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:flex-none"
         >
-          Suivre ma commande
+          {t("order.track")}
           <FiChevronRight className="gm-dir-icon h-4 w-4" />
         </Link>
         <button
@@ -70,7 +72,7 @@ const OrderCard = ({ order, currency = "" }) => {
           <FiRefreshCw
             className={`h-3.5 w-3.5 ${reorderingId === order._id ? "animate-spin" : ""}`}
           />
-          Commander à nouveau
+          {t("order.reorder")}
         </button>
       </div>
     </div>

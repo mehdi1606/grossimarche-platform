@@ -4,6 +4,7 @@ import { FiArrowRight, FiArrowUpRight, FiPackage } from "react-icons/fi";
 //internal import
 import useBundles from "@hooks/useBundles";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { useTranslation } from "react-i18next";
 
 /** Seconds each tile spends crossing the row. Higher = slower, calmer. */
 const SECONDS_PER_TILE = 7;
@@ -76,7 +77,7 @@ const OfferTile = ({ bundle, currency, ariaHidden }) => (
  * space of one: a wide banner where the name can be set large and the saving read from across
  * the room.
  */
-const OfferFeature = ({ bundle, currency }) => (
+const OfferFeature = ({ bundle, currency, t }) => (
   <Link
     href="/offer"
     className="group relative block overflow-hidden rounded-3xl bg-emerald-900"
@@ -103,7 +104,7 @@ const OfferFeature = ({ bundle, currency }) => (
       <div className="relative order-1 flex flex-col justify-center p-8 md:order-2 md:p-12">
         <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-luxe text-emerald-50 ring-1 ring-inset ring-white/20">
           <FiPackage className="h-3 w-3" />
-          Panier du moment
+          {t("bundle.of_the_moment")}
         </span>
 
         <h3 className="mt-5 font-display text-3xl font-semibold leading-tight text-white lg:text-4xl">
@@ -139,7 +140,7 @@ const OfferFeature = ({ bundle, currency }) => (
         </div>
 
         <span className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-cream px-6 py-3 text-sm font-semibold text-emerald-800 transition group-hover:gap-3">
-          Voir l&apos;offre
+          {t("bundle.see_offer")}
           <FiArrowUpRight className="gm-dir-icon h-4 w-4" />
         </span>
       </div>
@@ -163,6 +164,7 @@ const OfferFeature = ({ bundle, currency }) => (
  * new one.
  */
 const BundleRail = () => {
+  const { t } = useTranslation();
   const { bundles, isLoading } = useBundles();
   const { currency } = useUtilsFunction();
 
@@ -188,14 +190,14 @@ const BundleRail = () => {
             href="/offer"
             className="hidden shrink-0 items-center gap-1.5 text-sm font-medium text-emerald-700 transition hover:gap-2.5 hover:underline sm:flex"
           >
-            Toutes les offres <FiArrowRight className="gm-dir-icon h-3.5 w-3.5" />
+            {t("bundle.all_offers")} <FiArrowRight className="gm-dir-icon h-3.5 w-3.5" />
           </Link>
         )}
       </div>
 
       {bundles.length === 1 && (
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-10">
-          <OfferFeature bundle={bundles[0]} currency={currency} />
+          <OfferFeature bundle={bundles[0]} currency={currency} t={t} />
         </div>
       )}
 

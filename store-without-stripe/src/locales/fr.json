@@ -315,7 +315,9 @@
     "back": "Retour",
     "cancel_order": "Annuler la commande",
     "not_found": "Commande introuvable.",
-    "cancelled_ok": "Votre commande a été annulée."
+    "cancelled_ok": "Votre commande a été annulée.",
+    "track": "Suivre ma commande",
+    "cancelled": "Commande annulée"
   },
   "address": {
     "modal_title": "Adresse de livraison",
@@ -335,7 +337,13 @@
     "default_hint": "Pré-sélectionnée à chaque commande.",
     "free_over": "Offerte dès 1000 DH, quelle que soit la ville",
     "close": "Fermer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "required": "L'adresse est obligatoire.",
+    "city_required": "Choisissez votre ville de livraison.",
+    "district_required": "Choisissez votre quartier : il détermine les frais de livraison.",
+    "updated": "Adresse mise à jour.",
+    "saved": "Adresse enregistrée.",
+    "save": "Enregistrer"
   },
   "product": {
     "home": "Accueil",
@@ -382,5 +390,32 @@
     "text": "Ajoutez ces produits souvent commandés ensemble.",
     "skip": "Continuer mes achats",
     "close": "Fermer"
+  },
+  "bundle": {
+    "unavailable": "Temporairement indisponible",
+    "you_save": "Vous économisez",
+    "of_the_moment": "Panier du moment",
+    "see_offer": "Voir l'offre",
+    "all_offers": "Toutes les offres"
+  },
+  "invoice": {
+    "title": "Facture",
+    "status": "Statut :",
+    "date": "Date",
+    "number": "N° de facture",
+    "bill_to": "Facturer à",
+    "product": "Produit",
+    "quantity": "Quantité",
+    "qty": "Qté",
+    "price": "Prix",
+    "amount": "Montant",
+    "payment_method": "Mode de paiement",
+    "shipping": "Livraison",
+    "free": "Offerte",
+    "discount": "Remise",
+    "total": "Total",
+    "cod": "Paiement à la livraison",
+    "customer": "Client",
+    "tagline": "Marché de gros en ligne - Maroc"
   }
 }

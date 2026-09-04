@@ -5,8 +5,10 @@ import OrderTable from "@components/order/OrderTable";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import BrandMark from "@components/common/BrandMark";
 import OrderStatusPill from "@components/order/OrderStatusPill";
+import { useTranslation } from "react-i18next";
 
 const Invoice = ({ data, printRef, globalSetting, currency }) => {
+  const { t } = useTranslation();
   // console.log('invoice data',data)
 
   const { getNumberTwo } = useUtilsFunction();
@@ -16,11 +18,11 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
       <div className="bg-sand p-8 rounded-t-xl">
         <div className="flex lg:flex-row md:flex-row flex-col lg:items-center justify-between pb-4 border-b border-gray-50">
           <div>
-            <h1 className="font-display text-2xl font-semibold uppercase">Facture</h1>
+            <h1 className="font-display text-2xl font-semibold uppercase">{t("invoice.title")}</h1>
             {/* One status vocabulary for the whole store - the old six-way string compare
                 rendered nothing at all for CONFIRMED, PREPARING and OUT_FOR_DELIVERY. */}
             <div className="mt-2 flex items-center gap-2 text-ink-600">
-              <span className="text-sm">Statut :</span>
+              <span className="text-sm">{t("invoice.status")}</span>
               <OrderStatusPill status={data?.status} size="sm" />
             </div>
           </div>
@@ -35,7 +37,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
         <div className="flex lg:flex-row md:flex-row flex-col justify-between pt-4">
           <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col">
             <span className="font-bold font-serif text-sm uppercase text-gray-600 block">
-              Date
+              {t("invoice.date")}
             </span>
             <span className="text-sm text-gray-500 block">
               {data.createdAt !== undefined && (
@@ -45,7 +47,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
           </div>
           <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col">
             <span className="font-bold font-serif text-sm uppercase text-gray-600 block">
-              N° de facture
+              {t("invoice.number")}
             </span>
             <span className="text-sm text-gray-500 block">
               #{data?.invoice}
@@ -53,7 +55,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
           </div>
           <div className="flex flex-col lg:text-end text-start">
             <span className="font-bold font-serif text-sm uppercase text-gray-600 block">
-              Facturer à
+              {t("invoice.bill_to")}
             </span>
             <span className="text-sm text-gray-500 block">
               {data?.user_info?.name} <br />
@@ -85,26 +87,26 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
                     scope="col"
                     className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-start"
                   >
-                    Produit
+                    {t("invoice.product")}
                   </th>
                   <th
                     scope="col"
                     className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-center"
                   >
-                    Quantité
+                    {t("invoice.quantity")}
                   </th>
                   <th
                     scope="col"
                     className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-center"
                   >
-                    Prix
+                    {t("invoice.price")}
                   </th>
 
                   <th
                     scope="col"
                     className="font-serif font-semibold px-6 py-2 text-gray-700 uppercase tracking-wider text-end"
                   >
-                    Montant
+                    {t("invoice.amount")}
                   </th>
                 </tr>
               </thead>
@@ -118,17 +120,17 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
         <div className="flex lg:flex-row md:flex-row flex-col justify-between pt-4">
           <div className="mb-3 md:mb-0 lg:mb-0  flex flex-col sm:flex-wrap">
             <span className="mb-1 font-bold font-serif text-sm uppercase text-gray-600 block">
-              Mode de paiement
+              {t("invoice.payment_method")}
             </span>
             <span className="text-sm text-gray-500 font-semibold font-serif block">
               {data?.paymentMethod === "Cash"
-                ? "Paiement à la livraison"
+                ? t("invoice.cod")
                 : data?.paymentMethod}
             </span>
           </div>
           <div className="mb-3 md:mb-0 lg:mb-0  flex flex-col sm:flex-wrap">
             <span className="mb-1 font-bold font-serif text-sm uppercase text-gray-600 block">
-              Livraison
+              {t("invoice.shipping")}
             </span>
             <span className="text-sm font-semibold font-serif block">
               {Number(data.shippingCost) > 0 ? (
@@ -137,13 +139,13 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
                   {getNumberTwo(data.shippingCost)}
                 </span>
               ) : (
-                <span className="text-emerald-600">Offerte</span>
+                <span className="text-emerald-600">{t("invoice.free")}</span>
               )}
             </span>
           </div>
           <div className="mb-3 md:mb-0 lg:mb-0  flex flex-col sm:flex-wrap">
             <span className="mb-1 font-bold font-serif text-sm uppercase text-gray-600 block">
-              Remise
+              {t("invoice.discount")}
             </span>
             <span className="text-sm text-gray-500 font-semibold font-serif block">
               {currency}
@@ -152,7 +154,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
           </div>
           <div className="flex flex-col sm:flex-wrap">
             <span className="mb-1 font-bold font-serif text-sm uppercase text-gray-600 block">
-              Total
+              {t("invoice.total")}
             </span>
             <span className="text-2xl font-serif font-bold text-red-500 block">
               {currency}

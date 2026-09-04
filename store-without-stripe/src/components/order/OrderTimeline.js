@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 
 import { ORDER_FLOW, statusMeta, statusStep } from "@utils/orderStatus";
+import { useTranslation } from "react-i18next";
 
 dayjs.locale("fr");
 
@@ -32,6 +33,7 @@ const STEP_ICON = {
  * rather than a half-filled progress bar.
  */
 const OrderTimeline = ({ status, timeline = [] }) => {
+  const { t } = useTranslation();
   // First occurrence wins: a status re-entered (e.g. an admin correcting a jump) should show
   // when the order *first* reached that step.
   const reachedAt = {};
@@ -48,7 +50,7 @@ const OrderTimeline = ({ status, timeline = [] }) => {
         </span>
         <div>
           <p className="font-display text-base font-semibold text-ink-800">
-            Commande annulée
+            {t("order.cancelled")}
           </p>
           <p className="mt-0.5 text-sm text-ink-500">
             {cancelledAt

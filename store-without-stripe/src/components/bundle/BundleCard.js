@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FiPackage, FiPlus, FiShoppingCart } from "react-icons/fi";
 
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { useTranslation } from "react-i18next";
 
 /**
  * One bundle offer - a "panier".
@@ -12,6 +13,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
  * price itself.
  */
 const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
+  const { t } = useTranslation();
   const { currency } = useUtilsFunction();
   const items = bundle?.items || [];
 
@@ -39,7 +41,7 @@ const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
         )}
         {!bundle.available && (
           <span className="absolute inset-x-0 bottom-0 bg-ink-900/80 py-1.5 text-center text-2xs font-medium text-white">
-            Temporairement indisponible
+            {t("bundle.unavailable")}
           </span>
         )}
       </div>
@@ -95,7 +97,7 @@ const BundleCard = ({ bundle, onAdd, adding = false, compact = false }) => {
             </div>
             {Number(bundle.savings) > 0 && (
               <p className="pb-1 text-end text-xs font-semibold text-brass-600">
-                Vous économisez
+                {t("bundle.you_save")}
                 <br />
                 <span data-no-translate className="tabular-nums">
                   {currency}

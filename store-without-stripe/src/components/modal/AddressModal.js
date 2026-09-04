@@ -5,6 +5,7 @@ import { FiCheck, FiTruck } from "react-icons/fi";
 
 //internal import
 import { DELIVERY_CITIES } from "@utils/delivery";
+import { useTranslation } from "react-i18next";
 
 /**
  * Delivery address.
@@ -23,6 +24,7 @@ import { DELIVERY_CITIES } from "@utils/delivery";
  * read by anything - the delivery fee comes from the city alone.
  */
 const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
+  const { t } = useTranslation();
   const {
     register,
     control,
@@ -67,14 +69,14 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
             </span>
             <div>
               <h3 className="font-display text-lg font-semibold text-ink-900">
-                Adresse de livraison
+                {t("address.modal_title")}
               </h3>
-              <p className="text-sm text-ink-500">Où souhaitez-vous être livré ?</p>
+              <p className="text-sm text-ink-500">{t("address.modal_subtitle")}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={t("address.close")}
             className="rounded-full p-1.5 text-ink-400 transition hover:bg-sand hover:text-ink-600"
           >
             <IoClose className="text-xl" />
@@ -91,7 +93,7 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
               <input
                 {...register("address", { required: "L'adresse est requise." })}
                 className="form-input h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-800 transition duration-200 placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                placeholder="Rue, quartier, repère…"
+                placeholder={t("address.line_short_placeholder")}
               />
               {errors.address && (
                 <p className="mt-1.5 text-xs text-red-500">{errors.address.message}</p>
@@ -101,10 +103,10 @@ const AddressModal = ({ isOpen, onClose, onSave, saving, defaultValues }) => {
             <div>
               <div className="mb-2.5 flex items-baseline justify-between gap-3">
                 <label className="block text-sm font-medium text-ink-600">
-                  Ville de livraison
+                  {t("address.delivery_city")}
                 </label>
                 <span className="text-2xs text-ink-400">
-                  Offerte dès 1000 DH, quelle que soit la ville
+                  {t("address.free_over")}
                 </span>
               </div>
 

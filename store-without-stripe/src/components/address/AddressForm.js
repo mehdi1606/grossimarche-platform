@@ -5,6 +5,7 @@ import { FiMapPin, FiTruck } from "react-icons/fi";
 import CustomerServices from "@services/CustomerServices";
 import DeliveryServices from "@services/DeliveryServices";
 import { notifyError, notifySuccess } from "@utils/toast";
+import { useTranslation } from "react-i18next";
 
 /**
  * Add or edit one delivery address.
@@ -15,6 +16,7 @@ import { notifyError, notifySuccess } from "@utils/toast";
  * reaches the shopper without touching this file.
  */
 const AddressForm = ({ initial = null, onSaved, onCancel }) => {
+  const { t } = useTranslation();
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -58,10 +60,10 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.addressLine.trim()) return notifyError("L'adresse est obligatoire.");
-    if (!form.city) return notifyError("Choisissez votre ville de livraison.");
+    if (!form.addressLine.trim()) return notifyError(t("address.required"));
+    if (!form.city) return notifyError(t("address.city_required"));
     if (districts.length > 0 && !form.district) {
-      return notifyError("Choisissez votre quartier : il détermine les frais de livraison.");
+      return notifyError(t("address.district_required"));
     }
 
     setSaving(true);
@@ -75,10 +77,10 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
       };
       if (initial?.id) {
         await CustomerServices.updateShippingAddress(initial.id, payload);
-        notifySuccess("Adresse mise à jour.");
+        notifySuccess(t("address.updated"));
       } else {
         await CustomerServices.addShippingAddress({ shippingAddressData: payload });
-        notifySuccess("Adresse enregistrée.");
+        notifySuccess(t("address.saved"));
       }
       onSaved?.();
     } catch (err) {
@@ -103,7 +105,7 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
           className={fieldCls}
           value={form.addressLine}
           onChange={(e) => setForm({ ...form, addressLine: e.target.value })}
-          placeholder="12 rue des Orangers, résidence Al Manar"
+          placeholder={t("address.line_placeholder")}
           maxLength={255}
           required
         />
@@ -161,13 +163,13 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
       </div>
 
       <label className="block">
-        <span className={labelCls}>Libellé (facultatif)</span>
+        <span className={labelCls}>{t("address.label")}</span>
         <input
           type="text"
           className={fieldCls}
           value={form.label}
           onChange={(e) => setForm({ ...form, label: e.target.value })}
-          placeholder="Boutique, entrepôt, domicile..."
+          placeholder={t("address.label_placeholder")}
           maxLength={60}
         />
       </label>
@@ -182,7 +184,7 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
             </span>
           ) : (
             <span>
-              Frais de livraison pour cette adresse : <b>{fee.toFixed(2)} DH</b>
+              {t("address.fee_for_address")} <b>{fee.toFixed(2)} DH</b>
             </span>
           )}
         </p>
@@ -196,9 +198,9 @@ const AddressForm = ({ initial = null, onSaved, onCancel }) => {
           className="mt-0.5 h-4 w-4 rounded border-ink-300 text-emerald-500 focus:ring-emerald-400"
         />
         <span className="text-sm">
-          <span className="block font-medium text-ink-700">Adresse par défaut</span>
+          <span className="block font-medium text-ink-700">{t("address.default")}</span>
           <span className="block text-xs text-ink-400">
-            Pré-sélectionnée à chaque commande.
+            {t("address.default_hint")}
           </span>
         </span>
       </label>
