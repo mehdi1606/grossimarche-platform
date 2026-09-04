@@ -33,6 +33,14 @@ export const adaptCustomer = (g) => ({
   orderCount: g.orderCount ?? 0,
   totalSpent: g.totalSpent ?? 0,
   createdAt: g.createdAt,
+  /**
+   * The customer's last ten orders, present on the detail response only.
+   *
+   * Dropped here until now, which is why "voir un client" could only ever show six figures in
+   * a dialog: the one thing worth knowing about a wholesale customer - what they actually buy,
+   * and how often - was arriving from the API and being discarded on the way in.
+   */
+  recentOrders: (g.recentOrders || []).map(adaptOrder),
 });
 
 const ORDER_STATUS_LABEL = {

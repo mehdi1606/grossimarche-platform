@@ -55,7 +55,7 @@ const CustomerTable = ({ customers }) => {
               <div className="flex justify-end text-right">
                 <div className="p-2 cursor-pointer text-gray-400 hover:text-emerald-600">
                   {" "}
-                  <Link to={`/customer-order/${user._id}`}>
+                  <Link to={`/customer/${user._id}`}>
                     <Tooltip
                       id="view"
                       Icon={FiZoomIn}

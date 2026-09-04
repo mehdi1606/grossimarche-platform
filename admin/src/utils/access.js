@@ -7,8 +7,8 @@
 //   - ADMIN → everything above PLUS the exclusive areas: staff, coupons, settings (stores)
 //     and the currency/language configuration.
 //
-// Keys are the first path segment (e.g. "/coupons" → "coupons", "/customer-order/:id" →
-// "customer-order"), which is exactly what Main.jsx / SidebarContent extract from the URL.
+// Keys are the first path segment (e.g. "/coupons" → "coupons", "/customer/:id" →
+// "customer"), which is exactly what Main.jsx / SidebarContent extract from the URL.
 
 // Core operations available to every back-office user (STORE_MANAGER and ADMIN).
 const STORE_MANAGER_ROUTES = [
@@ -18,7 +18,7 @@ const STORE_MANAGER_ROUTES = [
   "categories",
   "customers",
   "approvals", // customer validation queue - day-to-day judgement, not policy
-  "customer-order", // a customer's order detail
+  "customer", // a customer's own page: profile, lifetime figures, order history
   "orders",
   "order", // an order's own page, and the invoice printed from it
   "bundles", // bundle offers ("paniers") - also catalogue pricing

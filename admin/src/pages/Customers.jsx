@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Avatar,
   Badge,
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -10,25 +10,36 @@ import {
   TableHeader,
   TableRow,
 } from "@windmill/react-ui";
-import { FiEye, FiSearch, FiSlash, FiUsers, FiCheckCircle, FiX } from "react-icons/fi";
-import dayjs from "dayjs";
+import {
+  FiChevronRight,
+  FiSearch,
+  FiSlash,
+  FiUsers,
+  FiCheckCircle,
+  FiX,
+} from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
 import CustomerServices from "@/services/CustomerServices";
-import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
+/**
+ * The customer list.
+ *
+ * Rows lead to /customer/:id. The dialog that used to open here could only restate the six
+ * figures already in the row - it had nowhere to put the thing worth looking at, which is what
+ * the customer actually orders.
+ */
 const Customers = () => {
   const { currency } = useUtilsFunction();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
-  const [detail, setDetail] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,7 +79,6 @@ const Customers = () => {
         status: row.status === "Active" ? "Inactive" : "Active",
       });
       notifySuccess(row.status === "Active" ? "Client bloqué." : "Client débloqué.");
-      setDetail(null);
       await load();
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
@@ -138,14 +148,19 @@ const Customers = () => {
               {rows.map((row) => (
                 <TableRow key={row._id}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link
+                      to={`/customer/${row._id}`}
+                      className="group flex items-center gap-3"
+                    >
                       <Avatar className="bg-emerald-100 text-emerald-600">
                         <span className="grid h-full w-full place-items-center text-sm font-semibold">
                           {(row.name || "?").charAt(0).toUpperCase()}
                         </span>
                       </Avatar>
-                      <span className="font-medium">{row.name}</span>
-                    </div>
+                      <span className="font-medium transition group-hover:text-emerald-600">
+                        {row.name}
+                      </span>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     {/* A pill, not plain text: the segment is a category, and it is what
@@ -173,14 +188,13 @@ const Customers = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-3 text-gray-400">
-                      <button
-                        className="transition hover:text-emerald-600"
-                        onClick={() => setDetail(row)}
-                        title="Voir"
+                    <div className="flex items-center justify-end gap-3 text-gray-400">
+                      <Link
+                        to={`/customer/${row._id}`}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 transition hover:text-emerald-700"
                       >
-                        <FiEye />
-                      </button>
+                        Ouvrir <FiChevronRight className="h-4 w-4" />
+                      </Link>
                       <button
                         className={
                           row.status === "Active"
@@ -201,59 +215,8 @@ const Customers = () => {
         </TableContainer>
       )}
 
-      {/* Customer detail modal */}
-      <Modal
-        isOpen={!!detail}
-        onClose={() => setDetail(null)}
-        title={detail?.name}
-        subtitle={detail?.email || detail?.phone}
-        icon={FiUsers}
-        footer={
-          <>
-            <Button layout="outline" onClick={() => setDetail(null)}>
-              Fermer
-            </Button>
-            <Button
-              className={detail?.status === "Active" ? "!bg-red-500 hover:!bg-red-600" : ""}
-              onClick={() => toggleBlock(detail)}
-            >
-              {detail?.status === "Active" ? "Block customer" : "Unblock"}
-            </Button>
-          </>
-        }
-      >
-        {detail && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Info label="E-mail" value={detail.email || "-"} />
-              <Info label="Téléphone" value={detail.phone || "-"} />
-              <Info label="Orders" value={detail.orderCount} />
-              <Info
-                label="Total dépensé"
-                value={`${currency}${Number(detail.totalSpent || 0).toFixed(2)}`}
-              />
-              <Info
-                label="Joined"
-                value={detail.createdAt ? dayjs(detail.createdAt).format("DD MMM YYYY") : "-"}
-              />
-              <Info label="Status" value={detail.status} />
-            </div>
-            <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-400 dark:bg-gray-700/40">
-              Customer accounts can be blocked but not deleted - account erasure is handled
-              under the right-to-erasure process (loi 09-08).
-            </p>
-          </div>
-        )}
-      </Modal>
     </>
   );
 };
-
-const Info = ({ label, value }) => (
-  <div>
-    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-    <p className="mt-0.5 text-sm font-medium text-gray-800 dark:text-gray-100">{value}</p>
-  </div>
-);
 
 export default Customers;

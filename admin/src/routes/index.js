@@ -13,7 +13,7 @@ const Customers = lazy(() => import("@/pages/Customers"));
 const ClientTypes = lazy(() => import("@/pages/ClientTypes"));
 const Approvals = lazy(() => import("@/pages/Approvals"));
 const Delivery = lazy(() => import("@/pages/Delivery"));
-const CustomerOrder = lazy(() => import("@/pages/CustomerOrder"));
+const CustomerDetail = lazy(() => import("@/pages/CustomerDetail"));
 const Orders = lazy(() => import("@/pages/Orders"));
 const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
 const OrderInvoice = lazy(() => import("@/pages/OrderInvoice"));
@@ -71,9 +71,11 @@ const routes = [
     path: "/customers",
     component: Customers,
   },
+  // Replaces /customer-order/:id, which called OrderServices.getOrderCustomer - a method that
+  // does not exist. The page could only ever have thrown; the customer's orders live here now.
   {
-    path: "/customer-order/:id",
-    component: CustomerOrder,
+    path: "/customer/:id",
+    component: CustomerDetail,
   },
   {
     path: "/our-staff",
@@ -160,11 +162,11 @@ const routeAccessList = [
   { label: "StoreCustomization", value: "customization" },
   { label: "StoreSettings", value: "store-settings" },
   { label: "Fiche produit", value: "product" },
-  { label: "Facture de commande", value: "order" },
+  { label: "Détail d'une commande", value: "order" },
   { label: "Modifier le profil", value: "edit-profile" },
   {
-    label: "Commandes du client",
-    value: "customer-order",
+    label: "Fiche client",
+    value: "customer",
   },
   { label: "Notifications", value: "notifications" },
   { label: "Coming Soon", value: "coming-soon" },

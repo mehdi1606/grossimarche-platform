@@ -52,8 +52,10 @@ public class CustomerAdminService {
         var recent = orderRepository.findByUserId(user.getId(),
                         PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .map(orderMapper::toSummary).getContent();
+        String segment = user.getClientType() == null ? null : user.getClientType().getName();
         return new CustomerDetailResponse(user.getId(), user.getFullName(), user.getPhone(),
-                user.getEmail(), user.getStatus(), orderRepository.countByUserId(user.getId()),
+                user.getEmail(), segment, user.getStatus(),
+                orderRepository.countByUserId(user.getId()),
                 orderRepository.totalSpentByUser(user.getId()), user.getCreatedAt(), recent);
     }
 
