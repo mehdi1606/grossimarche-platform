@@ -35,13 +35,17 @@ const COLUMNS = [
       { label: "common.faq", href: "/faq" },
     ],
   },
-  {
-    title: "footer.legal",
-    links: [
-      { label: "footer.privacy", href: "/privacy-policy" },
-      { label: "footer.terms", href: "/terms-and-conditions" },
-    ],
-  },
+  // The legal column is out of the footer for now. Both pages still exist and still answer at
+  // /privacy-policy and /terms-and-conditions - they are simply not advertised, because they
+  // still carry the template's English boilerplate rather than Grossimarché's own terms.
+  // Putting the column back is uncommenting these five lines.
+  // {
+  //   title: "footer.legal",
+  //   links: [
+  //     { label: "footer.privacy", href: "/privacy-policy" },
+  //     { label: "footer.terms", href: "/terms-and-conditions" },
+  //   ],
+  // },
 ];
 
 const SOCIALS = [
