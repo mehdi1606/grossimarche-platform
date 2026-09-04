@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -18,10 +19,8 @@ import Label from "@components/form/Label";
 import Error from "@components/form/Error";
 import CartItem from "@components/cart/CartItem";
 import InputArea from "@components/form/InputArea";
-import useGetSetting from "@hooks/useGetSetting";
 import InputPayment from "@components/form/InputPayment";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
-import useUtilsFunction from "@hooks/useUtilsFunction";
 import AddressModal from "@components/modal/AddressModal";
 import UpsellModal from "@components/modal/UpsellModal";
 import useSuggestedProducts from "@hooks/useSuggestedProducts";
@@ -29,15 +28,16 @@ import { estimatedDeliveryLabel } from "@utils/delivery";
 
 // The three things the checkout asks for, named once. The page used to number its sections
 // "01./02./03." in plain text with no indication of where the shopper stood.
-const STEPS = ["Vos coordonnées", "Livraison", "Paiement"];
+// Keys, not sentences: the list is built at module load, before any hook exists.
+const STEPS = ["step_details", "step_delivery", "step_payment"];
 
-const StepIndicator = ({ current }) => (
+const StepIndicator = ({ current, t }) => (
   <ol className="mb-10 flex items-center gap-2 sm:gap-4">
-    {STEPS.map((label, i) => {
+    {STEPS.map((key, i) => {
       const done = i < current;
       const active = i === current;
       return (
-        <li key={label} className="flex flex-1 items-center gap-2 sm:gap-3">
+        <li key={key} className="flex flex-1 items-center gap-2 sm:gap-3">
           <span
             className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold ring-1 transition ${
               done
@@ -54,7 +54,7 @@ const StepIndicator = ({ current }) => (
               done || active ? "text-ink-800" : "text-ink-400"
             }`}
           >
-            {label}
+            {t(`checkout.${key}`)}
           </span>
           {i < STEPS.length - 1 && (
             <span
@@ -69,8 +69,7 @@ const StepIndicator = ({ current }) => (
 );
 
 const Checkout = () => {
-  const { storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const { t } = useTranslation();
 
   const {
     couponInfo,
@@ -120,38 +119,32 @@ const Checkout = () => {
   // from a wizard they have to click through.
   const currentStep = selectedAddress ? 2 : 1;
 
-  const confirmLabel =
-    showingTranslateValue(storeCustomizationSetting?.checkout?.confirm_button) ||
-    "Confirmer la commande";
+  const confirmLabel = t("checkout.confirm");
 
   return (
     <>
-      <Layout title="Commande" description="Finalisez votre commande Grossimarché">
-        <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
+      <Layout title={t("checkout.title")} description={t("checkout.meta")}>
+        <div data-no-translate className="mx-auto max-w-screen-2xl px-3 sm:px-10">
           <div className="flex w-full flex-col px-0 py-10 pb-28 lg:flex-row lg:py-12 lg:pb-12 xl:max-w-screen-xl 2xl:max-w-screen-2xl">
             <div className="order-2 flex h-full flex-col sm:order-1 md:w-full lg:order-1 lg:w-3/5">
               <div className="mt-5 md:col-span-2 md:mt-0">
-                <StepIndicator current={currentStep} />
+                <StepIndicator current={currentStep} t={t} />
 
                 <form onSubmit={handleSubmit(onConfirm)}>
                   <div className="form-group">
                     <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       01.{" "}
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.personal_details
-                      )}
+                      {t("checkout.personal_details")}
                     </h2>
 
                     <div className="grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-3">
                         <InputArea
                           register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.first_name
-                          )}
+                          label={t("checkout.first_name")}
                           name="firstName"
                           type="text"
-                          placeholder="Youssef"
+                          placeholder={t("checkout.first_name_placeholder")}
                         />
                         <Error errorName={errors.firstName} />
                       </div>
@@ -159,12 +152,10 @@ const Checkout = () => {
                       <div className="col-span-6 sm:col-span-3">
                         <InputArea
                           register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.last_name
-                          )}
+                          label={t("checkout.last_name")}
                           name="lastName"
                           type="text"
-                          placeholder="Alami"
+                          placeholder={t("checkout.last_name_placeholder")}
                           required={false}
                         />
                         <Error errorName={errors.lastName} />
@@ -173,9 +164,7 @@ const Checkout = () => {
                       <div className="col-span-6 sm:col-span-3">
                         <InputArea
                           register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.email_address
-                          )}
+                          label={t("checkout.email")}
                           name="email"
                           type="email"
                           readOnly={true}
@@ -187,9 +176,7 @@ const Checkout = () => {
                       <div className="col-span-6 sm:col-span-3">
                         <InputArea
                           register={register}
-                          label={showingTranslateValue(
-                            storeCustomizationSetting?.checkout?.checkout_phone
-                          )}
+                          label={t("checkout.phone")}
                           name="contact"
                           type="tel"
                           placeholder="+212 6 00 00 00 00"
@@ -203,9 +190,7 @@ const Checkout = () => {
                   <div className="form-group mt-12">
                     <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       02.{" "}
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.shipping_details
-                      )}
+                      {t("checkout.shipping_details")}
                     </h2>
 
                     <div className="mb-8">
@@ -217,7 +202,7 @@ const Checkout = () => {
                             </span>
                             <div>
                               <p className="text-sm font-semibold text-ink-800">
-                                Livrer à
+                                {t("checkout.deliver_to")}
                               </p>
                               <p className="text-sm text-ink-600">
                                 {selectedAddress.addressLine}
@@ -232,7 +217,7 @@ const Checkout = () => {
                             onClick={() => setAddressModalOpen(true)}
                             className="shrink-0 text-sm font-medium text-emerald-700 transition hover:underline"
                           >
-                            Modifier
+                            {t("checkout.change")}
                           </button>
                         </div>
                       ) : (
@@ -242,12 +227,12 @@ const Checkout = () => {
                           className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-white px-4 py-6 text-sm font-medium text-ink-600 transition hover:border-emerald-300 hover:text-emerald-700"
                         >
                           <IoAddCircleOutline className="text-lg" />
-                          Ajouter une adresse de livraison
+                          {t("checkout.add_address")}
                         </button>
                       )}
                     </div>
 
-                    <Label label="Livraison" />
+                    <Label label={t("checkout.shipping_details")} />
                     <div className="rounded-2xl border border-line bg-white p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -256,7 +241,7 @@ const Checkout = () => {
                           </span>
                           <div>
                             <p className="text-sm font-semibold text-ink-800">
-                              Livraison standard
+                              {t("checkout.standard_delivery")}
                             </p>
                             {/* A date, not a vague range - it is what removes the "when will
                                 it arrive?" hesitation right before confirming. */}
@@ -289,8 +274,7 @@ const Checkout = () => {
                               {currency}
                               {freeShippingRemaining.toFixed(2)}
                             </span>{" "}
-                            pour la{" "}
-                            <span className="font-semibold">livraison offerte</span>
+                            {t("checkout.free_shipping_remaining")}
                           </p>
                           <div className="h-1 w-full overflow-hidden rounded-full bg-sand">
                             <div
@@ -308,7 +292,7 @@ const Checkout = () => {
                       {qualifiesFreeShipping && (
                         <div className="mt-3 border-t border-line pt-3">
                           <p className="text-xs font-medium text-emerald-700">
-                            Vous bénéficiez de la livraison offerte.
+                            {t("checkout.free_shipping_unlocked")}
                           </p>
                         </div>
                       )}
@@ -318,12 +302,12 @@ const Checkout = () => {
                         UI ever collected one. Delivery instructions are exactly the kind of
                         thing a wholesale customer needs to pass on. */}
                     <div className="mt-6">
-                      <Label label="Instructions de livraison (facultatif)" />
+                      <Label label={t("checkout.note_label")} />
                       <textarea
                         {...register("orderNote")}
                         rows={3}
                         maxLength={500}
-                        placeholder="Étage, horaires de réception, contact sur place…"
+                        placeholder={t("checkout.note_placeholder")}
                         className="form-input w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink-800 transition placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-0"
                       />
                     </div>
@@ -332,9 +316,7 @@ const Checkout = () => {
                   <div className="form-group mt-12">
                     <h2 className="pb-3 font-display text-lg font-semibold text-ink-800">
                       03.{" "}
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.payment_method
-                      )}
+                      {t("checkout.payment_method")}
                     </h2>
 
                     {/* COD only for launch. CMI card payment exists in the backend but is
@@ -344,7 +326,7 @@ const Checkout = () => {
                         <InputPayment
                           setShowCard={setShowCard}
                           register={register}
-                          name="Paiement à la livraison"
+                          name={t("checkout.cod")}
                           value="COD"
                           Icon={IoWalletSharp}
                         />
@@ -356,17 +338,21 @@ const Checkout = () => {
                   {/* Reassurance sits next to the commitment, not in the footer. */}
                   <div className="mt-8 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-3">
                     {[
-                      { Icon: FiLock, title: "Aucun prépaiement", text: "Vous payez à la réception" },
-                      { Icon: FiTruck, title: "Livraison suivie", text: "Statut en temps réel" },
-                      { Icon: FiRefreshCw, title: "Annulation libre", text: "Tant que non confirmée" },
-                    ].map(({ Icon, title, text }) => (
-                      <div key={title} className="flex items-start gap-2.5">
+                      { Icon: FiLock, key: "prepay" },
+                      { Icon: FiTruck, key: "tracking" },
+                      { Icon: FiRefreshCw, key: "cancel" },
+                    ].map(({ Icon, key }) => (
+                      <div key={key} className="flex items-start gap-2.5">
                         <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
                           <Icon className="h-4 w-4" />
                         </span>
                         <div>
-                          <p className="text-xs font-semibold text-ink-800">{title}</p>
-                          <p className="text-2xs text-ink-500">{text}</p>
+                          <p className="text-xs font-semibold text-ink-800">
+                            {t(`checkout.trust_${key}_title`)}
+                          </p>
+                          <p className="text-2xs text-ink-500">
+                            {t(`checkout.trust_${key}_text`)}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -381,9 +367,7 @@ const Checkout = () => {
                         <span className="me-2 text-xl">
                           <IoReturnUpBackOutline />
                         </span>
-                        {showingTranslateValue(
-                          storeCustomizationSetting?.checkout?.continue_button
-                        )}
+                        {t("checkout.back_to_shop")}
                       </Link>
                     </div>
                     <div className="col-span-6 hidden sm:col-span-3 sm:block">
@@ -400,7 +384,7 @@ const Checkout = () => {
                               width={20}
                               height={10}
                             />
-                            <span className="ms-2">Traitement…</span>
+                            <span className="ms-2">{t("checkout.processing")}</span>
                           </span>
                         ) : (
                           <span className="flex justify-center text-center">
@@ -427,7 +411,7 @@ const Checkout = () => {
                         {parseFloat(total).toFixed(2)}
                       </span>
                       <span className="flex items-center gap-2">
-                        {isCheckoutSubmit ? "Traitement…" : confirmLabel}
+                        {isCheckoutSubmit ? t("checkout.processing") : confirmLabel}
                         <IoArrowForward className="gm-dir-icon" />
                       </span>
                     </button>
@@ -439,9 +423,7 @@ const Checkout = () => {
             <div className="top-28 flex h-full flex-col md:order-2 md:ms-6 md:w-full md:sticky lg:order-2 lg:ms-10 lg:w-2/5 lg:sticky xl:ms-14">
               <div className="order-1 rounded-2xl border border-line bg-white p-5 shadow-luxe sm:order-2 lg:px-8 lg:py-8">
                 <h2 className="pb-4 font-display text-lg font-semibold text-ink-800">
-                  {showingTranslateValue(
-                    storeCustomizationSetting?.checkout?.order_summary
-                  )}
+                  {t("checkout.order_summary")}
                 </h2>
 
                 <div className="block max-h-64 w-full flex-grow overflow-y-scroll rounded-xl border border-line scrollbar-hide">
@@ -455,7 +437,7 @@ const Checkout = () => {
                         <IoBagHandle />
                       </span>
                       <h2 className="pt-2 text-sm font-medium text-ink-500">
-                        Votre panier est vide
+                        {t("checkout.empty_cart")}
                       </h2>
                     </div>
                   )}
@@ -465,7 +447,7 @@ const Checkout = () => {
                   <form className="w-full">
                     {couponInfo.couponCode ? (
                       <span className="flex w-full justify-between rounded-xl bg-emerald-50 px-4 py-3 leading-tight">
-                        <p className="text-emerald-700">Code appliqué</p>
+                        <p className="text-emerald-700">{t("checkout.coupon_applied")}</p>
                         <span className="text-end font-semibold text-emerald-800">
                           {couponInfo.couponCode}
                         </span>
@@ -475,7 +457,7 @@ const Checkout = () => {
                         <input
                           ref={couponRef}
                           type="text"
-                          placeholder="Code promo"
+                          placeholder={t("checkout.coupon_placeholder")}
                           className="form-input h-12 w-full appearance-none rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink-800 transition duration-200 ease-in-out placeholder:text-ink-300 focus:border-emerald-500 focus:outline-none focus:ring-0 md:px-4"
                         />
                         <button
@@ -491,9 +473,7 @@ const Checkout = () => {
                               height={10}
                             />
                           ) : (
-                            showingTranslateValue(
-                              storeCustomizationSetting?.checkout?.apply_button
-                            )
+                            t("checkout.coupon_apply")
                           )}
                         </button>
                       </div>
@@ -504,9 +484,7 @@ const Checkout = () => {
                 <dl className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <dt className="font-medium text-ink-500">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.sub_total
-                      )}
+                      {t("checkout.sub_total")}
                     </dt>
                     <dd className="font-bold tabular-nums text-ink-800">
                       {currency}
@@ -515,13 +493,11 @@ const Checkout = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="font-medium text-ink-500">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.shipping_cost
-                      )}
+                      {t("checkout.shipping_cost")}
                     </dt>
                     <dd className="font-bold tabular-nums">
                       {qualifiesFreeShipping ? (
-                        <span className="text-emerald-700">Offerte</span>
+                        <span className="text-emerald-700">{t("checkout.free")}</span>
                       ) : (
                         <span className="text-ink-800">
                           {currency}
@@ -548,9 +524,7 @@ const Checkout = () => {
                   )}
                   <div className="flex items-center justify-between">
                     <dt className="font-medium text-ink-500">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.discount
-                      )}
+                      {t("checkout.discount")}
                     </dt>
                     <dd className="font-bold tabular-nums text-brass-600">
                       −{currency}
@@ -562,9 +536,7 @@ const Checkout = () => {
                 <div className="mt-4 border-t border-line">
                   <div className="flex items-center justify-between pt-5 text-sm font-bold uppercase tracking-wide">
                     <span className="text-ink-600">
-                      {showingTranslateValue(
-                        storeCustomizationSetting?.checkout?.total_cost
-                      )}
+                      {t("checkout.total_cost")}
                     </span>
                     <span data-no-translate className="font-display text-2xl font-semibold tabular-nums text-ink-900">
                       {currency}

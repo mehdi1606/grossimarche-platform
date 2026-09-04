@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 
 //internal import
@@ -12,6 +13,7 @@ import { notifyError, notifySuccess } from "@utils/toast";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
 const ChangePassword = () => {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -136,7 +138,7 @@ const ChangePassword = () => {
                 width={20}
                 height={10}
               />
-              <span className="font-serif ms-2 font-light">Enregistrement…</span>
+              <span className="font-serif ms-2 font-light">{t("account.saving")}</span>
             </button>
           ) : (
             <button

@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import React, { useEffect, useState } from "react";
 
@@ -10,6 +11,7 @@ import CustomerServices from "@services/CustomerServices";
 import { notifySuccess, notifyError } from "@utils/toast";
 
 const UpdateProfile = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const { data: session, update } = useSession();
 
@@ -49,9 +51,9 @@ const UpdateProfile = () => {
   }, [session?.user, setValue]);
 
   return (
-    <Dashboard title="Modifier le profil" description="Modifier vos informations">
+    <Dashboard title={t("account.edit_profile")} description={t("account.edit_profile")}>
       <h2 className="mb-6 font-serif text-xl font-semibold text-gray-800">
-        Modifier le profil
+        {t("account.edit_profile")}
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl">
@@ -59,10 +61,10 @@ const UpdateProfile = () => {
           <div className="col-span-6">
             <InputArea
               register={register}
-              label="Nom complet"
+              label={t("account.full_name")}
               name="name"
               type="text"
-              placeholder="Votre nom"
+              placeholder={t("account.full_name_placeholder")}
             />
             <Error errorName={errors.name} />
           </div>
@@ -70,7 +72,7 @@ const UpdateProfile = () => {
           <div className="col-span-6 sm:col-span-3">
             <InputArea
               register={register}
-              label="Téléphone"
+              label={t("account.phone")}
               name="phone"
               type="tel"
               readOnly={true}
@@ -81,7 +83,7 @@ const UpdateProfile = () => {
           <div className="col-span-6 sm:col-span-3">
             <InputArea
               register={register}
-              label="E-mail"
+              label={t("account.email")}
               name="email"
               type="email"
               readOnly={true}

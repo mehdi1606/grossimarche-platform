@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { FiEdit2, FiMapPin, FiPlus, FiTrash2, FiX } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import { notifyError, notifySuccess } from "@utils/toast";
  * coming back. Adding and editing now happen in place, above the list.
  */
 const MyAccount = () => {
+  const { t } = useTranslation();
   const userInfo = getUserSession();
   // null = form closed, "new" = adding, an address object = editing that one.
   const [editing, setEditing] = useState(null);
@@ -55,8 +57,10 @@ const MyAccount = () => {
   };
 
   return (
-    <Dashboard title="Mon compte" description="Espace client Grossimarché">
-      <h2 className="mb-6 font-display text-2xl font-semibold text-ink-900">Mon compte</h2>
+    <Dashboard title={t("account.my_account")} description={t("account.my_account")}>
+      <h2 className="mb-6 font-display text-2xl font-semibold text-ink-900">
+        {t("account.my_account")}
+      </h2>
 
       {/* Profil */}
       <section className="relative rounded-2xl border border-line bg-white p-5 shadow-luxe">
@@ -80,7 +84,7 @@ const MyAccount = () => {
         </div>
       </section>
 
-      {/* Adresses de livraison - the sidebar's "Mes adresses" lands on this anchor. */}
+      {/* {t("account.addresses")} - the sidebar's "Mes adresses" lands on this anchor. */}
       <section id="adresses" className="mt-8 scroll-mt-32">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -103,7 +107,7 @@ const MyAccount = () => {
               className="inline-flex h-11 items-center gap-2 rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-600"
             >
               <FiPlus className="h-4 w-4" />
-              Ajouter une adresse
+              {t("account.add_address")}
             </button>
           )}
         </div>
@@ -119,7 +123,7 @@ const MyAccount = () => {
               <button
                 type="button"
                 onClick={() => setEditing(null)}
-                aria-label="Fermer le formulaire"
+                aria-label={t("account.close_form")}
                 className="grid h-8 w-8 place-items-center rounded-lg text-ink-400 transition hover:bg-sand hover:text-ink-700"
               >
                 <FiX className="h-4 w-4" />
@@ -143,9 +147,9 @@ const MyAccount = () => {
               className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-white/60 p-10 text-sm font-medium text-ink-600 transition hover:border-emerald-300 hover:text-emerald-700"
             >
               <FiPlus className="h-6 w-6" />
-              Ajouter votre première adresse
+              {t("account.first_address")}
               <span className="text-xs font-normal text-ink-400">
-                Elle sera pré-remplie à chaque commande.
+                {t("account.first_address_hint")}
               </span>
             </button>
           )
@@ -169,7 +173,7 @@ const MyAccount = () => {
                       </h5>
                       {address.isDefault && (
                         <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-2xs font-semibold uppercase tracking-luxe text-emerald-700">
-                          Par défaut
+                          {t("account.default_badge")}
                         </span>
                       )}
                     </div>
@@ -187,7 +191,7 @@ const MyAccount = () => {
                   {confirmId === address.id ? (
                     <>
                       <span className="me-auto ps-1 text-xs text-ink-500">
-                        Supprimer cette adresse ?
+                        {t("account.delete_address_confirm")}
                       </span>
                       <button
                         type="button"

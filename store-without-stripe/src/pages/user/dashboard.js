@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -34,6 +35,7 @@ const SIDEBAR = [
 ];
 
 const Dashboard = ({ title, description, children }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isLoading, setIsLoading, currentPage } = useContext(SidebarContext);
   const userInfo = getUserSession();
@@ -110,7 +112,7 @@ const Dashboard = ({ title, description, children }) => {
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-red-50 hover:text-red-500"
                     >
                       <IoLogOutOutline className="h-4 w-4 shrink-0" />
-                      Se déconnecter
+                      {t("account.sign_out")}
                     </button>
                   </nav>
                 </div>
@@ -128,25 +130,25 @@ const Dashboard = ({ title, description, children }) => {
                         permanently zero however many orders the customer had. */}
                     <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                       <Card
-                        title="Commandes"
+                        title={t("account.stat_orders")}
                         Icon={FiShoppingCart}
                         quantity={data?.totalDoc || 0}
                         className="bg-emerald-50 text-emerald-600"
                       />
                       <Card
-                        title="En attente"
+                        title={t("account.stat_pending")}
                         Icon={FiRefreshCw}
                         quantity={data?.pending || 0}
                         className="bg-amber-50 text-amber-600"
                       />
                       <Card
-                        title="En cours"
+                        title={t("account.stat_processing")}
                         Icon={FiTruck}
                         quantity={data?.processing || 0}
                         className="bg-brass-50 text-brass-600"
                       />
                       <Card
-                        title="Livrées"
+                        title={t("account.stat_delivered")}
                         Icon={FiCheck}
                         quantity={data?.delivered || 0}
                         className="bg-emerald-50 text-emerald-600"
