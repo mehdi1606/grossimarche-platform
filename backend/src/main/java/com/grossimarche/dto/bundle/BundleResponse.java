@@ -22,6 +22,12 @@ public record BundleResponse(
         String slug,
         String description,
         String imageUrl,
+        /**
+         * Whose prices the figures below are. Null for a shopper, who is only ever shown their
+         * own and does not need them named; filled for the back-office, where a bundle belongs
+         * to one trade and every amount is meaningless without saying which.
+         */
+        String clientTypeName,
         BigDecimal price,
         BigDecimal componentsTotal,
         BigDecimal savings,

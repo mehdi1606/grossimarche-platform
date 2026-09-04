@@ -106,13 +106,13 @@ public class BundleService {
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional(readOnly = true)
     public Page<BundleResponse> listAll(Pageable pageable) {
-        return bundleRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
+        return bundleRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toAdminResponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional(readOnly = true)
     public BundleResponse get(UUID id) {
-        return toResponse(withItems(id));
+        return toAdminResponse(withItems(id));
     }
 
     // ---- Writes ------------------------------------------------------------------------
@@ -132,7 +132,7 @@ public class BundleService {
                 .build();
         applyItems(bundle, req.items());
         validatePrice(bundle);
-        return toResponse(bundleRepository.save(bundle));
+        return toAdminResponse(bundleRepository.save(bundle));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
@@ -154,7 +154,7 @@ public class BundleService {
         bundle.setEndsAt(req.endsAt());
         applyItems(bundle, req.items());
         validatePrice(bundle);
-        return toResponse(bundle);
+        return toAdminResponse(bundle);
     }
 
     /**
@@ -205,7 +205,7 @@ public class BundleService {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED,
                     "Cette offre n'est pas active : activez-la avant de l'annoncer.");
         }
-        BundleResponse response = toResponse(bundle);
+        BundleResponse response = toAdminResponse(bundle);
         events.publishEvent(new BundleAnnouncedEvent(bundle.getId(), bundle.getName(),
                 bundle.getSlug(), response.price(), response.savings()));
         return response;
@@ -385,14 +385,35 @@ public class BundleService {
     }
 
     /**
-     * A bundle as one viewer sees it.
+     * A bundle as the shopper looking at it sees it.
      *
-     * Every figure is resolved against the viewer's segment, or withheld entirely when they
-     * have none. An anonymous visitor still sees the offer exists and what is in it - that is
-     * what brings them to register - but not a single price.
+     * Every figure is resolved against their segment, or withheld entirely when they have none.
+     * An anonymous visitor still sees the offer exists and what is in it - that is what brings
+     * them to register - but not a single price.
      */
     private BundleResponse toResponse(Bundle bundle) {
-        UUID clientTypeId = catalogueViewer.currentClientTypeId().orElse(null);
+        return render(bundle, catalogueViewer.currentClientTypeId().orElse(null), null);
+    }
+
+    /**
+     * A bundle as the back-office sees it: priced for the trade it is actually sold to.
+     *
+     * An operator has no segment of their own, so resolving against the viewer left every
+     * amount null and the admin table printed 0,00 DH next to a bundle that was correctly
+     * priced. The bundle's own segment is the only one that means anything here - a basket
+     * belongs to one trade - so that is what is resolved, and it is named alongside.
+     *
+     * A bundle carrying prices for several segments is a leftover from before that rule; the
+     * cheapest is shown rather than picking arbitrarily.
+     */
+    private BundleResponse toAdminResponse(Bundle bundle) {
+        return bundlePriceRepository.findByBundleId(bundle.getId()).stream()
+                .min(java.util.Comparator.comparing(BundleTypePrice::getPrice))
+                .map(row -> render(bundle, row.getClientType().getId(), row.getClientType().getName()))
+                .orElseGet(() -> render(bundle, null, null));
+    }
+
+    private BundleResponse render(Bundle bundle, UUID clientTypeId, String clientTypeName) {
         List<BundleItemResponse> items = new ArrayList<>();
         BigDecimal componentsTotal = clientTypeId == null ? null : BigDecimal.ZERO;
         boolean available = !bundle.getItems().isEmpty();
@@ -451,7 +472,7 @@ public class BundleService {
                 : 0;
 
         return new BundleResponse(bundle.getId(), bundle.getName(), bundle.getSlug(),
-                bundle.getDescription(), bundle.getImageUrl(), price,
+                bundle.getDescription(), bundle.getImageUrl(), clientTypeName, price,
                 componentsTotal, savings, savingsPercent, bundle.isActive(),
                 available && bundle.isAvailableAt(Instant.now()),
                 bundle.getStartsAt(), bundle.getEndsAt(), items, bundle.getCreatedAt());

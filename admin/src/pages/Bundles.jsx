@@ -72,7 +72,9 @@ const Bundles = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [items, setItems] = useState([]); // [{ productId, name, unit, price, quantity }]
+  // [{ productId, name, unit, quantity, rungs }] - rungs is that product's price ladder for the
+  // chosen trade, which is what makes a running basket value possible while composing.
+  const [items, setItems] = useState([]);
   const [saving, setSaving] = useState(false);
   // Picked in the form, uploaded once the bundle has an id (see save()).
   const [imageFile, setImageFile] = useState(null);
@@ -84,8 +86,6 @@ const Bundles = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [announceTarget, setAnnounceTarget] = useState(null);
   const [clientTypes, setClientTypes] = useState([]);
-  // Per-segment component totals for the bundle being edited, keyed by client type.
-  const [gridInfo, setGridInfo] = useState({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,10 +109,6 @@ const Bundles = () => {
       .catch((err) => notifyError(err?.response?.data?.message || err?.message));
   }, []);
 
-  // No local components total any more. It used to be summed from the products' own price, but
-  // that figure is now an internal reference nobody is charged - the real total differs per
-  // segment, and only the server can work it out from each component's price there.
-
   const openAdd = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
@@ -120,7 +116,6 @@ const Bundles = () => {
     setResults([]);
     setSearch("");
     setImageFile(null);
-    setGridInfo({});
     setModalOpen(true);
   };
 
@@ -131,17 +126,6 @@ const Bundles = () => {
         PricingServices.getBundleGrid(row.id),
       ]);
       setEditing(bundle);
-
-      // What the components come to in each segment, so the saving is visible while typing.
-      // Only the server can work this out: it needs every component's price in that segment.
-      setGridInfo(
-        Object.fromEntries(
-          (grid.prices || []).map((p) => [
-            p.clientTypeId,
-            { componentsTotal: p.componentsTotal, unpricedComponents: p.unpricedComponents },
-          ])
-        )
-      );
 
       // A basket now belongs to one segment. An older one priced for several opens on the
       // cheapest of them rather than refusing to open: the admin can see it and re-point it.
@@ -167,14 +151,32 @@ const Bundles = () => {
         imageUrl: bundle.imageUrl || "",
         active: bundle.active,
       });
+      // The ladders come with the items, so an existing basket shows its value straight away
+      // rather than only after a product is touched.
+      const segmentId = chosen?.clientTypeId;
       setItems(
-        (bundle.items || []).map((item) => ({
-          productId: item.productId,
-          name: item.name,
-          unit: item.unit,
-          price: Number(item.unitPrice),
-          quantity: item.quantity,
-        }))
+        await Promise.all(
+          (bundle.items || []).map(async (item) => {
+            let rungs = [];
+            if (segmentId) {
+              try {
+                const productGrid = await PricingServices.getProductGrid(item.productId);
+                rungs =
+                  (productGrid?.grids || []).find((g) => g.clientTypeId === segmentId)?.rungs ||
+                  [];
+              } catch {
+                rungs = [];
+              }
+            }
+            return {
+              productId: item.productId,
+              name: item.name,
+              unit: item.unit,
+              rungs,
+              quantity: item.quantity,
+            };
+          })
+        )
       );
       setResults([]);
       setSearch("");
@@ -230,22 +232,34 @@ const Bundles = () => {
     setForm((prev) => ({ ...prev, clientTypeId }));
   };
 
-  const addItem = (product) => {
+  const addItem = async (product) => {
     const productId = product._id || product.id;
     if (items.some((item) => item.productId === productId)) {
       // The same product twice would be two rows disagreeing about one quantity.
       notifyError("Ce produit est déjà dans l'offre - modifiez sa quantité.");
       return;
     }
-    setItems([
-      ...items,
-      {
-        productId,
-        name: nameOf(product),
-        unit: product.unit,
-        price: Number(product.prices?.price ?? product.price ?? 0),
-        quantity: 1,
-      },
+
+    /*
+     * Fetch this product's ladder for the chosen trade as it is added.
+     *
+     * Without it the form could only show the reference price - a figure nobody is charged -
+     * so the person setting the offer price had no idea what the basket was worth to that
+     * trade, and learnt it only if the server refused the save. One request per product buys
+     * a running total that is the same number the server will compute.
+     */
+    let rungs = [];
+    try {
+      const grid = await PricingServices.getProductGrid(productId);
+      rungs =
+        (grid?.grids || []).find((g) => g.clientTypeId === form.clientTypeId)?.rungs || [];
+    } catch {
+      notifyError("Le tarif de ce produit n'a pas pu être lu - le total restera incomplet.");
+    }
+
+    setItems((prev) => [
+      ...prev,
+      { productId, name: nameOf(product), unit: product.unit, rungs, quantity: 1 },
     ]);
     setSearch("");
     setResults([]);
@@ -270,6 +284,15 @@ const Bundles = () => {
     }
     if (form.price === "" || Number(form.price) <= 0) {
       return notifyError("Indiquez le prix du panier pour ce type.");
+    }
+    // The server refuses this too, but it can only do so after the bundle has been created and
+    // its items written - which leaves a real basket with no price behind. Better said here.
+    if (componentsTotal != null && Number(form.price) >= componentsTotal) {
+      return notifyError(
+        `Le prix doit être inférieur à la valeur des produits (${componentsTotal.toFixed(
+          2
+        )} ${currency}), sinon ce panier n'est pas une offre.`
+      );
     }
     const priced = [{ clientTypeId: form.clientTypeId, price: form.price }];
 
@@ -356,35 +379,34 @@ const Bundles = () => {
   const chosenType = clientTypes.find((t) => t.id === form.clientTypeId);
 
   /**
-   * Whether the price being typed is actually a discount for this trade.
+   * What one unit costs this trade at that quantity: the highest rung it reaches.
    *
-   * The components' total is the server's to work out - it needs each product's price in this
-   * segment, which this form does not hold - so it only exists once the basket has been saved
-   * at least once. Before that there is nothing honest to show, and nothing is shown.
+   * Same rule the server applies, deliberately - a total computed here that disagreed with the
+   * one computed there would be worse than showing nothing.
    */
-  const componentsHint = useMemo(() => {
-    const info = gridInfo[form.clientTypeId];
-    if (!info) return null;
-    const total = info.componentsTotal;
+  const unitPriceFor = (rungs, quantity) => {
+    const reached = (rungs || [])
+      .filter((r) => Number(r.minQuantity) <= quantity)
+      .sort((a, b) => Number(a.minQuantity) - Number(b.minQuantity));
+    return reached.length ? Number(reached[reached.length - 1].unitPrice) : null;
+  };
 
-    if (total === null || total === undefined) {
-      return (
-        <p className="mt-1.5 text-xs text-amber-600">
-          Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
-        </p>
-      );
-    }
-    if (form.price === "") return null;
+  const lineTotal = (item) => {
+    const unit = unitPriceFor(item.rungs, item.quantity);
+    return unit == null ? null : unit * item.quantity;
+  };
 
-    const saved = Number(total) - Number(form.price);
-    return (
-      <p className={`mt-1.5 text-xs ${saved > 0 ? "text-emerald-600" : "text-red-500"}`}>
-        Produits : {currency}
-        {Number(total).toFixed(2)}
-        {saved > 0 ? ` — remise ${currency}${saved.toFixed(2)}` : " — aucune remise"}
-      </p>
-    );
-  }, [gridInfo, form.clientTypeId, form.price, currency]);
+  // Null as soon as one line cannot be priced: a partial sum would read as the basket's value.
+  const componentsTotal = items.reduce((sum, item) => {
+    if (sum == null) return null;
+    const line = lineTotal(item);
+    return line == null ? null : sum + line;
+  }, 0);
+
+  const priceNumber = form.price === "" ? null : Number(form.price);
+  const discount =
+    componentsTotal != null && priceNumber != null ? componentsTotal - priceNumber : null;
+
 
   return (
     <>
@@ -417,6 +439,7 @@ const Bundles = () => {
             <TableHeader>
               <tr>
                 <TableCell>Panier</TableCell>
+                <TableCell>Type de client</TableCell>
                 <TableCell>Articles</TableCell>
                 <TableCell>Valeur</TableCell>
                 <TableCell>Prix offre</TableCell>
@@ -441,20 +464,35 @@ const Bundles = () => {
                     )}
                   </TableCell>
                   <TableCell>
+                    {/* Whose prices the two columns after this one are. Without it they are
+                        just numbers: the same basket costs each trade something different. */}
+                    {row.clientTypeName ? (
+                      <span className="inline-block whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        {row.clientTypeName}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-amber-600">Aucun prix</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <span className="text-sm text-gray-500">
                       {(row.items || []).length} produit(s)
                     </span>
                   </TableCell>
                   <TableCell>
+                    {/* A missing figure is shown as missing. Printing 0,00 DH for a basket the
+                        server simply could not price for anyone reads as "free". */}
                     <span className="text-sm text-gray-400 line-through">
-                      {currency}
-                      {Number(row.componentsTotal).toFixed(2)}
+                      {row.componentsTotal == null
+                        ? "—"
+                        : `${currency}${Number(row.componentsTotal).toFixed(2)}`}
                     </span>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                      {currency}
-                      {Number(row.price).toFixed(2)}
+                      {row.price == null
+                        ? "—"
+                        : `${currency}${Number(row.price).toFixed(2)}`}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -624,26 +662,70 @@ const Bundles = () => {
 
           {/* One segment, one price. The multi-segment editor is gone from here: a basket now
               belongs to a single trade, so a grid of prices would be a grid with one row. */}
-          <label className="block text-sm">
-            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-              Prix du panier pour {chosenType?.name}
-            </span>
-            <div className="relative w-48">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                {currency}
-              </span>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                className={`${inputCls} pl-9`}
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                placeholder="0.00"
-              />
+          {/* Price and what it is worth, side by side. Setting an offer price without the
+              basket's value in front of you is guesswork - and the only feedback used to be
+              the server refusing the save. */}
+          <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-600 dark:bg-gray-700/30">
+            <div className="flex flex-wrap items-end gap-6">
+              <label className="block text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Prix du panier pour {chosenType?.name}
+                </span>
+                {/* A plain input, not Windmill's: its theme forces its own padding, which put
+                    the currency straight on top of the value. The unit sits outside instead. */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className={`${inputCls} w-40 text-right font-semibold tabular-nums`}
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                    placeholder="0.00"
+                  />
+                  <span className="text-sm font-medium text-gray-500">{currency}</span>
+                </div>
+              </label>
+
+              <div className="text-sm">
+                <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                  Valeur des produits
+                </span>
+                <p className="h-11 leading-[2.75rem] font-semibold tabular-nums text-gray-800 dark:text-gray-100">
+                  {componentsTotal == null
+                    ? "—"
+                    : `${componentsTotal.toFixed(2)} ${currency}`}
+                </p>
+              </div>
+
+              {discount != null && (
+                <div className="text-sm">
+                  <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+                    Remise
+                  </span>
+                  <p
+                    className={`h-11 leading-[2.75rem] font-semibold tabular-nums ${
+                      discount > 0 ? "text-emerald-600" : "text-red-500"
+                    }`}
+                  >
+                    {discount > 0
+                      ? `${discount.toFixed(2)} ${currency} (−${Math.round(
+                          (discount / componentsTotal) * 100
+                        )}%)`
+                      : "aucune remise"}
+                  </p>
+                </div>
+              )}
             </div>
-            {componentsHint}
-          </label>
+
+            <p className="mt-3 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+              {items.length === 0
+                ? "Ajoutez des produits ci-dessous : leur valeur pour ce type s'affichera ici."
+                : componentsTotal == null
+                ? "Un produit du panier n'a pas de tarif lisible pour ce type."
+                : "Le prix doit rester sous la valeur des produits, sinon le panier n'est pas une offre."}
+            </p>
+          </div>
 
           {/* Product picker */}
           <div>
@@ -691,37 +773,58 @@ const Bundles = () => {
 
             {items.length > 0 && (
               <ul className="mt-3 divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-600">
-                {items.map((item) => (
-                  <li
-                    key={item.productId}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-gray-700 dark:text-gray-200">
-                      {item.name}
-                    </span>
-                    <span className="shrink-0 text-xs text-gray-400">
-                      {currency}
-                      {item.price.toFixed(2)}
-                    </span>
-                    <input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => setQuantity(item.productId, e.target.value)}
-                      className="h-9 w-16 rounded-md border border-gray-200 px-2 text-center text-sm dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setItems(items.filter((i) => i.productId !== item.productId))
-                      }
-                      className="shrink-0 rounded-full p-1.5 text-gray-300 transition hover:bg-red-50 hover:text-red-500"
-                      aria-label={`Retirer ${item.name}`}
+                {items.map((item) => {
+                  const unit = unitPriceFor(item.rungs, item.quantity);
+                  const line = lineTotal(item);
+                  return (
+                    <li
+                      key={item.productId}
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm"
                     >
-                      <FiX className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-gray-700 dark:text-gray-200">{item.name}</p>
+                        {/* The unit price for THIS trade, at THIS quantity - a volume rung can
+                            change it as the number is typed, and seeing that is the point. */}
+                        <p className="text-xs text-gray-400">
+                          {unit == null
+                            ? "tarif indisponible pour ce type"
+                            : `${unit.toFixed(2)} ${currency} / ${item.unit || "unité"}`}
+                        </p>
+                      </div>
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => setQuantity(item.productId, e.target.value)}
+                        aria-label={`Quantité de ${item.name}`}
+                        className="h-9 w-16 shrink-0 rounded-md border border-gray-200 px-2 text-center text-sm dark:border-gray-600 dark:bg-gray-700"
+                      />
+                      <span className="w-24 shrink-0 text-right font-semibold tabular-nums text-gray-700 dark:text-gray-200">
+                        {line == null ? "—" : `${line.toFixed(2)} ${currency}`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setItems(items.filter((i) => i.productId !== item.productId))
+                        }
+                        className="shrink-0 rounded-full p-1.5 text-gray-300 transition hover:bg-red-50 hover:text-red-500"
+                        aria-label={`Retirer ${item.name}`}
+                      >
+                        <FiX className="h-4 w-4" />
+                      </button>
+                    </li>
+                  );
+                })}
+                <li className="flex items-center justify-between bg-gray-50 px-3 py-2.5 text-sm dark:bg-gray-700/40">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">
+                    Valeur totale des produits
+                  </span>
+                  <span className="font-bold tabular-nums text-gray-800 dark:text-gray-100">
+                    {componentsTotal == null
+                      ? "—"
+                      : `${componentsTotal.toFixed(2)} ${currency}`}
+                  </span>
+                </li>
               </ul>
             )}
           </div>
