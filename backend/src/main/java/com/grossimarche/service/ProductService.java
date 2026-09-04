@@ -73,6 +73,7 @@ public class ProductService {
     private final CatalogueViewer catalogueViewer;
     private final ProductTypePriceRepository typePriceRepository;
     private final PricingService pricingService;
+    private final CatalogueTranslator catalogueTranslator;
 
     public ProductService(ProductRepository productRepository,
                           ProductPriceTierRepository priceTierRepository,
@@ -83,7 +84,8 @@ public class ProductService {
                           com.grossimarche.config.StorageProperties storageProperties,
                           ApplicationEventPublisher events, CatalogueViewer catalogueViewer,
                           ProductTypePriceRepository typePriceRepository,
-                          PricingService pricingService) {
+                          PricingService pricingService,
+                          CatalogueTranslator catalogueTranslator) {
         this.productRepository = productRepository;
         this.priceTierRepository = priceTierRepository;
         this.attributeRepository = attributeRepository;
@@ -97,6 +99,7 @@ public class ProductService {
         this.catalogueViewer = catalogueViewer;
         this.typePriceRepository = typePriceRepository;
         this.pricingService = pricingService;
+        this.catalogueTranslator = catalogueTranslator;
     }
 
     // ---- Public reads -----------------------------------------------------------------
@@ -251,8 +254,12 @@ public class ProductService {
             throw new ConflictException("Un produit avec ce slug existe déjà.");
         }
         Category category = categoryService.getById(req.categoryId());
+        // Translated once, here, instead of on every Arabic page view - see CatalogueTranslator.
+        String[] arabic = catalogueTranslator.arabicFor(
+                req.name(), req.nameAr(), req.description(), req.descriptionAr());
         Product product = Product.builder()
-                .category(category).name(req.name()).slug(req.slug()).description(req.description())
+                .category(category).name(req.name()).nameAr(arabic[0])
+                .slug(req.slug()).description(req.description()).descriptionAr(arabic[1])
                 .price(req.price()).unit(req.unit()).stockQuantity(req.stockQuantity())
                 .minOrderQuantity(req.minOrderQuantity()).imageUrl(req.imageUrl()).active(req.active())
                 .build();
@@ -267,9 +274,22 @@ public class ProductService {
         Product product = getById(id);
         Category category = categoryService.getById(req.categoryId());
         product.setCategory(category);
+        // A rename in French invalidates the stored Arabic: the machine's old attempt described
+        // the old name. Clearing it lets the translator run again, unless the form sent its own.
+        boolean renamed = !req.name().equals(product.getName());
+        boolean rewritten = req.description() != null
+                && !req.description().equals(product.getDescription());
+        String[] arabic = catalogueTranslator.arabicFor(
+                req.name(), req.nameAr() != null && !req.nameAr().isBlank()
+                        ? req.nameAr() : (renamed ? null : product.getNameAr()),
+                req.description(), req.descriptionAr() != null && !req.descriptionAr().isBlank()
+                        ? req.descriptionAr() : (rewritten ? null : product.getDescriptionAr()));
+
         product.setName(req.name());
+        product.setNameAr(arabic[0]);
         product.setSlug(req.slug());
         product.setDescription(req.description());
+        product.setDescriptionAr(arabic[1]);
         product.setPrice(req.price());
         product.setUnit(req.unit());
         product.setStockQuantity(req.stockQuantity());

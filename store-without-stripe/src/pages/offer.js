@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   FiArrowRight,
   FiCreditCard,
+  FiLock,
   FiPackage,
   FiPercent,
   FiTag,
@@ -27,7 +28,7 @@ const ADVANTAGES = [
 
 const Offer = () => {
   const { t } = useTranslation();
-  const { bundles, isLoading, addBundleToCart, addingId } = useBundles();
+  const { bundles, isLoading, addBundleToCart, addingId, canSeeOffers } = useBundles();
 
   return (
     <Layout title={t("offer.title")} description={t("offer.meta")}>
@@ -50,7 +51,36 @@ const Offer = () => {
       {/* Bundles */}
       <section data-no-translate className="bg-cream">
         <div className="mx-auto max-w-screen-2xl px-4 py-20 sm:px-10">
-          {isLoading ? (
+          {!canSeeOffers ? (
+            /* Reached by URL, or by a shopper whose account is still awaiting approval. The
+               honest answer is why they see nothing, not "no baskets right now" - there may
+               well be several, priced for a trade this visitor has not been given yet. */
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-white px-6 py-20 text-center">
+              <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                <FiLock className="text-2xl" />
+              </span>
+              <h2 className="font-display text-lg font-semibold text-ink-800">
+                {t("offer.locked_title")}
+              </h2>
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-ink-500">
+                {t("offer.locked_text")}
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/auth/login"
+                  className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700"
+                >
+                  {t("offer.locked_signin")}
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="rounded-full border border-line px-6 py-2.5 text-sm font-medium text-ink-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                >
+                  {t("offer.locked_signup")}
+                </Link>
+              </div>
+            </div>
+          ) : isLoading ? (
             <CMSkeletonTwo count={12} width={100} loading={isLoading} />
           ) : bundles.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-white px-6 py-20 text-center">

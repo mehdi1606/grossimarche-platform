@@ -36,11 +36,25 @@ public class Product extends AuditableEntity {
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
+
+    /**
+     * Arabic name, written once when the product is saved rather than produced on every read.
+     *
+     * Null means "not translated yet": the storefront falls back to translating at display
+     * time, as it always did, so filling the catalogue in can happen gradually.
+     */
+    @Column(name = "name_ar", length = 200)
+    private String nameAr;
+
     @Column(name = "slug", nullable = false, unique = true, length = 220)
     private String slug;
 
     @Column(name = "description")
     private String description;
+
+    /** Arabic description. Same rule as {@link #nameAr}. */
+    @Column(name = "description_ar")
+    private String descriptionAr;
 
     @Column(name = "price", nullable = false, precision = 12, scale = 2)
     private BigDecimal price;

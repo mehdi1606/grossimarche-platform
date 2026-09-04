@@ -12,6 +12,7 @@ import {
 
 //internal import
 import { getUserSession } from "@lib/auth";
+import useCanSeeOffers from "@hooks/useCanSeeOffers";
 import BrandMark from "@components/common/BrandMark";
 
 // Keys, not sentences: the columns are built at module load, before any hook exists, so both
@@ -22,7 +23,8 @@ const COLUMNS = [
     links: [
       { label: "common.home", href: "/" },
       { label: "common.all_products", href: "/search" },
-      { label: "common.bundles_offers", href: "/offer" },
+      // Baskets are priced per trade, so this only leads somewhere for a shopper who has one.
+      { label: "common.bundles_offers", href: "/offer", needsSegment: true },
     ],
   },
   {
@@ -64,6 +66,7 @@ const SOCIALS = [
 const Footer = () => {
   const { t } = useTranslation();
   const userInfo = getUserSession();
+  const canSeeOffers = useCanSeeOffers();
 
   const accountLinks = userInfo?.email
     ? [
@@ -76,7 +79,12 @@ const Footer = () => {
         { label: "common.track_order", href: "/auth/login?redirectUrl=orders" },
       ];
 
-  const columns = [...COLUMNS, { title: "footer.account", links: accountLinks }];
+  const columns = [...COLUMNS, { title: "footer.account", links: accountLinks }].map(
+    (col) => ({
+      ...col,
+      links: col.links.filter((l) => !l.needsSegment || canSeeOffers),
+    })
+  );
 
   return (
     <footer data-no-translate className="relative bg-emerald-900 text-emerald-50">

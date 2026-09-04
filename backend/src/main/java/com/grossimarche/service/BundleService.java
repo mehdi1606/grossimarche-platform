@@ -64,13 +64,15 @@ public class BundleService {
     private final StorageService storageService;
     private final StorageProperties storageProperties;
     private final ApplicationEventPublisher events;
+    private final CatalogueTranslator catalogueTranslator;
 
     public BundleService(BundleRepository bundleRepository, ProductRepository productRepository,
                          CatalogueViewer catalogueViewer, PricingService pricingService,
                          BundleTypePriceRepository bundlePriceRepository,
                          ProductTypePriceRepository productPriceRepository,
                          StorageService storageService, StorageProperties storageProperties,
-                         ApplicationEventPublisher events) {
+                         ApplicationEventPublisher events,
+                         CatalogueTranslator catalogueTranslator) {
         this.bundleRepository = bundleRepository;
         this.catalogueViewer = catalogueViewer;
         this.pricingService = pricingService;
@@ -80,6 +82,7 @@ public class BundleService {
         this.storageService = storageService;
         this.storageProperties = storageProperties;
         this.events = events;
+        this.catalogueTranslator = catalogueTranslator;
     }
 
     // ---- Reads -------------------------------------------------------------------------
@@ -120,10 +123,15 @@ public class BundleService {
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional
     public BundleResponse create(BundleRequest req) {
+        // Translated once here, not on every Arabic page view - see CatalogueTranslator.
+        String[] arabic = catalogueTranslator.arabicFor(
+                req.name(), req.nameAr(), req.description(), req.descriptionAr());
         Bundle bundle = Bundle.builder()
                 .name(req.name().trim())
+                .nameAr(arabic[0])
                 .slug(uniqueSlug(req.name(), null))
                 .description(trimToNull(req.description()))
+                .descriptionAr(arabic[1])
                 .imageUrl(trimToNull(req.imageUrl()))
                 .price(req.price())
                 .active(req.active() == null || req.active())
@@ -144,7 +152,18 @@ public class BundleService {
         if (renamed) {
             bundle.setSlug(uniqueSlug(req.name(), bundle.getId()));
         }
+        // Renaming in French leaves the old Arabic describing the old offer, so it is dropped
+        // and translated again - unless the form sent its own wording, which always wins.
+        boolean rewritten = !java.util.Objects.equals(
+                trimToNull(req.description()), bundle.getDescription());
+        String[] arabic = catalogueTranslator.arabicFor(
+                req.name(), req.nameAr() != null && !req.nameAr().isBlank()
+                        ? req.nameAr() : (renamed ? null : bundle.getNameAr()),
+                req.description(), req.descriptionAr() != null && !req.descriptionAr().isBlank()
+                        ? req.descriptionAr() : (rewritten ? null : bundle.getDescriptionAr()));
+        bundle.setNameAr(arabic[0]);
         bundle.setDescription(trimToNull(req.description()));
+        bundle.setDescriptionAr(arabic[1]);
         bundle.setImageUrl(trimToNull(req.imageUrl()));
         bundle.setPrice(req.price());
         if (req.active() != null) {
@@ -471,8 +490,9 @@ public class BundleService {
                         .divide(componentsTotal, 0, RoundingMode.HALF_UP).intValue()
                 : 0;
 
-        return new BundleResponse(bundle.getId(), bundle.getName(), bundle.getSlug(),
-                bundle.getDescription(), bundle.getImageUrl(), clientTypeName, price,
+        return new BundleResponse(bundle.getId(), bundle.getName(), bundle.getNameAr(),
+                bundle.getSlug(), bundle.getDescription(), bundle.getDescriptionAr(),
+                bundle.getImageUrl(), clientTypeName, price,
                 componentsTotal, savings, savingsPercent, bundle.isActive(),
                 available && bundle.isAvailableAt(Instant.now()),
                 bundle.getStartsAt(), bundle.getEndsAt(), items, bundle.getCreatedAt());

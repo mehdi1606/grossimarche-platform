@@ -22,7 +22,10 @@
     "terms": "Conditions",
     "pages": "Pages",
     "close_menu": "Fermer le menu",
-    "no_categories": "Aucune catégorie pour le moment."
+    "no_categories": "Aucune catégorie pour le moment.",
+    "cart_empty_aria": "Panier, vide",
+    "cart_items_aria_one": "Panier, {{count}} article",
+    "cart_items_aria_other": "Panier, {{count}} articles"
   },
   "footer": {
     "tagline": "Votre marché de gros en ligne au Maroc - produits en gros, tarifs dégressifs et livraison rapide dans tout le Royaume.",
@@ -135,6 +138,10 @@
     "badge": "Nos paniers",
     "hero_title": "Des paniers complets, à prix de gros.",
     "hero_text": "Des ensembles prêts à commander : tout ce qu'il faut, en une fois, pour moins cher que les articles pris séparément.",
+    "locked_title": "Les paniers sont réservés aux comptes professionnels",
+    "locked_text": "Chaque métier a ses propres paniers et ses propres prix. Connectez-vous à votre compte pour voir ceux qui vous concernent.",
+    "locked_signin": "Se connecter",
+    "locked_signup": "Demander un compte",
     "empty_title": "Aucun panier pour le moment",
     "empty_text": "De nouvelles offres arrivent régulièrement. En attendant, les tarifs dégressifs s'appliquent déjà sur tout le catalogue.",
     "empty_cta": "Découvrir les produits",

@@ -8,12 +8,14 @@ import { FiGrid } from "react-icons/fi";
 //internal import
 import CategoryMenu from "@components/category/CategoryMenu";
 import LanguageMenu from "@components/common/LanguageMenu";
+import useCanSeeOffers from "@hooks/useCanSeeOffers";
 import { SidebarContext } from "@context/SidebarContext";
 
 // Keys, not labels: this array is built at module load, where no hook can run.
+// `offers` is marked because baskets are priced per trade - see useCanSeeOffers.
 const NAV_LINKS = [
   { href: "/search", key: "all_products" },
-  { href: "/offer", key: "offers" },
+  { href: "/offer", key: "offers", needsSegment: true },
   { href: "/about-us", key: "about" },
   { href: "/contact-us", key: "contact" },
   { href: "/faq", key: "faq" },
@@ -24,6 +26,8 @@ const NavbarPromo = () => {
   // The catalogue, not the LibreTranslate helper this used to call. Navigation is read on
   // every page: it has to be instant, and it has to be exactly right.
   const { t } = useTranslation();
+  const canSeeOffers = useCanSeeOffers();
+  const links = NAV_LINKS.filter((item) => !item.needsSegment || canSeeOffers);
 
   return (
     <div data-no-translate className="hidden border-b border-line bg-white lg:block">
@@ -60,7 +64,7 @@ const NavbarPromo = () => {
             </Transition>
           </Popover>
 
-          {NAV_LINKS.map((item) => (
+          {links.map((item) => (
             <Link
               key={item.href}
               href={item.href}

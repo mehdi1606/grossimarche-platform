@@ -11,6 +11,9 @@ const toCategoryRequest = (body, existing) => {
   const icon = body.icon || existing?.icon || "";
   return {
     name,
+    // Blank asks the server to translate on save; a value is the wording to keep. Carried from
+    // `existing` on a status toggle so flipping a category visible does not wipe its Arabic.
+    nameAr: body.nameAr ?? existing?.nameAr ?? "",
     slug: body.slug || existing?.slug || slugify(name),
     // The backend icon column is short (60 chars) - keep an icon name/emoji, not a long URL.
     icon: icon.length > 60 ? "" : icon,

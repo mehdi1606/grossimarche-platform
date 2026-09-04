@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import BundleServices from "@services/BundleServices";
 import ProductServices from "@services/ProductServices";
+import useCanSeeOffers from "@hooks/useCanSeeOffers";
 import { SidebarContext } from "@context/SidebarContext";
 import { notifyError, notifySuccess } from "@utils/toast";
 import { bundleSavingsForCart } from "@utils/bundleSavings";
@@ -21,6 +22,15 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
   const { addItem, items } = useCart();
   const { openCartDrawer } = useContext(SidebarContext);
   const [addingId, setAddingId] = useState(null);
+  /*
+   * The gate lives here rather than at each call site.
+   *
+   * Without a trade the API returns every basket with no price, so the rail on the home page,
+   * the offers page and the product page would each render a set of baskets showing nothing.
+   * Refusing the request once means none of them has to remember to check - and it saves a
+   * request that could only ever come back empty of the one thing it is asked for.
+   */
+  const canSeeOffers = useCanSeeOffers();
 
   const { data: bundles = [], isLoading } = useQuery({
     queryKey: ["bundles", productId || "all"],
@@ -28,7 +38,7 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
       productId
         ? BundleServices.getBundlesForProduct(productId)
         : BundleServices.getShowingBundles(),
-    enabled,
+    enabled: enabled && canSeeOffers,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -64,7 +74,7 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
           {
             _id: product._id,
             id: product._id,
-            title: product.title?.en || item.name,
+            title: product.title?.fr || product.title?.en || item.name,
             slug: product.slug,
             image: product.image?.[0] || item.imageUrl || "",
             price: product.prices.price,
@@ -96,7 +106,7 @@ const useBundles = ({ productId = null, enabled = true } = {}) => {
     }
   };
 
-  return { bundles, isLoading, addBundleToCart, addingId, savings };
+  return { bundles, isLoading, addBundleToCart, addingId, savings, canSeeOffers };
 };
 
 export default useBundles;

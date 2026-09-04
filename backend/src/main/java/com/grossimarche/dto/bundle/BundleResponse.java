@@ -19,8 +19,12 @@ import java.util.UUID;
 public record BundleResponse(
         UUID id,
         String name,
+        /** Arabic name, or null when this offer has not been translated yet. */
+        String nameAr,
         String slug,
         String description,
+        /** Arabic description, or null when it has not been translated yet. */
+        String descriptionAr,
         String imageUrl,
         /**
          * Whose prices the figures below are. Null for a shopper, who is only ever shown their

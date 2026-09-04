@@ -19,6 +19,10 @@ const toProductRequest = (body) => {
       typeof body.description === "object"
         ? body.description?.en || Object.values(body.description || {})[0] || ""
         : body.description || "",
+    // Sent through untouched: blank asks the server to translate on save, a value says "keep
+    // this wording" - which is how a bad machine translation gets corrected for good.
+    nameAr: body.nameAr || "",
+    descriptionAr: body.descriptionAr || "",
     price: Number(body?.prices?.price ?? body.price ?? 0),
     unit: body.unit || "unité",
     stockQuantity: Number(body.stock ?? body.stockQuantity ?? 0),
@@ -31,8 +35,10 @@ const toProductRequest = (body) => {
 const detailToRequest = (d, activeOverride) => ({
   categoryId: d.categoryId,
   name: d.name,
+  nameAr: d.nameAr || "",
   slug: d.slug,
   description: d.description || "",
+  descriptionAr: d.descriptionAr || "",
   price: Number(d.price ?? 0),
   unit: d.unit || "unité",
   stockQuantity: Number(d.stockQuantity ?? 0),

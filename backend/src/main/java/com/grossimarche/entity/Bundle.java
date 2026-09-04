@@ -37,11 +37,25 @@ public class Bundle extends AuditableEntity {
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 
+
+    /**
+     * Arabic name, written once when the bundle is saved rather than produced on every read.
+     *
+     * Null means "not translated yet": the storefront falls back to translating at display
+     * time, as it always did, so filling the catalogue in can happen gradually.
+     */
+    @Column(name = "name_ar", length = 150)
+    private String nameAr;
+
     @Column(name = "slug", nullable = false, unique = true, length = 180)
     private String slug;
 
     @Column(name = "description", length = 1000)
     private String description;
+
+    /** Arabic description. Same rule as {@link #nameAr}. */
+    @Column(name = "description_ar", length = 1000)
+    private String descriptionAr;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;

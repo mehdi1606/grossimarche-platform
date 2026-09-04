@@ -4,8 +4,19 @@
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Wrap a plain string into the { en } multilingual object showingTranslateValue expects. */
-export const tr = (value) => ({ en: value ?? "" });
+/**
+ * Wrap a value into the multilingual object showingTranslateValue expects.
+ *
+ * French is the source; the Arabic the catalogue holds, when it holds one, travels beside it.
+ * That second argument is the whole point of translating at write time: with it an Arabic
+ * shopper reads a stored column, without it translateValue falls back to asking LibreTranslate
+ * while the page is being drawn - about two seconds the first time anyone meets the string.
+ *
+ * `ar` is only set when there is something to set, so an untranslated row keeps the fallback
+ * instead of rendering an empty label.
+ */
+export const tr = (value, arabic) =>
+  arabic ? { fr: value ?? "", ar: arabic } : { fr: value ?? "" };
 
 export const isUuid = (v) => typeof v === "string" && UUID_RE.test(v);
 
@@ -31,14 +42,14 @@ export const adaptProduct = (g) => {
   // Next.js getServerSideProps rejects `undefined` in props - use null when absent.
   const category =
     g.categoryId !== undefined && g.categoryId !== null
-      ? { _id: g.categoryId, name: tr(g.categoryName) }
+      ? { _id: g.categoryId, name: tr(g.categoryName, g.categoryNameAr) }
       : null;
 
   return {
     _id: g.id,
-    title: tr(g.name),
+    title: tr(g.name, g.nameAr),
     slug: g.slug,
-    description: tr(g.description),
+    description: tr(g.description, g.descriptionAr),
     prices: { price, originalPrice: price, discount: 0 },
     // The untouched list price, so a cart line can be re-priced by quantity without ever
     // compounding a discount it already carries.
@@ -70,7 +81,7 @@ export const adaptProducts = (list = []) => list.map(adaptProduct);
 /** Grossimarché category -> KachaBazar category node. */
 export const adaptCategory = (g) => ({
   _id: g.id,
-  name: tr(g.name),
+  name: tr(g.name, g.nameAr),
   icon: g.icon || "",
   slug: g.slug,
   parentId: null,

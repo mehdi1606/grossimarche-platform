@@ -20,7 +20,10 @@ import java.util.List;
  */
 public record BundleRequest(
         @NotBlank @Size(max = 150) String name,
+        /** Blank = translate on save; a value = the wording to keep. See CatalogueTranslator. */
+        @Size(max = 150) String nameAr,
         @Size(max = 1000) String description,
+        @Size(max = 1000) String descriptionAr,
         @Size(max = 500) String imageUrl,
         @NotNull @DecimalMin("0.0") BigDecimal price,
         Boolean active,

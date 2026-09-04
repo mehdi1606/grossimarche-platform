@@ -8,8 +8,12 @@ import java.util.UUID;
 public record ProductDetailResponse(
         UUID id,
         String name,
+        /** Arabic name, or null when this product has not been translated yet. */
+        String nameAr,
         String slug,
         String description,
+        /** Arabic description, or null when it has not been translated yet. */
+        String descriptionAr,
         BigDecimal price,
         String unit,
         int stockQuantity,

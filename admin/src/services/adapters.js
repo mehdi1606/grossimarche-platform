@@ -121,8 +121,12 @@ export const adaptProduct = (g) => {
   return {
     _id: g.id,
     title: { en: g.name },
+    // Kept flat, not folded into `title`: the form edits it as its own field, and the list
+    // shows which products are still waiting for a translation.
+    nameAr: g.nameAr || "",
     slug: g.slug,
     description: { en: g.description || "" },
+    descriptionAr: g.descriptionAr || "",
     prices: { price, originalPrice: price },
     image: g.imageUrl ? [g.imageUrl] : [],
     stock,
@@ -137,6 +141,7 @@ export const adaptProduct = (g) => {
 export const adaptCategory = (g) => ({
   _id: g.id,
   name: { en: g.name },
+  nameAr: g.nameAr || "",
   slug: g.slug,
   icon: g.icon || "",
   displayOrder: g.displayOrder ?? 0,
@@ -167,8 +172,12 @@ export const adaptAdminProduct = (g) => {
     _id: g.id,
     productId: g.id,
     title: { en: g.name },
+    // Flat, not folded into `title`: the form edits it as its own field, and the list can show
+    // at a glance which products are still waiting for a translation.
+    nameAr: g.nameAr || "",
     slug: g.slug,
     description: { en: g.description || "" },
+    descriptionAr: g.descriptionAr || "",
     prices: { price, originalPrice: price, discount: 0 },
     image: g.imageUrl ? [g.imageUrl] : [],
     stock: g.stockQuantity ?? 0,

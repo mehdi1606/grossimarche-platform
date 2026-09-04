@@ -23,7 +23,8 @@ public class ProductMapper {
 
     public ProductSummaryResponse toSummary(Product product, boolean inStock,
                                             List<PriceTierResponse> priceTiers) {
-        return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+        return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(),
                 product.getPrice(), product.getUnit(), product.getImageUrl(), inStock,
                 priceTiers != null && !priceTiers.isEmpty(),
                 priceTiers == null ? List.of() : priceTiers,
@@ -40,7 +41,8 @@ public class ProductMapper {
     public ProductSummaryResponse toSummary(Product product, boolean inStock,
                                             List<PriceTierResponse> priceTiers,
                                             java.math.BigDecimal entryPrice, int minQuantity) {
-        return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+        return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(),
                 entryPrice, product.getUnit(), product.getImageUrl(), inStock,
                 priceTiers != null && priceTiers.size() > 1,
                 priceTiers == null ? List.of() : priceTiers,
@@ -56,14 +58,16 @@ public class ProductMapper {
      * a missing one.
      */
     public ProductSummaryResponse toPricelessSummary(Product product, boolean inStock) {
-        return new ProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+        return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(),
                 null, product.getUnit(), product.getImageUrl(), inStock, false, List.of(),
                 Math.max(product.getMinOrderQuantity(), 1));
     }
 
     /** Back-office list row (exposes stock/active/category; called within a transaction). */
     public AdminProductSummaryResponse toAdminSummary(Product product) {
-        return new AdminProductSummaryResponse(product.getId(), product.getName(), product.getSlug(),
+        return new AdminProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(),
                 product.getDescription(), product.getPrice(), product.getUnit(), product.getImageUrl(),
                 product.getStockQuantity(), product.getMinOrderQuantity(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName());
@@ -72,8 +76,8 @@ public class ProductMapper {
     public ProductDetailResponse toDetail(Product product, List<PriceTierResponse> priceTiers,
                                           List<ProductAttributeResponse> attributes,
                                           double averageRating, long reviewCount) {
-        return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-                product.getDescription(), product.getPrice(), product.getUnit(), product.getStockQuantity(),
+        return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(), product.getDescription(), product.getDescriptionAr(), product.getPrice(), product.getUnit(), product.getStockQuantity(),
                 product.getMinOrderQuantity(), product.getImageUrl(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
                 averageRating, reviewCount);
@@ -84,8 +88,8 @@ public class ProductMapper {
                                           List<ProductAttributeResponse> attributes,
                                           double averageRating, long reviewCount,
                                           java.math.BigDecimal entryPrice, int minQuantity) {
-        return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-                product.getDescription(), entryPrice, product.getUnit(), product.getStockQuantity(),
+        return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(), product.getDescription(), product.getDescriptionAr(), entryPrice, product.getUnit(), product.getStockQuantity(),
                 minQuantity, product.getImageUrl(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
                 averageRating, reviewCount);
@@ -95,8 +99,8 @@ public class ProductMapper {
     public ProductDetailResponse toPricelessDetail(Product product,
                                                    List<ProductAttributeResponse> attributes,
                                                    double averageRating, long reviewCount) {
-        return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-                product.getDescription(), null, product.getUnit(), product.getStockQuantity(),
+        return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
+                product.getSlug(), product.getDescription(), product.getDescriptionAr(), null, product.getUnit(), product.getStockQuantity(),
                 Math.max(product.getMinOrderQuantity(), 1), product.getImageUrl(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), List.of(), attributes,
                 averageRating, reviewCount);

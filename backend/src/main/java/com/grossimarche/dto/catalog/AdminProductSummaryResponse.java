@@ -10,6 +10,8 @@ import java.util.UUID;
 public record AdminProductSummaryResponse(
         UUID id,
         String name,
+        /** Arabic name, so the back-office list can show what is still untranslated. */
+        String nameAr,
         String slug,
         String description,
         BigDecimal price,

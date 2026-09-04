@@ -43,7 +43,9 @@ const useAddToCart = () => {
   const minOf = (product) => Math.max(1, Number(product?.minOrderQuantity) || 1);
 
   const titleOf = (product) =>
-    typeof product?.title === "string" ? product.title : product?.title?.en || "Article";
+    typeof product?.title === "string"
+      ? product.title
+      : product?.title?.fr || product?.title?.en || "Article";
 
   /**
    * Add `item` units, or top the line up to the minimum if the product has one. Returns

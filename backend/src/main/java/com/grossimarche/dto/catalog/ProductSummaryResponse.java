@@ -15,6 +15,8 @@ import java.util.UUID;
 public record ProductSummaryResponse(
         UUID id,
         String name,
+        /** Arabic name, or null when this product has not been translated yet. */
+        String nameAr,
         String slug,
         BigDecimal price,
         String unit,

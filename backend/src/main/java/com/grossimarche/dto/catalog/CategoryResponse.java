@@ -6,6 +6,8 @@ import java.util.UUID;
 public record CategoryResponse(
         UUID id,
         String name,
+        /** Arabic name, or null when nobody has translated this category yet. */
+        String nameAr,
         String slug,
         String icon,
         int displayOrder,

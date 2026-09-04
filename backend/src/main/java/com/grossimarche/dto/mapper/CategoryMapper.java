@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 public class CategoryMapper {
 
     public CategoryResponse toResponse(Category category, long productCount) {
-        return new CategoryResponse(category.getId(), category.getName(), category.getSlug(),
+        return new CategoryResponse(category.getId(), category.getName(), category.getNameAr(),
+                category.getSlug(),
                 category.getIcon(), category.getDisplayOrder(), category.isActive(), productCount);
     }
 }

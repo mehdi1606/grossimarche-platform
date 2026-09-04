@@ -40,6 +40,14 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 const LIMIT = 10;
 const EMPTY = {
   name: "",
+  /**
+   * Arabic name. Left blank the server fills it in on save; typed, it is kept.
+   *
+   * The field exists because the machine is often wrong - "Bidon de vinaigre blanc" came back
+   * as "the flower of the finjar" - and before this there was nowhere to put the correction,
+   * so the mistake was cached and served to every Arabic-speaking customer for good.
+   */
+  nameAr: "",
   categoryId: "",
   /**
    * What each segment pays: one row per segment this product is sold to.
@@ -58,6 +66,7 @@ const EMPTY = {
   stock: 0,
   minOrderQuantity: 1,
   description: "",
+  descriptionAr: "",
   imageUrl: "",
   active: true,
 };
@@ -149,6 +158,7 @@ const Products = () => {
     setImageFile(null);
     setForm({
       name: row.title?.en || "",
+      nameAr: row.nameAr || "",
       categoryId: row.category?._id || "",
       // Carried through untouched so saving the product cannot move it (see handleSave).
       referencePrice: row.prices?.price ?? 0,
@@ -157,6 +167,7 @@ const Products = () => {
       stock: row.stock ?? 0,
       minOrderQuantity: row.minOrderQuantity ?? 1,
       description: row.description?.en || "",
+      descriptionAr: row.descriptionAr || "",
       imageUrl: row.image?.[0] || "",
       active: row.status !== "hide",
     });
@@ -197,8 +208,10 @@ const Products = () => {
 
     const body = {
       name: form.name,
+      nameAr: form.nameAr,
       category: form.categoryId,
       description: form.description,
+      descriptionAr: form.descriptionAr,
       price: reference,
       unit: form.unit,
       stock: form.stock,
@@ -604,6 +617,22 @@ const Products = () => {
                   required
                 />
               </label>
+
+              <label className="mt-4 block text-sm">
+                <span className={labelCls}>Nom en arabe</span>
+                <input
+                  type="text"
+                  dir="rtl"
+                  className={`${inputCls} text-right`}
+                  value={form.nameAr}
+                  onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
+                  placeholder="Laissez vide : traduit automatiquement"
+                />
+                <span className="mt-1 block text-xs text-gray-400">
+                  Rempli tout seul à l&apos;enregistrement. Corrigez-le ici si la traduction
+                  automatique se trompe : votre version est conservée.
+                </span>
+              </label>
             </div>
 
             <label className="block text-sm">
@@ -613,6 +642,17 @@ const Products = () => {
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Courte description affichée sur la fiche produit…"
+              />
+            </label>
+
+            <label className="block text-sm">
+              <span className={labelCls}>Description en arabe</span>
+              <textarea
+                dir="rtl"
+                className={`${inputCls} h-20 resize-y py-2.5 text-right leading-6`}
+                value={form.descriptionAr}
+                onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })}
+                placeholder="Laissez vide : traduite automatiquement"
               />
             </label>
 

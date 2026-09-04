@@ -51,7 +51,7 @@ const useReorder = () => {
           return;
         }
         if (Number(product.stock) < 1) {
-          unavailable.push(product.title?.en || line.title);
+          unavailable.push(product.title?.fr || product.title?.en || line.title);
           return;
         }
         // Never order more than is on the shelf today.
@@ -60,7 +60,7 @@ const useReorder = () => {
           {
             _id: product._id,
             id: product._id,
-            title: product.title?.en || line.title,
+            title: product.title?.fr || product.title?.en || line.title,
             slug: product.slug,
             image: product.image?.[0] || "",
             price: product.prices.price,

@@ -31,16 +31,19 @@ public class CategoryService {
     private final ProductTypePriceRepository typePriceRepository;
     private final CatalogueViewer catalogueViewer;
     private final CategoryMapper categoryMapper;
+    private final CatalogueTranslator catalogueTranslator;
 
     public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository,
                            ProductTypePriceRepository typePriceRepository,
                            CatalogueViewer catalogueViewer,
-                           CategoryMapper categoryMapper) {
+                           CategoryMapper categoryMapper,
+                           CatalogueTranslator catalogueTranslator) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.typePriceRepository = typePriceRepository;
         this.catalogueViewer = catalogueViewer;
         this.categoryMapper = categoryMapper;
+        this.catalogueTranslator = catalogueTranslator;
     }
 
     /**
@@ -100,7 +103,9 @@ public class CategoryService {
             throw new ConflictException("Une catégorie avec ce slug existe déjà.");
         }
         Category category = Category.builder()
-                .name(req.name()).slug(req.slug()).icon(req.icon())
+                // Translated once here, not on every Arabic page view - see CatalogueTranslator.
+                .name(req.name()).nameAr(catalogueTranslator.arabicFor(req.name(), req.nameAr()))
+                .slug(req.slug()).icon(req.icon())
                 .displayOrder(req.displayOrder()).active(req.active())
                 .build();
         return categoryMapper.toResponse(categoryRepository.save(category), 0);
@@ -111,7 +116,14 @@ public class CategoryService {
     @Transactional
     public CategoryResponse update(UUID id, CategoryRequest req) {
         Category category = getById(id);
+        // A rename in French makes the stored Arabic describe something else, so it is dropped
+        // and translated again - unless the form sent a wording of its own, which always wins.
+        boolean renamed = !req.name().equals(category.getName());
+        String keep = req.nameAr() != null && !req.nameAr().isBlank()
+                ? req.nameAr()
+                : (renamed ? null : category.getNameAr());
         category.setName(req.name());
+        category.setNameAr(catalogueTranslator.arabicFor(req.name(), keep));
         category.setSlug(req.slug());
         category.setIcon(req.icon());
         category.setDisplayOrder(req.displayOrder());

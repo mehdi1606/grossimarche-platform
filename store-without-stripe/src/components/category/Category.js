@@ -18,6 +18,7 @@ import BrandMark from "@components/common/BrandMark";
 import { SidebarContext } from "@context/SidebarContext";
 import CategoryServices from "@services/CategoryServices";
 import CategoryCard from "@components/category/CategoryCard";
+import useCanSeeOffers from "@hooks/useCanSeeOffers";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
 /**
@@ -27,7 +28,9 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
  * untranslated keys ("offer-page", "checkout-page") - they were rendering literally.
  */
 const PAGES = [
-  { title: "common.bundles_offers", href: "/offer", icon: FiGift },
+  // Baskets are priced per trade; a shopper without one reaches an empty page - see
+  // useCanSeeOffers.
+  { title: "common.bundles_offers", href: "/offer", icon: FiGift, needsSegment: true },
   { title: "common.all_products", href: "/search", icon: FiPackage },
   { title: "common.account", href: "/user/dashboard", icon: FiUser },
   { title: "common.about", href: "/about-us", icon: FiInfo },
@@ -48,6 +51,7 @@ const PAGES = [
  */
 const Category = () => {
   const { t } = useTranslation();
+  const canSeeOffers = useCanSeeOffers();
   const { closeCategoryDrawer } = useContext(SidebarContext);
   const { showingTranslateValue } = useUtilsFunction();
 
@@ -106,7 +110,7 @@ const Category = () => {
           {t("common.pages")}
         </h2>
         <nav className="grid gap-0.5 px-3 pb-6">
-          {PAGES.map((item) => (
+          {PAGES.filter((item) => !item.needsSegment || canSeeOffers).map((item) => (
             <Link
               key={item.href}
               href={item.href}
