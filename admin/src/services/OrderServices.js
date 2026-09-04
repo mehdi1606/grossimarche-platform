@@ -29,10 +29,12 @@ const OrderServices = {
 
   getOrderById: async (id) => adaptOrder(await requests.get(`/admin/orders/${id}`)),
 
+  // The note travels with every change and lands in the order's timeline. That is what makes
+  // the history worth reading later: who moved this, when, and why it took three days.
   updateOrder: async (id, body) => {
     const status = STATUS_TO_GM[body?.status] || body?.status;
     if (status === "CANCELLED") {
-      return requests.post(`/admin/orders/${id}/cancel`, {});
+      return requests.post(`/admin/orders/${id}/cancel`, { reason: body?.note || "" });
     }
     return requests.patch(`/admin/orders/${id}/status`, { status, note: body?.note || "" });
   },

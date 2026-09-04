@@ -73,6 +73,22 @@ export const adaptOrder = (g) => ({
     price: it.unitPrice,
     itemTotal: it.lineTotal,
   })),
+  /**
+   * What the shopper asked for at checkout, and every status this order has been through.
+   *
+   * Both were being dropped here. The API has returned them all along - the note the customer
+   * typed, and a timeline carrying who changed the status, when, and why - and an order screen
+   * that cannot answer "when did this ship, and who sent it" is a screen you end up leaving to
+   * go and read the database.
+   */
+  note: g.note || "",
+  timeline: (g.timeline || []).map((h) => ({
+    status: ORDER_STATUS_LABEL[h.status] || h.status,
+    rawStatus: h.status,
+    note: h.note || "",
+    changedBy: h.changedBy || null,
+    createdAt: h.createdAt,
+  })),
 });
 
 /** Grossimarché AdminCouponResponse -> admin coupon row. */

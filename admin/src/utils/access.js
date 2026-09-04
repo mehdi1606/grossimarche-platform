@@ -20,7 +20,7 @@ const STORE_MANAGER_ROUTES = [
   "approvals", // customer validation queue - day-to-day judgement, not policy
   "customer-order", // a customer's order detail
   "orders",
-  "order", // order invoice detail
+  "order", // an order's own page, and the invoice printed from it
   "bundles", // bundle offers ("paniers") - also catalogue pricing
   "reviews", // customer-review moderation
   "notifications",

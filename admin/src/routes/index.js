@@ -15,6 +15,7 @@ const Approvals = lazy(() => import("@/pages/Approvals"));
 const Delivery = lazy(() => import("@/pages/Delivery"));
 const CustomerOrder = lazy(() => import("@/pages/CustomerOrder"));
 const Orders = lazy(() => import("@/pages/Orders"));
+const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
 const OrderInvoice = lazy(() => import("@/pages/OrderInvoice"));
 const Coupons = lazy(() => import("@/pages/Coupons"));
 // const Setting = lazy(() => import("@/pages/Setting"));
@@ -82,8 +83,14 @@ const routes = [
     path: "/orders",
     component: Orders,
   },
+  // The order itself, and the printable invoice made from it. Managing an order and printing
+  // one are different jobs, so they are different pages rather than one page with a mode.
   {
     path: "/order/:id",
+    component: OrderDetail,
+  },
+  {
+    path: "/order/:id/invoice",
     component: OrderInvoice,
   },
   {

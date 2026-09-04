@@ -7,6 +7,7 @@ import com.grossimarche.dto.order.UpdateOrderStatusRequest;
 import com.grossimarche.security.SecurityUtils;
 import com.grossimarche.service.OrderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,8 +51,23 @@ public class AdminOrderController {
         return orderService.advanceStatus(id, body.status(), body.note(), SecurityUtils.currentUserId());
     }
 
+    /**
+     * Cancel an order, with the operator's own reason when they gave one.
+     *
+     * The reason used to be the constant "Annulation administrateur", which told the customer -
+     * and the next person to read the timeline - nothing at all. It is optional: an operator in
+     * a hurry still gets the old wording rather than being blocked.
+     */
     @PostMapping("/{id}/cancel")
-    public OrderDetailResponse cancel(@PathVariable UUID id) {
-        return orderService.cancel(id, SecurityUtils.currentUserId(), "Annulation administrateur");
+    public OrderDetailResponse cancel(@PathVariable UUID id,
+                                      @RequestBody(required = false) CancelOrderRequest body) {
+        String reason = body == null || body.reason() == null || body.reason().isBlank()
+                ? "Annulation administrateur"
+                : body.reason().trim();
+        return orderService.cancel(id, SecurityUtils.currentUserId(), reason);
+    }
+
+    /** Why the order was cancelled. Optional - see {@link #cancel}. */
+    public record CancelOrderRequest(@Size(max = 255) String reason) {
     }
 }
