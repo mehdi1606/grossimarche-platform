@@ -31,6 +31,7 @@ import {
   statusLabel,
   statusTone,
 } from "@/utils/orderStatus";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const Section = ({ title, icon: Icon, children, className = "" }) => (
   <section
@@ -98,6 +99,9 @@ const OrderDetail = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const move = async (status, reason) => {
     setSaving(true);

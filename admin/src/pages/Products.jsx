@@ -36,6 +36,7 @@ import TableSkeleton from "@/components/common/TableSkeleton";
 import TablePagination from "@/components/common/TablePagination";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const LIMIT = 10;
 const EMPTY = {
@@ -115,6 +116,9 @@ const Products = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   useEffect(() => {
     // Only active segments: a retired one must not be offered as a new row, though a product

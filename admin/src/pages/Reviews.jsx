@@ -19,6 +19,7 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const Stars = ({ value = 0 }) => {
   const full = Math.max(0, Math.min(5, Math.round(value)));
@@ -62,6 +63,9 @@ const Reviews = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const pendingCount = useMemo(
     () => rows.filter((r) => !r.approved).length,

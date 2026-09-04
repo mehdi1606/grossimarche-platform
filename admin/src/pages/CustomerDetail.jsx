@@ -21,6 +21,7 @@ import EmptyState from "@/components/common/EmptyState";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { statusBadge, statusLabel } from "@/utils/orderStatus";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const Stat = ({ label, value, hint, icon: Icon }) => (
   <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -75,6 +76,9 @@ const CustomerDetail = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const toggleBlock = async () => {
     const blocking = customer.status === "Active";

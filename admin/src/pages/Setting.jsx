@@ -18,6 +18,7 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 // The admin "Settings" panel manages the physical stores / magasins (backend /admin/stores).
 const EMPTY = { id: null, name: "", city: "", address: "", phone: "", lat: "", lng: "" };
@@ -44,6 +45,9 @@ const Setting = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const openAdd = () => {
     setForm(EMPTY);

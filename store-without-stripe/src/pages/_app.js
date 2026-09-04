@@ -23,11 +23,22 @@ import SettingServices from "@services/SettingServices";
 
 let persistor = persistStore(store);
 
+/**
+ * Data that refreshes itself when the shopper comes back to it.
+ *
+ * `refetchOnWindowFocus` was off, so a tab left open kept showing yesterday's catalogue -
+ * prices, stock and offers frozen until a manual reload. For a wholesale shop that is worse
+ * than slow: it is a shopper filling a basket at a price that has since moved.
+ *
+ * The short `staleTime` stops ordinary browsing from re-fetching on every focus change.
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 30 * 1000,
     },
   },
 });

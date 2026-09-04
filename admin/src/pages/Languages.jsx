@@ -20,6 +20,7 @@ import LanguageServices from "@/services/LanguageServices";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY = { name: "", isoCode: "", flag: "", enabled: true, isDefault: false };
 
@@ -43,6 +44,9 @@ const Languages = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const handleAdd = async (e) => {
     e.preventDefault();

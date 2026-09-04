@@ -20,6 +20,7 @@ import CurrencyServices from "@/services/CurrencyServices";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY = { code: "", name: "", symbol: "", exchangeRate: 1, enabled: true, isDefault: false };
 
@@ -43,6 +44,9 @@ const Currencies = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const handleAdd = async (e) => {
     e.preventDefault();

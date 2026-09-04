@@ -18,6 +18,7 @@ import NotificationServices from "@/services/NotificationServices";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const TYPE_BADGE = {
   NEW_ORDER: "success",
@@ -53,6 +54,9 @@ const Notifications = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const markRead = async (row) => {
     try {

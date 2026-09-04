@@ -21,6 +21,7 @@ import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { CATEGORY_ICONS, CategoryIcon } from "@/utils/categoryIcons";
 import { slugify } from "@/services/adapters";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY = { id: null, name: "", slug: "", icon: "cart", displayOrder: 0, active: true };
 
@@ -50,6 +51,9 @@ const Category = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const openAdd = () => {
     setForm(EMPTY);

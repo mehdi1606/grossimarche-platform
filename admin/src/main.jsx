@@ -31,11 +31,23 @@ if ("serviceWorker" in navigator) {
   }
 }
 
+/**
+ * Data that refreshes itself when you come back to it.
+ *
+ * `refetchOnWindowFocus` was off, which is a large part of why the back-office felt frozen: a
+ * customer places an order, you switch back to this tab, and the list still shows what it
+ * showed ten minutes ago until you press F5. Returning to the tab is the refresh now.
+ *
+ * A short `staleTime` stops that being wasteful - clicking between two screens inside the same
+ * half-minute does not re-fetch - and `refetchOnReconnect` covers the laptop that was asleep.
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 30 * 1000,
     },
   },
 });

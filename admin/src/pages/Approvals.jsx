@@ -21,6 +21,7 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 /**
  * Customer applications waiting to be recognised.
@@ -61,6 +62,9 @@ const Approvals = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const approve = async (row) => {
     setBusyId(row.id);

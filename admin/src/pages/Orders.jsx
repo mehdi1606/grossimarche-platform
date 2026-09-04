@@ -23,6 +23,7 @@ import TablePagination from "@/components/common/TablePagination";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError } from "@/utils/toast";
 import { STATUS_FLOW, statusBadge, statusLabel } from "@/utils/orderStatus";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 // Filter entries; the "Tous les statuts" row is added by FilterDropdown itself.
 const STATUS_FILTERS = [
@@ -63,6 +64,9 @@ const Orders = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const visible = statusFilter ? rows.filter((r) => r.status === statusFilter) : rows;
 

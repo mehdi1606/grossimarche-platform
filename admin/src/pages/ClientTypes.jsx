@@ -22,6 +22,7 @@ import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import CLIENT_TYPE_ICONS, { clientTypeIcon } from "@/utils/clientTypeIcons";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY_FORM = { name: "", description: "", icon: "", sortOrder: 0, active: true };
 
@@ -58,6 +59,9 @@ const ClientTypes = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const openNew = () => {
     // New segments land at the end of the chooser rather than silently jumping to the top.

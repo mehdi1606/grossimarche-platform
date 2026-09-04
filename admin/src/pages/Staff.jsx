@@ -22,6 +22,7 @@ import FilterDropdown from "@/components/form/selectOption/FilterDropdown";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY = { name: "", email: "", phone: "", role: "Store Manager" };
 
@@ -79,6 +80,9 @@ const Staff = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const openAdd = () => {
     setEditing(null);

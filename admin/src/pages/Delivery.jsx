@@ -17,6 +17,7 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import useAutoRefresh from "@/hooks/useAutoRefresh";
 
 const EMPTY_FORM = { name: "", deliveryFee: "", districts: [], sortOrder: 0, active: true };
 
@@ -98,6 +99,9 @@ const Delivery = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Coming back to the tab is the refresh - see the hook.
+  useAutoRefresh(load);
 
   const openNew = () => {
     setForm({ ...EMPTY_FORM, sortOrder: rows.length });
