@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
@@ -50,6 +51,7 @@ const formatDate = (value) => {
  * page, the rating is picked by clicking a star, and a review carries the date it was left.
  */
 const ProductExtras = ({ product }) => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [rating, setRating] = useState(5);
   const [hovered, setHovered] = useState(0);
@@ -71,12 +73,12 @@ const ProductExtras = ({ product }) => {
   const submit = async (e) => {
     e.preventDefault();
     if (!session?.user) {
-      return notifyError("Connectez-vous pour laisser un avis.");
+      return notifyError(t("product.review_need_signin"));
     }
     setSubmitting(true);
     try {
       await ReviewServices.submit(productId, { rating: Number(rating), comment });
-      notifySuccess("Merci ! Votre avis sera publié après modération.");
+      notifySuccess(t("product.review_thanks"));
       setComment("");
       refetch();
     } catch (err) {
@@ -95,7 +97,7 @@ const ProductExtras = ({ product }) => {
       <div className={`${cardCls} lg:col-span-2`}>
         <h3 className={headingCls}>
           <FiClipboard className="h-4 w-4 text-ink-400" />
-          Caractéristiques
+          {t("product.specs")}
         </h3>
 
         {attributes.length ? (
@@ -109,9 +111,9 @@ const ProductExtras = ({ product }) => {
           </dl>
         ) : (
           <div className="mt-4 rounded-xl border border-dashed border-line bg-cream px-4 py-8 text-center">
-            <p className="text-sm text-ink-500">Aucune caractéristique renseignée.</p>
+            <p className="text-sm text-ink-500">{t("product.specs_empty")}</p>
             <p className="mt-1 text-xs text-ink-400">
-              Une question sur ce produit ? Notre équipe répond au 05 22 00 00 00.
+              {t("product.specs_help")}
             </p>
           </div>
         )}
@@ -122,10 +124,10 @@ const ProductExtras = ({ product }) => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className={headingCls}>
             <FiMessageSquare className="h-4 w-4 text-ink-400" />
-            Avis
+            {t("product.reviews")}
           </h3>
           <span className="rounded-full bg-sand px-2.5 py-1 text-2xs font-semibold uppercase tracking-luxe text-ink-500">
-            {count} avis
+            {t("product.reviews_count", { count })}
           </span>
         </div>
 
@@ -138,8 +140,8 @@ const ProductExtras = ({ product }) => {
             <Stars value={average} />
             <p className="mt-1 text-xs text-ink-400">
               {count === 0
-                ? "Aucune note pour le moment"
-                : `Moyenne sur ${count} avis client${count > 1 ? "s" : ""}`}
+                ? t("product.no_rating")
+                : t("product.reviews_avg", { count })}
             </p>
           </div>
         </div>
@@ -177,7 +179,7 @@ const ProductExtras = ({ product }) => {
         {session?.user ? (
           <form onSubmit={submit} className="mt-6 border-t border-line pt-5">
             <p className="text-sm font-medium text-ink-700">
-              {reviews.length ? "Donnez votre avis" : "Soyez le premier à donner votre avis"}
+              {t(reviews.length ? "product.review_write" : "product.review_first")}
             </p>
 
             {/* A rating is clicked, not chosen from a dropdown. */}
@@ -207,7 +209,7 @@ const ProductExtras = ({ product }) => {
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Qualité, emballage, livraison... ce qui aiderait un autre commerçant."
+              placeholder={t("product.review_placeholder")}
               rows={3}
               maxLength={500}
               className="mt-3 w-full resize-y rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink-800 placeholder-ink-300 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
@@ -222,20 +224,20 @@ const ProductExtras = ({ product }) => {
                 type="submit"
                 className="inline-flex h-11 items-center rounded-xl bg-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
               >
-                {submitting ? "Envoi..." : "Publier mon avis"}
+                {submitting ? t("product.review_sending") : t("product.review_publish")}
               </button>
             </div>
           </form>
         ) : (
           <div className="mt-6 rounded-xl border border-dashed border-line bg-cream px-4 py-6 text-center">
             <p className="text-sm text-ink-600">
-              Vous avez acheté ce produit ? Votre avis aide les autres commerçants.
+              {t("product.review_invite")}
             </p>
             <Link
               href="/auth/login"
               className="mt-3 inline-flex h-11 items-center rounded-xl bg-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-600"
             >
-              Se connecter pour laisser un avis
+              {t("product.review_signin")}
             </Link>
           </div>
         )}

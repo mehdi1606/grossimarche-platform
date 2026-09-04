@@ -1,4 +1,5 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import "dayjs/locale/fr";
 import dynamic from "next/dynamic";
@@ -32,6 +33,7 @@ import { estimatedDeliveryLabel } from "@utils/delivery";
 dayjs.locale("fr");
 
 const Order = ({ params }) => {
+  const { t } = useTranslation();
   const printRef = useRef();
   const orderId = params.id;
   const queryClient = useQueryClient();
@@ -51,7 +53,7 @@ const Order = ({ params }) => {
   const cancelMutation = useMutation({
     mutationFn: async () => OrderServices.cancelOrder(orderId),
     onSuccess: () => {
-      notifySuccess("Votre commande a été annulée.");
+      notifySuccess(t("order.cancelled_ok"));
       setConfirmCancel(false);
       queryClient.invalidateQueries({ queryKey: ["order", orderId] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -63,12 +65,12 @@ const Order = ({ params }) => {
   });
 
   return (
-    <Layout title="Suivi de commande" description="Suivez votre commande Grossimarché">
+    <Layout title={t("order.meta")} description={t("order.meta")}>
       {isLoading ? (
         <Loading loading={isLoading} />
       ) : error ? (
         <h2 className="mx-auto my-10 w-11/12 text-center text-xl text-red-400">
-          {error?.message || "Commande introuvable."}
+          {error?.message || t("order.not_found")}
         </h2>
       ) : (
         <div className="mx-auto max-w-screen-2xl px-3 py-10 sm:px-6">
@@ -76,7 +78,7 @@ const Order = ({ params }) => {
             href="/user/my-orders"
             className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 transition hover:text-emerald-700"
           >
-            <IoChevronBack className="gm-dir-icon" /> Mes commandes
+            <IoChevronBack className="gm-dir-icon" /> {t("order.back_to_orders")}
           </Link>
 
           <div className="grid gap-6 lg:grid-cols-3">
@@ -87,7 +89,7 @@ const Order = ({ params }) => {
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
                   <div>
                     <p className="text-2xs font-medium uppercase tracking-luxe text-ink-400">
-                      Commande
+                      {t("order.heading")}
                     </p>
                     <h1 data-no-translate className="gm-ltr mt-1 font-display text-2xl font-semibold text-ink-900">
                       {data?.invoice || `#${orderId?.slice(0, 8)}`}
@@ -126,7 +128,7 @@ const Order = ({ params }) => {
                 {data?.note && (
                   <div className="mt-6 rounded-xl border border-line bg-sand p-4">
                     <p className="text-2xs font-medium uppercase tracking-luxe text-ink-400">
-                      Vos instructions
+                      {t("order.your_note")}
                     </p>
                     <p className="mt-1 text-sm text-ink-700">{data.note}</p>
                   </div>
@@ -138,7 +140,7 @@ const Order = ({ params }) => {
             <aside className="lg:col-span-1">
               <div className="sticky top-28 space-y-3 rounded-2xl border border-line bg-white p-6 shadow-luxe">
                 <h2 className="font-display text-base font-semibold text-ink-800">
-                  Actions
+                  {t("order.actions")}
                 </h2>
 
                 <button
@@ -149,7 +151,7 @@ const Order = ({ params }) => {
                   <FiRefreshCw
                     className={`h-4 w-4 ${reorderingId === orderId ? "animate-spin" : ""}`}
                   />
-                  Commander à nouveau
+                  {t("order.reorder")}
                 </button>
 
                 <PDFDownloadLink
@@ -176,7 +178,7 @@ const Order = ({ params }) => {
                   trigger={() => (
                     <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-line py-3 text-sm font-medium text-ink-700 transition hover:border-emerald-300 hover:text-emerald-700">
                       <IoPrintOutline className="text-base" />
-                      Imprimer
+                      {t("order.print")}
                     </button>
                   )}
                   content={() => printRef.current}
@@ -189,7 +191,7 @@ const Order = ({ params }) => {
                     {confirmCancel ? (
                       <div className="rounded-xl border border-red-100 bg-red-50 p-3">
                         <p className="mb-3 text-xs text-red-700">
-                          Annuler définitivement cette commande ?
+                          {t("order.cancel_confirm")}
                         </p>
                         <div className="flex gap-2">
                           <button
@@ -203,7 +205,7 @@ const Order = ({ params }) => {
                             onClick={() => setConfirmCancel(false)}
                             className="flex-1 rounded-lg border border-line bg-white py-2 text-xs font-medium text-ink-600"
                           >
-                            Retour
+                            {t("order.back")}
                           </button>
                         </div>
                       </div>
@@ -213,7 +215,7 @@ const Order = ({ params }) => {
                         className="flex w-full items-center justify-center gap-2 py-2 text-sm font-medium text-ink-400 transition hover:text-red-500"
                       >
                         <FiSlash className="h-3.5 w-3.5" />
-                        Annuler la commande
+                        {t("order.cancel_order")}
                       </button>
                     )}
                   </div>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * Premium stock indicator. Never exposes raw counts or i18n keys to the customer - just a
  * clean status pill: in stock (green), limited (amber, scarcity nudge) or out of stock (red).
@@ -5,10 +7,13 @@
 const LOW_THRESHOLD = 5;
 
 const Stock = ({ stock, card }) => {
+  const { t } = useTranslation();
   const out = !stock || stock <= 0;
   const low = !out && stock <= LOW_THRESHOLD;
 
-  const label = out ? "Rupture" : low ? "Stock limité" : "En stock";
+  const label = t(
+    out ? "product.out_of_stock" : low ? "product.low_stock" : "product.in_stock"
+  );
   const tone = out
     ? { chip: "bg-red-50 text-red-600", dot: "bg-red-500" }
     : low

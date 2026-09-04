@@ -313,7 +313,9 @@
     "print": "Imprimer",
     "cancel_confirm": "Annuler définitivement cette commande ?",
     "back": "Retour",
-    "cancel_order": "Annuler la commande"
+    "cancel_order": "Annuler la commande",
+    "not_found": "Commande introuvable.",
+    "cancelled_ok": "Votre commande a été annulée."
   },
   "address": {
     "modal_title": "Adresse de livraison",
@@ -334,5 +336,51 @@
     "free_over": "Offerte dès 1000 DH, quelle que soit la ville",
     "close": "Fermer",
     "cancel": "Annuler"
+  },
+  "product": {
+    "home": "Accueil",
+    "category": "Catégorie :",
+    "add_to_cart": "Ajouter au panier",
+    "view_product": "Voir le produit",
+    "in_bundles": "Disponible dans ces paniers",
+    "in_bundles_text": "Le même produit, moins cher dans un ensemble complet.",
+    "similar": "Produits similaires",
+    "err_stock": "Stock insuffisant.",
+    "err_out_of_stock": "Article en rupture de stock.",
+    "err_options": "Veuillez d'abord choisir toutes les options.",
+    "specs": "Caractéristiques",
+    "specs_empty": "Aucune caractéristique renseignée.",
+    "specs_help": "Une question sur ce produit ? Notre équipe répond au 05 22 00 00 00.",
+    "reviews": "Avis",
+    "review_invite": "Vous avez acheté ce produit ? Votre avis aide les autres commerçants.",
+    "review_signin": "Se connecter pour laisser un avis",
+    "review_placeholder": "Qualité, emballage, livraison... ce qui aiderait un autre commerçant.",
+    "review_need_signin": "Connectez-vous pour laisser un avis.",
+    "review_thanks": "Merci ! Votre avis sera publié après modération.",
+    "tiers_title": "Tarifs dégressifs",
+    "tiers_text": "Le prix unitaire baisse automatiquement avec la quantité.",
+    "tiers_quantity": "Quantité",
+    "tiers_saving": "Économie",
+    "tiers_yours": "Votre tarif",
+    "unit": "Unité :",
+    "min_order": "Commande minimum : {{count}} {{unit}}",
+    "min_order_stock": "Commande minimum de {{count}} - stock actuel insuffisant.",
+    "price_on_account": "Prix sur compte",
+    "in_stock": "En stock",
+    "low_stock": "Stock limité",
+    "out_of_stock": "Rupture",
+    "no_rating": "Aucune note pour le moment",
+    "reviews_count": "{{count}} avis",
+    "reviews_avg": "Moyenne sur {{count}} avis client",
+    "review_write": "Donnez votre avis",
+    "review_first": "Soyez le premier à donner votre avis",
+    "review_sending": "Envoi...",
+    "review_publish": "Publier mon avis"
+  },
+  "upsell": {
+    "title": "Avant de valider…",
+    "text": "Ajoutez ces produits souvent commandés ensemble.",
+    "skip": "Continuer mes achats",
+    "close": "Fermer"
   }
 }

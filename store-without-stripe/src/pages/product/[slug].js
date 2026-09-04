@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -28,6 +29,7 @@ import Discount from "@components/common/Discount";
 import ImageCarousel from "@components/carousel/ImageCarousel";
 
 const ProductScreen = ({ product, attributes, relatedProducts }) => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const { lang, showingTranslateValue, getNumber, currency } =
@@ -176,12 +178,12 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
   const handleAddToCart = (p) => {
     if (p.variants.length === 1 && p.variants[0].quantity < 1)
-      return notifyError("Stock insuffisant.");
+      return notifyError(t("product.err_stock"));
     // if (notAvailable) return notifyError('This Variation Not Available Now!');
-    if (stock <= 0) return notifyError("Article en rupture de stock.");
+    if (stock <= 0) return notifyError(t("product.err_out_of_stock"));
     if (stock < minQuantity)
       return notifyError(
-        `Commande minimum de ${minQuantity} - stock actuel insuffisant.`
+        t("product.min_order_stock", { count: minQuantity })
       );
     // console.log('selectVariant', selectVariant);
 
@@ -227,7 +229,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       };
       handleAddItem(newItem);
     } else {
-      return notifyError("Veuillez d'abord choisir toutes les options.");
+      return notifyError(t("product.err_options"));
     }
   };
 
@@ -237,10 +239,10 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
 
 
-  // category name slug
-  const category_name = showingTranslateValue(product?.category?.name)
-    .toLowerCase()
-    .replace(/[^A-Z0-9]+/gi, "-");
+  // Two different things that used to be one: what the shopper reads, and what the URL
+  // carries. Slugifying both printed "riz-c-r-ales" on screen where the category is named.
+  const categoryLabel = showingTranslateValue(product?.category?.name);
+  const category_name = categoryLabel.toLowerCase().replace(/[^A-Z0-9]+/gi, "-");
 
   // console.log("discount", discount);
 
@@ -258,7 +260,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               <div className="flex items-center pb-4">
                 <ol className="flex items-center w-full overflow-hidden font-serif">
                   <li className="text-sm pe-1 transition duration-200 ease-in cursor-pointer hover:text-emerald-500 font-semibold">
-                    <Link href="/">Accueil</Link>
+                    <Link href="/">{t("product.home")}</Link>
                   </li>
                   <li className="text-sm mt-[1px]">
                     {" "}
@@ -272,7 +274,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                         type="button"
                         onClick={() => setIsLoading(!isLoading)}
                       >
-                        {category_name}
+                        {categoryLabel}
                       </button>
                     </Link>
                   </li>
@@ -319,7 +321,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {product?.unit && (
                             <p className="text-sm text-ink-500">
-                              Unité :{" "}
+                              {t("product.unit")}{" "}
                               <span
                                 data-no-translate
                                 className="font-medium text-ink-700"
@@ -406,7 +408,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {minQuantity > 1 && (
                             <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sand px-3 py-2 text-xs font-medium text-ink-600">
-                              Commande minimum : {minQuantity} {product.unit || "u."}
+                              {t("product.min_order", { count: minQuantity, unit: product.unit || "u." })}
                             </p>
                           )}
 
@@ -444,7 +446,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                 disabled={stock <= 0}
                                 className="ms-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                               >
-                                Ajouter au panier
+                                {t("product.add_to_cart")}
                               </button>
                             </div>
                           </div>
@@ -452,7 +454,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           <div className="flex flex-col mt-4">
                             <span className="font-serif font-semibold py-1 text-sm d-block">
                               <span className="text-gray-800">
-                                Catégorie :
+                                {t("product.category")}
                               </span>{" "}
                               <Link
                                 href={`/search?category=${category_name}&_id=${product?.category?._id}`}
@@ -462,7 +464,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                   className="text-gray-600 font-serif font-medium underline ms-2 hover:text-teal-600"
                                   onClick={() => setIsLoading(!isLoading)}
                                 >
-                                  {category_name}
+                                  {categoryLabel}
                                 </button>
                               </Link>
                             </span>
@@ -482,10 +484,10 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               {productBundles?.length > 0 && (
                 <section className="pt-10 lg:pt-16">
                   <h3 className="mb-1 font-display text-xl font-semibold text-ink-900">
-                    Disponible dans ces paniers
+                    {t("product.in_bundles")}
                   </h3>
                   <p className="mb-6 text-sm text-ink-500">
-                    Le même produit, moins cher dans un ensemble complet.
+                    {t("product.in_bundles_text")}
                   </p>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {productBundles.map((bundle) => (
@@ -508,7 +510,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               {relatedProducts?.length >= 2 && (
                 <div className="pt-10 lg:pt-20 lg:pb-10">
                   <h3 className="leading-7 text-lg lg:text-xl mb-3 font-semibold font-serif hover:text-gray-600">
-                    Produits similaires
+                    {t("product.similar")}
                   </h3>
                   <div className="flex">
                     <div className="w-full">

@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { IoAdd, IoBagAddSharp, IoRemove } from "react-icons/io5";
 import { FiTrendingDown } from "react-icons/fi";
@@ -17,6 +18,7 @@ import ProductImage from "@components/product/ProductImage";
 import { handleLogEvent } from "src/lib/analytics";
 
 const ProductCard = ({ product, attributes }) => {
+  const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
 
   const { items, inCart } = useCart();
@@ -124,7 +126,7 @@ const ProductCard = ({ product, attributes }) => {
             )}
             {minQuantity > 1 && (
               <p className="text-2xs font-medium text-ink-400">
-                Commande minimum : {minQuantity} {product.unit || "u."}
+                {t("product.min_order", { count: minQuantity, unit: product.unit || "u." })}
               </p>
             )}
           </div>

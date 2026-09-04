@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { FiLock } from "react-icons/fi";
 
 import useUtilsFunction from "@hooks/useUtilsFunction";
@@ -12,6 +13,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
  * "0,00 DH", which would be a lie about what things cost.
  */
 const Price = ({ product, price, card, currency, originalPrice }) => {
+  const { t } = useTranslation();
   const { getNumberTwo } = useUtilsFunction();
 
   const shown = product?.isCombination ? price : product?.prices?.price;
@@ -28,7 +30,7 @@ const Price = ({ product, price, card, currency, originalPrice }) => {
         } font-semibold text-emerald-800 transition hover:bg-emerald-50`}
       >
         <FiLock className={card ? "h-3 w-3" : "h-3.5 w-3.5"} aria-hidden="true" />
-        Prix sur compte
+        {t("product.price_on_account")}
       </Link>
     );
   }

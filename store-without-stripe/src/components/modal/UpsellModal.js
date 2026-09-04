@@ -1,4 +1,5 @@
 import { useCart } from "react-use-cart";
+import { useTranslation } from "react-i18next";
 import { IoClose, IoArrowForward, IoBagAddSharp } from "react-icons/io5";
 
 //internal import
@@ -10,6 +11,7 @@ import ProductSuggestions from "@components/product/ProductSuggestions";
  * more items (the cart total updates live) and then confirm, or skip straight to confirming.
  */
 const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
+  const { t } = useTranslation();
   const { cartTotal, totalItems } = useCart();
   const { currency } = useUtilsFunction();
 
@@ -26,16 +28,16 @@ const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
             </span>
             <div>
               <h2 className="font-serif text-lg font-bold text-gray-800">
-                Avant de valider…
+                {t("upsell.title")}
               </h2>
               <p className="text-sm text-gray-500">
-                Ajoutez ces produits souvent commandés ensemble.
+                {t("upsell.text")}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={t("upsell.close")}
             className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
           >
             <IoClose className="text-xl" />
@@ -71,7 +73,7 @@ const UpsellModal = ({ isOpen, onClose, onConfirm, submitting }) => {
               onClick={onClose}
               className="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-medium text-gray-600 transition hover:border-gray-300"
             >
-              Continuer mes achats
+              {t("upsell.skip")}
             </button>
           </div>
         </div>

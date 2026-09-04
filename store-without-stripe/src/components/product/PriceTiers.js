@@ -1,4 +1,5 @@
 import { FiTrendingDown } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { effectiveUnitPrice } from "@utils/pricing";
@@ -13,6 +14,7 @@ import { effectiveUnitPrice } from "@utils/pricing";
  * answers "what am I paying right now?" rather than leaving it to be worked out.
  */
 const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
+  const { t } = useTranslation();
   const { currency } = useUtilsFunction();
   const tiers = [...(product?.priceTiers || [])].sort(
     (a, b) => Number(a.minQuantity) - Number(b.minQuantity)
@@ -34,10 +36,10 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
           <FiTrendingDown className="h-3.5 w-3.5" />
         </span>
         <div>
-          <h3 className="text-sm font-semibold text-emerald-900">Tarifs dégressifs</h3>
+          <h3 className="text-sm font-semibold text-emerald-900">{t("product.tiers_title")}</h3>
           {!compact && (
             <p className="text-2xs text-emerald-700/70">
-              Le prix unitaire baisse automatiquement avec la quantité.
+              {t("product.tiers_text")}
             </p>
           )}
         </div>
@@ -46,9 +48,9 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
       <table className="w-full text-sm">
         <thead>
           <tr className="text-2xs uppercase tracking-luxe text-emerald-700/60">
-            <th className="px-4 py-2 text-start font-medium">Quantité</th>
+            <th className="px-4 py-2 text-start font-medium">{t("product.tiers_quantity")}</th>
             <th className="px-4 py-2 text-end font-medium">Prix / {unit}</th>
-            <th className="px-4 py-2 text-end font-medium">Économie</th>
+            <th className="px-4 py-2 text-end font-medium">{t("product.tiers_saving")}</th>
           </tr>
         </thead>
         <tbody>
@@ -94,7 +96,7 @@ const PriceTiers = ({ product, basePrice, quantity = 1, compact = false }) => {
                   </span>
                   {isActive && (
                     <span className="ms-2 rounded-full bg-white/20 px-2 py-0.5 text-2xs font-medium">
-                      Votre tarif
+                      {t("product.tiers_yours")}
                     </span>
                   )}
                 </td>

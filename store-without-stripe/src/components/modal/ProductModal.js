@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -26,6 +27,7 @@ const ProductModal = ({
   attributes,
   currency,
 }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { setIsLoading, isLoading } = useContext(SidebarContext);
 
@@ -161,12 +163,12 @@ const ProductModal = ({
 
   const handleAddToCart = (p) => {
     if (p.variants.length === 1 && p.variants[0].quantity < 1)
-      return notifyError("Stock insuffisant.");
+      return notifyError(t("product.err_stock"));
 
-    if (stock <= 0) return notifyError("Article en rupture de stock.");
+    if (stock <= 0) return notifyError(t("product.err_out_of_stock"));
     if (stock < minQuantity)
       return notifyError(
-        `Commande minimum de ${minQuantity} - stock actuel insuffisant.`
+        t("product.min_order_stock", { count: minQuantity })
       );
 
     if (
@@ -213,7 +215,7 @@ const ProductModal = ({
 
       handleAddItem(newItem);
     } else {
-      return notifyError("Veuillez d'abord choisir toutes les options.");
+      return notifyError(t("product.err_options"));
     }
   };
 
@@ -318,7 +320,7 @@ const ProductModal = ({
 
               {minQuantity > 1 && (
                 <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sand px-3 py-2 text-xs font-medium text-ink-600">
-                  Commande minimum : {minQuantity} {product.unit || "u."}
+                  {t("product.min_order", { count: minQuantity, unit: product.unit || "u." })}
                 </p>
               )}
 
@@ -354,7 +356,7 @@ const ProductModal = ({
                     disabled={product.quantity < 1}
                     className="ms-4 inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 border-transparent bg-emerald-600 px-4 py-4 text-center text-sm font-semibold leading-4 text-white shadow-luxe transition duration-300 ease-in-out hover:bg-emerald-700 focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3.5 lg:px-8 lg:py-4"
                   >
-                    Ajouter au panier
+                    {t("product.add_to_cart")}
                   </button>
                 </div>
               </div>
@@ -363,7 +365,7 @@ const ProductModal = ({
                   <div>
                     {product?.category?._id && (
                       <span className="d-block py-1 text-sm font-semibold">
-                        <span className="text-ink-600">Catégorie :</span>{" "}
+                        <span className="text-ink-600">{t("product.category")}</span>{" "}
                         <Link
                           href={`/search?category=${category_name}&_id=${product?.category?._id}`}
                         >
@@ -386,7 +388,7 @@ const ProductModal = ({
                       onClick={() => handleMoreInfo(product.slug)}
                       className="font-sans font-medium text-sm text-orange-500"
                     >
-                      Voir le produit
+                      {t("product.view_product")}
                     </button>
                   </div>
                 </div>
