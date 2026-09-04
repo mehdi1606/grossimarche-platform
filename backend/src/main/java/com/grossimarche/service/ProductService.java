@@ -156,7 +156,10 @@ public class ProductService {
                         ProductSpecifications.matchesText(filter.q()),
                         ProductSpecifications.priceAtLeast(filter.minPrice()),
                         ProductSpecifications.priceAtMost(filter.maxPrice()),
-                        ProductSpecifications.inStock(filter.inStock()))
+                        ProductSpecifications.inStock(filter.inStock()),
+                        // Unset for ordinary management, where every product must be reachable.
+                        // Set when the back-office is assembling something for one segment.
+                        ProductSpecifications.pricedForClientType(filter.clientTypeId()))
                 .filter(Objects::nonNull)
                 .toList();
         Specification<Product> spec = specs.stream().reduce(Specification::and).orElse(null);

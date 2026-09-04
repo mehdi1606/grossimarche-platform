@@ -42,12 +42,15 @@ const detailToRequest = (d, activeOverride) => ({
 });
 
 const ProductServices = {
-  getAllProducts: async ({ page, limit, category, title }) => {
+  // `clientType` narrows the list to the products carrying a price for that segment. Left unset
+  // for ordinary management, where every product has to stay reachable.
+  getAllProducts: async ({ page, limit, category, title, clientType }) => {
     const params = new URLSearchParams();
     params.set("page", Math.max((Number(page) || 1) - 1, 0)); // UI is 1-based, API is 0-based
     params.set("size", limit || 20);
     if (category) params.set("categoryId", category);
     if (title) params.set("q", title);
+    if (clientType) params.set("clientTypeId", clientType);
     const res = await requests.get(`/admin/products?${params.toString()}`);
     return {
       products: (res.content || []).map(adaptAdminProduct),

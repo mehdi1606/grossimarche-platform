@@ -24,7 +24,6 @@ import {
 import PageTitle from "@/components/Typography/PageTitle";
 import BundleServices from "@/services/BundleServices";
 import PricingServices from "@/services/PricingServices";
-import SegmentPriceEditor from "@/components/pricing/SegmentPriceEditor";
 import ClientTypeServices from "@/services/ClientTypeServices";
 import ProductServices from "@/services/ProductServices";
 import Modal from "@/components/common/Modal";
@@ -34,17 +33,20 @@ import useUtilsFunction from "@/hooks/useUtilsFunction";
 import { notifyError, notifySuccess } from "@/utils/toast";
 
 const EMPTY_FORM = {
+  /**
+   * The trade this basket is for, chosen before anything else.
+   *
+   * One segment, not several. A basket is a shopping list for a trade: a pastry shop and a
+   * grocer do not buy the same things, and half the catalogue has no price for either of them.
+   * Asking for the segment first is what lets the product search show only what that trade is
+   * actually sold - offering the whole catalogue and failing at save time was the old way round.
+   */
+  clientTypeId: "",
+  /** What the basket costs that segment. Must come in under what its products cost there. */
+  price: "",
   name: "",
   description: "",
   imageUrl: "",
-  /**
-   * What the basket costs each segment it is offered to.
-   *
-   * Replaces the single price the form used to ask for. The components themselves do not cost
-   * a pastry shop and a grocer the same, so one offer price could not be right for both - and
-   * the storefront resolves it per segment anyway, which left that field meaning nothing.
-   */
-  typePrices: [],
   active: true,
 };
 
@@ -141,13 +143,28 @@ const Bundles = () => {
         )
       );
 
+      // A basket now belongs to one segment. An older one priced for several opens on the
+      // cheapest of them rather than refusing to open: the admin can see it and re-point it.
+      const pricedRows = (grid.prices || []).filter(
+        (p) => p.price !== null && p.price !== undefined
+      );
+      const chosen = pricedRows.reduce(
+        (best, row) => (!best || Number(row.price) < Number(best.price) ? row : best),
+        null
+      );
+      if (pricedRows.length > 1) {
+        notifyError(
+          `Ce panier était tarifé pour ${pricedRows.length} types. Il en garde un seul : ` +
+            `${chosen.clientTypeName}. Enregistrez pour confirmer.`
+        );
+      }
+
       setForm({
+        clientTypeId: chosen?.clientTypeId || "",
+        price: chosen ? String(chosen.price) : "",
         name: bundle.name || "",
         description: bundle.description || "",
         imageUrl: bundle.imageUrl || "",
-        typePrices: (grid.prices || [])
-          .filter((p) => p.price !== null && p.price !== undefined)
-          .map((p) => ({ clientTypeId: p.clientTypeId, price: String(p.price) })),
         active: bundle.active,
       });
       setItems(
@@ -170,19 +187,47 @@ const Bundles = () => {
 
   const runSearch = async (term) => {
     setSearch(term);
-    if (term.trim().length < 2) {
+    if (term.trim().length < 2 || !form.clientTypeId) {
       setResults([]);
       return;
     }
     setSearching(true);
     try {
-      const res = await ProductServices.getAllProducts({ page: 1, limit: 8, title: term });
+      // Narrowed to the chosen segment. Offering the whole catalogue here was a trap: a product
+      // that trade has no price for cannot be in its basket, and the only way to find out was
+      // the server refusing the save afterwards.
+      const res = await ProductServices.getAllProducts({
+        page: 1,
+        limit: 8,
+        title: term,
+        clientType: form.clientTypeId,
+      });
       setResults(res.products || []);
     } catch {
       setResults([]);
     } finally {
       setSearching(false);
     }
+  };
+
+  /**
+   * Point the basket at a different trade.
+   *
+   * The products already listed were picked because that segment is sold them; another segment
+   * may not be. Rather than keep a list that would be refused at save time, the basket is
+   * emptied and the reason is said out loud - the alternative is a silent failure later.
+   */
+  const chooseClientType = (clientTypeId) => {
+    if (clientTypeId === form.clientTypeId) return;
+    if (items.length > 0) {
+      setItems([]);
+      notifyError(
+        "Type changé : les produits ont été retirés, ils ne sont pas tous vendus à ce type."
+      );
+    }
+    setSearch("");
+    setResults([]);
+    setForm((prev) => ({ ...prev, clientTypeId }));
   };
 
   const addItem = (product) => {
@@ -217,13 +262,16 @@ const Bundles = () => {
 
   const save = async (e) => {
     e.preventDefault();
+    if (!form.clientTypeId) {
+      return notifyError("Choisissez d'abord le type de client de ce panier.");
+    }
     if (items.length === 0) {
       return notifyError("Ajoutez au moins un produit à l'offre.");
     }
-    const priced = form.typePrices.filter((r) => r.clientTypeId && r.price !== "");
-    if (priced.length !== form.typePrices.length) {
-      return notifyError("Indiquez un prix pour chaque type ajouté, ou retirez la ligne.");
+    if (form.price === "" || Number(form.price) <= 0) {
+      return notifyError("Indiquez le prix du panier pour ce type.");
     }
+    const priced = [{ clientTypeId: form.clientTypeId, price: form.price }];
 
     setSaving(true);
     try {
@@ -304,6 +352,39 @@ const Bundles = () => {
 
   const inputCls =
     "w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300";
+
+  const chosenType = clientTypes.find((t) => t.id === form.clientTypeId);
+
+  /**
+   * Whether the price being typed is actually a discount for this trade.
+   *
+   * The components' total is the server's to work out - it needs each product's price in this
+   * segment, which this form does not hold - so it only exists once the basket has been saved
+   * at least once. Before that there is nothing honest to show, and nothing is shown.
+   */
+  const componentsHint = useMemo(() => {
+    const info = gridInfo[form.clientTypeId];
+    if (!info) return null;
+    const total = info.componentsTotal;
+
+    if (total === null || total === undefined) {
+      return (
+        <p className="mt-1.5 text-xs text-amber-600">
+          Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
+        </p>
+      );
+    }
+    if (form.price === "") return null;
+
+    const saved = Number(total) - Number(form.price);
+    return (
+      <p className={`mt-1.5 text-xs ${saved > 0 ? "text-emerald-600" : "text-red-500"}`}>
+        Produits : {currency}
+        {Number(total).toFixed(2)}
+        {saved > 0 ? ` — remise ${currency}${saved.toFixed(2)}` : " — aucune remise"}
+      </p>
+    );
+  }, [gridInfo, form.clientTypeId, form.price, currency]);
 
   return (
     <>
@@ -432,6 +513,50 @@ const Bundles = () => {
         }
       >
         <form onSubmit={save} className="space-y-5">
+          {/* Step one, and a real gate: everything below depends on it. The trade decides which
+              products exist to be picked, so asking for it after the basket was filled meant
+              filling it from a catalogue half of which that trade cannot buy. */}
+          <fieldset className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-600 dark:bg-gray-700/30">
+            <legend className="px-1 text-sm font-semibold text-gray-700 dark:text-gray-200">
+              1. Pour quel type de client ?
+            </legend>
+            <p className="mb-3 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+              Un panier s'adresse à un seul métier. Seuls les produits vendus à ce type pourront
+              y être ajoutés.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {clientTypes.map((type) => {
+                const selected = form.clientTypeId === type.id;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => chooseClientType(type.id)}
+                    aria-pressed={selected}
+                    className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
+                      selected
+                        ? "border-emerald-500 bg-emerald-500 font-medium text-white"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-emerald-300 hover:text-emerald-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    {type.name}
+                  </button>
+                );
+              })}
+              {clientTypes.length === 0 && (
+                <p className="text-sm text-amber-600">
+                  Aucun type de client n'existe encore. Créez-en un dans « Types de clients ».
+                </p>
+              )}
+            </div>
+          </fieldset>
+
+          {!form.clientTypeId ? (
+            <p className="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-400 dark:border-gray-600">
+              Choisissez un type de client pour composer le panier.
+            </p>
+          ) : (
+            <>
           <div className="flex flex-col gap-4 sm:flex-row">
             {/* image */}
             <div className="sm:w-40">
@@ -497,48 +622,28 @@ const Bundles = () => {
             </div>
           </div>
 
-          {/* Prices first: the segments a bundle is sold to decide what belongs in it, and
-              the "no segment priced" warning is worth reading before filling the basket. */}
-          <SegmentPriceEditor
-            clientTypes={clientTypes}
-            value={form.typePrices}
-            onChange={(typePrices) => setForm({ ...form, typePrices })}
-            currency={currency}
-            title="Prix du panier par type de client"
-            hint="Les produits du panier ne coûtent pas la même chose à chaque type, donc la remise non plus. Le prix doit rester inférieur au total des produits de ce type."
-            emptyWarning="Aucun type tarifé : ce panier ne sera proposé à personne."
-            renderInfo={(row) => {
-              const info = gridInfo[row.clientTypeId];
-              if (!info) return null;
-              const total = info.componentsTotal;
-
-              // Only known once the bundle exists: the components' total is resolved
-              // server-side, per segment, from prices this form does not hold.
-              if (total === null || total === undefined) {
-                return (
-                  <p className="mt-1.5 pl-12 text-xs text-amber-600">
-                    Produits sans prix pour ce type : {info.unpricedComponents?.join(", ")}
-                  </p>
-                );
-              }
-              if (row.price === "") return null;
-
-              const saving = Number(total) - Number(row.price);
-              return (
-                <p
-                  className={`mt-1.5 pl-12 text-xs ${
-                    saving > 0 ? "text-emerald-600" : "text-red-500"
-                  }`}
-                >
-                  Produits : {currency}
-                  {Number(total).toFixed(2)}
-                  {saving > 0
-                    ? ` — remise ${currency}${saving.toFixed(2)}`
-                    : " — aucune remise"}
-                </p>
-              );
-            }}
-          />
+          {/* One segment, one price. The multi-segment editor is gone from here: a basket now
+              belongs to a single trade, so a grid of prices would be a grid with one row. */}
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
+              Prix du panier pour {chosenType?.name}
+            </span>
+            <div className="relative w-48">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                {currency}
+              </span>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                className={`${inputCls} pl-9`}
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
+            {componentsHint}
+          </label>
 
           {/* Product picker */}
           <div>
@@ -551,12 +656,19 @@ const Bundles = () => {
                 className={`${inputCls} pl-10`}
                 value={search}
                 onChange={(e) => runSearch(e.target.value)}
-                placeholder="Rechercher un produit à ajouter…"
+                placeholder={`Rechercher un produit vendu aux ${chosenType?.name}…`}
               />
-              {(results.length > 0 || searching) && (
+              {/* "Nothing matched" has to be reachable, so the panel opens on a real search
+                  term rather than only on results - silence would read as a broken search. */}
+              {(results.length > 0 || searching || search.trim().length >= 2) && (
                 <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-600 dark:bg-gray-700">
                   {searching && (
                     <li className="px-3 py-2 text-sm text-gray-400">Recherche…</li>
+                  )}
+                  {!searching && results.length === 0 && (
+                    <li className="px-3 py-2 text-sm text-gray-400">
+                      Aucun produit vendu à ce type ne correspond.
+                    </li>
                   )}
                   {results.map((product) => (
                     <li key={product._id || product.id}>
@@ -623,6 +735,8 @@ const Bundles = () => {
             />
             Offre active (visible en boutique)
           </label>
+            </>
+          )}
         </form>
       </Modal>
 

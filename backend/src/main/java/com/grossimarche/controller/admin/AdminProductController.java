@@ -60,11 +60,15 @@ public class AdminProductController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Boolean inStock,
+            // Set when the caller is assembling something for one segment - a bundle, say - and
+            // must not be offered a product that segment has no price for.
+            @RequestParam(required = false) UUID clientTypeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, Math.min(Math.max(size, 1), 100),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
-        ProductFilter filter = new ProductFilter(categoryId, q, minPrice, maxPrice, inStock);
+        ProductFilter filter = new ProductFilter(categoryId, q, minPrice, maxPrice, inStock,
+                clientTypeId);
         return PageResponse.from(productService.adminList(filter, pageable));
     }
 
