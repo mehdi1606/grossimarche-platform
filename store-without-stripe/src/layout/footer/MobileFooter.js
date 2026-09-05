@@ -38,15 +38,13 @@ const MobileFooter = () => {
         <button
           aria-label="Catégories"
           onClick={toggleCategoryDrawer}
-          className="relative flex h-auto flex-shrink-0 items-center justify-center focus:outline-none"
+          className="relative grid h-11 w-11 shrink-0 place-items-center focus:outline-none"
         >
-          <span className="text-xl text-white">
-            <FiAlignLeft className="h-6 w-6" />
-          </span>
+          <FiAlignLeft className="h-6 w-6 text-white" />
         </button>
         <Link
           href="/"
-          className="text-xl text-white"
+          className="grid h-11 w-11 place-items-center text-white"
           rel="noreferrer"
           aria-label="Accueil"
         >
@@ -58,7 +56,7 @@ const MobileFooter = () => {
           aria-label={
             totalItems > 0 ? `Panier, ${totalItems} article(s)` : "Panier, vide"
           }
-          className="relative inline-flex h-9 w-9 items-center justify-center whitespace-nowrap text-lg text-white"
+          className="relative grid h-11 w-11 place-items-center whitespace-nowrap text-lg text-white"
         >
           {totalItems > 0 && (
             <span
@@ -77,7 +75,7 @@ const MobileFooter = () => {
           <Link
             href="/user/dashboard"
             aria-label="Mon compte"
-            className="grid h-9 w-9 place-items-center text-white"
+            className="grid h-11 w-11 place-items-center text-white"
           >
             <Image
               width={28}
@@ -91,7 +89,7 @@ const MobileFooter = () => {
           <Link
             href="/user/dashboard"
             aria-label="Mon compte"
-            className="grid h-9 w-9 place-items-center rounded-full text-sm font-bold uppercase leading-none text-white"
+            className="grid h-11 w-11 place-items-center rounded-full text-sm font-bold uppercase leading-none text-white"
           >
             <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20">
               {userInfo.name[0]}
@@ -101,7 +99,7 @@ const MobileFooter = () => {
           <Link
             href={userInfo ? "/user/dashboard" : "/auth/login"}
             aria-label={userInfo ? "Mon compte" : "Se connecter"}
-            className="grid h-9 w-9 place-items-center text-white"
+            className="grid h-11 w-11 place-items-center text-white"
           >
             <FiUser className="h-6 w-6" />
           </Link>

@@ -1984,3 +1984,92 @@ body {
     overflow-x: auto;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Handheld: the things a desktop browser never shows you.
+
+   None of this is styling in the usual sense - it is the set of behaviours iOS
+   and Android impose that a layout has to answer for. Each rule below exists
+   because of one of them, and says which.
+   --------------------------------------------------------------------------- */
+
+/* iOS enlarges text in landscape unless told not to, which breaks every line
+   length that was chosen in portrait. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Safari zooms the page when a field smaller than 16px takes focus, and does not
+   zoom back out afterwards - the shopper is left on a page they have to pinch to
+   read, usually mid-checkout. Raising the field to 16px on touch devices is the
+   fix that does not take zoom away from anyone (capping maximum-scale would).
+   `pointer: coarse` rather than a width query: a small window on a laptop has no
+   such problem, and a large tablet does. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Android paints a grey rectangle over anything tapped. Removing it without
+   putting something back leaves a button that feels dead, so the press is
+   acknowledged by the element itself. */
+@media (hover: none) {
+  a,
+  button,
+  [role="button"],
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+  a:active,
+  button:active:not(:disabled),
+  [role="button"]:active {
+    opacity: 0.72;
+    transition: opacity 60ms ease-out;
+  }
+}
+
+/* Scrolling to the end of a drawer or a dropdown must not start scrolling the
+   page behind it, and on iOS must not trigger the rubber-band that makes the
+   whole view bounce. */
+.drawer-content,
+.gm-rail,
+.gm-thin-scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* `100vh` on iOS means "the viewport with the address bar hidden", so a full
+   height element is taller than what is on screen and its bottom is cut off.
+   `dvh` is the height that actually exists right now; the vh line stays first as
+   the fallback for browsers that do not know dvh. */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+/* A notched phone puts its home indicator over the bottom of the page. The fixed
+   bar and the drawers already pad for it with env(safe-area-inset-*) - that only
+   works now that the viewport is declared with viewport-fit=cover (see _app.js).
+   This adds the one place that had no padding at all: the page itself, so the
+   last row of a list is not left underneath the bar. */
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Landscape on a notched phone puts the rounded corners over the page edges. */
+@media (orientation: landscape) {
+  body {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}

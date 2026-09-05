@@ -1,4 +1,5 @@
 import "@styles/custom.css";
+import Head from "next/head";
 import { CartProvider } from "react-use-cart";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
@@ -82,6 +83,27 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
+      {/*
+        The viewport, declared where Next actually keeps it.
+
+        next-seo was already asking for `viewport-fit=cover`, but the shipped HTML carried only
+        Next's default `width=device-width` - checked against the served page, not assumed. The
+        difference matters on an iPhone: without `viewport-fit=cover`, every
+        `env(safe-area-inset-*)` resolves to zero, so the fixed bottom bar and the category
+        drawer, both of which already pad for the home indicator, were padding by nothing and
+        sitting underneath it.
+
+        `maximum-scale` is deliberately absent: capping zoom stops a partially sighted shopper
+        from enlarging the page, and it is not needed to prevent the focus-zoom - the 16px input
+        rule in custom.css handles that without taking the ability away.
+      */}
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+      </Head>
+
       {/* Render TawkMessengerReact only if tawk_chat_status is enabled */}
       {storeSetting?.tawk_chat_status && (
         <TawkMessengerReact

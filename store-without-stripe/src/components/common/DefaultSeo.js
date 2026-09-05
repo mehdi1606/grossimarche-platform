@@ -27,11 +27,9 @@ const DefaultSeo = () => {
         cardType: "summary_large_image",
       }}
       additionalMetaTags={[
-        {
-          name: "viewport",
-          content:
-            "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
-        },
+        // The viewport is declared in _app.js now. Asked for here it never reached the page -
+        // the served HTML carried Next's own default instead - and two competing declarations
+        // is one more than a browser should have to arbitrate.
         {
           name: "mobile-web-app-capable",
           content: "yes",
