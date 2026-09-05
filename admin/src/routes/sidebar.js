@@ -99,12 +99,15 @@ const sidebar = [
     icon: FiTruck,
     name: "Delivery",
   },
-  {
-    path: "/settings",
-    icon: FiSettings,
-    name: "Settings",
-  },
   // ---- Hidden from the menu ----
+  // "Réglages" (the store/magasins screen) is not shown. The route still exists and stays
+  // reachable at /settings for an ADMIN; restore the entry below to bring it back.
+  // {
+  //   path: "/settings",
+  //   icon: FiSettings,
+  //   name: "Settings",
+  // },
+  //
   // "International" (Currencies + Languages) is not shown in the sidebar. The routes still
   // exist and stay reachable at /currencies and /languages for an ADMIN (see utils/access.js);
   // restore the entry below to bring the menu section back.
