@@ -1,7 +1,7 @@
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import React, { useContext, useRef, useState } from "react";
-import { FiPrinter, FiMail } from "react-icons/fi";
+import { FiArrowLeft, FiPrinter, FiMail } from "react-icons/fi";
 import { IoCloudDownloadOutline } from "react-icons/io5";
 import { Button } from "@windmill/react-ui";
 import {
@@ -37,6 +37,7 @@ const OrderInvoice = () => {
   const { state } = useContext(AdminContext);
   const { adminInfo } = state;
   const { id } = useParams();
+  const history = useHistory();
   const printRef = useRef();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -92,6 +93,21 @@ const OrderInvoice = () => {
 
   return (
     <>
+      {/* An invoice is always reached from somewhere - the orders list, a customer's order
+          history - so the way out is back there, not to a fixed page. Opened from a direct
+          link, with nothing to pop, it falls back to the orders list rather than leaving the
+          back-office altogether. */}
+      <button
+        type="button"
+        onClick={() =>
+          history.length > 2 ? history.goBack() : history.push("/orders")
+        }
+        className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-emerald-600 focus:outline-none dark:text-gray-400 dark:hover:text-emerald-400"
+      >
+        <FiArrowLeft className="h-4 w-4" />
+        Retour
+      </button>
+
       <PageTitle> {t("InvoicePageTittle")} </PageTitle>
 
       <div
@@ -201,7 +217,9 @@ const OrderInvoice = () => {
                   {t("InvoicepaymentMethod")}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
-                  {data.paymentMethod}
+                  {data.paymentMethod === "Cash"
+                    ? "Paiement à la livraison"
+                    : data.paymentMethod}
                 </span>
               </div>
               <div className="mb-3 md:mb-0 lg:mb-0  flex flex-col sm:flex-wrap">

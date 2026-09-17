@@ -38,12 +38,16 @@ const useUtilsFunction = () => {
     return dayjs(data).format(timeFormat);
   };
 
+  // No format configured means dayjs falls back to its own English default ("Sep 16, 2026"),
+  // which is what printed an American date on a French invoice.
   const showDateFormat = (data) => {
-    return dayjs(data).format(globalSetting?.default_date_format);
+    return dayjs(data).format(globalSetting?.default_date_format || "DD/MM/YYYY");
   };
 
   const showDateTimeFormat = (data) => {
-    return dayjs(data).format(`${globalSetting?.default_date_format}  h:mm A`);
+    return dayjs(data).format(
+      `${globalSetting?.default_date_format || "DD/MM/YYYY"} HH:mm`
+    );
   };
 
   //for formatting number
