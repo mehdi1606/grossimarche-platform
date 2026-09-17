@@ -67,7 +67,7 @@ const Dashboard = ({ title, description, children }) => {
       ) : (
         <Layout
           title={title ? title : "Mon compte"}
-          description={description ? description : "Espace client Grossimarché"}
+          description={description ? description : "Espace client Market Food"}
         >
           <div className="mx-auto max-w-screen-2xl px-3 sm:px-10">
             <div className="flex w-full flex-col py-10 lg:flex-row lg:py-12">

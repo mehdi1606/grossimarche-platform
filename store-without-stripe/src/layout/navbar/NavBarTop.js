@@ -44,26 +44,25 @@ const NavBarTop = () => {
           {/* Left: contact */}
           <div className="flex items-center gap-5">
             <a
-              href="tel:+2125220000000"
+              href="tel:+212605477544"
               data-no-translate
               className="gm-ltr flex items-center transition hover:text-emerald-700"
             >
               <FiPhoneCall className="me-1.5" />
-              +212 5 22 00 00 00
+              +212 605 477 544
             </a>
             <a
-              href="mailto:contact@grossimarche.ma"
+              href="mailto:Marketfood26@gmail.com"
               data-no-translate
               className="gm-ltr hidden items-center transition hover:text-emerald-700 xl:flex"
             >
               <FiMail className="me-1.5" />
-              contact@grossimarche.ma
+              Marketfood26@gmail.com
             </a>
           </div>
 
           {/* Right: account */}
           <div className="flex items-center gap-4">
-            <span className="hidden text-ink-400 xl:inline">{t("common.promo_bar")}</span>
             {userInfo?.email ? (
               <>
                 <Link

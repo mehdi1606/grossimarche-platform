@@ -1,14 +1,15 @@
 {
-  "theme_color": "#f69435",
-  "background_color": "#f69435",
+  "theme_color": "#1A6A45",
+  "background_color": "#FBF9F5",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
   "id": "/",
-  "short_name": "KachaBazar - Store",
-  "name": "KachaBazar - React Grocery & Organic Food Store e-commerce Template",
-  "description": "React Grocery & Organic Food Store e-commerce Template",
+  "short_name": "Market Food",
+  "name": "Market Food - Marché de gros en ligne au Maroc",
+  "description": "Achetez au prix de gros : tarifs dégressifs, livraison partout au Maroc et paiement à la livraison.",
+  "lang": "fr",
   "icons": [
     {
       "src": "/icon-192x192.png",

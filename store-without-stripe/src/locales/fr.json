@@ -1,6 +1,6 @@
 {
   "common": {
-    "site_description": "Grossimarché - Marché de gros en ligne au Maroc",
+    "site_description": "Market Food - Marché de gros en ligne au Maroc",
     "home": "Accueil",
     "categories": "Catégories",
     "all_products": "Tous les produits",
@@ -13,7 +13,6 @@
     "sign_out": "Se déconnecter",
     "search": "Rechercher",
     "search_placeholder": "Rechercher un produit, une marque…",
-    "promo_bar": "Livraison partout au Maroc - Paiement à la livraison",
     "cod": "Paiement à la livraison",
     "bundles_offers": "Paniers & offres",
     "my_orders": "Mes commandes",
@@ -36,7 +35,8 @@
     "shop": "Boutique",
     "account": "Compte",
     "terms": "Conditions",
-    "rights": "© {{year}} Grossimarché. Tous droits réservés."
+    "rights": "© {{year}} Market Food. Tous droits réservés.",
+    "address": "EL Alia N 141, Mohammedia"
   },
   "features": {
     "shipping_title": "Livraison offerte",
@@ -105,7 +105,7 @@
   },
   "checkout": {
     "title": "Commande",
-    "meta": "Finalisez votre commande Grossimarché",
+    "meta": "Finalisez votre commande Market Food",
     "step_details": "Vos coordonnées",
     "step_delivery": "Livraison",
     "step_payment": "Paiement",
@@ -149,7 +149,7 @@
   },
   "search": {
     "title": "Recherche",
-    "meta": "Parcourez le catalogue Grossimarché",
+    "meta": "Parcourez le catalogue Market Food",
     "heading": "Nos produits",
     "heading_query": "Résultats pour « {{query}} »",
     "results_count_one": "{{count}} produit trouvé",
@@ -178,7 +178,7 @@
   },
   "offer": {
     "title": "Offres",
-    "meta": "Paniers et offres Grossimarché - des ensembles complets à prix de gros",
+    "meta": "Paniers et offres Market Food - des ensembles complets à prix de gros",
     "badge": "Nos paniers",
     "hero_title": "Des paniers complets, à prix de gros.",
     "hero_text": "Des ensembles prêts à commander : tout ce qu'il faut, en une fois, pour moins cher que les articles pris séparément.",
@@ -204,9 +204,9 @@
   },
   "about": {
     "title": "À propos",
-    "meta": "À propos de Grossimarché",
-    "hero_title": "À propos de Grossimarché",
-    "hero_text": "Grossimarché est le marché de gros en ligne du Maroc. Nous simplifions l'achat en gros pour les commerçants, restaurateurs et professionnels - au meilleur prix, avec une livraison fiable et le paiement à la livraison.",
+    "meta": "À propos de Market Food",
+    "hero_title": "À propos de Market Food",
+    "hero_text": "Market Food est le marché de gros en ligne du Maroc. Nous simplifions l'achat en gros pour les commerçants, restaurateurs et professionnels - au meilleur prix, avec une livraison fiable et le paiement à la livraison.",
     "stat_online_value": "100%",
     "stat_online_label": "En ligne",
     "stat_country_value": "Maroc",
@@ -231,14 +231,14 @@
   },
   "contact": {
     "title": "Contact",
-    "meta": "Contactez Grossimarché",
+    "meta": "Contactez Market Food",
     "hero_title": "Contactez-nous",
     "hero_text": "Une question sur une commande, un produit ou un partenariat ? Notre équipe est là pour vous aider.",
     "email": "E-mail",
     "phone": "Téléphone",
     "address": "Adresse",
-    "address_line1": "Zone Industrielle Sidi Bernoussi",
-    "address_line2": "Casablanca, Maroc",
+    "address_line1": "EL Alia N 141",
+    "address_line2": "Mohammedia, Maroc",
     "form_title": "Envoyez-nous un message",
     "name": "Nom",
     "name_placeholder": "Votre nom",
@@ -253,9 +253,9 @@
   },
   "faq": {
     "title": "FAQ",
-    "meta": "Questions fréquentes Grossimarché",
+    "meta": "Questions fréquentes Market Food",
     "hero_title": "Questions fréquentes",
-    "hero_text": "Tout ce qu'il faut savoir pour commander en gros sur Grossimarché.",
+    "hero_text": "Tout ce qu'il faut savoir pour commander en gros sur Market Food.",
     "q_order": "Comment passer une commande ?",
     "a_order": "Parcourez le catalogue, ajoutez vos produits au panier puis validez la commande. Vous devez être connecté à votre compte professionnel pour finaliser.",
     "q_cod": "Comment fonctionne le paiement à la livraison ?",
@@ -271,7 +271,7 @@
     "q_tracking": "Comment suivre mes commandes ?",
     "a_tracking": "Depuis votre espace client, rubrique « Mes commandes », vous retrouvez l'historique et le statut de chacune de vos commandes.",
     "q_contact": "Comment vous contacter ?",
-    "a_contact": "Écrivez-nous à contact@grossimarche.ma ou via la page Contact. Notre équipe vous répond rapidement."
+    "a_contact": "Écrivez-nous à Marketfood26@gmail.com ou via la page Contact. Notre équipe vous répond rapidement."
   },
   "account": {
     "dashboard": "Mon tableau de bord",
@@ -358,7 +358,7 @@
     "err_options": "Veuillez d'abord choisir toutes les options.",
     "specs": "Caractéristiques",
     "specs_empty": "Aucune caractéristique renseignée.",
-    "specs_help": "Une question sur ce produit ? Notre équipe répond au 05 22 00 00 00.",
+    "specs_help": "Une question sur ce produit ? Notre équipe répond au 06 05 47 75 44.",
     "reviews": "Avis",
     "review_invite": "Vous avez acheté ce produit ? Votre avis aide les autres commerçants.",
     "review_signin": "Se connecter pour laisser un avis",

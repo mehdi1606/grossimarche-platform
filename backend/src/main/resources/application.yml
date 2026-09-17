@@ -152,4 +152,4 @@ grossimarche:
     email:
       # Empty → the SMTP sender falls back to the authenticated mailbox (what Gmail wants).
       from: ${MAIL_FROM:}
-      from-name: ${MAIL_FROM_NAME:Grossimarché}
+      from-name: ${MAIL_FROM_NAME:Market Food}

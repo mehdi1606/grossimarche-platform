@@ -111,7 +111,7 @@ public class PasswordResetService {
                 Il est valable 15 minutes. Si vous n'avez rien demande, ignorez cet e-mail :
                 votre mot de passe reste inchange.
                 """.formatted(shop, code);
-        mailer.sendAsync(user.getEmail(), "Votre code de réinitialisation Grossimarché",
+        mailer.sendAsync(user.getEmail(), "Votre code de réinitialisation Market Food",
                 plain, EmailTemplates.passwordResetEmail(shop, code));
     }
 

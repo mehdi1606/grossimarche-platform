@@ -26,12 +26,12 @@ public record OtpProperties(
 ) {
 
     /** Live SMS provider settings (only required when {@code provider=live}). */
-    public record Sms(String baseUrl, String apiKey, @DefaultValue("Grossimarche") String senderId) {
+    public record Sms(String baseUrl, String apiKey, @DefaultValue("Market Food") String senderId) {
     }
 
     /** Live email provider settings (only required when {@code provider=live}). */
     public record Email(String baseUrl, String apiKey,
                         @DefaultValue("no-reply@grossimarche.ma") String from,
-                        @DefaultValue("Grossimarché") String fromName) {
+                        @DefaultValue("Market Food") String fromName) {
     }
 }

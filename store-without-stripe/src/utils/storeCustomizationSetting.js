@@ -72,8 +72,8 @@ export const storeCustomization = {
       en: "Checkout",
       de: "Kasse",
     },
-    phone: "+965 505 631288",
-    logo: "https://res.cloudinary.com/ahossain/image/upload/v1697687802/settings/logo-light_hls14v.svg",
+    phone: "+212 605 477 544",
+    logo: "/brand/logo-horizontal-white.png",
   },
   home: {
     coupon_status: true,
@@ -391,28 +391,126 @@ export const storeCustomization = {
   },
   privacy_policy: {
     status: true,
-    header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+    header_bg: "/page-header-bg.jpg",
     title: {
-      fr: "Politique de confidentialité",
-      en: "Privacy Policy",
-      de: "Datenschutz-Bestimmungen",
+      fr: "Politique de confidentialit\u00e9",
     },
+    // Written for Market Food and checked against what the platform really stores: the fields
+    // the API holds, the retention windows in backend/docs/COMPLIANCE.md, the four cookies the
+    // storefront sets, and the absence of any analytics or advertising tag.
     description: {
-      en: "<h1><strong>Last updated: February 15, 2022</strong></h1>\n<p>At KachaBazar, accessible from kachabazar dot com, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by KachaBazar and how we use it. If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us.we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide. When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.</p>\n<p>This Privacy Policy applies only to our online activities and is valid for visitors to our website with regards to the information that they shared and/or collect in KachaBazar.we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number. This policy is not applicable to any information collected offline or via channels other than this website. Our Privacy Policy was created with the help of the Free Privacy Policy Generator.</p>\n<h1><strong>Consent</strong></h1>\n<p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>\n<h1><strong>Information we collect</strong></h1>\n<p>The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information. If you contact us directly, we may receive additional information about you such may choose to provide. When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.</p>\n<p>Please note that the Company will not ask you to share any sensitive data or information via email or telephone. If you receive any such request by email or telephone, please do not respond/divulge any sensitive data or information and forward the information relating to the same to</p>\n<h1><strong>How we use your information</strong></h1>\n<p>We use the information we collect in various ways, including to:</p>\n<ol>\n<li>1. Provide, operate, and maintain our website, to provide you with updates and other information.</li>\n<li>2. Improve, personalize, and expand our website,and other information relating to the website.</li>\n<li>3. Understand and analyze how you use our website, to provide you with updates and other information relating to the website.</li>\n<li>4. Develop new products, services, features, and functionality,and other information relating to the website.</li>\n<li>5. Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates.</li>\n<li>6. Send you emails. To provide you with updates and other information relating to the website, and for marketing and promotional purposes</li>\n<li>7. Find and prevent fraud. To provide you with updates and other information relating to the website, and for marketing and promotional purposes</li>\n</ol>\n<h1><strong>Log Files</strong></h1>\n<p>KachaBazar follows a standard procedure of using log files. These files log visitors when they visit websites. All hosting companies do this and a part of hosting. The information collected by log files include internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information.</p>\n<h1><strong>Advertising Partners Privacy Policies</strong></h1>\n<p>You may consult this list to find the Privacy Policy for each of the advertising partners of KachaBazar. Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on KachaBazar, which are sent directly to users' browser. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit. Note that KachaBazar has no access to or control over these cookies that are used by third-party advertisers.</p>\n<h1><strong>Third Party Privacy Policies</strong></h1>\n<p>Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on KachaBazar, which are sent directly to users' browser. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit. Note that KachaBazar has no access to or control over these cookies that are used by third-party advertisers.</p>\n<p>KachaBazar's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options. You can choose to disable cookies through your individual browser options. To know more detailed information about cookie management with specific web browsers, it can be found at the browsers' respective websites.</p>\n<h1><strong>CCPA Privacy Rights</strong></h1>\n<p>Under the CCPA, among other rights, California consumers have the right to: Request that a business that collects a consumer's personal data disclose the categories and specific pieces of personal data that a business has collected about consumers. Request that a business delete any personal data about the consumer that a business has collected. Request that a business that sells a consumer's personal data, not sell the consumer's personal data. If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>\n<h1><strong>Children's Information</strong></h1>\n<p>Another part of our priority is adding protection for children while using the internet. We encourage parents and guardians to observe, participate in, and/or monitor and guide their online activity.Request that a business delete any personal data about the consumer that a business has collected. If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>\n<p>KachaBazar does not knowingly collect any Personal Identifiable Information from children under the age of 13. If you think that your child provided this kind of information on our website, we strongly encourage you to contact us immediately and we will do our best efforts to promptly remove such information from our records.</p>\n",
+      fr: `<p class="mb-4 text-sm leading-7 text-ink-600"><strong>Derni&egrave;re mise &agrave; jour : 16 septembre 2026</strong></p>
+
+<p class="mb-4 text-sm leading-7 text-ink-600">Market Food traite les donn&eacute;es de ses clients professionnels pour ouvrir leur compte, leur appliquer le bon tarif et leur livrer leurs commandes. Cette page explique ce qui est collect&eacute;, pourquoi, combien de temps c'est conserv&eacute; et comment reprendre la main dessus. Le traitement est conforme &agrave; la <strong>loi 09-08</strong> relative &agrave; la protection des personnes physiques &agrave; l'&eacute;gard du traitement des donn&eacute;es &agrave; caract&egrave;re personnel.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">1. Ce que nous collectons, et pourquoi</h2>
+<table class="mb-6 w-full border-collapse text-sm">
+  <thead><tr><th class="border-b border-line py-2 pe-4 text-start font-semibold text-ink-800">Donn&eacute;e</th><th class="border-b border-line py-2 pe-4 text-start font-semibold text-ink-800">Finalit&eacute;</th></tr></thead>
+  <tbody>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Nom, nom du commerce, type d'activit&eacute;</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Validation du compte professionnel et application de la grille tarifaire correspondante</td></tr>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">E-mail et t&eacute;l&eacute;phone</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Connexion, codes de v&eacute;rification, suivi de commande</td></tr>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Adresses de livraison (ville, quartier, adresse)</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Livraison et calcul des frais correspondants</td></tr>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Commandes et factures</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Ex&eacute;cution, suivi, comptabilit&eacute;</td></tr>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Avis sur les produits</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Publication, apr&egrave;s mod&eacute;ration</td></tr>
+    <tr><td class="border-b border-line py-2 pe-4 align-top text-ink-600">Journaux techniques (adresse IP, navigateur, actions sensibles)</td><td class="border-b border-line py-2 pe-4 align-top text-ink-600">S&eacute;curit&eacute; du compte et tra&ccedil;abilit&eacute; des acc&egrave;s</td></tr>
+  </tbody>
+</table>
+<p class="mb-4 text-sm leading-7 text-ink-600">Le mot de passe n'est jamais conserv&eacute; en clair : seule une empreinte chiffr&eacute;e est stock&eacute;e, et personne chez Market Food ne peut le lire. Les codes &agrave; usage unique sont eux aussi hach&eacute;s et expirent au bout de cinq minutes.</p>
+<p class="mb-4 text-sm leading-7 text-ink-600"><strong>Aucune donn&eacute;e bancaire n'est collect&eacute;e</strong> : le paiement se fait &agrave; la livraison, en esp&egrave;ces. Ni num&eacute;ro de carte, ni code : la plateforme n'a aucun champ pour les recevoir.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">2. Ce que nous ne faisons pas</h2>
+<ul class="mb-4 list-disc space-y-1.5 ps-6 text-sm leading-7 text-ink-600">
+  <li>Nous ne vendons ni ne louons vos donn&eacute;es.</li>
+  <li>Aucun tra&ccedil;age publicitaire n'est install&eacute; sur le site : pas de pixel, pas de r&eacute;gie, pas de profilage marketing.</li>
+  <li>Vos donn&eacute;es ne servent pas &agrave; d&eacute;marcher d'autres commer&ccedil;ants.</li>
+</ul>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">3. Cookies</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Le site d&eacute;pose uniquement les cookies n&eacute;cessaires &agrave; son fonctionnement : votre session de connexion, la langue choisie, le contenu du panier et le code promotionnel en cours. Aucun cookie publicitaire ou de mesure d'audience tierce n'est utilis&eacute;. Les supprimer depuis votre navigateur vous d&eacute;connecte et vide le panier, sans autre cons&eacute;quence.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">4. Qui y a acc&egrave;s</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les donn&eacute;es sont accessibles aux seuls membres de l'&eacute;quipe Market Food qui en ont besoin : validation des comptes, pr&eacute;paration et livraison des commandes, service client. Chaque acc&egrave;s est journalis&eacute;.</p>
+<p class="mb-4 text-sm leading-7 text-ink-600">Deux prestataires techniques interviennent&nbsp;: l'h&eacute;bergeur des serveurs et le service d'envoi des e-mails transactionnels (codes de connexion, confirmations de commande). Ils n'agissent que sur instruction et n'exploitent pas les donn&eacute;es pour leur compte. La traduction de l'interface en arabe est assur&eacute;e par un service h&eacute;berg&eacute; sur notre propre infrastructure&nbsp;: aucun texte ne part chez un traducteur tiers.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">5. Vos droits</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Vous pouvez &agrave; tout moment acc&eacute;der &agrave; vos donn&eacute;es, les corriger, en obtenir une copie ou demander la suppression de votre compte. La plupart de ces actions se font directement depuis votre espace client&nbsp;; pour les autres, &eacute;crivez-nous. Changer d'e-mail ou de t&eacute;l&eacute;phone demande une nouvelle v&eacute;rification par code, pour que personne ne puisse le faire &agrave; votre place.</p>
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">6. S&eacute;curit&eacute;</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les acc&egrave;s sont prot&eacute;g&eacute;s par des jetons sign&eacute;s et renouvel&eacute;s r&eacute;guli&egrave;rement, les tentatives de connexion r&eacute;p&eacute;t&eacute;es sont limit&eacute;es, et les actions sensibles sont journalis&eacute;es&nbsp;: connexion, changement de statut d'une commande, action d'un administrateur, export ou suppression de compte. Aucun syst&egrave;me n'est infaillible&nbsp;: en cas d'incident touchant vos donn&eacute;es, vous en seriez inform&eacute;.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">7. Modifications</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Cette politique peut &ecirc;tre mise &agrave; jour. La date en t&ecirc;te de page indique la derni&egrave;re version&nbsp;; un changement substantiel vous sera signal&eacute; lors de votre prochaine connexion.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">8. Nous contacter</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question ou demande relative &agrave; vos donn&eacute;es : <a href="mailto:Marketfood26@gmail.com" class="font-medium text-emerald-700 underline">Marketfood26@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544. Voir aussi nos <a href="/terms-and-conditions" class="font-medium text-emerald-700 underline">conditions g&eacute;n&eacute;rales de vente</a>.</p>`,
     },
   },
   term_and_condition: {
     status: true,
-    header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+    header_bg: "/page-header-bg.jpg",
     title: {
-      fr: "Conditions générales",
-      en: "Terms & Conditions",
-      de: "Terms & Bedingungen",
+      fr: "Conditions g\u00e9n\u00e9rales de vente",
     },
+    // Written for Market Food: wholesale to validated trade accounts, per-segment pricing,
+    // cash on delivery, the four cities actually served. French is the source - the Arabic is
+    // produced from it by the translation engine, so there is one text to keep up to date.
     description: {
-      en: '<h1><strong>Welcome to KachaBazar!</strong></h1>\n<p>These terms and conditions outline the rules and regulations for the use of KachaBazar\'s Website, located at https://kachabazar.com/. By accessing this website we assume you accept these terms and conditions. Do not continue to use KachaBazar if you do not agree to take all of the terms and conditions stated on this page.</p>\n<p>The following terminology applies to these Terms and Conditions, Privacy Statement and Disclaimer Notice and all Agreements: Client, You and Your refers to you, the person log on this website and compliant to the Company’s terms and conditions. The Company, refers to our CompanyPartParties or Us refers to both the Client and ourselves. All terms refer to the offer, acceptance and consideration of payment necessary to undertake the process of our assistance to the Client in the most appropriate manner for the express purpose of meeting the Client’s needs in respect of provision of the Company’s stated services, in accordance with and subject to, prevailing law of Netherlands. Any use of the above terminology or other words in the singular, plural, capitalization and/or he/she or they, are taken as interchangeable and therefore as referring to same.</p>\n<h1><strong>Cookies</strong></h1>\n<p>We employ the use of cookies. By accessing KachaBazar, you agreed to use cookies in agreement with the KachaBazar\'s Privacy Policy. Most interactive websites use cookies to let us retrieve the user’s details for each visit. Cookies are used by our website to enable the functionality of certain areas to make it easier for people visiting our website. Some of our affiliate/advertising partners may also use cookies.</p>\n<h1><strong>License</strong></h1>\n<p>Unless otherwise stated, KachaBazar and/or its licensors own the intellectual property rights for all material on KachaBazar. All intellectual property rights are reserved. You may access this from KachaBazar for your own personal use subjected to restrictions set in these terms and conditions.This Agreement shall begin on the date hereof. Our Terms and Conditions were created with the help of the Terms And Conditions Generator.<strong>You must not:</strong></p>\n<ul>\n<li>1. Identifiers (e.g. name, mailing address, email address, phone number, credit/debit card number)</li>\n<li>2. Characteristics of protected classifications (e.g. gender, age)</li>\n<li>3. Commercial information (e.g. products or services purchased, purchase history)</li>\n<li>4. Internet or other electronic network activity (e.g. browse or search history)</li>\n<li>5. Geo location data (e.g. latitude or longitude)</li>\n<li>6. Audio, electronic, visual, or similar information (e.g. recording of Guest service calls)</li>\n<li>7. Inferences drawn from any of the above (e.g. preferences or characteristics)</li>\n</ul>\n<p>Parts of this website offer an opportunity for users to post and exchange opinions and information in certain areas of the website. KachaBazar does not filter, edit, publish or review Comments prior to their presence on the website. Comments do not reflect the views and opinions of KachaBazar,its agents and/or affiliates. Comments reflect the views and opinions of the person who post their views and opinions. To the extent permitted by applicable laws, KachaBazar shall not be liable for the Comments or for any liability, damages or expenses caused and/or suffered as a result of any use of and/or posting of and/or appearance of the Comments on this website.</p>\n<h1><strong>Content Liability</strong></h1>\n<p>We shall not be hold responsible for any content that appears on your Website. You agree to protect and defend us against all claims that is rising on your Website. No link(s) should appear on any Website that may be interpreted as libelous, obscene or criminal, or which infringes, otherwise violates, or advocates the infringement or other violation of, any third party rights.Without prior approval and written permission, you may not create frames around our Webpages that alter in any way the visual presentation or appearance of our Website.</p>\n<h1><strong>Your Privacy</strong></h1>\n<p>Please read <a href="https://kachabazar-store.vercel.app/privacy-policy" target="_self">Privacy Policy</a></p>\n<h1><strong>Reservation of Rights</strong></h1>\n<p>We reserve the right to request that you remove all links or any particular link to our Website. You approve to immediately remove all links to our Website upon request. We also reserve the right to amen these terms and conditions and it’s linking policy at any time. By continuously linking to our Website, you agree to be bound to and follow these linking terms and conditions.</p>\n<h1><strong>Disclaimer</strong></h1>\n<p>To the maximum extent permitted by applicable law, we exclude all representations, warranties and conditions relating to our website and the use of this website. Nothing in this disclaimer will:</p>\n<ul>\n<li>1. limit or exclude our or your liability for death or personal injury;</li>\n<li>2. limit or exclude our or your liability for fraud or fraudulent misrepresentation;</li>\n<li>3. limit any of our or your liabilities in any way that is not permitted under applicable law; or</li>\n<li>4. exclude any of our or your liabilities that may not be excluded under applicable law.</li>\n</ul>\n<p>The limitations and prohibitions of liability set in this Section and elsewhere in this disclaimer: (a) are subject to the preceding paragraph; and (b) govern all liabilities arising under the disclaimer, including liabilities arising in contract, in tort and for breach of statutory duty. As long as the website and the information and services on the website are provided free of charge, we will not be liable for any loss or damage of any nature.</p>\n',
+      fr: `<p class="mb-4 text-sm leading-7 text-ink-600"><strong>Derni&egrave;re mise &agrave; jour : 16 septembre 2026</strong></p>
+
+<p class="mb-4 text-sm leading-7 text-ink-600">Les pr&eacute;sentes conditions g&eacute;n&eacute;rales r&eacute;gissent la vente de produits en gros par Market Food aux professionnels, via la plateforme accessible en ligne. Toute commande pass&eacute;e sur le site vaut acceptation pleine et enti&egrave;re de ces conditions, dans leur version en vigueur au jour de la commande.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">1. Un service r&eacute;serv&eacute; aux professionnels</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Market Food est un march&eacute; de gros. Les ventes sont r&eacute;serv&eacute;es aux commer&ccedil;ants, restaurateurs et professionnels exer&ccedil;ant une activit&eacute; d&eacute;clar&eacute;e. La cr&eacute;ation d'un compte n'ouvre pas imm&eacute;diatement l'acc&egrave;s au catalogue : chaque demande est examin&eacute;e, et le compte n'est actif qu'apr&egrave;s validation par nos services.</p>
+<p class="mb-4 text-sm leading-7 text-ink-600">Le type d'activit&eacute; d&eacute;clar&eacute; lors de l'inscription, &eacute;picerie, caf&eacute;, restaurant ou p&acirc;tisserie, d&eacute;termine la grille tarifaire appliqu&eacute;e au compte. Les informations communiqu&eacute;es doivent &ecirc;tre exactes et tenues &agrave; jour&nbsp;; Market Food peut refuser, suspendre ou fermer un compte dont les informations se r&eacute;v&egrave;lent inexactes, ou en cas de manquement aux pr&eacute;sentes conditions.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">2. Compte et identifiants</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les identifiants de connexion sont personnels et confidentiels. Le titulaire du compte r&eacute;pond de toute commande pass&eacute;e depuis son compte et s'engage &agrave; signaler sans d&eacute;lai tout acc&egrave;s non autoris&eacute;.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">3. Produits</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les photographies et descriptions illustrent les produits sans constituer un engagement contractuel sur leur pr&eacute;sentation exacte. Chaque fiche pr&eacute;cise l'unit&eacute; de vente (carton, sac, bouteille&hellip;) et la quantit&eacute; minimale de commande. Les produits sont propos&eacute;s dans la limite des stocks disponibles.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">4. Prix</h2>
+<ul class="mb-4 list-disc space-y-1.5 ps-6 text-sm leading-7 text-ink-600">
+  <li>Les prix sont exprim&eacute;s en dirhams marocains (DH).</li>
+  <li>Ils sont propres &agrave; chaque type d'activit&eacute; : deux comptes de segments diff&eacute;rents ne voient pas le m&ecirc;me prix pour un m&ecirc;me produit.</li>
+  <li>Des tarifs d&eacute;gressifs peuvent s'appliquer &agrave; partir de certaines quantit&eacute;s&nbsp;; le palier atteint est calcul&eacute; automatiquement au panier.</li>
+  <li>Le prix applicable est celui affich&eacute; au moment de la validation de la commande. Market Food peut modifier ses prix &agrave; tout moment, sans effet sur les commandes d&eacute;j&agrave; confirm&eacute;es.</li>
+</ul>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">5. Commande</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">La commande est pass&eacute;e depuis le compte du client, qui en v&eacute;rifie le d&eacute;tail avant de la valider. Elle devient ferme apr&egrave;s confirmation par Market Food. En cas d'indisponibilit&eacute; constat&eacute;e apr&egrave;s validation, le client en est inform&eacute; et la commande est ajust&eacute;e ou annul&eacute;e, sans autre indemnit&eacute;.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">6. Livraison</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Market Food livre &agrave; Casablanca, Mohammedia, Bouznika et Benslimane. Les frais de livraison d&eacute;pendent de la ville et, lorsqu'elle en compte, du quartier de destination&nbsp;; ils sont affich&eacute;s avant la validation de la commande.</p>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les d&eacute;lais annonc&eacute;s sont indicatifs. Le client, ou une personne habilit&eacute;e, doit &ecirc;tre pr&eacute;sent &agrave; l'adresse indiqu&eacute;e pour r&eacute;ceptionner la marchandise et la contr&ocirc;ler &agrave; la livraison.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">7. Paiement</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Le paiement s'effectue <strong>&agrave; la livraison</strong>, en esp&egrave;ces, au moment de la remise de la marchandise. Aucune donn&eacute;e bancaire n'est demand&eacute;e ni conserv&eacute;e par la plateforme.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">8. Annulation, retour et r&eacute;clamation</h2>
+<ul class="mb-4 list-disc space-y-1.5 ps-6 text-sm leading-7 text-ink-600">
+  <li>Une commande peut &ecirc;tre annul&eacute;e tant qu'elle n'est pas en cours de livraison, depuis l'espace client ou par t&eacute;l&eacute;phone.</li>
+  <li>Tout produit manquant, endommag&eacute; ou non conforme doit &ecirc;tre signal&eacute; &agrave; la r&eacute;ception ou, au plus tard, dans les 24 heures suivant la livraison.</li>
+  <li>Apr&egrave;s v&eacute;rification, le produit est remplac&eacute; ou rembours&eacute;.</li>
+  <li>S'agissant d'une vente entre professionnels, les denr&eacute;es p&eacute;rissables ne sont pas reprises en dehors d'un d&eacute;faut av&eacute;r&eacute;.</li>
+</ul>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">9. Offres, paniers et codes promotionnels</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les offres group&eacute;es et les codes promotionnels sont valables dans la limite des stocks et des dates indiqu&eacute;es. Sauf mention contraire, ils ne sont pas cumulables entre eux.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">10. Responsabilit&eacute;</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Market Food est tenue &agrave; une obligation de moyens dans l'ex&eacute;cution des commandes et l'exploitation de la plateforme, dont l'acc&egrave;s peut &ecirc;tre interrompu pour maintenance. Il appartient au client, professionnel, de v&eacute;rifier &agrave; r&eacute;ception l'&eacute;tat et les dates limites des produits, et d'en assurer ensuite la conservation, notamment le respect de la cha&icirc;ne du froid.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">11. Donn&eacute;es personnelles</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Les donn&eacute;es collect&eacute;es servent &agrave; g&eacute;rer les comptes, les commandes et les livraisons. Leur traitement est d&eacute;crit dans notre <a href="/privacy-policy" class="font-medium text-emerald-700 underline">politique de confidentialit&eacute;</a>.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">12. Propri&eacute;t&eacute; intellectuelle</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">La marque Market Food, son logo et l'ensemble des contenus de la plateforme sont prot&eacute;g&eacute;s. Toute reproduction ou utilisation sans autorisation &eacute;crite pr&eacute;alable est interdite.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">13. Modification des conditions</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Market Food peut modifier les pr&eacute;sentes conditions &agrave; tout moment. La version applicable &agrave; une commande est celle publi&eacute;e au jour o&ugrave; celle-ci est pass&eacute;e.</p>
+
+<h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">14. Contact</h2>
+<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question relative &agrave; une commande ou aux pr&eacute;sentes conditions : <a href="mailto:Marketfood26@gmail.com" class="font-medium text-emerald-700 underline">Marketfood26@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544.</p>`,
     },
   },
   faq: {
@@ -917,8 +1015,7 @@ export const storeCustomization = {
       de: "Profil aktualisieren",
     },
     block3_sub_link4: "/user/update-profile",
-    block4_logo:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697688576/settings/logo-color_el4zmy.svg",
+    block4_logo: "/brand/logo-horizontal.png",
     block4_address: {
       en: "987 Andre Plain Suite High Street 838, Lake Hestertown, USA",
       de: "987 Andre Plain Suite High Street 838, Lake Hestertown, USA",

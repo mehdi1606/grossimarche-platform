@@ -118,26 +118,26 @@ public class MailNotificationListener {
             String plain = """
                     Bonjour %s,
 
-                    Votre compte Grossimarche est activé. Vous pouvez desormais vous connecter
+                    Votre compte Market Food est activé. Vous pouvez desormais vous connecter
                     et consulter vos tarifs%s.
 
                     Connexion : %s
 
                     A bientot.
                     """.formatted(shop, segment.isBlank() ? "" : " (" + segment + ")", loginUrl);
-            mailer.sendAsync(user.getEmail(), "Votre compte Grossimarche est activé", plain,
+            mailer.sendAsync(user.getEmail(), "Votre compte Market Food est activé", plain,
                     EmailTemplates.accountApprovedEmail(shop, segment, loginUrl));
         } else {
             String plain = """
                     Bonjour %s,
 
-                    Votre demande de compte Grossimarche n'a pas pu etre acceptée.
+                    Votre demande de compte Market Food n'a pas pu etre acceptée.
 
                     Motif : %s
 
                     Si vous pensez qu'il s'agit d'une erreur, répondez à cet e-mail.
                     """.formatted(shop, event.reason());
-            mailer.sendAsync(user.getEmail(), "Votre demande de compte Grossimarche", plain,
+            mailer.sendAsync(user.getEmail(), "Votre demande de compte Market Food", plain,
                     EmailTemplates.accountRejectedEmail(shop, event.reason()));
         }
     }
@@ -213,7 +213,7 @@ public class MailNotificationListener {
         String url = mailer.adminUrl() + event.path();
         String plain = "%s%n%n%s%n%nOuvrir le back-office : %s%n"
                 .formatted(event.title(), event.message(), url);
-        mailer.broadcast(recipients, "[Grossimarché] " + event.title(), plain,
+        mailer.broadcast(recipients, "[Market Food] " + event.title(), plain,
                 EmailTemplates.staffAlertEmail(event.title(), event.message(), url));
     }
 

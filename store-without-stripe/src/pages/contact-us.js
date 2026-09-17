@@ -16,15 +16,15 @@ const CONTACT = [
   {
     Icon: FiMail,
     key: "email",
-    lines: ["contact@grossimarche.ma"],
-    href: "mailto:contact@grossimarche.ma",
+    lines: ["Marketfood26@gmail.com"],
+    href: "mailto:Marketfood26@gmail.com",
     literal: true,
   },
   {
     Icon: FiPhone,
     key: "phone",
-    lines: ["+212 5 22 00 00 00"],
-    href: "tel:+2125220000000",
+    lines: ["+212 605 477 544"],
+    href: "tel:+212605477544",
     literal: true,
   },
   {

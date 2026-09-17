@@ -27,12 +27,12 @@ public class OpenApiConfig {
     public OpenAPI grossimarcheOpenAPI(AppProperties props) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Grossimarché API")
+                        .title("Market Food API")
                         .version("v1")
                         .description("""
                                 Wholesale (cash & carry) e-commerce REST API for the Moroccan market.
                                 All endpoints are under /api/v1. Authenticate with a bearer JWT.""")
-                        .contact(new Contact().name("Grossimarché"))
+                        .contact(new Contact().name("Market Food"))
                         .license(new License().name("Proprietary")))
                 .servers(List.of(new Server().url(props.api().publicUrl()).description("Current environment")))
                 .components(new Components().addSecuritySchemes(BEARER_SCHEME,

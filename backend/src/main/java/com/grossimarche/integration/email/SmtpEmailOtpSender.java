@@ -45,7 +45,7 @@ public class SmtpEmailOtpSender implements OtpSender {
         // account username is the right default when MAIL_FROM is not set.
         this.from = StringUtils.hasText(configuredFrom) ? configuredFrom : mailUsername;
         this.fromName = email == null || !StringUtils.hasText(email.fromName())
-                ? "Grossimarché" : email.fromName();
+                ? "Market Food" : email.fromName();
         if (!StringUtils.hasText(this.from)) {
             throw new IllegalStateException("MAIL_FROM or spring.mail.username is required "
                     + "when otp.provider=smtp");
@@ -68,15 +68,16 @@ public class SmtpEmailOtpSender implements OtpSender {
                     StandardCharsets.UTF_8.name());
             helper.setFrom(new InternetAddress(from, fromName, StandardCharsets.UTF_8.name()));
             helper.setTo(destination);
-            helper.setSubject("Votre code Grossimarché");
+            helper.setSubject("Votre code Market Food");
             String plain = """
-                    Votre code de connexion Grossimarché est : %s
+                    Votre code de connexion Market Food est : %s
 
                     Ce code expire dans 5 minutes et ne peut être utilisé qu'une seule fois.
                     Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.
                     """.formatted(code);
             // Plain-text fallback + branded HTML (EmailTemplates).
             helper.setText(plain, EmailTemplates.otpEmail(code));
+            EmailTemplates.attachLogo(helper);
         } catch (Exception e) {
             // Message construction failed (bad address / encoding) - surface it through the
             // same fallback as a delivery failure.

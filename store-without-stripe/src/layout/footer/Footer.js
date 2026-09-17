@@ -2,9 +2,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import {
-  FiFacebook,
-  FiInstagram,
-  FiTwitter,
   FiMail,
   FiPhone,
   FiMapPin,
@@ -46,12 +43,6 @@ const COLUMNS = [
   //     { label: "footer.terms", href: "/terms-and-conditions" },
   //   ],
   // },
-];
-
-const SOCIALS = [
-  { Icon: FiFacebook, href: "https://facebook.com", label: "Facebook" },
-  { Icon: FiInstagram, href: "https://instagram.com", label: "Instagram" },
-  { Icon: FiTwitter, href: "https://twitter.com", label: "Twitter" },
 ];
 
 /**
@@ -112,33 +103,33 @@ const Footer = () => {
             <ul className="mt-8 space-y-3.5">
               <li>
                 <a
-                  href="mailto:contact@grossimarche.ma"
+                  href="mailto:Marketfood26@gmail.com"
                   data-no-translate
                   className="gm-ltr group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition group-hover:bg-white/10">
                     <FiMail className="h-4 w-4" />
                   </span>
-                  contact@grossimarche.ma
+                  Marketfood26@gmail.com
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+2125220000000"
+                  href="tel:+212605477544"
                   data-no-translate
                   className="gm-ltr group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition group-hover:bg-white/10">
                     <FiPhone className="h-4 w-4" />
                   </span>
-                  +212 5 22 00 00 00
+                  +212 605 477 544
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-emerald-100/60">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10">
                   <FiMapPin className="h-4 w-4" />
                 </span>
-                {t("footer.cities")}
+                {t("footer.address")}
               </li>
             </ul>
           </div>
@@ -175,25 +166,9 @@ const Footer = () => {
             {t("footer.rights", { year: new Date().getFullYear() })}
           </p>
 
-          <div className="order-1 flex items-center gap-5 md:order-2">
-            <span className="hidden rounded-full bg-white/5 px-3 py-1.5 text-2xs font-medium uppercase tracking-luxe text-emerald-100/70 ring-1 ring-inset ring-white/10 sm:inline">
-              {t("common.cod")}
-            </span>
-            <div className="flex items-center gap-2.5">
-              {SOCIALS.map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className="grid h-9 w-9 place-items-center rounded-full text-emerald-100/70 ring-1 ring-inset ring-white/15 transition hover:bg-white/10 hover:text-white"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
-          </div>
+          <span className="order-1 hidden rounded-full bg-white/5 px-3 py-1.5 text-2xs font-medium uppercase tracking-luxe text-emerald-100/70 ring-1 ring-inset ring-white/10 sm:inline md:order-2">
+            {t("common.cod")}
+          </span>
         </div>
       </div>
     </footer>

@@ -11,15 +11,23 @@ const DefaultSeo = () => {
     <NextSeo
       title={
         globalSetting?.meta_title ||
-        "Grossimarché - Marché de gros en ligne au Maroc"
+        "Market Food - Marché de gros en ligne au Maroc"
       }
       openGraph={{
         type: "website",
         locale: "fr_MA",
         url: globalSetting?.meta_url || "https://grossimarche.ma/",
+        images: [
+          {
+            url: globalSetting?.meta_img || "/brand/og-image.png",
+            width: 1200,
+            height: 630,
+            alt: "Market Food",
+          },
+        ],
         site_name:
           globalSetting?.meta_title ||
-          "Grossimarché - Marché de gros en ligne au Maroc",
+          "Market Food - Marché de gros en ligne au Maroc",
       }}
       twitter={{
         handle: "@handle",
@@ -36,13 +44,13 @@ const DefaultSeo = () => {
         },
         {
           name: "theme-color",
-          content: "#ffffff",
+          content: "#1A6A45",
         },
       ]}
       additionalLinkTags={[
         {
           rel: "apple-touch-icon",
-          href: "/icon-192x192.png",
+          href: "/apple-touch-icon.png",
         },
         {
           rel: "manifest",

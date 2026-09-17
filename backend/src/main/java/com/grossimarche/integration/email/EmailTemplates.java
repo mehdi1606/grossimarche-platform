@@ -1,16 +1,51 @@
 package com.grossimarche.integration.email;
 
+import jakarta.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.MimeMessageHelper;
+
 import java.time.Year;
 
 /**
  * Branded, email-client-safe HTML templates (table layout + inline styles, no external CSS
  * or web fonts, so Gmail / Outlook render them correctly). {@link #layout} is the shared
- * Grossimarché shell (header wordmark, emerald accent, dark footer); build new transactional
+ * Market Food shell (header wordmark, emerald accent, dark footer); build new transactional
  * emails by wrapping their content with it.
  */
 public final class EmailTemplates {
 
+    private static final Logger log = LoggerFactory.getLogger(EmailTemplates.class);
+
+    /**
+     * The logo travels with the message.
+     *
+     * An e-mail cannot show a file from this server: the recipient's client fetches images over
+     * the public internet, and there is no public URL for a shop still on localhost. An inline
+     * part referenced by {@code cid:} is carried inside the message itself, which every client
+     * renders without asking - and which keeps working when the domain changes.
+     */
+    public static final String LOGO_CID = "brandLogo";
+    private static final String LOGO_PATH = "email/logo-horizontal.png";
+
     private EmailTemplates() {
+    }
+
+    /** Attach the wordmark the shell points at. Call it after {@code setText}. */
+    public static void attachLogo(MimeMessageHelper helper) {
+        ClassPathResource logo = new ClassPathResource(LOGO_PATH);
+        if (!logo.exists()) {
+            // The shell's alt text still names the shop, so a missing file costs the picture
+            // and nothing else.
+            log.warn("E-mail logo {} is missing; sending without it.", LOGO_PATH);
+            return;
+        }
+        try {
+            helper.addInline(LOGO_CID, logo, "image/png");
+        } catch (MessagingException e) {
+            log.warn("Could not attach the e-mail logo", e);
+        }
     }
 
     /** Wrap body content in the branded shell. {@code preheader} is the inbox preview line. */
@@ -26,14 +61,14 @@ public final class EmailTemplates {
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
                       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;">
                         <tr><td style="padding:26px 32px;background:#ffffff;border-radius:16px 16px 0 0;">
-                          <span style="font-size:22px;font-weight:800;color:#111827;letter-spacing:-.5px;">Grossi<span style="color:#10b981;">march&eacute;</span></span>
+                          <img src="cid:brandLogo" alt="Market Food" width="190" style="display:block;border:0;outline:none;text-decoration:none;height:auto;">
                         </td></tr>
                         <tr><td style="height:4px;line-height:4px;font-size:4px;background:#10b981;">&nbsp;</td></tr>
                         <tr><td style="background:#ffffff;padding:38px 32px;">{{CONTENT}}</td></tr>
                         <tr><td style="background:#1f2937;padding:26px 32px;border-radius:0 0 16px 16px;text-align:center;">
-                          <p style="margin:0;color:#ffffff;font-weight:700;font-size:15px;">Grossimarch&eacute;</p>
+                          <p style="margin:0;color:#ffffff;font-weight:700;font-size:15px;">Market Food</p>
                           <p style="margin:6px 0 0;color:#9ca3af;font-size:12px;">March&eacute; de gros &middot; Livraison au Maroc</p>
-                          <p style="margin:14px 0 0;color:#6b7280;font-size:11px;">&copy; {{YEAR}} Grossimarch&eacute;. Tous droits r&eacute;serv&eacute;s.</p>
+                          <p style="margin:14px 0 0;color:#6b7280;font-size:11px;">&copy; {{YEAR}} Market Food. Tous droits r&eacute;serv&eacute;s.</p>
                         </td></tr>
                       </table>
                     </td></tr></table>
@@ -50,7 +85,7 @@ public final class EmailTemplates {
         String content = ("""
                 <h1 style="margin:0 0 10px;font-size:20px;color:#111827;">Votre code de connexion</h1>
                 <p style="margin:0 0 26px;font-size:14px;line-height:22px;color:#6b7280;">
-                  Utilisez ce code &agrave; usage unique pour vous connecter &agrave; Grossimarch&eacute;.
+                  Utilisez ce code &agrave; usage unique pour vous connecter &agrave; Market Food.
                   Il expire dans 5&nbsp;minutes.
                 </p>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
@@ -63,7 +98,7 @@ public final class EmailTemplates {
                   votre compte reste s&eacute;curis&eacute;.
                 </p>
                 """).replace("{{CODE}}", escape(code));
-        return layout("Votre code de connexion Grossimarché", content);
+        return layout("Votre code de connexion Market Food", content);
     }
 
     /**
@@ -80,7 +115,7 @@ public final class EmailTemplates {
                 <h1 style="margin:0 0 10px;font-size:20px;color:#111827;">Votre acc&egrave;s au back-office</h1>
                 <p style="margin:0 0 8px;font-size:14px;line-height:22px;color:#374151;">{{GREETING}}</p>
                 <p style="margin:0 0 26px;font-size:14px;line-height:22px;color:#6b7280;">
-                  Un compte vient d'&ecirc;tre cr&eacute;&eacute; pour vous sur Grossimarch&eacute;.
+                  Un compte vient d'&ecirc;tre cr&eacute;&eacute; pour vous sur Market Food.
                   Voici vos identifiants de connexion&nbsp;:
                 </p>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
@@ -104,7 +139,7 @@ public final class EmailTemplates {
                 .replace("{{EMAIL}}", escape(email))
                 .replace("{{PASSWORD}}", escape(password))
                 .replace("{{LOGIN_URL}}", escape(loginUrl));
-        return layout("Vos identifiants Grossimarché", content);
+        return layout("Vos identifiants Market Food", content);
     }
 
     /**
@@ -174,7 +209,7 @@ public final class EmailTemplates {
                 .replace("{{PRICE}}", escape(priceLabel))
                 .replace("{{SAVINGS}}", escape(savingsLabel))
                 .replace("{{URL}}", escape(offerUrl));
-        return layout("Nouvelle offre Grossimarché : " + name, content);
+        return layout("Nouvelle offre Market Food : " + name, content);
     }
 
     /** One component line inside {@link #bundleAnnouncementEmail}. */
@@ -227,7 +262,7 @@ public final class EmailTemplates {
                 .replace("{{SHOP}}", escape(shopName))
                 .replace("{{SEGMENT}}", segmentLine)
                 .replace("{{URL}}", escape(loginUrl));
-        return layout("Votre compte Grossimarché est activé", content);
+        return layout("Votre compte Market Food est activé", content);
     }
 
     /**
@@ -246,7 +281,7 @@ public final class EmailTemplates {
                 """)
                 .replace("{{SHOP}}", escape(shopName))
                 .replace("{{REASON}}", escape(reason));
-        return layout("Votre demande de compte Grossimarché", content);
+        return layout("Votre demande de compte Market Food", content);
     }
 
     /**
@@ -270,7 +305,7 @@ public final class EmailTemplates {
                 """)
                 .replace("{{SHOP}}", escape(shopName))
                 .replace("{{CODE}}", escape(code));
-        return layout("Votre code de réinitialisation Grossimarché", content);
+        return layout("Votre code de réinitialisation Market Food", content);
     }
 
     /** Minimal HTML escaping for values interpolated into the templates. */

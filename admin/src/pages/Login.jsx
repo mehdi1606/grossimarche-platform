@@ -8,6 +8,7 @@ import LabelArea from "@/components/form/selectOption/LabelArea";
 import InputArea from "@/components/form/input/InputArea";
 // The file is saved with a double extension (login-img.JPG.jpeg) - import it as it is on disk.
 import LoginImage from "@/assets/img/login-img.JPG.jpeg";
+import logoPrimary from "@/assets/img/logo/logo-primary.png";
 import useLoginSubmit from "@/hooks/useLoginSubmit";
 import CMButton from "@/components/form/button/CMButton";
 
@@ -34,6 +35,13 @@ const Login = () => {
           </div>
           <main className="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
             <div className="w-full">
+              {/* The mark, above the title: this is the first screen anyone sees, and it was
+                  the one place the brand was written but never shown. */}
+              <img
+                src={logoPrimary}
+                alt="Market Food"
+                className="mx-auto mb-6 h-20 w-auto"
+              />
               <h1 className="mb-1 text-2xl font-semibold text-gray-700 dark:text-gray-200">
                 Back-office
               </h1>

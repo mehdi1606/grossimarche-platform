@@ -54,7 +54,7 @@ public class Mailer {
         String configuredFrom = email == null ? null : email.from();
         this.from = StringUtils.hasText(configuredFrom) ? configuredFrom : mailUsername;
         this.fromName = (email == null || !StringUtils.hasText(email.fromName()))
-                ? "Grossimarché" : email.fromName();
+                ? "Market Food" : email.fromName();
         this.adminUrl = adminUrl;
         this.storeUrl = storeUrl;
     }
@@ -78,7 +78,7 @@ public class Mailer {
      */
     public boolean sendStaffInvite(String to, String fullName, String password) {
         String plain = """
-                Un compte back-office Grossimarché vient d'être créé pour vous.
+                Un compte back-office Market Food vient d'être créé pour vous.
 
                 Identifiant : %s
                 Mot de passe provisoire : %s
@@ -88,7 +88,7 @@ public class Mailer {
                 Ce mot de passe est provisoire : il vous sera demandé d'en choisir un nouveau
                 à votre première connexion. Ne le transmettez à personne.
                 """.formatted(to, password, adminUrl);
-        return send(to, "Votre accès au back-office Grossimarché", plain,
+        return send(to, "Votre accès au back-office Market Food", plain,
                 EmailTemplates.staffInviteEmail(fullName, to, password, adminUrl));
     }
 
@@ -111,6 +111,7 @@ public class Mailer {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(plainBody, htmlBody);
+            EmailTemplates.attachLogo(helper);
             sender.send(message);
             return true;
         } catch (Exception e) {

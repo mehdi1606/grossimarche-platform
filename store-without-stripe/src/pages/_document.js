@@ -20,7 +20,12 @@ class MyDocument extends Document {
     return (
       <Html lang={locale} dir={dir}>
         <Head>
-          <link rel="icon" href={setting?.favicon || "/favicon.png"} />
+          <link
+            rel="icon"
+            type="image/png"
+            href={setting?.favicon || "/favicon.png?v=2"}
+          />
+          <link rel="alternate icon" href="/favicon.ico?v=2" />
           {/* Typography: Inter for the interface, Fraunces for editorial headings
               (`font-display`). Preconnect first so the faces are not render-blocking. */}
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,7 +42,7 @@ class MyDocument extends Document {
             property="og:title"
             content={
               setting?.meta_title ||
-              "Grossimarché - Marché de gros en ligne au Maroc"
+              "Market Food - Marché de gros en ligne au Maroc"
             }
           />
           <meta property="og:type" content="eCommerce Website" />
@@ -65,7 +70,7 @@ class MyDocument extends Document {
             property="og:image"
             content={
               setting?.meta_img ||
-              "https://res.cloudinary.com/ahossain/image/upload/v1636729752/facebook-page_j7alju.png"
+              "/brand/og-image.png"
             }
           />
         </Head>

@@ -54,7 +54,7 @@ public class EmailOtpSender implements OtpSender {
                         "from", from,
                         "fromName", fromName,
                         "to", destination,
-                        "subject", "Votre code Grossimarché",
+                        "subject", "Votre code Market Food",
                         "text", "Votre code de connexion est : " + code))
                 .retrieve()
                 .toBodilessEntity();

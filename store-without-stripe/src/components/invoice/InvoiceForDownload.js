@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -8,11 +9,12 @@ import {
 import dayjs from "dayjs";
 
 import { statusLabel } from "@utils/orderStatus";
+import { LOGO_PRIMARY_DATA_URI } from "@utils/brandLogo";
 
-// IMPORTANT: no remote fonts or images here. @react-pdf/renderer fetches any Font.register
-// source and any <Image src> at render time; a slow/blocked CDN leaves PDFDownloadLink stuck
-// on "Loading…" forever (this is what broke the download). Using the built-in Helvetica font
-// and a text wordmark makes generation fully local and reliable.
+// IMPORTANT: nothing here is fetched. @react-pdf/renderer resolves any Font.register source
+// and any <Image src> at render time; a slow or blocked one leaves PDFDownloadLink stuck on
+// "Loading…" forever (this is what broke the download). The font is the built-in Helvetica and
+// the logo is a data URI (see @utils/brandLogo), so generation stays fully local.
 const styles = StyleSheet.create({
   page: {
     paddingTop: 30,
@@ -30,11 +32,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#f3f4f6",
   },
-  brand: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#059669",
-  },
+  brand: { width: 104 },
   brandSub: { fontSize: 9, color: "#6b7280", marginTop: 2 },
   h1: { fontSize: 14, fontWeight: "bold", color: "#111827" },
   metaRow: {
@@ -116,7 +114,7 @@ const InvoiceForDownload = ({ data, currency, getNumberTwo }) => {
             <Text style={styles.info}>Statut : {statusLabel(data?.status)}</Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.brand}>Grossimarché</Text>
+            <Image src={LOGO_PRIMARY_DATA_URI} style={styles.brand} />
             <Text style={styles.brandSub}>Marché de gros en ligne - Maroc</Text>
           </View>
         </View>

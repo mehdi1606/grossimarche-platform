@@ -51,7 +51,7 @@ const MyOrders = () => {
       ) : (
         <Dashboard
           title="Mes commandes"
-          description="Suivez et retrouvez toutes vos commandes Grossimarché"
+          description="Suivez et retrouvez toutes vos commandes Market Food"
         >
           <div className="overflow-hidden">
             <h2 className="mb-6 font-display text-xl font-semibold text-ink-900">

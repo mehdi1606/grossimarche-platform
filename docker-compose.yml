@@ -1,5 +1,5 @@
 # =====================================================================================
-# Grossimarché - full platform, one command. Backend + storefront + back-office behind a
+# Market Food - full platform, one command. Backend + storefront + back-office behind a
 # single nginx gateway. Only the proxy is published; Postgres, Redis, backend, store and
 # admin all stay on the private network.
 #
@@ -98,7 +98,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FROM: ${MAIL_FROM:-}
-      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Grossimarché}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Market Food}
       # Links inside e-mails. These are absolute and cannot be derived from the request, so
       # they must be set in .env to the public origin - otherwise every invitation and every
       # order-tracking link points at localhost.

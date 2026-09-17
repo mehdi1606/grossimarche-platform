@@ -23,8 +23,8 @@ import { AdminContext } from "@/context/AdminContext";
 import OrderServices from "@/services/OrderServices";
 import Invoice from "@/components/invoice/Invoice";
 import Loading from "@/components/preloader/Loading";
-import logoDark from "@/assets/img/logo/logo-dark.svg";
-import logoLight from "@/assets/img/logo/logo-color.svg";
+import logoDark from "@/assets/img/logo/logo-primary-white.png";
+import logoLight from "@/assets/img/logo/logo-primary.png";
 import PageTitle from "@/components/Typography/PageTitle";
 import spinnerLoadingImage from "@/assets/img/spinner.gif";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
@@ -114,9 +114,9 @@ const OrderInvoice = () => {
               <div className="lg:text-right text-left">
                 <h2 className="lg:flex lg:justify-end text-lg font-serif font-semibold mt-4 lg:mt-0 lg:ml-0 md:mt-0">
                   {mode === "dark" ? (
-                    <img src={logoDark} alt="kachabazar" width="110" />
+                    <img src={logoDark} alt="Market Food" className="h-16 w-auto" />
                   ) : (
-                    <img src={logoLight} alt="kachabazar" width="110" />
+                    <img src={logoLight} alt="Market Food" className="h-16 w-auto" />
                   )}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">

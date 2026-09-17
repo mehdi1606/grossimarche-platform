@@ -50,7 +50,7 @@ public class SmsOtpSender implements OtpSender {
         client.post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("to", destination, "from", senderId,
-                        "text", "Grossimarché: votre code est " + code))
+                        "text", "Market Food: votre code est " + code))
                 .retrieve()
                 .toBodilessEntity();
     }
