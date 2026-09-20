@@ -7,16 +7,21 @@ import { FiCheck, FiChevronDown } from "react-icons/fi";
  * panel is therefore rendered here: same height and border as the search field, closes on
  * outside click or Escape, and marks the current choice.
  *
- * Props: options [{ value, label }], value, onChange(value), allLabel (the "no filter"
- * entry, always first), ariaLabel, className (width/layout of the wrapper), placement
- * ("top" opens upward - needed when the trigger sits in a modal footer, where a downward
- * panel would be clipped by the dialog's overflow).
+ * Props: options [{ value, label }], value, onChange(value), allLabel (the first entry),
+ * resetValue (what that entry is worth - "" for a filter meaning "no filter", a real value
+ * when the list is a choice rather than a filter), ariaLabel, className (width/layout of the
+ * wrapper), placement ("top" opens upward - needed when the trigger sits in a modal footer,
+ * where a downward panel would be clipped by the dialog's overflow).
  */
 const FilterDropdown = ({
   options = [],
   value = "",
   onChange,
   allLabel = "Tous",
+  // The first entry used to be hard-wired to "", which silently turned a real choice into an
+  // empty one: picking "Administrateur" on the staff form sent "" and the server read it as
+  // the default role. A filter still leaves this empty and behaves as before.
+  resetValue = "",
   ariaLabel,
   className = "",
   placement = "bottom",
@@ -24,7 +29,7 @@ const FilterDropdown = ({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  const items = [{ value: "", label: allLabel }, ...options];
+  const items = [{ value: resetValue, label: allLabel }, ...options];
   const selected = items.find((o) => o.value === value) || items[0];
 
   useEffect(() => {
