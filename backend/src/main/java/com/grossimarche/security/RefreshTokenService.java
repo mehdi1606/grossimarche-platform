@@ -39,10 +39,12 @@ public class RefreshTokenService {
 
     private final StringRedisTemplate redis;
     private final Duration ttl;
+    private final Duration maxSession;
 
     public RefreshTokenService(StringRedisTemplate redis, JwtProperties props) {
         this.redis = redis;
         this.ttl = props.refreshTokenTtl();
+        this.maxSession = props.maxSessionTtl();
     }
 
     /** Start a new token family for a fresh login. Returns the raw (unhashed) token. */
@@ -50,6 +52,10 @@ public class RefreshTokenService {
         String familyId = UUID.randomUUID().toString();
         String token = newToken();
         store(userId, familyId, hash(token));
+        // The moment the session began. Rotation refreshes everything else; this one key does
+        // not move, which is what makes the cap below absolute rather than sliding.
+        redis.opsForValue().set(startKey(userId, familyId),
+                String.valueOf(System.currentTimeMillis()), ttl);
         return new IssuedRefreshToken(token, familyId);
     }
 
@@ -68,6 +74,14 @@ public class RefreshTokenService {
         String[] parts = record.split(":", 2);
         UUID userId = UUID.fromString(parts[0]);
         String familyId = parts[1];
+
+        if (sessionTooOld(userId, familyId)) {
+            // Not theft, simply time: the session has run its full length and has to be
+            // started again. The family goes with it so the spent token cannot be replayed.
+            revokeFamily(userId, familyId);
+            throw new BusinessException(ErrorCode.TOKEN_INVALID,
+                    "Session expirée. Veuillez vous reconnecter.");
+        }
 
         String current = redis.opsForValue().get(curKey(userId, familyId));
         if (current == null || !current.equals(hash)) {
@@ -119,13 +133,36 @@ public class RefreshTokenService {
                     members.forEach(h -> redis.delete(rtKey(h)));
                 }
                 // rtfam:{user}:{family} and rtcur:{user}:{family} differ only by the prefix.
-                redis.delete("rtcur:" + famKey.substring("rtfam:".length()));
+                String suffix = famKey.substring("rtfam:".length());
+                redis.delete("rtcur:" + suffix);
+                redis.delete("rtstart:" + suffix);
                 redis.delete(famKey);
             }
         }
     }
 
+    /**
+     * Has this session outlived its maximum age?
+     *
+     * A family with no recorded start is one that began before this cap existed: it is stamped
+     * now rather than killed, so a deploy does not sign everybody out mid-order.
+     */
+    private boolean sessionTooOld(UUID userId, String familyId) {
+        String startedAt = redis.opsForValue().get(startKey(userId, familyId));
+        if (startedAt == null) {
+            redis.opsForValue().set(startKey(userId, familyId),
+                    String.valueOf(System.currentTimeMillis()), ttl);
+            return false;
+        }
+        try {
+            return System.currentTimeMillis() - Long.parseLong(startedAt) >= maxSession.toMillis();
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     private void revokeFamily(UUID userId, String familyId) {
+        redis.delete(startKey(userId, familyId));
         Set<String> members = redis.opsForSet().members(famKey(userId, familyId));
         if (members != null) {
             members.forEach(h -> redis.delete(rtKey(h)));
@@ -160,6 +197,10 @@ public class RefreshTokenService {
 
     private static String famKey(UUID userId, String familyId) {
         return "rtfam:" + userId + ":" + familyId;
+    }
+
+    private static String startKey(UUID userId, String familyId) {
+        return "rtstart:" + userId + ":" + familyId;
     }
 
     public record IssuedRefreshToken(String token, String familyId) {

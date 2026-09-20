@@ -83,6 +83,8 @@ export const adaptCategory = (g) => ({
   _id: g.id,
   name: tr(g.name, g.nameAr),
   icon: g.icon || "",
+  /** Uploaded in the back-office. When absent the tile falls back to the icon. */
+  imageUrl: g.imageUrl || "",
   slug: g.slug,
   parentId: null,
   parentName: null,

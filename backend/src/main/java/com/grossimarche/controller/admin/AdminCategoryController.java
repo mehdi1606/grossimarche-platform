@@ -2,6 +2,8 @@ package com.grossimarche.controller.admin;
 
 import com.grossimarche.dto.catalog.CategoryRequest;
 import com.grossimarche.dto.catalog.CategoryResponse;
+import com.grossimarche.exception.BusinessException;
+import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13,10 +15,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Admin category CRUD. Authorization is enforced by URL rules and by @PreAuthorize on the service. */
@@ -51,5 +57,22 @@ public class AdminCategoryController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** Upload the category's picture. Same contract as the product one: multipart in, URL out. */
+    @PostMapping("/{id}/image")
+    public Map<String, String> uploadImage(@PathVariable UUID id,
+                                           @RequestParam("file") MultipartFile file) {
+        String url = categoryService.uploadImage(id, readBytes(file), file.getContentType(),
+                file.getOriginalFilename());
+        return Map.of("imageUrl", url);
+    }
+
+    private byte[] readBytes(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED, "Fichier illisible.");
+        }
     }
 }

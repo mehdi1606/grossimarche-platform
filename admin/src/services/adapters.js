@@ -144,6 +144,7 @@ export const adaptCategory = (g) => ({
   nameAr: g.nameAr || "",
   slug: g.slug,
   icon: g.icon || "",
+  imageUrl: g.imageUrl || "",
   displayOrder: g.displayOrder ?? 0,
   productCount: g.productCount ?? 0,
   status: g.active === false ? "hide" : "show",

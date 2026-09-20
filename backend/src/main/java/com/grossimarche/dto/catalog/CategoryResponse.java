@@ -10,6 +10,8 @@ public record CategoryResponse(
         String nameAr,
         String slug,
         String icon,
+        /** Uploaded picture, or null: the storefront then draws the icon. */
+        String imageUrl,
         int displayOrder,
         boolean active,
         long productCount

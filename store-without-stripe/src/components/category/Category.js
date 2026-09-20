@@ -99,6 +99,7 @@ const Category = () => {
                 key={category._id}
                 id={category._id}
                 icon={category.icon}
+                image={category.imageUrl}
                 nested={category.children}
                 title={showingTranslateValue(category?.name)}
               />

@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@windmill/react-ui";
 import { useTranslation } from "react-i18next";
-import { FiEdit, FiLayers, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
+import { FiEdit, FiImage, FiLayers, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
 
 //internal import
 import PageTitle from "@/components/Typography/PageTitle";
@@ -19,11 +19,18 @@ import Modal from "@/components/common/Modal";
 import EmptyState from "@/components/common/EmptyState";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import { notifyError, notifySuccess } from "@/utils/toast";
-import { CATEGORY_ICONS, CategoryIcon } from "@/utils/categoryIcons";
+import { CategoryIcon } from "@/utils/categoryIcons";
 import { slugify } from "@/services/adapters";
 import useAutoRefresh from "@/hooks/useAutoRefresh";
 
-const EMPTY = { id: null, name: "", slug: "", icon: "cart", displayOrder: 0, active: true };
+const EMPTY = {
+  id: null,
+  name: "",
+  slug: "",
+  imageUrl: "",
+  displayOrder: 0,
+  active: true,
+};
 
 const Category = () => {
   const { t } = useTranslation();
@@ -31,11 +38,10 @@ const Category = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [search, setSearch] = useState("");
-  // Filters the icon picker: 29 monochrome glyphs is a hunt, not a choice.
-  const [iconQuery, setIconQuery] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,18 +63,29 @@ const Category = () => {
 
   const openAdd = () => {
     setForm(EMPTY);
+    setImageFile(null);
     setModalOpen(true);
   };
 
-  const openEdit = (row) =>
+  const openEdit = (row) => {
+    setImageFile(null);
     setForm({
       id: row._id,
       name: row.name?.en || "",
       slug: row.slug || "",
-      icon: row.icon || "cart",
+      imageUrl: row.imageUrl || "",
       displayOrder: row.displayOrder ?? 0,
       active: row.status !== "hide",
-    }) || setModalOpen(true);
+    });
+    setModalOpen(true);
+  };
+
+  // The tile shows the file being uploaded before it is uploaded; falls back to the stored
+  // picture when the form is reopened.
+  const preview = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : form.imageUrl),
+    [imageFile, form.imageUrl]
+  );
 
   const handleSave = async (e) => {
     e?.preventDefault();
@@ -76,18 +93,24 @@ const Category = () => {
     const body = {
       name: form.name.trim(),
       slug: form.slug.trim(),
-      icon: form.icon,
+      imageUrl: form.imageUrl,
       displayOrder: Number(form.displayOrder) || 0,
       status: form.active ? "show" : "hide",
     };
     try {
+      let categoryId = form.id;
       if (form.id) {
         await CategoryServices.updateCategory(form.id, body);
-        notifySuccess("Catégorie mise à jour.");
       } else {
-        await CategoryServices.addCategory(body);
-        notifySuccess("Catégorie créée.");
+        // The upload endpoint takes an id, so a new category is saved first and its picture
+        // attached to the row that now exists.
+        const created = await CategoryServices.addCategory(body);
+        categoryId = created?.id;
       }
+      if (imageFile && categoryId) {
+        await CategoryServices.uploadImage(categoryId, imageFile);
+      }
+      notifySuccess(form.id ? "Catégorie mise à jour." : "Catégorie créée.");
       setModalOpen(false);
       await load();
     } catch (err) {
@@ -126,12 +149,6 @@ const Category = () => {
 
   const labelCls =
     "mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300";
-
-  // Written out rather than derived from inputCls: that string carries `px-3`, and stacking
-  // `pl-9` on top left the padding decided by stylesheet order — which is how the search
-  // icon ended up sitting on the placeholder text.
-  const iconFilterCls =
-    "w-full h-9 rounded-lg border border-gray-200 bg-white pl-9 pr-8 text-xs text-gray-700 placeholder-gray-400 transition-colors hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500";
 
   // Same control styling as the products list (a plain input: the Windmill Input theme base
   // forces h-12/px-3/bg-gray-100 and would fight these utilities).
@@ -220,7 +237,15 @@ const Category = () => {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                        <CategoryIcon icon={row.icon} className="h-5 w-5" />
+                        {row.imageUrl ? (
+                          <img
+                            src={row.imageUrl}
+                            alt=""
+                            className="h-full w-full rounded-lg object-cover"
+                          />
+                        ) : (
+                          <CategoryIcon icon={row.icon} className="h-5 w-5" />
+                        )}
                       </span>
                       <span className="font-medium">{row.name?.en}</span>
                     </div>
@@ -290,8 +315,12 @@ const Category = () => {
           {/* The storefront tile, live. Choosing an icon is a visual decision, so the choice
               is shown as the customer will actually see it rather than as a form value. */}
           <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-500/10 dark:text-emerald-400">
-              <CategoryIcon icon={form.icon} className="h-8 w-8" />
+            <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-500/10 dark:text-emerald-400">
+              {preview ? (
+                <img src={preview} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <FiImage className="h-7 w-7 text-gray-300" />
+              )}
             </span>
             <div className="min-w-0">
               <p className="truncate text-base font-semibold text-gray-800 dark:text-gray-100">
@@ -325,69 +354,46 @@ const Category = () => {
             />
           </label>
 
-          {/* Icon picker: filterable, and the current choice is named rather than left to a
-              tooltip nobody hovers. */}
+          {/* The picture replaces the pictogram: a photograph of the aisle tells a shopkeeper
+              more than a line drawing, and it is what the storefront tiles now show. */}
           <div>
-            <div className="mb-2 flex items-baseline justify-between gap-3">
-              <span className={`${labelCls} mb-0`}>Icône</span>
-              <span className="text-xs text-gray-400">
-                {CATEGORY_ICONS.find((i) => i.key === form.icon)?.label || "—"}
-              </span>
-            </div>
-
-            <div className="relative mb-2">
-              {/* left-3.5, not left-3: this project overrides Tailwind's inset scale in
-                  tailwind.config.js, where `3` means 3rem (48px), not 0.75rem. That is what
-                  pushed the magnifier into the middle of the placeholder. The half-step
-                  values are untouched, so they still mean what they say. */}
-              <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={iconQuery}
-                onChange={(e) => setIconQuery(e.target.value)}
-                // This field lives inside the category form: without this, Enter submitted
-                // the form and created the category while the user was only filtering icons.
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.preventDefault();
-                }}
-                placeholder="Filtrer les icônes…"
-                aria-label="Filtrer les icônes"
-                className={iconFilterCls}
-              />
-              {iconQuery && (
-                <button
-                  type="button"
-                  onClick={() => setIconQuery("")}
-                  aria-label="Effacer le filtre"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  <FiX className="h-3.5 w-3.5" />
-                </button>
+            <span className={labelCls}>Image de la catégorie</span>
+            <label className="group relative grid h-40 w-full cursor-pointer place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400 transition hover:border-emerald-300 hover:text-emerald-500 dark:border-gray-600 dark:bg-gray-700/40">
+              {preview ? (
+                <>
+                  <img src={preview} alt="" className="h-full w-full object-cover" />
+                  <span className="absolute inset-0 hidden items-center justify-center bg-gray-900/50 text-xs font-medium text-white group-hover:flex">
+                    Remplacer
+                  </span>
+                </>
+              ) : (
+                <span className="flex flex-col items-center gap-1.5 px-6 text-center">
+                  <FiImage className="text-3xl" />
+                  <span className="text-sm font-medium">Ajouter une image</span>
+                  <span className="text-[11px] leading-4 text-gray-400">
+                    PNG, JPG, WebP ou AVIF, 5 Mo max.
+                  </span>
+                </span>
               )}
-            </div>
-
-            <div className="gm-thin-scroll grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto rounded-xl border border-gray-100 p-2 dark:border-gray-700 sm:grid-cols-10">
-              {CATEGORY_ICONS.filter(({ label, key }) => {
-                const q = iconQuery.trim().toLowerCase();
-                return !q || label.toLowerCase().includes(q) || key.includes(q);
-              }).map(({ key, label, Icon }) => (
-                <button
-                  type="button"
-                  key={key}
-                  title={label}
-                  aria-label={label}
-                  aria-pressed={form.icon === key}
-                  onClick={() => setForm({ ...form, icon: key })}
-                  className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                    form.icon === key
-                      ? "bg-emerald-100 text-emerald-600 ring-2 ring-emerald-400 dark:bg-emerald-500/20 dark:text-emerald-300"
-                      : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                </button>
-              ))}
-            </div>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                className="hidden"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              />
+            </label>
+            {(imageFile || form.imageUrl) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setImageFile(null);
+                  setForm({ ...form, imageUrl: "" });
+                }}
+                className="mt-2 text-xs font-medium text-gray-500 underline-offset-2 hover:text-red-500 hover:underline"
+              >
+                Retirer l&apos;image
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

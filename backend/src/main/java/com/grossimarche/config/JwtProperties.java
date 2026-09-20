@@ -16,7 +16,10 @@ import java.time.Duration;
  * @param privateKeyPem   RS256 private key (PKCS#8 PEM), from JWT_PRIVATE_KEY
  * @param publicKeyPem    RS256 public key (X.509 PEM), from JWT_PUBLIC_KEY
  * @param accessTokenTtl  access-token lifetime (default 15m)
- * @param refreshTokenTtl refresh-token lifetime (default 30d)
+ * @param refreshTokenTtl refresh-token lifetime (default 30d) - how long an *idle* session
+ *                        survives before its token is forgotten
+ * @param maxSessionTtl   how long a session may live in total, however active (default 24h):
+ *                        past this, rotation is refused and the user signs in again
  * @param allowEphemeralKey when true and no PEM is configured, generate a dev key pair
  */
 @ConfigurationProperties(prefix = "grossimarche.jwt")
@@ -27,6 +30,7 @@ public record JwtProperties(
         String publicKeyPem,
         @DefaultValue("15m") Duration accessTokenTtl,
         @DefaultValue("30d") Duration refreshTokenTtl,
+        @DefaultValue("24h") Duration maxSessionTtl,
         @DefaultValue("false") boolean allowEphemeralKey
 ) {
 }

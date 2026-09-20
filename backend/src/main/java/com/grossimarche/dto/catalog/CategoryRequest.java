@@ -15,6 +15,8 @@ public record CategoryRequest(
         @Size(max = 100) String nameAr,
         @NotBlank @Size(max = 120) String slug,
         @Size(max = 60) String icon,
+        /** Set by the upload endpoint; sent back here so an edit can keep or clear it. */
+        @Size(max = 500) String imageUrl,
         @PositiveOrZero int displayOrder,
         boolean active
 ) {

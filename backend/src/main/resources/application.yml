@@ -138,6 +138,9 @@ grossimarche:
     public-key-pem: ${JWT_PUBLIC_KEY:}
     access-token-ttl: 15m
     refresh-token-ttl: 30d
+    # A session ends 24 hours after sign-in, however busy it has been: past this the refresh
+    # token stops rotating and both front ends sign the user out on their next request.
+    max-session-ttl: ${MAX_SESSION_TTL:24h}
     # Overridden to true only in local/test so dev works without configured keys.
     allow-ephemeral-key: false
   storage:

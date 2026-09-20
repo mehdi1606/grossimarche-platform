@@ -5,7 +5,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 //internal import
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useTilt from "@hooks/useTilt";
-import CategoryIcon from "@components/category/CategoryIcon";
+import { CategoryVisual } from "@components/category/CategoryIcon";
 import { railAtEnd, railAtStart, railScrollBy } from "@utils/rail";
 
 /** A single category tile with a cursor-following 3D tilt (premium hover feel). */
@@ -20,8 +20,12 @@ const RailCard = ({ category, title }) => {
         onMouseLeave={tilt.onMouseLeave}
         className="gm-tilt-inner group flex h-full flex-col items-center gap-3 rounded-2xl border border-line bg-white p-6 text-center shadow-luxe transition-shadow hover:border-emerald-200 hover:shadow-luxe-lg"
       >
-        <span className="gm-tilt-pop grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-100">
-          <CategoryIcon icon={category.icon} className="h-7 w-7" />
+        <span className="gm-tilt-pop grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-100">
+          <CategoryVisual
+            image={category.imageUrl}
+            icon={category.icon}
+            className="h-7 w-7"
+          />
         </span>
         <span className="line-clamp-1 text-sm font-medium text-ink-700">{title}</span>
       </Link>

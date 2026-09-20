@@ -160,4 +160,18 @@ const CategoryIcon = ({ icon, className = "h-6 w-6" }) => {
   return <Icon className={className} />;
 };
 
+/**
+ * What a category shows on a tile: its uploaded picture, or the icon when it has none.
+ *
+ * Both live side by side on purpose. A category created before uploads existed still has its
+ * pictogram, and a shop that has not photographed an aisle yet keeps a tile that looks
+ * deliberate rather than an empty grey square.
+ */
+export const CategoryVisual = ({ image, icon, className = "h-6 w-6", alt = "" }) =>
+  image ? (
+    <img src={image} alt={alt} className="h-full w-full object-cover" loading="lazy" />
+  ) : (
+    <CategoryIcon icon={icon} className={className} />
+  );
+
 export default CategoryIcon;

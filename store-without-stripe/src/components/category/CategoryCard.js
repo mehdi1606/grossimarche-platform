@@ -9,9 +9,9 @@ import {
 //internal import
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import CategoryIcon from "@components/category/CategoryIcon";
+import { CategoryVisual } from "@components/category/CategoryIcon";
 
-const CategoryCard = ({ title, icon, nested, id }) => {
+const CategoryCard = ({ title, icon, image, nested, id }) => {
   const router = useRouter();
   const { closeCategoryDrawer, isLoading, setIsLoading } =
     useContext(SidebarContext);
@@ -59,8 +59,8 @@ const CategoryCard = ({ title, icon, nested, id }) => {
         className="flex min-h-[48px] w-full cursor-pointer items-center rounded-xl px-2.5 transition hover:bg-cream hover:text-emerald-700"
         role="button"
       >
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
-          <CategoryIcon icon={icon} className="h-4 w-4" />
+        <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-emerald-50 text-emerald-600">
+          <CategoryVisual image={image} icon={icon} className="h-4 w-4" />
         </span>
 
         <div className="ms-3 inline-flex w-full items-center justify-between text-sm font-medium text-ink-700">

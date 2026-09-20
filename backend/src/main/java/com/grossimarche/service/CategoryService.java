@@ -1,12 +1,16 @@
 package com.grossimarche.service;
 
 import com.grossimarche.config.CacheConfig;
+import com.grossimarche.config.StorageProperties;
 import com.grossimarche.dto.catalog.CategoryRequest;
 import com.grossimarche.dto.catalog.CategoryResponse;
 import com.grossimarche.dto.mapper.CategoryMapper;
 import com.grossimarche.entity.Category;
+import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
+import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
+import com.grossimarche.integration.storage.StorageService;
 import com.grossimarche.repository.CategoryRepository;
 import com.grossimarche.repository.ProductRepository;
 import com.grossimarche.repository.ProductTypePriceRepository;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,18 +37,28 @@ public class CategoryService {
     private final CatalogueViewer catalogueViewer;
     private final CategoryMapper categoryMapper;
     private final CatalogueTranslator catalogueTranslator;
+    private final StorageService storageService;
+    private final StorageProperties storageProperties;
+
+    /** What a browser can actually display, and what the storage layer is willing to keep. */
+    private static final Set<String> ALLOWED_IMAGE_TYPES =
+            Set.of("image/png", "image/jpeg", "image/webp", "image/avif");
 
     public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository,
                            ProductTypePriceRepository typePriceRepository,
                            CatalogueViewer catalogueViewer,
                            CategoryMapper categoryMapper,
-                           CatalogueTranslator catalogueTranslator) {
+                           CatalogueTranslator catalogueTranslator,
+                           StorageService storageService,
+                           StorageProperties storageProperties) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.typePriceRepository = typePriceRepository;
         this.catalogueViewer = catalogueViewer;
         this.categoryMapper = categoryMapper;
         this.catalogueTranslator = catalogueTranslator;
+        this.storageService = storageService;
+        this.storageProperties = storageProperties;
     }
 
     /**
@@ -105,7 +120,7 @@ public class CategoryService {
         Category category = Category.builder()
                 // Translated once here, not on every Arabic page view - see CatalogueTranslator.
                 .name(req.name()).nameAr(catalogueTranslator.arabicFor(req.name(), req.nameAr()))
-                .slug(req.slug()).icon(req.icon())
+                .slug(req.slug()).icon(req.icon()).imageUrl(req.imageUrl())
                 .displayOrder(req.displayOrder()).active(req.active())
                 .build();
         return categoryMapper.toResponse(categoryRepository.save(category), 0);
@@ -126,10 +141,35 @@ public class CategoryService {
         category.setNameAr(catalogueTranslator.arabicFor(req.name(), keep));
         category.setSlug(req.slug());
         category.setIcon(req.icon());
+        category.setImageUrl(req.imageUrl());
         category.setDisplayOrder(req.displayOrder());
         category.setActive(req.active());
         long count = productRepository.countByCategoryIdAndActiveTrue(id);
         return categoryMapper.toResponse(categoryRepository.save(category), count);
+    }
+
+    /**
+     * Store a picture for a category and hang it on the row.
+     *
+     * Same rules as a product image - the shop serves both from the same place, and a category
+     * tile is as visible on the storefront as a product photograph.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @CacheEvict(value = CacheConfig.CATEGORIES, allEntries = true)
+    @Transactional
+    public String uploadImage(UUID id, byte[] content, String contentType, String filename) {
+        Category category = getById(id);
+        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType)) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Type d'image non supporté (png, jpeg, webp, avif attendus).");
+        }
+        if (content.length == 0 || content.length > storageProperties.maxFileSizeBytes()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Fichier vide ou trop volumineux.");
+        }
+        String url = storageService.store(content, contentType, filename);
+        category.setImageUrl(url);
+        return url;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")

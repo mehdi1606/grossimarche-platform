@@ -32,7 +32,7 @@ class JwtServiceTest {
 
     private JwtProperties props(Duration accessTtl) {
         return new JwtProperties(ISSUER, "kid-test", null, null,
-                accessTtl, Duration.ofDays(30), true);
+                accessTtl, Duration.ofDays(30), Duration.ofHours(24), true);
     }
 
     private JwtService serviceWith(JwtProperties props, JwtKeyProvider keyProvider) {

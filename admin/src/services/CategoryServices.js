@@ -9,6 +9,9 @@ const toCategoryRequest = (body, existing) => {
       ? body.name?.en || Object.values(body.name || {})[0] || ""
       : body.name || "";
   const icon = body.icon || existing?.icon || "";
+  // The picture wins over the pictogram in the shop; the icon stays as the fallback for the
+  // categories created before uploads existed, so nothing is wiped by an edit.
+  const imageUrl = body.imageUrl ?? existing?.imageUrl ?? "";
   return {
     name,
     // Blank asks the server to translate on save; a value is the wording to keep. Carried from
@@ -17,6 +20,7 @@ const toCategoryRequest = (body, existing) => {
     slug: body.slug || existing?.slug || slugify(name),
     // The backend icon column is short (60 chars) - keep an icon name/emoji, not a long URL.
     icon: icon.length > 60 ? "" : icon,
+    imageUrl: imageUrl || null,
     displayOrder: Number(body.displayOrder ?? existing?.displayOrder ?? 0),
     active: body.status ? body.status === "show" : body.active !== false,
   };
@@ -61,6 +65,13 @@ const CategoryServices = {
       `/admin/categories/${id}`,
       toCategoryRequest({ ...current, status: body?.status }, current)
     );
+  },
+
+  /** Multipart upload; the server answers with the stored URL. */
+  uploadImage: async (id, file) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return requests.post(`/admin/categories/${id}/image`, fd);
   },
 
   deleteCategory: async (id) => requests.delete(`/admin/categories/${id}`),

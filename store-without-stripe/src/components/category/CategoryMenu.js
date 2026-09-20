@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 //internal import
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import CategoryServices from "@services/CategoryServices";
-import CategoryIcon from "@components/category/CategoryIcon";
+import { CategoryVisual } from "@components/category/CategoryIcon";
 
 /**
  * The desktop "Catégories" dropdown.
@@ -57,8 +57,12 @@ const CategoryMenu = ({ onNavigate }) => {
               onClick={onNavigate}
               className={rowCls}
             >
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
-                <CategoryIcon icon={category.icon} className="h-4 w-4" />
+              <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-emerald-50 text-emerald-600">
+                <CategoryVisual
+                  image={category.imageUrl}
+                  icon={category.icon}
+                  className="h-4 w-4"
+                />
               </span>
               <span className="truncate">{showingTranslateValue(category?.name)}</span>
             </Link>

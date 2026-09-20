@@ -38,6 +38,10 @@ public class Category extends BaseEntity {
     @Column(name = "icon", length = 60)
     private String icon;
 
+    /** Uploaded picture. Falls back to {@link #icon} when nobody has uploaded one. */
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
