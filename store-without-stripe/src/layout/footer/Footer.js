@@ -103,14 +103,14 @@ const Footer = () => {
             <ul className="mt-8 space-y-3.5">
               <li>
                 <a
-                  href="mailto:Marketfood26@gmail.com"
+                  href="mailto:marketfood98@gmail.com"
                   data-no-translate
                   className="gm-ltr group flex items-center gap-3 text-sm text-emerald-100/80 transition hover:text-white"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition group-hover:bg-white/10">
                     <FiMail className="h-4 w-4" />
                   </span>
-                  Marketfood26@gmail.com
+                  marketfood98@gmail.com
                 </a>
               </li>
               <li>

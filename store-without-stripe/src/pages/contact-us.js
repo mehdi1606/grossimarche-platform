@@ -16,8 +16,8 @@ const CONTACT = [
   {
     Icon: FiMail,
     key: "email",
-    lines: ["Marketfood26@gmail.com"],
-    href: "mailto:Marketfood26@gmail.com",
+    lines: ["marketfood98@gmail.com"],
+    href: "mailto:marketfood98@gmail.com",
     literal: true,
   },
   {

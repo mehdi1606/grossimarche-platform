@@ -22,7 +22,7 @@ const SELLER = {
   tagline: "Marché de gros en ligne",
   address: "EL Alia N 141, Mohammedia",
   phone: "+212 605 477 544",
-  email: "Marketfood26@gmail.com",
+  email: "marketfood98@gmail.com",
 };
 
 const INK = "#111827";

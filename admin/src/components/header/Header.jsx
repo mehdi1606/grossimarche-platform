@@ -26,9 +26,11 @@ import ellipse from "@/assets/img/icons/ellipse.svg";
 import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
 import useNotification, {
+  ensureDesktopNotifications,
   isNotificationSoundEnabled,
   playNotificationChime,
   setNotificationSoundEnabled,
+  showDesktopNotification,
 } from "@/hooks/useNotification";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
@@ -54,9 +56,15 @@ const Header = () => {
   // Read once on mount: the preference lives in localStorage, which is not available during
   // the first render on the server-rendered path.
   const [soundOn, setSoundOn] = useState(true);
+  // Whether the browser will raise desktop notifications. Shown in the panel so a refused
+  // permission is visible instead of silently swallowing every alert.
+  const [desktopReady, setDesktopReady] = useState(false);
 
   useEffect(() => {
     setSoundOn(isNotificationSoundEnabled());
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setDesktopReady(Notification.permission === "granted");
+    }
   }, []);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -198,13 +206,16 @@ const Header = () => {
                       {/* The chime can be turned off without leaving the panel it rings for. */}
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           const next = !soundOn;
                           setNotificationSoundEnabled(next);
                           setSoundOn(next);
                           // Play it once when switching on, so the setting is verifiable
                           // without waiting for a real notification to arrive.
-                          if (next) playNotificationChime();
+                          if (next) {
+                            playNotificationChime();
+                            setDesktopReady(await ensureDesktopNotifications());
+                          }
                         }}
                         title={soundOn ? "Couper le son" : "Activer le son"}
                         aria-label={soundOn ? "Couper le son" : "Activer le son"}
@@ -218,6 +229,33 @@ const Header = () => {
                       </button>
                     </div>
                   </div>
+                  {/* Says out loud that alerts will not reach this machine, instead of letting
+                      every notification arrive silently and look like a broken feature. Carries
+                      its own way out, and disappears for good once permission is granted. */}
+                  {soundOn && !desktopReady && (
+                    <div className="flex items-center justify-between gap-3 border-b border-gray-100 bg-amber-50 px-4 py-2 dark:border-gray-700 dark:bg-amber-500/10">
+                      <p className="text-xs text-amber-700 dark:text-amber-400">
+                        Sans les alertes du bureau, vous ne serez prévenu que si cet onglet est
+                        ouvert.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const allowed = await ensureDesktopNotifications();
+                          setDesktopReady(allowed);
+                          if (allowed) {
+                            showDesktopNotification(
+                              "Market Food",
+                              "Les alertes du bureau sont activées."
+                            );
+                          }
+                        }}
+                        className="shrink-0 rounded-md bg-amber-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-amber-700"
+                      >
+                        Autoriser
+                      </button>
+                    </div>
+                  )}
                   <div
                     className={`${
                       data?.length === 0

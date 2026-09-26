@@ -53,6 +53,14 @@ const EditProfile = () => {
         if (!active) return;
         setProfile(res);
         setFullName(res?.fullName || "");
+        // The cookie mirrors the name as it was at sign-in, and the header reads it from
+        // there. If the account has been renamed since - by another admin, or straight in
+        // the database - the header kept showing the old name until the next sign-in.
+        if (res?.fullName && res.fullName !== adminInfo?.name) {
+          const next = { ...adminInfo, name: res.fullName };
+          dispatch({ type: "USER_LOGIN", payload: next });
+          Cookies.set("adminInfo", JSON.stringify(next), cookieOptions({ expires: 30 }));
+        }
       })
       .catch((err) =>
         notifyError(err?.response?.data?.message || err?.message)
@@ -162,7 +170,7 @@ const EditProfile = () => {
             {initial}
           </span>
           <h3 className="mt-4 font-serif text-lg font-semibold text-gray-800 dark:text-gray-100">
-            {profile?.fullName || "Unnamed staff"}
+            {profile?.fullName || "Membre sans nom"}
           </h3>
           <span
             className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${
@@ -172,7 +180,7 @@ const EditProfile = () => {
             {ROLE_LABEL[role] || role || "-"}
           </span>
           <p className="mt-4 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            Signed in with
+            Connecté avec
             <br />
             <span className="font-medium text-gray-700 dark:text-gray-200">
               {profile?.email || profile?.phone || "-"}
@@ -185,24 +193,26 @@ const EditProfile = () => {
           <form onSubmit={save}>
             <div className="border-b border-gray-100 px-6 py-5 dark:border-gray-700">
               <h3 className="font-serif text-base font-semibold text-gray-800 dark:text-gray-100">
-                Personal information
+                Informations personnelles
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                The name shown across the back-office and on the orders you handle.
+                Le nom affiché dans le back-office et sur les commandes que vous traitez.
               </p>
             </div>
 
             <div className="space-y-5 px-6 py-5">
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                  Full name
+                  Nom complet
                 </span>
                 <div className="relative">
                   <FiUser className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     className={`${inputCls} pl-10`}
-                    placeholder="Mehdi Houari"
+                    // The signed-in member's own name, not a name from the developer's
+                    
+                    placeholder={profile?.fullName || "Votre nom complet"}
                     value={fullName}
                     maxLength={150}
                     onChange={(e) => setFullName(e.target.value)}
@@ -213,17 +223,18 @@ const EditProfile = () => {
 
             <div className="border-t border-gray-100 px-6 py-5 dark:border-gray-700">
               <h3 className="font-serif text-base font-semibold text-gray-800 dark:text-gray-100">
-                Sign-in details
+                Identifiants de connexion
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                These identify your account, so they cannot be edited here - changing one
-                requires verifying the new address or number with a code.
+                Ils identifient votre compte : les modifier depuis cette page n'est pas
+                possible, car il faut d'abord vérifier la nouvelle adresse ou le nouveau
+                numéro par un code.
               </p>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div className="text-sm">
                   <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                    Email
+                    E-mail
                   </span>
                   <div className={readOnlyCls}>
                     <FiMail className="h-4 w-4 shrink-0" />
@@ -233,7 +244,7 @@ const EditProfile = () => {
                 </div>
                 <div className="text-sm">
                   <span className="mb-1.5 block font-medium text-gray-600 dark:text-gray-300">
-                    Phone
+                    Téléphone
                   </span>
                   <div className={readOnlyCls}>
                     <FiPhone className="h-4 w-4 shrink-0" />
@@ -244,11 +255,11 @@ const EditProfile = () => {
               </div>
 
               <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                Your role is{" "}
+                Votre rôle est{" "}
                 <span className="font-medium text-gray-700 dark:text-gray-200">
                   {ROLE_LABEL[role] || role || "-"}
                 </span>
-                . Roles are granted from the Staff page by an administrator.
+                . Les rôles sont attribués depuis la page Notre équipe, par un administrateur.
               </p>
             </div>
 
@@ -259,7 +270,7 @@ const EditProfile = () => {
                 disabled={!dirty || saving}
                 className="h-11 rounded-lg px-4 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                Reset
+                Réinitialiser
               </button>
               <button
                 type="submit"

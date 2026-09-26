@@ -97,6 +97,42 @@ public class Mailer {
      * do not can ignore it - a failed notification must never break the action that triggered it.
      */
     public boolean send(String to, String subject, String plainBody, String htmlBody) {
+        return send(to, subject, plainBody, htmlBody, List.of());
+    }
+
+    /** A picture carried inside the message, which the HTML refers to as {@code cid:<cid>}. */
+    public record InlineImage(String cid, byte[] content, String contentType) {
+
+        /** The offer's own photo, no wider than the card that shows it. */
+        public static InlineImage photo(String cid, byte[] content, String contentType) {
+            byte[] fitted = Thumbnails.fit(content, 1072);
+            return fitted == null
+                    ? new InlineImage(cid, content, contentType)
+                    : new InlineImage(cid, fitted, "image/jpeg");
+        }
+
+        /**
+         * A product's picture as a centred square, at twice its displayed size so it stays
+         * sharp on a phone. A catalogue photo weighs close to a megabyte; this is a few
+         * kilobytes, and a basket carries one per product to every customer of a trade.
+         */
+        public static InlineImage thumbnail(String cid, byte[] content, String contentType) {
+            byte[] square = Thumbnails.square(content, 104);
+            return square == null
+                    ? new InlineImage(cid, content, contentType)
+                    : new InlineImage(cid, square, "image/jpeg");
+        }
+    }
+
+    /**
+     * Send one message, optionally carrying pictures of its own besides the wordmark.
+     *
+     * @param inlines the extra images - an offer's photo and its products', for instance, which
+     *                cannot be linked because the recipient's client would have to reach this
+     *                server to fetch them
+     */
+    public boolean send(String to, String subject, String plainBody, String htmlBody,
+                        List<InlineImage> inlines) {
         JavaMailSender sender = mailSender.getIfAvailable();
         if (sender == null || !StringUtils.hasText(from) || !StringUtils.hasText(to)) {
             log.warn("SMTP is not configured; the e-mail '{}' to {} was not sent.",
@@ -112,6 +148,12 @@ public class Mailer {
             helper.setSubject(subject);
             helper.setText(plainBody, htmlBody);
             EmailTemplates.attachLogo(helper);
+            if (inlines != null) {
+                for (InlineImage inline : inlines) {
+                    EmailTemplates.attachInline(helper, inline.cid(), inline.content(),
+                            inline.contentType());
+                }
+            }
             sender.send(message);
             return true;
         } catch (Exception e) {
@@ -136,12 +178,19 @@ public class Mailer {
     @Async(AsyncConfig.MAIL_EXECUTOR)
     public void broadcast(List<String> recipients, String subject, String plainBody,
                           String htmlBody) {
+        broadcast(recipients, subject, plainBody, htmlBody, List.of());
+    }
+
+    /** As above, with pictures carried by every copy - an offer's photo and its products'. */
+    @Async(AsyncConfig.MAIL_EXECUTOR)
+    public void broadcast(List<String> recipients, String subject, String plainBody,
+                          String htmlBody, List<InlineImage> inlines) {
         if (recipients == null || recipients.isEmpty()) {
             return;
         }
         int sent = 0;
         for (String to : recipients) {
-            if (send(to, subject, plainBody, htmlBody)) {
+            if (send(to, subject, plainBody, htmlBody, inlines)) {
                 sent++;
             }
         }

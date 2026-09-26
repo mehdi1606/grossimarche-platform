@@ -10,6 +10,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,13 @@ import java.util.UUID;
 @Component
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
-    private static final String ADMIN_TOPIC = "/topic/admin/orders";
+    /**
+     * Everything the back-office listens to - orders, notifications, and whatever is added
+     * next. A prefix rather than a list of exact names: the notification topic was added later
+     * and fell through the exact match below, which left any signed-in customer free to
+     * subscribe to it and read the shop's internal alerts.
+     */
+    private static final String ADMIN_TOPIC_PREFIX = "/topic/admin/";
     private static final String ORDER_TOPIC_PREFIX = "/topic/orders/";
 
     private final JwtService jwtService;
@@ -37,14 +44,31 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-        StompCommand command = accessor.getCommand();
+        // getAccessor, NOT StompHeaderAccessor.wrap: wrap() builds a *copy* of the headers, so
+        // the principal set on it during CONNECT was thrown away with that copy. Every later
+        // frame then arrived unauthenticated, SUBSCRIBE was refused, the session was torn down
+        // and the browser reconnected a few seconds later - forever. Live notifications never
+        // reached anyone.
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        StompCommand command = accessor == null ? null : accessor.getCommand();
+
         if (StompCommand.CONNECT.equals(command)) {
             authenticate(accessor);
         } else if (StompCommand.SUBSCRIBE.equals(command)) {
             authorizeSubscription(accessor);
+        } else if (accessor == null
+                && (isStompCommand(message, StompCommand.CONNECT)
+                        || isStompCommand(message, StompCommand.SUBSCRIBE))) {
+            // No mutable accessor on a frame that must be checked: refuse rather than let it
+            // through unauthorised.
+            throw new MessagingException("Trame WebSocket illisible.");
         }
         return message;
+    }
+
+    private boolean isStompCommand(Message<?> message, StompCommand expected) {
+        return expected.equals(StompHeaderAccessor.wrap(message).getCommand());
     }
 
     private void authenticate(StompHeaderAccessor accessor) {
@@ -69,7 +93,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         if (destination == null) {
             throw new MessagingException("Destination manquante.");
         }
-        if (destination.equals(ADMIN_TOPIC)) {
+        if (destination.startsWith(ADMIN_TOPIC_PREFIX)) {
             if (principal.getRole() != Role.ADMIN && principal.getRole() != Role.STORE_MANAGER) {
                 throw new MessagingException("Accès réservé au back-office.");
             }

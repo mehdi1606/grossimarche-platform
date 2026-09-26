@@ -441,7 +441,7 @@ export const storeCustomization = {
 <p class="mb-4 text-sm leading-7 text-ink-600">Cette politique peut &ecirc;tre mise &agrave; jour. La date en t&ecirc;te de page indique la derni&egrave;re version&nbsp;; un changement substantiel vous sera signal&eacute; lors de votre prochaine connexion.</p>
 
 <h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">8. Nous contacter</h2>
-<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question ou demande relative &agrave; vos donn&eacute;es : <a href="mailto:Marketfood26@gmail.com" class="font-medium text-emerald-700 underline">Marketfood26@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544. Voir aussi nos <a href="/terms-and-conditions" class="font-medium text-emerald-700 underline">conditions g&eacute;n&eacute;rales de vente</a>.</p>`,
+<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question ou demande relative &agrave; vos donn&eacute;es : <a href="mailto:marketfood98@gmail.com" class="font-medium text-emerald-700 underline">marketfood98@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544. Voir aussi nos <a href="/terms-and-conditions" class="font-medium text-emerald-700 underline">conditions g&eacute;n&eacute;rales de vente</a>.</p>`,
     },
   },
   term_and_condition: {
@@ -510,7 +510,7 @@ export const storeCustomization = {
 <p class="mb-4 text-sm leading-7 text-ink-600">Market Food peut modifier les pr&eacute;sentes conditions &agrave; tout moment. La version applicable &agrave; une commande est celle publi&eacute;e au jour o&ugrave; celle-ci est pass&eacute;e.</p>
 
 <h2 class="mt-10 mb-3 font-display text-xl font-semibold text-ink-900">14. Contact</h2>
-<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question relative &agrave; une commande ou aux pr&eacute;sentes conditions : <a href="mailto:Marketfood26@gmail.com" class="font-medium text-emerald-700 underline">Marketfood26@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544.</p>`,
+<p class="mb-4 text-sm leading-7 text-ink-600">Pour toute question relative &agrave; une commande ou aux pr&eacute;sentes conditions : <a href="mailto:marketfood98@gmail.com" class="font-medium text-emerald-700 underline">marketfood98@gmail.com</a>, ou par t&eacute;l&eacute;phone au +212 605 477 544.</p>`,
     },
   },
   faq: {

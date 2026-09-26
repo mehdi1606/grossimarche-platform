@@ -318,6 +318,23 @@ const Bundles = () => {
         ? await BundleServices.update(editing.id, body)
         : await BundleServices.create(body);
 
+      // The image goes up before the price grid, and the order matters more than it looks:
+      // saving the grid is what announces a new offer to its customers, and the announcement
+      // carries the picture. Uploaded afterwards, as it used to be, the e-mail went out
+      // moments before the image existed and arrived without it.
+      //
+      // Still in its own try: a refused picture must not cost the offer that was just
+      // described, so the save carries on and only the upload is reported as failed.
+      if (imageFile && saved?.id) {
+        try {
+          await BundleServices.uploadImage(saved.id, imageFile);
+        } catch (err) {
+          notifyError(
+            err?.response?.data?.message || "Offre enregistrée, mais l'image n'a pas pu être envoyée."
+          );
+        }
+      }
+
       // Saved after the bundle exists, and after its items: the server checks each price
       // against what the components cost that segment, which it cannot do until both are in
       // place. A rejection here leaves a real bundle with no price, which is recoverable -
@@ -327,18 +344,6 @@ const Bundles = () => {
           saved.id,
           priced.map((r) => ({ clientTypeId: r.clientTypeId, price: Number(r.price) }))
         );
-      }
-
-      // The image is uploaded after the bundle exists: it needs an id to be attached to, and
-      // a failed upload must not lose the offer that was just described.
-      if (imageFile && saved?.id) {
-        try {
-          await BundleServices.uploadImage(saved.id, imageFile);
-        } catch (err) {
-          notifyError(
-            err?.response?.data?.message || "Offre enregistrée, mais l'image n'a pas pu être envoyée."
-          );
-        }
       }
       notifySuccess(editing ? "Offre mise à jour." : "Offre créée.");
       setModalOpen(false);
@@ -355,7 +360,11 @@ const Bundles = () => {
     setAnnounceTarget(null);
     try {
       await BundleServices.announce(target.id);
-      notifySuccess("L'offre a été envoyée par e-mail aux clients.");
+      notifySuccess(
+        target.clientTypeName
+          ? `L'offre a été envoyée par e-mail aux clients « ${target.clientTypeName} ».`
+          : "L'offre a été envoyée par e-mail aux clients concernés."
+      );
     } catch (err) {
       notifyError(err?.response?.data?.message || err?.message);
     }
@@ -864,8 +873,19 @@ const Bundles = () => {
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Envoyer « <span className="font-semibold">{announceTarget?.name}</span> » par
-          e-mail à tous les clients actifs ? L'envoi n'est pas automatique : cette action ne
-          part que lorsque vous la déclenchez.
+          e-mail aux clients actifs
+          {announceTarget?.clientTypeName ? (
+            <>
+              {" "}du type «{" "}
+              <span className="font-semibold">{announceTarget.clientTypeName}</span> »
+            </>
+          ) : null}
+          {" "}? L'envoi n'est pas automatique : cette action ne part que lorsque vous la
+          déclenchez.
+        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Les autres types d'activité ne reçoivent rien : ce panier n'a pas de prix chez eux,
+          donc l'offre ne leur est pas vendue.
         </p>
       </Modal>
 

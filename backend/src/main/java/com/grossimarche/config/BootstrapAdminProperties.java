@@ -19,6 +19,6 @@ public record BootstrapAdminProperties(
         @DefaultValue("true") boolean enabled,
         @DefaultValue("") String email,
         @DefaultValue("") String password,
-        @DefaultValue("Administrateur") String fullName
+        @DefaultValue("Market Food") String fullName
 ) {
 }

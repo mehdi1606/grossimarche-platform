@@ -56,6 +56,23 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<String> findActiveEmailsByRoles(Collection<Role> roles);
 
     /**
+     * Reachable customer e-mail addresses inside a set of trades - the recipients of an offer
+     * that is only priced for those trades.
+     *
+     * A customer whose trade has not been set yet is excluded, and so is every other trade: a
+     * bundle carries no price outside the segment it was written for, so anyone else would be
+     * invited to an offer that is not on sale to them.
+     */
+    @Query("""
+            select u.email from User u
+            where u.role = com.grossimarche.entity.enums.Role.CLIENT
+              and u.status = com.grossimarche.entity.enums.UserStatus.ACTIVE
+              and u.clientType.id in :clientTypeIds
+              and u.email is not null and u.email <> ''
+            """)
+    List<String> findActiveClientEmailsByClientTypes(Collection<UUID> clientTypeIds);
+
+    /**
      * Customers filtered by role, optionally matching a free-text query on name/phone/email.
      * {@code q} is always a non-null string ("" = no filter); a null bind would be typed as
      * bytea by PostgreSQL and blow up {@code lower(...)}.

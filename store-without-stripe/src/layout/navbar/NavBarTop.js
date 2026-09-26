@@ -52,12 +52,12 @@ const NavBarTop = () => {
               +212 605 477 544
             </a>
             <a
-              href="mailto:Marketfood26@gmail.com"
+              href="mailto:marketfood98@gmail.com"
               data-no-translate
               className="gm-ltr hidden items-center transition hover:text-emerald-700 xl:flex"
             >
               <FiMail className="me-1.5" />
-              Marketfood26@gmail.com
+              marketfood98@gmail.com
             </a>
           </div>
 

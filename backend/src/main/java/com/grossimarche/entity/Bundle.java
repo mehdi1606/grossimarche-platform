@@ -74,6 +74,15 @@ public class Bundle extends AuditableEntity {
     @Column(name = "ends_at")
     private Instant endsAt;
 
+    /**
+     * When customers were told about this offer, or null if they never were.
+     *
+     * Guards the automatic announcement: an offer announces itself once, when it first becomes
+     * sellable, and every later edit to its price or its contents stays silent.
+     */
+    @Column(name = "announced_at")
+    private Instant announcedAt;
+
     @Builder.Default
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BundleItem> items = new ArrayList<>();

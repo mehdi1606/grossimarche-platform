@@ -45,17 +45,20 @@ public class BundlePricingService {
     private final BundleRepository bundleRepository;
     private final ClientTypeRepository clientTypeRepository;
     private final PricingService pricingService;
+    private final BundleService bundleService;
 
     public BundlePricingService(BundleTypePriceRepository bundlePriceRepository,
                                 ProductTypePriceRepository productPriceRepository,
                                 BundleRepository bundleRepository,
                                 ClientTypeRepository clientTypeRepository,
-                                PricingService pricingService) {
+                                PricingService pricingService,
+                                BundleService bundleService) {
         this.bundlePriceRepository = bundlePriceRepository;
         this.productPriceRepository = productPriceRepository;
         this.bundleRepository = bundleRepository;
         this.clientTypeRepository = clientTypeRepository;
         this.pricingService = pricingService;
+        this.bundleService = bundleService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
@@ -139,6 +142,17 @@ public class BundlePricingService {
         bundlePriceRepository.deleteByBundleId(bundleId);
         bundlePriceRepository.flush();
         bundlePriceRepository.saveAll(rows);
+        bundlePriceRepository.flush();
+
+        // A bundle becomes a real offer here, not when it was created: this is the first moment
+        // it has a price and therefore an audience. Announcing it is part of publishing it, so
+        // a new basket reaches its customers without anyone remembering to press a button. Once
+        // only - see Bundle.announcedAt.
+        //
+        // Callers must therefore have finished the bundle before saving its grid, image
+        // included: the announcement carries the picture, and one uploaded afterwards misses
+        // the e-mail by a few milliseconds.
+        bundleService.announceIfNew(bundleId);
 
         return getGrid(bundleId);
     }

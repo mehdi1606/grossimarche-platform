@@ -15,4 +15,19 @@ public interface StorageService {
      * @param originalFilename the client filename - used only to derive an extension
      */
     String store(byte[] content, String contentType, String originalFilename);
+
+    /**
+     * Read back a file this service stored, by the URL it returned.
+     *
+     * Exists for e-mail. A mail client fetches pictures over the public internet, and a shop
+     * reachable only at localhost has no such address - so an offer's photo has to travel
+     * inside the message instead of being linked. Empty when the URL is not one of ours, the
+     * file is gone, or it cannot be read: an announcement must still go out without its
+     * picture.
+     */
+    java.util.Optional<StoredFile> read(String publicUrl);
+
+    /** A stored file's bytes, with the type to declare when serving or attaching them. */
+    record StoredFile(byte[] content, String contentType) {
+    }
 }

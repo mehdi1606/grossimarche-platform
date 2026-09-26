@@ -4,6 +4,7 @@ import com.grossimarche.dto.bundle.BundleItemRequest;
 import com.grossimarche.dto.bundle.BundleItemResponse;
 import com.grossimarche.dto.bundle.BundleRequest;
 import com.grossimarche.dto.bundle.BundleResponse;
+import com.grossimarche.dto.review.ProductRating;
 import com.grossimarche.entity.Bundle;
 import com.grossimarche.entity.BundleItem;
 import com.grossimarche.entity.BundleTypePrice;
@@ -18,6 +19,7 @@ import com.grossimarche.integration.storage.StorageService;
 import com.grossimarche.repository.BundleRepository;
 import com.grossimarche.repository.BundleTypePriceRepository;
 import com.grossimarche.repository.ProductRepository;
+import com.grossimarche.repository.ProductReviewRepository;
 import com.grossimarche.repository.ProductTypePriceRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -65,6 +67,7 @@ public class BundleService {
     private final StorageProperties storageProperties;
     private final ApplicationEventPublisher events;
     private final CatalogueTranslator catalogueTranslator;
+    private final ProductReviewRepository reviewRepository;
 
     public BundleService(BundleRepository bundleRepository, ProductRepository productRepository,
                          CatalogueViewer catalogueViewer, PricingService pricingService,
@@ -72,7 +75,9 @@ public class BundleService {
                          ProductTypePriceRepository productPriceRepository,
                          StorageService storageService, StorageProperties storageProperties,
                          ApplicationEventPublisher events,
-                         CatalogueTranslator catalogueTranslator) {
+                         CatalogueTranslator catalogueTranslator,
+                         ProductReviewRepository reviewRepository) {
+        this.reviewRepository = reviewRepository;
         this.bundleRepository = bundleRepository;
         this.catalogueViewer = catalogueViewer;
         this.pricingService = pricingService;
@@ -209,12 +214,16 @@ public class BundleService {
     }
 
     /**
-     * Announce an offer to customers by e-mail.
+     * Announce an offer to the customers it is actually sold to.
      *
      * Deliberately a separate, explicit action rather than a side effect of saving: an offer is
      * edited several times before it is right, and every save must not become a mailshot.
      *
-     * @return the event, so the caller can report how many customers were contacted
+     * The announcement follows the price grid: a bundle is priced per trade, so only the trades
+     * it carries a price for are written to. It used to go to every active customer, which meant
+     * most recipients opened an offer page that had nothing on sale to them.
+     *
+     * @return the offer as the back-office shows it
      */
     @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
     @Transactional
@@ -224,10 +233,127 @@ public class BundleService {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED,
                     "Cette offre n'est pas active : activez-la avant de l'annoncer.");
         }
+
+        List<BundleTypePrice> priced = bundlePriceRepository.findByBundleId(bundle.getId());
+        if (priced.isEmpty()) {
+            // Nobody can buy it, so there is nobody to tell.
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Cette offre n'a aucun prix : choisissez un type d'activité et fixez son "
+                            + "prix avant de l'annoncer.");
+        }
+        // A price on the bundle is not enough: the offer is only buyable by a trade that can
+        // also buy every product inside it (see render(), where one unpriced component makes
+        // the whole set unavailable). Announcing to such a trade would send them to an offer
+        // the storefront shows as impossible to order.
+        List<BundleTypePrice> sellable = priced.stream()
+                .filter(row -> fullyPricedFor(bundle, row.getClientType().getId()))
+                .toList();
+        if (sellable.isEmpty()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                    "Les produits de ce panier n'ont pas tous un prix pour le type d'activité "
+                            + "choisi : complétez la grille tarifaire avant de l'annoncer.");
+        }
+        return publish(bundle, sellable);
+    }
+
+    /**
+     * Announce an offer by itself, the first time it becomes sellable.
+     *
+     * Called when the price grid is saved, which is the moment a bundle stops being a draft:
+     * before it, there is no price and no audience to write to. An offer used to sit live and
+     * silent unless someone thought to press "Annoncer", so new baskets reached nobody.
+     *
+     * Silent about everything it cannot do - already announced, still inactive, not priced for
+     * a trade that can buy it. None of those is a reason to fail the save the operator asked
+     * for; the manual button is there to say why, out loud, when they want it.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','STORE_MANAGER')")
+    @Transactional
+    public void announceIfNew(UUID id) {
+        Bundle bundle = bundleRepository.findByIdWithItems(id).orElse(null);
+        if (bundle == null || bundle.getAnnouncedAt() != null
+                || !bundle.isAvailableAt(Instant.now())) {
+            return;
+        }
+        List<BundleTypePrice> sellable = bundlePriceRepository.findByBundleId(id).stream()
+                .filter(row -> fullyPricedFor(bundle, row.getClientType().getId()))
+                .toList();
+        if (!sellable.isEmpty()) {
+            publish(bundle, sellable);
+        }
+    }
+
+    /**
+     * Stamp the offer as announced and hand the mail layer everything it needs.
+     *
+     * The stamp is written inside the same transaction as the event, so an announcement that
+     * rolls back is not recorded - and the listener only fires AFTER_COMMIT, so one that is
+     * recorded really was sent for.
+     */
+    private BundleResponse publish(Bundle bundle, List<BundleTypePrice> sellable) {
+        List<UUID> segments = sellable.stream()
+                .map(row -> row.getClientType().getId())
+                .distinct()
+                .toList();
+        String audience = sellable.stream()
+                .map(row -> row.getClientType().getName())
+                .distinct()
+                .collect(Collectors.joining(", "));
+
         BundleResponse response = toAdminResponse(bundle);
+        bundle.setAnnouncedAt(Instant.now());
         events.publishEvent(new BundleAnnouncedEvent(bundle.getId(), bundle.getName(),
-                bundle.getSlug(), response.price(), response.savings()));
+                bundle.getSlug(), response.price(), response.savings(), segments, audience,
+                announcedItems(response)));
         return response;
+    }
+
+    /**
+     * The basket's contents as the announcement shows them: already priced for the trade it is
+     * sold to, and carrying what customers think of each product.
+     *
+     * Ratings are fetched for the whole basket in one query. Asking per product would be two
+     * round trips a line, on a path that already runs after the transaction that mattered.
+     */
+    private List<BundleAnnouncedEvent.Item> announcedItems(BundleResponse response) {
+        List<BundleItemResponse> items = response.items();
+        if (items.isEmpty()) {
+            return List.of();
+        }
+        Map<UUID, ProductRating> ratings = reviewRepository
+                .ratingsFor(items.stream().map(BundleItemResponse::productId).toList())
+                .stream()
+                .collect(Collectors.toMap(ProductRating::productId, r -> r));
+
+        return items.stream()
+                .map(item -> {
+                    ProductRating rating = ratings.get(item.productId());
+                    return new BundleAnnouncedEvent.Item(
+                            item.name(), item.imageUrl(), item.unit(), item.quantity(),
+                            item.unitPrice(), item.lineTotal(),
+                            rating == null ? 0d : rating.average(),
+                            rating == null ? 0L : rating.count());
+                })
+                .toList();
+    }
+
+    /**
+     * Can this trade buy every product in the basket?
+     *
+     * Same resolution the storefront uses, quantity ladder included: a component priced only
+     * from 10 units up is not "priced" for a basket that takes 3 of it.
+     */
+    private boolean fullyPricedFor(Bundle bundle, UUID clientTypeId) {
+        Map<UUID, List<ProductTypePrice>> ladders = productPriceRepository
+                .findForProductsAndType(
+                        bundle.getItems().stream().map(i -> i.getProduct().getId()).toList(),
+                        clientTypeId)
+                .stream()
+                .collect(Collectors.groupingBy(row -> row.getProduct().getId()));
+
+        return bundle.getItems().stream().allMatch(item -> pricingService
+                .resolveTypeUnitPrice(ladders.get(item.getProduct().getId()), item.getQuantity())
+                .isPresent());
     }
 
     // ---- Pricing -----------------------------------------------------------------------
