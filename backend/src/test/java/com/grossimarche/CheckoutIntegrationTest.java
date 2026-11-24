@@ -49,7 +49,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * idempotency, concurrent checkout on the last unit, price snapshots, and horizontal
  * authorization (a user cannot read another user's order).
  */
-@SpringBootTest
+// The programme is off by default; these tests check its rules, so they switch it on.
+@SpringBootTest(properties = "grossimarche.loyalty.enabled=true")
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
 class CheckoutIntegrationTest {

@@ -49,6 +49,9 @@ public class LoyaltyService {
     /** Award points for an order subtotal (delivery excluded). Returns the points earned. */
     @Transactional
     public int award(UUID userId, UUID orderId, BigDecimal subtotal) {
+        if (!props.enabled()) {
+            return 0; // no loyalty programme: nothing earned (see LoyaltyProperties)
+        }
         LoyaltyAccount account = account(userId);
         int basePoints = subtotal.divide(BigDecimal.valueOf(props.madPerPoint()), 0, RoundingMode.DOWN)
                 .intValueExact();

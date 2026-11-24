@@ -111,6 +111,14 @@ grossimarche:
       benslimane: 30.00
   api:
     public-url: ${API_PUBLIC_URL:http://localhost:8080}
+  # The PDF invoice (see InvoiceProperties). Legal identifiers are printed only when set; the
+  # TVA rate used for the HT/TVA breakdown is for the accountant to confirm (0 = no breakdown).
+  invoice:
+    ice: ${INVOICE_ICE:}
+    rc: ${INVOICE_RC:}
+    fiscal-id: ${INVOICE_IF:}
+    patente: ${INVOICE_PATENTE:}
+    vat-rate: ${INVOICE_VAT_RATE:20}
   # Where the back-office lives. Used for the "se connecter" link in the staff invitation email.
   admin-url: ${ADMIN_URL:http://localhost:4100}
   # Where the storefront lives. Used for the tracking and offer links in customer e-mails.
@@ -148,6 +156,11 @@ grossimarche:
     # volume and at a relative URL, so the gateway serves the files same-origin at /files/.
     directory: ${STORAGE_DIRECTORY:./data/uploads}
     public-base-url: ${STORAGE_PUBLIC_BASE_URL:http://localhost:8080/files}
+  push:
+    # Firebase service-account key, as raw JSON or base64. Empty = notifications are written
+    # to the log and nothing leaves the server, so the platform runs without a Google project.
+    # NEVER commit this value: it is a credential, like the SMTP password.
+    credentials: ${FIREBASE_CREDENTIALS:}
   otp:
     # 'logging' writes the code to the DEBUG log (dev); 'live' uses the HTTP providers;
     # 'smtp' sends e-mail codes through spring.mail.* (SMS stays on the log).

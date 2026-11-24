@@ -4,9 +4,11 @@ import com.grossimarche.dto.auth.ChangePasswordRequest;
 import com.grossimarche.dto.auth.OtpRequestRequest;
 import com.grossimarche.dto.auth.OtpRequestResponse;
 import com.grossimarche.dto.auth.OtpVerifyRequest;
+import com.grossimarche.dto.device.DeviceRegistrationRequest;
 import com.grossimarche.dto.user.UpdateProfileRequest;
 import com.grossimarche.dto.user.UserResponse;
 import com.grossimarche.security.SecurityUtils;
+import com.grossimarche.service.DeviceService;
 import com.grossimarche.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -28,9 +30,31 @@ import java.util.Map;
 public class MeController {
 
     private final ProfileService profileService;
+    private final DeviceService deviceService;
 
-    public MeController(ProfileService profileService) {
+    public MeController(ProfileService profileService, DeviceService deviceService) {
         this.profileService = profileService;
+        this.deviceService = deviceService;
+    }
+
+    /**
+     * Register this device for push notifications.
+     *
+     * Called by the mobile app at every start, not only at first sign-in: a Firebase token
+     * rotates on its own after a reinstall or a restored backup, and a device that stops
+     * re-registering simply stops being told anything.
+     */
+    @PostMapping("/devices")
+    public ResponseEntity<Void> registerDevice(@Valid @RequestBody DeviceRegistrationRequest body) {
+        deviceService.register(SecurityUtils.currentUserId(), body);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Forget this device at sign-out, so a shared phone stops ringing for the last account. */
+    @DeleteMapping("/devices")
+    public ResponseEntity<Void> forgetDevice(@Valid @RequestBody DeviceRegistrationRequest body) {
+        deviceService.forget(body.token());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -54,7 +78,7 @@ public class MeController {
         return profileService.exportMe(SecurityUtils.currentUserId());
     }
 
-    /** Change one's own back-office password (staff accounts only). */
+    /** Change one's own password (customers and staff alike). */
     @PostMapping("/password")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest body) {
         profileService.changePassword(SecurityUtils.currentUserId(), body.currentPassword(),

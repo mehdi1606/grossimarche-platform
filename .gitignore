@@ -1,4 +1,30 @@
 # Local compose configuration and secrets - never commit. Use .env.example as the template.
-
+#
+# These patterns were once deleted from this file, leaving only the exception below. The two
+# env files were tracked and pushed to a public repository as a result, and the SMTP password
+# in them was revoked by its provider. They are back, explicitly.
+.env
+.env.*
 !.env.example
-                                                             
+
+# Signing material. Losing an Android keystore means never being able to update the published
+# app again; leaking one means anyone can sign an app as Market Food.
+*.jks
+*.keystore
+key.properties
+# Firebase service-account keys, whatever they are named.
+*-firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec

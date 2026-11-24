@@ -1,0 +1,81 @@
+name: Mobile
+
+# The iOS job is the point of this file.
+#
+# Nothing is published for iOS yet, and may not be for months. But a platform folder that
+# nobody compiles rots quietly - a plugin without an iOS implementation, a setting that drifts,
+# a Podfile that stops resolving - and the day iOS is wanted it is no longer a build, it is an
+# excavation. Compiling it on every push keeps that day cheap.
+#
+# It also compiles iOS from a Windows machine, which is otherwise impossible: Xcode runs only
+# on macOS, and this is the macOS runner that stands in for the Mac the developer does not own.
+
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.44.2'
+
+jobs:
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # --no-fatal-infos on purpose: `flutter analyze` fails on style hints as well as on real
+      # problems, and one of ours cannot be satisfied at all (its fix would create a named
+      # parameter beginning with an underscore, which Dart forbids). Errors and warnings still
+      # fail the build.
+      - run: flutter analyze --no-fatal-infos
+
+      - run: flutter test
+
+      # No API address baked in here: a CI build is never installed on anyone's phone, and a
+      # real build passes --dart-define=API_BASE_URL=https://<domain>.
+      - run: flutter build apk --debug
+
+  ios:
+    name: iOS (compile only)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # --no-codesign: there is no Apple account, no certificate and no provisioning profile
+      # yet, and none is needed to prove the project still builds. Signing arrives with the
+      # first TestFlight upload, not before.
+      - run: flutter build ios --debug --no-codesign

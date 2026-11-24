@@ -9,9 +9,14 @@ import java.math.BigDecimal;
 /**
  * Loyalty rules, config-driven so they can be tuned without a redeploy: earn rate, tier
  * thresholds (by lifetime points) and per-tier earn multipliers.
+ *
+ * {@code enabled} is off: Market Food does not run a loyalty programme, and points nobody can
+ * see or spend only confuse. Switched off, no order earns points; the ledger, the tables and
+ * the rules stay, so turning it back on is a configuration change, not a rebuild.
  */
 @ConfigurationProperties(prefix = "grossimarche.loyalty")
 public record LoyaltyProperties(
+        @DefaultValue("false") boolean enabled,
         @DefaultValue("10") int madPerPoint,
         @DefaultValue("500") int argentThreshold,
         @DefaultValue("2000") int orThreshold,

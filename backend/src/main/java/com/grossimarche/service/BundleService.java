@@ -15,6 +15,7 @@ import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.config.StorageProperties;
+import com.grossimarche.integration.storage.PublicMedia;
 import com.grossimarche.integration.storage.StorageService;
 import com.grossimarche.repository.BundleRepository;
 import com.grossimarche.repository.BundleTypePriceRepository;
@@ -68,6 +69,7 @@ public class BundleService {
     private final ApplicationEventPublisher events;
     private final CatalogueTranslator catalogueTranslator;
     private final ProductReviewRepository reviewRepository;
+    private final PublicMedia media;
 
     public BundleService(BundleRepository bundleRepository, ProductRepository productRepository,
                          CatalogueViewer catalogueViewer, PricingService pricingService,
@@ -76,8 +78,10 @@ public class BundleService {
                          StorageService storageService, StorageProperties storageProperties,
                          ApplicationEventPublisher events,
                          CatalogueTranslator catalogueTranslator,
-                         ProductReviewRepository reviewRepository) {
+                         ProductReviewRepository reviewRepository,
+                         PublicMedia media) {
         this.reviewRepository = reviewRepository;
+        this.media = media;
         this.bundleRepository = bundleRepository;
         this.catalogueViewer = catalogueViewer;
         this.pricingService = pricingService;
@@ -137,7 +141,7 @@ public class BundleService {
                 .slug(uniqueSlug(req.name(), null))
                 .description(trimToNull(req.description()))
                 .descriptionAr(arabic[1])
-                .imageUrl(trimToNull(req.imageUrl()))
+                .imageUrl(media.stored(trimToNull(req.imageUrl())))
                 .price(req.price())
                 .active(req.active() == null || req.active())
                 .startsAt(req.startsAt())
@@ -169,7 +173,7 @@ public class BundleService {
         bundle.setNameAr(arabic[0]);
         bundle.setDescription(trimToNull(req.description()));
         bundle.setDescriptionAr(arabic[1]);
-        bundle.setImageUrl(trimToNull(req.imageUrl()));
+        bundle.setImageUrl(media.stored(trimToNull(req.imageUrl())));
         bundle.setPrice(req.price());
         if (req.active() != null) {
             bundle.setActive(req.active());
@@ -595,7 +599,7 @@ public class BundleService {
             }
 
             items.add(new BundleItemResponse(product.getId(), product.getName(), product.getSlug(),
-                    product.getUnit(), product.getImageUrl(), item.getQuantity(),
+                    product.getUnit(), media.url(product.getImageUrl()), item.getQuantity(),
                     unit, lineTotal, product.getStockQuantity(), inStock));
         }
 
@@ -618,7 +622,7 @@ public class BundleService {
 
         return new BundleResponse(bundle.getId(), bundle.getName(), bundle.getNameAr(),
                 bundle.getSlug(), bundle.getDescription(), bundle.getDescriptionAr(),
-                bundle.getImageUrl(), clientTypeName, price,
+                media.url(bundle.getImageUrl()), clientTypeName, price,
                 componentsTotal, savings, savingsPercent, bundle.isActive(),
                 available && bundle.isAvailableAt(Instant.now()),
                 bundle.getStartsAt(), bundle.getEndsAt(), items, bundle.getCreatedAt());

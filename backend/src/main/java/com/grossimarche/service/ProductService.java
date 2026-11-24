@@ -74,6 +74,7 @@ public class ProductService {
     private final ProductTypePriceRepository typePriceRepository;
     private final PricingService pricingService;
     private final CatalogueTranslator catalogueTranslator;
+    private final com.grossimarche.integration.storage.PublicMedia media;
 
     public ProductService(ProductRepository productRepository,
                           ProductPriceTierRepository priceTierRepository,
@@ -85,7 +86,9 @@ public class ProductService {
                           ApplicationEventPublisher events, CatalogueViewer catalogueViewer,
                           ProductTypePriceRepository typePriceRepository,
                           PricingService pricingService,
-                          CatalogueTranslator catalogueTranslator) {
+                          CatalogueTranslator catalogueTranslator,
+                          com.grossimarche.integration.storage.PublicMedia media) {
+        this.media = media;
         this.productRepository = productRepository;
         this.priceTierRepository = priceTierRepository;
         this.attributeRepository = attributeRepository;
@@ -261,7 +264,8 @@ public class ProductService {
                 .category(category).name(req.name()).nameAr(arabic[0])
                 .slug(req.slug()).description(req.description()).descriptionAr(arabic[1])
                 .price(req.price()).unit(req.unit()).stockQuantity(req.stockQuantity())
-                .minOrderQuantity(req.minOrderQuantity()).imageUrl(req.imageUrl()).active(req.active())
+                .minOrderQuantity(req.minOrderQuantity())
+                .imageUrl(media.stored(req.imageUrl())).active(req.active())
                 .build();
         product = productRepository.save(product);
         return productMapper.toDetail(product, List.of(), List.of(), 0.0, 0);
@@ -294,7 +298,7 @@ public class ProductService {
         product.setUnit(req.unit());
         product.setStockQuantity(req.stockQuantity());
         product.setMinOrderQuantity(req.minOrderQuantity());
-        product.setImageUrl(req.imageUrl());
+        product.setImageUrl(media.stored(req.imageUrl()));
         product.setActive(req.active());
         List<ProductPriceTier> tiers = priceTierRepository.findByProductIdOrderByMinQuantityAsc(id);
         return productMapper.toDetail(product, productMapper.toTiers(tiers), loadAttributes(id),

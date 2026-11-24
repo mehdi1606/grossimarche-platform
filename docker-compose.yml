@@ -83,6 +83,10 @@ services:
       # Same values under the names the 'prod' profile expects.
       DB_URL: jdbc:postgresql://postgres:5432/grossimarche
       DB_USERNAME: grossimarche
+      # The 'prod' profile reads DB_PASSWORD with no default of its own. Without this line the
+      # backend refuses to start the moment the profile is switched - the password was only
+      # ever passed under its Spring name above, which 'prod' does not read.
+      DB_PASSWORD: ${DB_PASSWORD:-grossimarche}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-}
@@ -105,6 +109,13 @@ services:
       ADMIN_URL: ${ADMIN_URL:-http://localhost/admin}
       # The storefront, for the tracking and offer links in customer e-mails.
       STORE_URL: ${STORE_URL:-http://localhost}
+      # Legal identifiers printed on PDF invoices (only when set) and the TVA rate used for the
+      # HT/TVA breakdown - see InvoiceProperties. Leave empty until the real numbers are known.
+      INVOICE_ICE: ${INVOICE_ICE:-}
+      INVOICE_RC: ${INVOICE_RC:-}
+      INVOICE_IF: ${INVOICE_IF:-}
+      INVOICE_PATENTE: ${INVOICE_PATENTE:-}
+      INVOICE_VAT_RATE: ${INVOICE_VAT_RATE:-20}
       # First back-office account, created on startup so a fresh database is never locked out.
       # Override BOOTSTRAP_ADMIN_PASSWORD in the root .env before exposing this deployment.
       BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-true}
@@ -115,6 +126,9 @@ services:
       # gateway at /files/ (so the stored URL is relative and works from any host).
       STORAGE_DIRECTORY: /app/data/uploads
       STORAGE_PUBLIC_BASE_URL: /files
+      # Push notifications to the mobile app. Empty = nothing is sent, only logged, and the
+      # platform runs exactly as before. Set it in .env / .env.local, never here.
+      FIREBASE_CREDENTIALS: ${FIREBASE_CREDENTIALS:-}
       # Machine translation (LibreTranslate). Best-effort - source text is returned if it's down.
       GROSSIMARCHE_TRANSLATION_ENABLED: ${TRANSLATION_ENABLED:-true}
       GROSSIMARCHE_TRANSLATION_URL: http://libretranslate:5000

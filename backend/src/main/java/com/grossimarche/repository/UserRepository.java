@@ -73,6 +73,18 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<String> findActiveClientEmailsByClientTypes(Collection<UUID> clientTypeIds);
 
     /**
+     * The same customers, by id rather than by address - what the push layer needs, since a
+     * notification is addressed to a device and a customer may have no e-mail at all.
+     */
+    @Query("""
+            select u.id from User u
+            where u.role = com.grossimarche.entity.enums.Role.CLIENT
+              and u.status = com.grossimarche.entity.enums.UserStatus.ACTIVE
+              and u.clientType.id in :clientTypeIds
+            """)
+    List<UUID> findActiveClientIdsByClientTypes(Collection<UUID> clientTypeIds);
+
+    /**
      * Customers filtered by role, optionally matching a free-text query on name/phone/email.
      * {@code q} is always a non-null string ("" = no filter); a null bind would be typed as
      * bytea by PostgreSQL and blow up {@code lower(...)}.

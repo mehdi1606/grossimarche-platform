@@ -134,6 +134,15 @@
             <version>3.0.3</version>
         </dependency>
 
+        <!-- Push notifications to the mobile app. The Firebase Admin SDK handles the OAuth
+             dance against Google's servers; it is only loaded when credentials are set, and
+             the platform runs without it (see integration/push). -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.11.0</version>
+        </dependency>
+
         <!-- Observability -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

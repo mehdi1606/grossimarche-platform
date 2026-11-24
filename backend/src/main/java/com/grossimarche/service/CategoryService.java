@@ -10,6 +10,7 @@ import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ConflictException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.ResourceNotFoundException;
+import com.grossimarche.integration.storage.PublicMedia;
 import com.grossimarche.integration.storage.StorageService;
 import com.grossimarche.repository.CategoryRepository;
 import com.grossimarche.repository.ProductRepository;
@@ -39,6 +40,7 @@ public class CategoryService {
     private final CatalogueTranslator catalogueTranslator;
     private final StorageService storageService;
     private final StorageProperties storageProperties;
+    private final PublicMedia media;
 
     /** What a browser can actually display, and what the storage layer is willing to keep. */
     private static final Set<String> ALLOWED_IMAGE_TYPES =
@@ -50,7 +52,9 @@ public class CategoryService {
                            CategoryMapper categoryMapper,
                            CatalogueTranslator catalogueTranslator,
                            StorageService storageService,
-                           StorageProperties storageProperties) {
+                           StorageProperties storageProperties,
+                           PublicMedia media) {
+        this.media = media;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.typePriceRepository = typePriceRepository;
@@ -120,7 +124,7 @@ public class CategoryService {
         Category category = Category.builder()
                 // Translated once here, not on every Arabic page view - see CatalogueTranslator.
                 .name(req.name()).nameAr(catalogueTranslator.arabicFor(req.name(), req.nameAr()))
-                .slug(req.slug()).icon(req.icon()).imageUrl(req.imageUrl())
+                .slug(req.slug()).icon(req.icon()).imageUrl(media.stored(req.imageUrl()))
                 .displayOrder(req.displayOrder()).active(req.active())
                 .build();
         return categoryMapper.toResponse(categoryRepository.save(category), 0);
@@ -141,7 +145,7 @@ public class CategoryService {
         category.setNameAr(catalogueTranslator.arabicFor(req.name(), keep));
         category.setSlug(req.slug());
         category.setIcon(req.icon());
-        category.setImageUrl(req.imageUrl());
+        category.setImageUrl(media.stored(req.imageUrl()));
         category.setDisplayOrder(req.displayOrder());
         category.setActive(req.active());
         long count = productRepository.countByCategoryIdAndActiveTrue(id);

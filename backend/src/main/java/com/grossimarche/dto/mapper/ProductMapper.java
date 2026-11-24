@@ -8,6 +8,7 @@ import com.grossimarche.dto.catalog.ProductSummaryResponse;
 import com.grossimarche.entity.Product;
 import com.grossimarche.entity.ProductAttribute;
 import com.grossimarche.entity.ProductPriceTier;
+import com.grossimarche.integration.storage.PublicMedia;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,11 +22,17 @@ import java.util.List;
 @Component
 public class ProductMapper {
 
+    private final PublicMedia media;
+
+    public ProductMapper(PublicMedia media) {
+        this.media = media;
+    }
+
     public ProductSummaryResponse toSummary(Product product, boolean inStock,
                                             List<PriceTierResponse> priceTiers) {
         return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(),
-                product.getPrice(), product.getUnit(), product.getImageUrl(), inStock,
+                product.getPrice(), product.getUnit(), media.url(product.getImageUrl()), inStock,
                 priceTiers != null && !priceTiers.isEmpty(),
                 priceTiers == null ? List.of() : priceTiers,
                 product.getMinOrderQuantity());
@@ -43,7 +50,7 @@ public class ProductMapper {
                                             java.math.BigDecimal entryPrice, int minQuantity) {
         return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(),
-                entryPrice, product.getUnit(), product.getImageUrl(), inStock,
+                entryPrice, product.getUnit(), media.url(product.getImageUrl()), inStock,
                 priceTiers != null && priceTiers.size() > 1,
                 priceTiers == null ? List.of() : priceTiers,
                 minQuantity);
@@ -60,7 +67,7 @@ public class ProductMapper {
     public ProductSummaryResponse toPricelessSummary(Product product, boolean inStock) {
         return new ProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(),
-                null, product.getUnit(), product.getImageUrl(), inStock, false, List.of(),
+                null, product.getUnit(), media.url(product.getImageUrl()), inStock, false, List.of(),
                 Math.max(product.getMinOrderQuantity(), 1));
     }
 
@@ -68,7 +75,7 @@ public class ProductMapper {
     public AdminProductSummaryResponse toAdminSummary(Product product) {
         return new AdminProductSummaryResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(),
-                product.getDescription(), product.getPrice(), product.getUnit(), product.getImageUrl(),
+                product.getDescription(), product.getPrice(), product.getUnit(), media.url(product.getImageUrl()),
                 product.getStockQuantity(), product.getMinOrderQuantity(), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName());
     }
@@ -78,7 +85,7 @@ public class ProductMapper {
                                           double averageRating, long reviewCount) {
         return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(), product.getDescription(), product.getDescriptionAr(), product.getPrice(), product.getUnit(), product.getStockQuantity(),
-                product.getMinOrderQuantity(), product.getImageUrl(), product.isActive(),
+                product.getMinOrderQuantity(), media.url(product.getImageUrl()), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
                 averageRating, reviewCount);
     }
@@ -90,7 +97,7 @@ public class ProductMapper {
                                           java.math.BigDecimal entryPrice, int minQuantity) {
         return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(), product.getDescription(), product.getDescriptionAr(), entryPrice, product.getUnit(), product.getStockQuantity(),
-                minQuantity, product.getImageUrl(), product.isActive(),
+                minQuantity, media.url(product.getImageUrl()), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), priceTiers, attributes,
                 averageRating, reviewCount);
     }
@@ -101,7 +108,7 @@ public class ProductMapper {
                                                    double averageRating, long reviewCount) {
         return new ProductDetailResponse(product.getId(), product.getName(), product.getNameAr(),
                 product.getSlug(), product.getDescription(), product.getDescriptionAr(), null, product.getUnit(), product.getStockQuantity(),
-                Math.max(product.getMinOrderQuantity(), 1), product.getImageUrl(), product.isActive(),
+                Math.max(product.getMinOrderQuantity(), 1), media.url(product.getImageUrl()), product.isActive(),
                 product.getCategory().getId(), product.getCategory().getName(), List.of(), attributes,
                 averageRating, reviewCount);
     }

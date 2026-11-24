@@ -78,6 +78,15 @@ const CustomerServices = {
     return requests.patch("/me", body);
   },
 
+  /**
+   * Change the password while signed in. The page called this for a long time without it
+   * existing, so every attempt failed with a script error. The current password is checked by
+   * the server; it answers 204 with no body on success.
+   */
+  changePassword: async ({ currentPassword, newPassword }) => {
+    return requests.post("/me/password", { currentPassword, newPassword });
+  },
+
   getShippingAddress: async () => {
     return requests.get("/me/addresses");
   },

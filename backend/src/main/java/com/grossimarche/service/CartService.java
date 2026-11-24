@@ -6,6 +6,7 @@ import com.grossimarche.dto.cart.GuestCartItem;
 import com.grossimarche.entity.Cart;
 import com.grossimarche.entity.CartItem;
 import com.grossimarche.entity.Product;
+import com.grossimarche.integration.storage.PublicMedia;
 import com.grossimarche.exception.BusinessException;
 import com.grossimarche.exception.ErrorCode;
 import com.grossimarche.exception.InsufficientStockException;
@@ -35,17 +36,20 @@ public class CartService {
     private final SegmentPricingService segmentPricing;
     private final PricingService pricingService;
     private final UserRepository userRepository;
+    private final PublicMedia media;
 
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
                        ProductRepository productRepository,
                        SegmentPricingService segmentPricing,
-                       PricingService pricingService, UserRepository userRepository) {
+                       PricingService pricingService, UserRepository userRepository,
+                       PublicMedia media) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.segmentPricing = segmentPricing;
         this.pricingService = pricingService;
         this.userRepository = userRepository;
+        this.media = media;
     }
 
     @Transactional
@@ -148,7 +152,8 @@ public class CartService {
             BigDecimal lineTotal = pricingService.lineTotal(effective, item.getQuantity());
             boolean stockIssue = item.getQuantity() > product.getStockQuantity();
             lines.add(new CartItemResponse(product.getId(), product.getName(), product.getUnit(),
-                    product.getImageUrl(), item.getQuantity(), pricingService.money(base), effective,
+                    media.url(product.getImageUrl()), item.getQuantity(),
+                    pricingService.money(base), effective,
                     lineTotal, product.getStockQuantity(), false, stockIssue));
             pricingLines.add(new PricingService.LinePricing(base, effective, item.getQuantity()));
         }

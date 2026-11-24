@@ -14,6 +14,7 @@ import com.grossimarche.exception.ResourceNotFoundException;
 import com.grossimarche.repository.AddressRepository;
 import com.grossimarche.repository.CartItemRepository;
 import com.grossimarche.repository.CartRepository;
+import com.grossimarche.repository.DeviceTokenRepository;
 import com.grossimarche.repository.LoyaltyAccountRepository;
 import com.grossimarche.repository.OrderRepository;
 import com.grossimarche.repository.UserRepository;
@@ -41,12 +42,15 @@ public class ProfileService {
     private final OtpService otpService;
     private final AuditService auditService;
     private final StaffPasswordService staffPasswordService;
+    private final DeviceTokenRepository deviceTokenRepository;
 
     public ProfileService(UserRepository userRepository, AddressRepository addressRepository,
                           OrderRepository orderRepository, LoyaltyAccountRepository loyaltyAccountRepository,
                           CartRepository cartRepository, CartItemRepository cartItemRepository,
                           OtpService otpService, AuditService auditService,
-                          StaffPasswordService staffPasswordService) {
+                          StaffPasswordService staffPasswordService,
+                          DeviceTokenRepository deviceTokenRepository) {
+        this.deviceTokenRepository = deviceTokenRepository;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.orderRepository = orderRepository;
@@ -66,18 +70,36 @@ public class ProfileService {
     @Transactional
     public UserResponse updateProfile(UUID userId, UpdateProfileRequest req) {
         User user = user(userId);
-        if (req.fullName() != null) {
-            user.setFullName(req.fullName());
+        if (req.fullName() != null && !req.fullName().isBlank()) {
+            user.setFullName(req.fullName().trim());
+        }
+        if (req.businessName() != null && !req.businessName().isBlank()) {
+            user.setBusinessName(req.businessName().trim());
+        }
+        if (req.phone() != null) {
+            String phone = req.phone().trim();
+            if (phone.chars().filter(Character::isDigit).count() < 9) {
+                throw new BusinessException(ErrorCode.VALIDATION_FAILED,
+                        "Numéro de téléphone invalide.");
+            }
+            if (!phone.equals(user.getPhone())) {
+                userRepository.findByPhone(phone).filter(u -> !u.getId().equals(userId))
+                        .ifPresent(u -> {
+                            throw new ConflictException("Ce numéro est déjà utilisé.");
+                        });
+                user.setPhone(phone);
+                user.setPhoneVerified(false);
+            }
         }
         return toResponse(user);
     }
 
     /**
-     * Change one's own back-office password.
+     * Change one's own password - from the storefront, the mobile app or the back office.
      *
-     * Only meaningful for a staff account: a customer has no password to change, and is told
-     * so plainly rather than being handed a confusing validation error. The current password
-     * is verified first, so an unattended open session cannot be used to take the account.
+     * An account without a password (one created before passwords existed) is told so plainly
+     * rather than handed a confusing validation error. The current password is verified first,
+     * so an unattended open session cannot be used to take the account.
      */
     @Transactional
     public void changePassword(UUID userId, String currentPassword, String newPassword) {
@@ -140,6 +162,11 @@ public class ProfileService {
             cartRepository.delete(cart);
         });
         addressRepository.findByUserId(userId).forEach(addressRepository::delete);
+        // A device token identifies a phone, which makes it personal data like the rest. Left
+        // behind, the phone of an erased account would keep receiving notifications about an
+        // order still in progress. The row's ON DELETE CASCADE never fires here: the user is
+        // anonymised, not deleted, so the tokens have to go explicitly.
+        deviceTokenRepository.deleteByUserId(userId);
 
         user.setFullName(null);
         user.setPhone(null);

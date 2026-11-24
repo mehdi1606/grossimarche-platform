@@ -31,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * sequence of operations. Runs 100 random award/reverse/adjust operations and checks the
  * invariant after each.
  */
-@SpringBootTest
+// The programme is off by default; these tests check its rules, so they switch it on.
+@SpringBootTest(properties = "grossimarche.loyalty.enabled=true")
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
 class LoyaltyInvariantTest {

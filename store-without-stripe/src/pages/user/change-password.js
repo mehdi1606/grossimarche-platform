@@ -18,6 +18,7 @@ const ChangePassword = () => {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm();
   const [loading, setLoading] = useState(false);
@@ -26,21 +27,25 @@ const ChangePassword = () => {
   const { showingTranslateValue } = useUtilsFunction();
   const userInfo = getUserSession();
 
-  const onSubmit = async ({ email, currentPassword, newPassword }) => {
-    // return notifySuccess("This Feature is disabled for demo!");
-
+  const onSubmit = async ({ currentPassword, newPassword, confirmPassword }) => {
+    if (newPassword !== confirmPassword) {
+      notifyError("Les deux mots de passe ne correspondent pas.");
+      return;
+    }
     setLoading(true);
     try {
-      const res = await CustomerServices.changePassword({
-        email,
-        currentPassword,
-        newPassword,
-      });
-      notifySuccess(res.message);
-      setLoading(false);
+      await CustomerServices.changePassword({ currentPassword, newPassword });
+      notifySuccess("Mot de passe modifié.");
+      reset({ email: userInfo?.email, currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
+      // The server explains a refusal in French (wrong current password, same as before, too
+      // short); a network failure has no response to read.
+      notifyError(
+        error?.response?.data?.message ||
+          "Le mot de passe n'a pas pu être changé. Réessayez."
+      );
+    } finally {
       setLoading(false);
-      notifyError(error ? error.response.data.message : error.message);
     }
   };
 
@@ -89,7 +94,7 @@ const ChangePassword = () => {
                     )}
                     name="currentPassword"
                     type="password"
-                    autocomplete="new-password"
+                    autocomplete="current-password"
                     placeholder={showingTranslateValue(
                       storeCustomizationSetting?.dashboard?.current_password
                     )}
@@ -108,18 +113,24 @@ const ChangePassword = () => {
                     placeholder={showingTranslateValue(
                       storeCustomizationSetting?.dashboard?.new_password
                     )}
-                    pattern={
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/
-                    }
-                    patternMessage={[
-                      "1. Au moins 8 caractères.",
-                      "2. Au moins une majuscule.",
-                      "3. Au moins une minuscule.",
-                      "4. Au moins un chiffre.",
-                      "5. Au moins un caractère spécial.",
-                    ]}
+                    // The server's rule, not a stricter one of our own: at least 10
+                    // characters, mixing letters with digits or symbols. The old pattern
+                    // demanded 8 with capitals and symbols, so the page and the API disagreed.
+                    pattern={/^(?=.*\p{L})(?=.*[^\p{L}]).{10,}$/u}
+                    patternMessage="Au moins 10 caractères, avec des lettres et au moins un chiffre ou symbole."
                   />
                   <Error errorName={errors.newPassword} />
+                </div>
+                <div className="col-span-6 sm:col-span-6">
+                  <InputArea
+                    register={register}
+                    label="Confirmer le nouveau mot de passe"
+                    name="confirmPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Ressaisissez le nouveau mot de passe"
+                  />
+                  <Error errorName={errors.confirmPassword} />
                 </div>
               </div>
             </div>
