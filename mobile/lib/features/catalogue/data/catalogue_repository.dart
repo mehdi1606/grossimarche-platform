@@ -36,6 +36,10 @@ class CatalogueRepository {
   Future<Paged<ProductSummary>> products({
     String? categoryId,
     String? query,
+    ProductSort sort = ProductSort.newest,
+    double? minPrice,
+    double? maxPrice,
+    bool inStockOnly = false,
     int page = 0,
     int size = 20,
   }) async {
@@ -44,6 +48,13 @@ class CatalogueRepository {
       query: {
         'categoryId': ?categoryId,
         if (query != null && query.trim().length >= 2) 'q': query.trim(),
+        'minPrice': ?minPrice,
+        'maxPrice': ?maxPrice,
+        // Only ever sent as true: `inStock=false` would mean "show me what is out of stock",
+        // which is nobody's intention when the switch is off.
+        if (inStockOnly) 'inStock': true,
+        // The server's own default, so saying it would only make the URL longer.
+        if (sort != ProductSort.newest) 'sort': sort.api,
         'page': page,
         'size': size,
       },

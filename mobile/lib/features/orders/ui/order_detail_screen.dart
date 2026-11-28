@@ -206,15 +206,17 @@ class _BodyState extends ConsumerState<_Body> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(
-                    Icons.payments_outlined,
+                  Icon(
+                    o.paymentMethod == PaymentMethod.card
+                        ? Icons.credit_card
+                        : Icons.payments_outlined,
                     size: 18,
                     color: AppTheme.brassLight,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      l10n.cashOnDelivery,
+                      o.paymentMethod.text(l10n),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
@@ -231,6 +233,15 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                 ],
               ),
+              // Only when it says something the line above does not: an order already paid,
+              // a card payment still expected, a payment refused, a refund made.
+              if (o.paymentStatus.isWorthShowing) ...[
+                const SizedBox(height: 10),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: PaymentStatusChip(status: o.paymentStatus),
+                ),
+              ],
             ],
           ),
         ),
@@ -286,7 +297,14 @@ class _BodyState extends ConsumerState<_Body> {
             if (o.discountTotal > 0)
               _Amount(l10n.bundleDiscount, '- ${Money.of(o.discountTotal)}'),
             if (o.couponDiscount > 0)
-              _Amount(l10n.couponDiscount, '- ${Money.of(o.couponDiscount)}'),
+              _Amount(
+                // Which code earned it: the question a shopkeeper asks when the discount is
+                // not the one they were expecting.
+                o.couponCode == null
+                    ? l10n.couponDiscount
+                    : '${l10n.couponDiscount} · ${o.couponCode}',
+                '- ${Money.of(o.couponDiscount)}',
+              ),
             _Amount(
               l10n.delivery,
               o.deliveryFee > 0 ? Money.of(o.deliveryFee) : l10n.free,
@@ -295,7 +313,7 @@ class _BodyState extends ConsumerState<_Body> {
             _Amount(l10n.total, Money.of(o.total), big: true),
             const SizedBox(height: 2),
             Text(
-              l10n.cashOnDelivery,
+              o.paymentMethod.text(l10n),
               style: const TextStyle(fontSize: 12, color: AppTheme.muted),
             ),
           ],

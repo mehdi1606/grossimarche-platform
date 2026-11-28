@@ -344,5 +344,56 @@
   "profileUpdated": "Informations mises à jour.",
   "emailUpdated": "Adresse e-mail mise à jour.",
   "errSameEmail": "C'est déjà votre adresse e-mail.",
-  "tradeFieldLabel": "Activité"
+  "tradeFieldLabel": "Activité",
+  "filterSort": "Filtrer et trier",
+  "sortLabel": "Trier par",
+  "sortNewest": "Nouveautés",
+  "sortPriceAsc": "Prix croissant",
+  "sortPriceDesc": "Prix décroissant",
+  "sortName": "Nom (A-Z)",
+  "priceRange": "Fourchette de prix",
+  "priceMinLabel": "Prix minimum",
+  "priceMaxLabel": "Prix maximum",
+  "inStockOnly": "Produits en stock uniquement",
+  "filtersReset": "Réinitialiser",
+  "filtersApply": "Voir les résultats",
+  "productSpecs": "Caractéristiques",
+  "tierFromPrice": "dès {quantity} {unit} : {price}",
+  "@tierFromPrice": {
+    "description": "The best quantity-discount rung, on one line under a product card's price.",
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentCard": "Paiement par carte",
+  "paymentAwaiting": "En attente de paiement",
+  "paymentPaid": "Payée",
+  "paymentFailed": "Paiement échoué",
+  "paymentRefunded": "Remboursée",
+  "aboutTitle": "À propos",
+  "aboutHeroTitle": "Le marché de gros en ligne du Maroc",
+  "aboutHeroText": "Market Food approvisionne les commerçants, restaurateurs et professionnels du Maroc : des milliers de références de gros, des prix qui baissent avec la quantité, une livraison partout dans le pays et le paiement à la livraison.",
+  "aboutMissionTitle": "Notre mission",
+  "aboutMissionText": "Rendre l'approvisionnement en gros simple, transparent et accessible à tous les professionnels.",
+  "aboutHowTitle": "Comment ça marche",
+  "aboutWhoTitle": "À qui nous vendons",
+  "aboutWhoText": "Aux professionnels : épiceries, supérettes, restaurants, cafés, hôtels et revendeurs. Chaque compte est validé par notre équipe, et vos prix dépendent de votre activité.",
+  "aboutTiersTitle": "Des prix dégressifs",
+  "aboutTiersText": "Plus la quantité est grande, plus le prix unitaire baisse. Les paliers sont affichés sur la fiche de chaque produit, avant d'ajouter au panier.",
+  "aboutCodTitle": "Paiement à la livraison",
+  "aboutCodText": "Aucun paiement en ligne : vous réglez le montant de la commande au livreur, à la réception de la marchandise.",
+  "aboutDeliveryTitle": "Livraison partout au Maroc",
+  "aboutDeliveryText": "Nous livrons vos commandes dans tout le pays. Le délai dépend de votre ville et vous est communiqué à la commande ; chaque étape se suit dans l'onglet « Commandes ».",
+  "aboutTeamTitle": "Une équipe joignable",
+  "aboutTeamText": "Une question sur une commande, un produit ou un partenariat ? Notre équipe répond par téléphone, WhatsApp ou e-mail.",
+  "aboutContactTitle": "Besoin d'aide ?",
+  "aboutContactText": "Appelez-nous, écrivez-nous sur WhatsApp ou par e-mail."
 }

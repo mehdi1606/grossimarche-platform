@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/i18n/language.dart';
 import '../../../../core/i18n/tr_text.dart';
 import '../../../../core/theme.dart';
+import '../../../../shared/money.dart';
 import '../../../../shared/product_image.dart';
 import '../../../cart/ui/add_to_cart.dart';
 import '../../../cart/ui/cart_providers.dart';
@@ -34,6 +35,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
         ref,
         productId: widget.product.id,
         name: widget.product.name,
+        arabicName: widget.product.nameAr,
         minOrderQuantity: widget.product.minOrderQuantity,
       );
     } finally {
@@ -55,6 +57,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       ),
     );
     final canAdd = product.price != null && product.inStock;
+    final bestTier = product.bestTier;
 
     return Material(
       color: Colors.transparent,
@@ -129,6 +132,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   children: [
                     TrText(
                       product.name,
+                      arabic: product.nameAr,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -150,18 +154,26 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                                 price: product.price,
                                 unit: product.unit,
                               ),
-                              if (product.minOrderQuantity > 1)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    context.l10n.fromQuantity(
-                                      product.minOrderQuantity,
-                                      product.unit,
-                                    ),
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppTheme.muted,
-                                    ),
+                              // One line under the price, never two: the ladder's best rung
+                              // when there is a ladder - the number the "Dégressif" badge
+                              // promises - and otherwise the minimum to order. A buyer
+                              // deciding between two cards is served better by the price
+                              // they can reach than by a minimum they will meet anyway.
+                              if (bestTier != null)
+                                _Footnote(
+                                  context.l10n.tierFromPrice(
+                                    bestTier.minQuantity,
+                                    product.unit,
+                                    Money.of(bestTier.unitPrice),
+                                  ),
+                                  colour: AppTheme.brass,
+                                  weight: FontWeight.w600,
+                                )
+                              else if (product.minOrderQuantity > 1)
+                                _Footnote(
+                                  context.l10n.fromQuantity(
+                                    product.minOrderQuantity,
+                                    product.unit,
                                   ),
                                 ),
                             ],
@@ -179,6 +191,31 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       ),
     );
   }
+}
+
+/// The quiet line under the price. Brass for a ladder rung, grey for anything else - the same
+/// division of colours the product page uses for its tiers.
+class _Footnote extends StatelessWidget {
+  const _Footnote(
+    this.text, {
+    this.colour = AppTheme.muted,
+    this.weight = FontWeight.w400,
+  });
+
+  final String text;
+  final Color colour;
+  final FontWeight weight;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 2),
+    child: Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 11, color: colour, fontWeight: weight),
+    ),
+  );
 }
 
 class _AddButton extends StatelessWidget {

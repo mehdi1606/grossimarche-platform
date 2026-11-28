@@ -13,13 +13,16 @@ final contentTranslatorProvider = Provider<ContentTranslator>((ref) {
 /// A text that comes from the server in French - a product name, a category, an error - shown
 /// in the customer's language.
 ///
-/// In French it is a plain [Text]. In Arabic it shows the French until the translation is
-/// known, then redraws; see [ContentTranslator]. [format] wraps the translated value in one of
-/// the app's own sentences: `TrText(name, format: (n) => l10n.addedToCart(n))`.
+/// In French it is a plain [Text]. In Arabic, [arabic] - the translation the shop itself
+/// stored when the row was saved - is shown straight away when there is one; without it the
+/// French is shown until the machine translation arrives, then redrawn (see
+/// [ContentTranslator]). [format] wraps the value in one of the app's own sentences:
+/// `TrText(name, format: (n) => l10n.addedToCart(n))`.
 class TrText extends ConsumerWidget {
   const TrText(
     this.text, {
     super.key,
+    this.arabic,
     this.format,
     this.style,
     this.maxLines,
@@ -28,6 +31,13 @@ class TrText extends ConsumerWidget {
   });
 
   final String text;
+
+  /// The Arabic the catalogue holds for [text], when it holds one.
+  ///
+  /// Always preferred over the translation service: it was written or corrected by somebody
+  /// who knows the product, it is right the first time the name is seen, and it costs no
+  /// request. Blank counts as absent - an untranslated row must not render an empty label.
+  final String? arabic;
   final String Function(String value)? format;
   final TextStyle? style;
   final int? maxLines;
@@ -46,6 +56,10 @@ class TrText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (Localizations.localeOf(context).languageCode == 'fr') {
       return _build(text);
+    }
+    final stored = arabic?.trim();
+    if (stored != null && stored.isNotEmpty) {
+      return _build(stored);
     }
     final translator = ref.watch(contentTranslatorProvider);
     return ListenableBuilder(

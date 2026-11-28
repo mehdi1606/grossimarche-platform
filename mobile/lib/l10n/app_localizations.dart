@@ -1915,6 +1915,228 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Activité'**
   String get tradeFieldLabel;
+
+  /// No description provided for @filterSort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtrer et trier'**
+  String get filterSort;
+
+  /// No description provided for @sortLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trier par'**
+  String get sortLabel;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveautés'**
+  String get sortNewest;
+
+  /// No description provided for @sortPriceAsc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix croissant'**
+  String get sortPriceAsc;
+
+  /// No description provided for @sortPriceDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix décroissant'**
+  String get sortPriceDesc;
+
+  /// No description provided for @sortName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom (A-Z)'**
+  String get sortName;
+
+  /// No description provided for @priceRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette de prix'**
+  String get priceRange;
+
+  /// No description provided for @priceMinLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix minimum'**
+  String get priceMinLabel;
+
+  /// No description provided for @priceMaxLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix maximum'**
+  String get priceMaxLabel;
+
+  /// No description provided for @inStockOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Produits en stock uniquement'**
+  String get inStockOnly;
+
+  /// No description provided for @filtersReset.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser'**
+  String get filtersReset;
+
+  /// No description provided for @filtersApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les résultats'**
+  String get filtersApply;
+
+  /// No description provided for @productSpecs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques'**
+  String get productSpecs;
+
+  /// The best quantity-discount rung, on one line under a product card's price.
+  ///
+  /// In fr, this message translates to:
+  /// **'dès {quantity} {unit} : {price}'**
+  String tierFromPrice(int quantity, String unit, String price);
+
+  /// No description provided for @paymentCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement par carte'**
+  String get paymentCard;
+
+  /// No description provided for @paymentAwaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de paiement'**
+  String get paymentAwaiting;
+
+  /// No description provided for @paymentPaid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payée'**
+  String get paymentPaid;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement échoué'**
+  String get paymentFailed;
+
+  /// No description provided for @paymentRefunded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remboursée'**
+  String get paymentRefunded;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutHeroTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le marché de gros en ligne du Maroc'**
+  String get aboutHeroTitle;
+
+  /// No description provided for @aboutHeroText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Market Food approvisionne les commerçants, restaurateurs et professionnels du Maroc : des milliers de références de gros, des prix qui baissent avec la quantité, une livraison partout dans le pays et le paiement à la livraison.'**
+  String get aboutHeroText;
+
+  /// No description provided for @aboutMissionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre mission'**
+  String get aboutMissionTitle;
+
+  /// No description provided for @aboutMissionText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendre l\'approvisionnement en gros simple, transparent et accessible à tous les professionnels.'**
+  String get aboutMissionText;
+
+  /// No description provided for @aboutHowTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça marche'**
+  String get aboutHowTitle;
+
+  /// No description provided for @aboutWhoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À qui nous vendons'**
+  String get aboutWhoTitle;
+
+  /// No description provided for @aboutWhoText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aux professionnels : épiceries, supérettes, restaurants, cafés, hôtels et revendeurs. Chaque compte est validé par notre équipe, et vos prix dépendent de votre activité.'**
+  String get aboutWhoText;
+
+  /// No description provided for @aboutTiersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des prix dégressifs'**
+  String get aboutTiersTitle;
+
+  /// No description provided for @aboutTiersText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus la quantité est grande, plus le prix unitaire baisse. Les paliers sont affichés sur la fiche de chaque produit, avant d\'ajouter au panier.'**
+  String get aboutTiersText;
+
+  /// No description provided for @aboutCodTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement à la livraison'**
+  String get aboutCodTitle;
+
+  /// No description provided for @aboutCodText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun paiement en ligne : vous réglez le montant de la commande au livreur, à la réception de la marchandise.'**
+  String get aboutCodText;
+
+  /// No description provided for @aboutDeliveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livraison partout au Maroc'**
+  String get aboutDeliveryTitle;
+
+  /// No description provided for @aboutDeliveryText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous livrons vos commandes dans tout le pays. Le délai dépend de votre ville et vous est communiqué à la commande ; chaque étape se suit dans l\'onglet « Commandes ».'**
+  String get aboutDeliveryText;
+
+  /// No description provided for @aboutTeamTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une équipe joignable'**
+  String get aboutTeamTitle;
+
+  /// No description provided for @aboutTeamText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une question sur une commande, un produit ou un partenariat ? Notre équipe répond par téléphone, WhatsApp ou e-mail.'**
+  String get aboutTeamText;
+
+  /// No description provided for @aboutContactTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoin d\'aide ?'**
+  String get aboutContactTitle;
+
+  /// No description provided for @aboutContactText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appelez-nous, écrivez-nous sur WhatsApp ou par e-mail.'**
+  String get aboutContactText;
 }
 
 class _AppLocalizationsDelegate

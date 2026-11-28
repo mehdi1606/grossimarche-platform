@@ -17,6 +17,86 @@ extension OrderStatusText on OrderStatus {
   };
 }
 
+/// How the order is paid for, in the screen's language.
+extension PaymentMethodText on PaymentMethod {
+  String text(AppLocalizations l10n) => switch (this) {
+    PaymentMethod.cod => l10n.cashOnDelivery,
+    PaymentMethod.card => l10n.paymentCard,
+  };
+}
+
+/// Where the money stands, in the screen's language.
+extension PaymentStatusText on PaymentStatus {
+  String text(AppLocalizations l10n) => switch (this) {
+    PaymentStatus.awaitingPayment => l10n.paymentAwaiting,
+    PaymentStatus.pendingOnDelivery => l10n.cashOnDelivery,
+    PaymentStatus.paid => l10n.paymentPaid,
+    PaymentStatus.failed => l10n.paymentFailed,
+    PaymentStatus.refunded => l10n.paymentRefunded,
+  };
+}
+
+/// What happened to the money, when that is worth a line of its own.
+///
+/// Drawn over the order's green header, so each pairing is a light pill with its meaning in
+/// the colour: brass for "we are waiting", forest for "settled", red for a refusal, sand for
+/// a refund - the same four meanings, and the same four colours, as [OrderStatusChip].
+class PaymentStatusChip extends StatelessWidget {
+  const PaymentStatusChip({super.key, required this.status});
+
+  final PaymentStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (bg, fg, icon) = switch (status) {
+      PaymentStatus.paid => (
+        AppTheme.forest100,
+        AppTheme.forest700,
+        Icons.check_circle_outline,
+      ),
+      PaymentStatus.failed => (
+        Colors.white,
+        AppTheme.danger,
+        Icons.error_outline,
+      ),
+      PaymentStatus.refunded => (
+        AppTheme.sand,
+        AppTheme.muted,
+        Icons.undo_outlined,
+      ),
+      PaymentStatus.awaitingPayment ||
+      PaymentStatus.pendingOnDelivery => (
+        AppTheme.brass50,
+        AppTheme.brass,
+        Icons.hourglass_top,
+      ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: fg),
+          const SizedBox(width: 5),
+          Text(
+            status.text(context.l10n),
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// A status, coloured by what it means for the customer: waiting, moving, done, or stopped.
 ///
 /// Four colours for six statuses on purpose. "Confirmée" and "En préparation" are the same

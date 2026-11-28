@@ -1060,4 +1060,125 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tradeFieldLabel => 'Activité';
+
+  @override
+  String get filterSort => 'Filtrer et trier';
+
+  @override
+  String get sortLabel => 'Trier par';
+
+  @override
+  String get sortNewest => 'Nouveautés';
+
+  @override
+  String get sortPriceAsc => 'Prix croissant';
+
+  @override
+  String get sortPriceDesc => 'Prix décroissant';
+
+  @override
+  String get sortName => 'Nom (A-Z)';
+
+  @override
+  String get priceRange => 'Fourchette de prix';
+
+  @override
+  String get priceMinLabel => 'Prix minimum';
+
+  @override
+  String get priceMaxLabel => 'Prix maximum';
+
+  @override
+  String get inStockOnly => 'Produits en stock uniquement';
+
+  @override
+  String get filtersReset => 'Réinitialiser';
+
+  @override
+  String get filtersApply => 'Voir les résultats';
+
+  @override
+  String get productSpecs => 'Caractéristiques';
+
+  @override
+  String tierFromPrice(int quantity, String unit, String price) {
+    return 'dès $quantity $unit : $price';
+  }
+
+  @override
+  String get paymentCard => 'Paiement par carte';
+
+  @override
+  String get paymentAwaiting => 'En attente de paiement';
+
+  @override
+  String get paymentPaid => 'Payée';
+
+  @override
+  String get paymentFailed => 'Paiement échoué';
+
+  @override
+  String get paymentRefunded => 'Remboursée';
+
+  @override
+  String get aboutTitle => 'À propos';
+
+  @override
+  String get aboutHeroTitle => 'Le marché de gros en ligne du Maroc';
+
+  @override
+  String get aboutHeroText =>
+      'Market Food approvisionne les commerçants, restaurateurs et professionnels du Maroc : des milliers de références de gros, des prix qui baissent avec la quantité, une livraison partout dans le pays et le paiement à la livraison.';
+
+  @override
+  String get aboutMissionTitle => 'Notre mission';
+
+  @override
+  String get aboutMissionText =>
+      'Rendre l\'approvisionnement en gros simple, transparent et accessible à tous les professionnels.';
+
+  @override
+  String get aboutHowTitle => 'Comment ça marche';
+
+  @override
+  String get aboutWhoTitle => 'À qui nous vendons';
+
+  @override
+  String get aboutWhoText =>
+      'Aux professionnels : épiceries, supérettes, restaurants, cafés, hôtels et revendeurs. Chaque compte est validé par notre équipe, et vos prix dépendent de votre activité.';
+
+  @override
+  String get aboutTiersTitle => 'Des prix dégressifs';
+
+  @override
+  String get aboutTiersText =>
+      'Plus la quantité est grande, plus le prix unitaire baisse. Les paliers sont affichés sur la fiche de chaque produit, avant d\'ajouter au panier.';
+
+  @override
+  String get aboutCodTitle => 'Paiement à la livraison';
+
+  @override
+  String get aboutCodText =>
+      'Aucun paiement en ligne : vous réglez le montant de la commande au livreur, à la réception de la marchandise.';
+
+  @override
+  String get aboutDeliveryTitle => 'Livraison partout au Maroc';
+
+  @override
+  String get aboutDeliveryText =>
+      'Nous livrons vos commandes dans tout le pays. Le délai dépend de votre ville et vous est communiqué à la commande ; chaque étape se suit dans l\'onglet « Commandes ».';
+
+  @override
+  String get aboutTeamTitle => 'Une équipe joignable';
+
+  @override
+  String get aboutTeamText =>
+      'Une question sur une commande, un produit ou un partenariat ? Notre équipe répond par téléphone, WhatsApp ou e-mail.';
+
+  @override
+  String get aboutContactTitle => 'Besoin d\'aide ?';
+
+  @override
+  String get aboutContactText =>
+      'Appelez-nous, écrivez-nous sur WhatsApp ou par e-mail.';
 }

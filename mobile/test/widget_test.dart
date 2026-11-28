@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:market_food/core/i18n/language.dart';
 import 'package:market_food/core/providers.dart';
 import 'package:market_food/features/auth/ui/login_screen.dart';
 import 'package:market_food/main.dart';
@@ -16,6 +17,11 @@ void main() {
           sessionProvider.overrideWith(
             () => _FixedSession(const Session.none()),
           ),
+          // The app asks the server which languages the shop offers as soon as it builds.
+          // There is no server here, and the attempt outlives the test: the request's own
+          // timeout is still pending when the tree is torn down, and the test framework
+          // fails on the leftover timer rather than on anything this test is about.
+          shopLanguagesProvider.overrideWith((ref) => ShopLanguages.shipped),
         ],
         child: const MarketFoodApp(),
       ),

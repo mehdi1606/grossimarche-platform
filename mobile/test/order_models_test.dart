@@ -62,5 +62,52 @@ void main() {
       expect(o.reachedAt(OrderStatus.confirmed), isNotNull);
       expect(o.reachedAt(OrderStatus.preparing), isNull);
     });
+
+    test('reads how the order is paid for, and for which code', () {
+      final o = OrderDetail.fromJson({
+        ...order('DELIVERED'),
+        'paymentMethod': 'CARD',
+        'paymentStatus': 'PAID',
+        'couponCode': 'RENTREE10',
+        'couponDiscount': 12.5,
+      });
+      expect(o.paymentMethod, PaymentMethod.card);
+      expect(o.paymentStatus, PaymentStatus.paid);
+      expect(o.couponCode, 'RENTREE10');
+    });
+
+    test('falls back to cash on delivery, which every order of this shop is', () {
+      // The fields are absent from an older server, and unknown values are possible from a
+      // newer one; neither may turn a cash order into something the screen cannot describe.
+      final o = OrderDetail.fromJson(order('PENDING'));
+      expect(o.paymentMethod, PaymentMethod.cod);
+      expect(o.paymentStatus, PaymentStatus.pendingOnDelivery);
+      expect(o.couponCode, isNull);
+    });
+  });
+
+  group('PaymentStatus', () {
+    test('maps every state the API sends', () {
+      expect(
+        PaymentStatus.parse('AWAITING_PAYMENT'),
+        PaymentStatus.awaitingPayment,
+      );
+      expect(
+        PaymentStatus.parse('PENDING_ON_DELIVERY'),
+        PaymentStatus.pendingOnDelivery,
+      );
+      expect(PaymentStatus.parse('PAID'), PaymentStatus.paid);
+      expect(PaymentStatus.parse('FAILED'), PaymentStatus.failed);
+      expect(PaymentStatus.parse('REFUNDED'), PaymentStatus.refunded);
+      expect(PaymentStatus.parse('SOMETHING_NEW'), PaymentStatus.pendingOnDelivery);
+    });
+
+    test('is only shown when it says more than the total already does', () {
+      expect(PaymentStatus.pendingOnDelivery.isWorthShowing, isFalse);
+      expect(PaymentStatus.paid.isWorthShowing, isTrue);
+      expect(PaymentStatus.failed.isWorthShowing, isTrue);
+      expect(PaymentStatus.refunded.isWorthShowing, isTrue);
+      expect(PaymentStatus.awaitingPayment.isWorthShowing, isTrue);
+    });
   });
 }

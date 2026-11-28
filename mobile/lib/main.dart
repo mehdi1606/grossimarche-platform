@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import 'core/currency.dart';
 import 'core/i18n/language.dart';
 import 'core/navigation.dart';
 import 'core/providers.dart';
@@ -11,6 +12,7 @@ import 'core/theme.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/ui/login_screen.dart';
 import 'features/home/home_shell.dart';
+import 'shared/money.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,10 @@ Future<void> main() async {
   // "١٢" beside "12,50 DH" would read as two different number systems on one line.
   DateFormat.useNativeDigitsByDefaultFor('ar', false);
   final language = await LanguageStore().initial();
+  // The shop's currency symbol, before the first price is drawn - see CurrencyStore for why
+  // this is read here and not from a provider. Amounts are untouched: the API already prices
+  // in this currency.
+  Money.symbol = await CurrencyStore().start();
   runApp(
     ProviderScope(
       overrides: [
@@ -90,6 +96,21 @@ class _MarketFoodAppState extends ConsumerState<MarketFoodApp> {
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final language = ref.watch(languageProvider);
+
+    // The back office can switch a language off. A phone left on one that is no longer
+    // offered would read half the shop in a language nobody maintains, so the stored choice
+    // follows the shop's list and falls back to its default language.
+    ref.listen<AsyncValue<ShopLanguages>>(shopLanguagesProvider, (_, next) {
+      final shop = next.value;
+      if (shop == null) return;
+      if (!shop.locales.any(
+        (l) => l.languageCode == ref.read(languageProvider).languageCode,
+      )) {
+        ref.read(languageProvider.notifier).set(shop.fallback);
+      }
+      // No `fireImmediately`: this listen is what starts the request, so the first value is
+      // always still loading - and a provider must not be written to while building.
+    });
 
     // Push follows the session: on at sign-in, off - and the device forgotten - at sign-out.
     ref.listen<Session>(sessionProvider, (previous, next) {

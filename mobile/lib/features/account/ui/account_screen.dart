@@ -7,6 +7,7 @@ import '../../../core/providers.dart';
 import '../../../core/theme.dart';
 import '../../../shared/language_switch.dart';
 import '../../address/data/address_models.dart';
+import '../../info/ui/about_screen.dart';
 import '../../info/ui/info_screens.dart';
 import '../../address/data/address_repository.dart';
 import '../../address/ui/address_form_sheet.dart';
@@ -580,6 +581,14 @@ class _Help extends StatelessWidget {
           decoration: AppTheme.card(),
           child: Column(
             children: [
+              _SettingTile(
+                icon: Icons.storefront_outlined,
+                label: l10n.aboutTitle,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AboutScreen()),
+                ),
+              ),
+              divider,
               _SettingTile(
                 icon: Icons.support_agent,
                 label: l10n.contactTitle,

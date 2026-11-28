@@ -215,6 +215,7 @@ class _OfferCard extends StatelessWidget {
                             const Spacer(),
                             TrText(
                               offer.name,
+                              arabic: offer.nameAr,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: AppTheme.display(

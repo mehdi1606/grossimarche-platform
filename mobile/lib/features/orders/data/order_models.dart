@@ -38,6 +38,45 @@ enum OrderStatus {
   bool get isFinished => this == delivered || this == cancelled;
 }
 
+/// How the order is paid for.
+///
+/// The app only ever places cash-on-delivery orders, but the server also knows card orders
+/// taken through the CMI gateway. An order paid by card must not be labelled "paiement à la
+/// livraison" in the app, so the method is read rather than assumed.
+enum PaymentMethod {
+  cod,
+  card;
+
+  /// Anything unknown is read as cash on delivery: it is what every order of this shop is,
+  /// and the worst a new server value can then do is be described as the norm.
+  static PaymentMethod parse(String? raw) =>
+      raw == 'CARD' ? PaymentMethod.card : PaymentMethod.cod;
+}
+
+/// Where the money stands, which is not where the order stands.
+enum PaymentStatus {
+  awaitingPayment,
+  pendingOnDelivery,
+  paid,
+  failed,
+  refunded;
+
+  static PaymentStatus parse(String? raw) => switch (raw) {
+    'AWAITING_PAYMENT' => awaitingPayment,
+    'PAID' => paid,
+    'FAILED' => failed,
+    'REFUNDED' => refunded,
+    _ => pendingOnDelivery,
+  };
+
+  /// Whether saying it adds anything.
+  ///
+  /// "À régler à la livraison" is the ordinary case and is already written under the total;
+  /// repeating it as a badge would only teach the customer to ignore the badge. Paid, failed,
+  /// refunded and "waiting for your card payment" are each news.
+  bool get isWorthShowing => this != pendingOnDelivery;
+}
+
 /// The counters at the top of the order history, from one grouped query on the server.
 class OrderStats {
   const OrderStats({
@@ -142,6 +181,9 @@ class OrderDetail {
     required this.lines,
     required this.timeline,
     required this.createdAt,
+    this.paymentMethod = PaymentMethod.cod,
+    this.paymentStatus = PaymentStatus.pendingOnDelivery,
+    this.couponCode,
     this.couponDiscount = 0,
     this.note,
     this.address,
@@ -153,8 +195,11 @@ class OrderDetail {
       id: json['id'] as String,
       number: json['orderNumber'] as String? ?? '',
       status: OrderStatus.parse(json['status'] as String?),
+      paymentMethod: PaymentMethod.parse(json['paymentMethod'] as String?),
+      paymentStatus: PaymentStatus.parse(json['paymentStatus'] as String?),
       subtotal: (json['subtotal'] as num?)?.toDouble() ?? 0,
       discountTotal: (json['discountTotal'] as num?)?.toDouble() ?? 0,
+      couponCode: _text(json['couponCode']),
       couponDiscount: (json['couponDiscount'] as num?)?.toDouble() ?? 0,
       deliveryFee: (json['deliveryFee'] as num?)?.toDouble() ?? 0,
       total: (json['total'] as num?)?.toDouble() ?? 0,
@@ -180,8 +225,15 @@ class OrderDetail {
   final String id;
   final String number;
   final OrderStatus status;
+  final PaymentMethod paymentMethod;
+  final PaymentStatus paymentStatus;
   final double subtotal;
   final double discountTotal;
+
+  /// The code the customer typed at checkout, kept beside its discount so the line says which
+  /// code earned it - the question a shopkeeper asks when the discount is not what they
+  /// expected.
+  final String? couponCode;
   final double couponDiscount;
   final double deliveryFee;
   final double total;

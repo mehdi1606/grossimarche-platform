@@ -79,6 +79,7 @@ class _DetailsState extends ConsumerState<_Details> {
         ref,
         productId: widget.product.id,
         name: widget.product.name,
+        arabicName: widget.product.nameAr,
         minOrderQuantity: widget.product.minOrderQuantity,
       );
     } finally {
@@ -143,12 +144,22 @@ class _DetailsState extends ConsumerState<_Details> {
                   if (product.categoryName != null)
                     TrText(
                       product.categoryName!,
+                      // The product endpoint sends the category's French name only, so the
+                      // Arabic comes from the category list the catalogue has already
+                      // loaded - the same rows, with the shop's own translation on them.
+                      arabic: ref
+                          .watch(categoriesProvider)
+                          .value
+                          ?.where((c) => c.id == product.categoryId)
+                          .firstOrNull
+                          ?.nameAr,
                       format: (name) => name.toUpperCase(),
                       style: AppTheme.eyebrow.copyWith(color: AppTheme.brass),
                     ),
                   const SizedBox(height: 6),
                   TrText(
                     product.name,
+                    arabic: product.nameAr,
                     style: AppTheme.display(context, size: 26),
                   ),
                   const SizedBox(height: 10),
@@ -184,11 +195,17 @@ class _DetailsState extends ConsumerState<_Details> {
                     const SizedBox(height: 8),
                     TrText(
                       product.description!,
+                      arabic: product.descriptionAr,
                       style: const TextStyle(
                         height: 1.6,
                         color: AppTheme.ink700,
                       ),
                     ),
+                  ],
+
+                  if (product.attributes.isNotEmpty) ...[
+                    const SizedBox(height: 22),
+                    _Attributes(attributes: product.attributes),
                   ],
 
                   InBundlesSection(productId: product.id),
@@ -329,6 +346,82 @@ class _Stock extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The specs staff filled in: origin, net weight, packaging, whatever this trade cares about.
+///
+/// The same card language as [_Tiers], in neutral colours rather than brass: these facts help
+/// a buyer decide whether this is the right reference, but none of them is an offer. Free text
+/// on both sides and no Arabic column behind it, so both halves go through the translator.
+class _Attributes extends StatelessWidget {
+  const _Attributes({required this.attributes});
+
+  final List<ProductAttribute> attributes;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    clipBehavior: Clip.antiAlias,
+    decoration: AppTheme.card(),
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.fact_check_outlined,
+                size: 18,
+                color: AppTheme.emeraldDark,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                context.l10n.productSpecs,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (final attribute in attributes)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: AppTheme.line)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: TrText(
+                    attribute.name,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.muted,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 5,
+                  child: TrText(
+                    attribute.value,
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.ink,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 /// The quantity ladder - the reason a wholesaler is on this screen at all.

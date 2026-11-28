@@ -73,6 +73,7 @@ class InBundlesSection extends ConsumerWidget {
                           children: [
                             TrText(
                               offer.name,
+                              arabic: offer.nameAr,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(

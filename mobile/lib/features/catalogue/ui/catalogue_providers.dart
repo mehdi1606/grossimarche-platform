@@ -15,24 +15,87 @@ final categoriesProvider = FutureProvider<List<Category>>(
 
 /// What the catalogue is currently filtered by.
 ///
-/// A record rather than two separate providers: the two change together, and keeping them
-/// apart would fire two reloads for what the customer experiences as one action.
-typedef CatalogueFilter = ({String? categoryId, String query});
+/// A record rather than one provider per field: they change together, and keeping them apart
+/// would fire a reload for each of what the customer experiences as one action. Its value
+/// equality is load-bearing too - [ProductsNotifier.loadMore] compares filters to recognise
+/// the page it asked for.
+typedef CatalogueFilter = ({
+  String? categoryId,
+  String query,
+  ProductSort sort,
+  double? minPrice,
+  double? maxPrice,
+  bool inStockOnly,
+});
+
+const CatalogueFilter _noFilter = (
+  categoryId: null,
+  query: '',
+  sort: ProductSort.newest,
+  minPrice: null,
+  maxPrice: null,
+  inStockOnly: false,
+);
+
+extension CatalogueRefinements on CatalogueFilter {
+  /// How many refinements the sheet is holding - the number on the filter button.
+  ///
+  /// The category and the search text are not counted: each has its own visible control on
+  /// the screen, so a badge for them would say what the chips and the field already say.
+  int get refinementCount =>
+      (sort != ProductSort.newest ? 1 : 0) +
+      (minPrice != null ? 1 : 0) +
+      (maxPrice != null ? 1 : 0) +
+      (inStockOnly ? 1 : 0);
+
+  /// Nothing narrows the catalogue: the customer is browsing the shop, not searching it.
+  bool get isBrowsing =>
+      query.isEmpty && categoryId == null && refinementCount == 0;
+}
 
 class CatalogueFilterNotifier extends Notifier<CatalogueFilter> {
   @override
   CatalogueFilter build() {
     // A new account starts from the whole catalogue, not the previous customer's search.
     ref.watch(accountKeyProvider);
-    return (categoryId: null, query: '');
+    return _noFilter;
   }
 
-  void category(String? id) => state = (categoryId: id, query: state.query);
+  void category(String? id) => state = (
+    categoryId: id,
+    query: state.query,
+    sort: state.sort,
+    minPrice: state.minPrice,
+    maxPrice: state.maxPrice,
+    inStockOnly: state.inStockOnly,
+  );
 
-  void search(String text) =>
-      state = (categoryId: state.categoryId, query: text);
+  void search(String text) => state = (
+    categoryId: state.categoryId,
+    query: text,
+    sort: state.sort,
+    minPrice: state.minPrice,
+    maxPrice: state.maxPrice,
+    inStockOnly: state.inStockOnly,
+  );
 
-  void clear() => state = (categoryId: null, query: '');
+  /// What the filter sheet applies, in one go: the customer pressed "Voir les résultats", and
+  /// a reload per field would make that one tap into four.
+  void refine({
+    required ProductSort sort,
+    required double? minPrice,
+    required double? maxPrice,
+    required bool inStockOnly,
+  }) => state = (
+    categoryId: state.categoryId,
+    query: state.query,
+    sort: sort,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    inStockOnly: inStockOnly,
+  );
+
+  void clear() => state = _noFilter;
 }
 
 final catalogueFilterProvider =
@@ -56,6 +119,10 @@ class ProductsNotifier extends AsyncNotifier<PagedList<ProductSummary>> {
         .products(
           categoryId: filter.categoryId,
           query: filter.query,
+          sort: filter.sort,
+          minPrice: filter.minPrice,
+          maxPrice: filter.maxPrice,
+          inStockOnly: filter.inStockOnly,
           size: _pageSize,
         );
     return PagedList(items: first.items, page: 0, last: first.last);
@@ -72,6 +139,10 @@ class ProductsNotifier extends AsyncNotifier<PagedList<ProductSummary>> {
           .products(
             categoryId: filter.categoryId,
             query: filter.query,
+            sort: filter.sort,
+            minPrice: filter.minPrice,
+            maxPrice: filter.maxPrice,
+            inStockOnly: filter.inStockOnly,
             page: current.page + 1,
             size: _pageSize,
           );

@@ -40,7 +40,9 @@ class Offer {
     required this.name,
     required this.items,
     required this.available,
+    this.nameAr,
     this.description,
+    this.descriptionAr,
     this.imageUrl,
     this.price,
     this.componentsTotal,
@@ -57,7 +59,9 @@ class Offer {
         .map(OfferItem.fromJson)
         .toList(growable: false),
     available: json['available'] as bool? ?? false,
+    nameAr: _text(json['nameAr']),
     description: _text(json['description']),
+    descriptionAr: _text(json['descriptionAr']),
     imageUrl: _text(json['imageUrl']),
     price: (json['price'] as num?)?.toDouble(),
     componentsTotal: (json['componentsTotal'] as num?)?.toDouble(),
@@ -74,7 +78,13 @@ class Offer {
 
   /// On sale right now: inside its dates, every product in stock, priced for this trade.
   final bool available;
+
+  /// The Arabic the shop wrote when the basket was saved, name and description both, or null
+  /// where nobody has translated it yet. The basket's own products carry no Arabic, so the
+  /// contents list stays with the translation service.
+  final String? nameAr;
   final String? description;
+  final String? descriptionAr;
   final String? imageUrl;
 
   /// Null when the basket is not priced for this customer's trade - which means it is not

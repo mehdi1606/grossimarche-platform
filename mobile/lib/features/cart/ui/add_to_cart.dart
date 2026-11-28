@@ -20,6 +20,7 @@ Future<void> addToCart(
   required String productId,
   required String name,
   required int minOrderQuantity,
+  String? arabicName,
 }) async {
   final cart = ref.read(cartProvider.notifier);
   final messenger = ScaffoldMessenger.of(context);
@@ -43,6 +44,9 @@ Future<void> addToCart(
             ? TrText(error, style: const TextStyle(color: Colors.white))
             : TrText(
                 name,
+                // The catalogue's own Arabic when the caller has it: the card the customer
+                // just tapped reads in Arabic, and the confirmation under it should too.
+                arabic: arabicName,
                 style: const TextStyle(color: Colors.white),
                 format: (n) => have > 0
                     ? l10n.quantityInCart(n, want)

@@ -171,7 +171,11 @@ class _Body extends StatelessWidget {
                     style: AppTheme.eyebrow.copyWith(color: AppTheme.brass),
                   ),
                   const SizedBox(height: 6),
-                  TrText(o.name, style: AppTheme.display(context, size: 26)),
+                  TrText(
+                    o.name,
+                    arabic: o.nameAr,
+                    style: AppTheme.display(context, size: 26),
+                  ),
                   if (o.endsAt != null) ...[
                     const SizedBox(height: 10),
                     Row(
@@ -197,6 +201,7 @@ class _Body extends StatelessWidget {
                     const SizedBox(height: 12),
                     TrText(
                       o.description!,
+                      arabic: o.descriptionAr,
                       style: const TextStyle(
                         color: AppTheme.ink700,
                         height: 1.55,

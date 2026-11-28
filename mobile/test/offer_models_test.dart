@@ -34,4 +34,21 @@ void main() {
     expect(o.savings, 81.5);
     expect(o.savingsPercent, 20);
   });
+
+  test('takes the Arabic the shop wrote when it wrote one', () {
+    final translated = Offer.fromJson({
+      ...offer(price: 329),
+      'nameAr': 'سلة البقالة',
+      'description': 'Dix produits de base.',
+      'descriptionAr': 'عشرة منتجات أساسية.',
+    });
+    expect(translated.nameAr, 'سلة البقالة');
+    expect(translated.descriptionAr, 'عشرة منتجات أساسية.');
+
+    // Untranslated baskets must stay null rather than empty: that is what sends the name to
+    // the translation service instead of drawing a blank label.
+    final plain = Offer.fromJson({...offer(price: 329), 'nameAr': ''});
+    expect(plain.nameAr, isNull);
+    expect(plain.descriptionAr, isNull);
+  });
 }

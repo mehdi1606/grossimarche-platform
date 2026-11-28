@@ -1056,4 +1056,125 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tradeFieldLabel => 'النشاط';
+
+  @override
+  String get filterSort => 'التصفية والترتيب';
+
+  @override
+  String get sortLabel => 'الترتيب حسب';
+
+  @override
+  String get sortNewest => 'الأحدث';
+
+  @override
+  String get sortPriceAsc => 'الأرخص أولاً';
+
+  @override
+  String get sortPriceDesc => 'الأغلى أولاً';
+
+  @override
+  String get sortName => 'الاسم (أ-ي)';
+
+  @override
+  String get priceRange => 'نطاق السعر';
+
+  @override
+  String get priceMinLabel => 'السعر الأدنى';
+
+  @override
+  String get priceMaxLabel => 'السعر الأقصى';
+
+  @override
+  String get inStockOnly => 'المنتجات المتوفرة فقط';
+
+  @override
+  String get filtersReset => 'إعادة التعيين';
+
+  @override
+  String get filtersApply => 'عرض النتائج';
+
+  @override
+  String get productSpecs => 'الخصائص';
+
+  @override
+  String tierFromPrice(int quantity, String unit, String price) {
+    return 'من $quantity $unit: $price';
+  }
+
+  @override
+  String get paymentCard => 'الدفع بالبطاقة';
+
+  @override
+  String get paymentAwaiting => 'في انتظار الدفع';
+
+  @override
+  String get paymentPaid => 'تم الدفع';
+
+  @override
+  String get paymentFailed => 'فشل الدفع';
+
+  @override
+  String get paymentRefunded => 'تم الاسترجاع';
+
+  @override
+  String get aboutTitle => 'من نحن';
+
+  @override
+  String get aboutHeroTitle => 'سوق الجملة الإلكتروني في المغرب';
+
+  @override
+  String get aboutHeroText =>
+      'تزوّد ماركت فود التجار وأصحاب المطاعم والمهنيين في المغرب: آلاف المنتجات بأسعار الجملة، أسعار تنخفض مع الكمية، توصيل إلى جميع أنحاء البلاد، ودفع عند الاستلام.';
+
+  @override
+  String get aboutMissionTitle => 'مهمتنا';
+
+  @override
+  String get aboutMissionText =>
+      'أن يكون التزوّد بالجملة بسيطاً وواضحاً وفي متناول كل المهنيين.';
+
+  @override
+  String get aboutHowTitle => 'كيف يعمل';
+
+  @override
+  String get aboutWhoTitle => 'لمن نبيع';
+
+  @override
+  String get aboutWhoText =>
+      'للمهنيين: البقالات والمتاجر الصغيرة والمطاعم والمقاهي والفنادق والموزعين. يوافق فريقنا على كل حساب، وأسعارك تتحدد حسب نشاطك.';
+
+  @override
+  String get aboutTiersTitle => 'أسعار تنازلية';
+
+  @override
+  String get aboutTiersText =>
+      'كلما زادت الكمية، انخفض سعر الوحدة. تظهر مستويات الأسعار في بطاقة كل منتج، قبل الإضافة إلى السلة.';
+
+  @override
+  String get aboutCodTitle => 'الدفع عند الاستلام';
+
+  @override
+  String get aboutCodText =>
+      'لا دفع عبر الإنترنت: تؤدي مبلغ الطلب لعامل التوصيل عند استلام السلعة.';
+
+  @override
+  String get aboutDeliveryTitle => 'توصيل إلى جميع أنحاء المغرب';
+
+  @override
+  String get aboutDeliveryText =>
+      'نوصّل طلباتك إلى جميع أنحاء البلاد. تعتمد المدة على مدينتك وتُبلَّغ بها عند الطلب، وتتابع كل مرحلة من تبويب «الطلبات».';
+
+  @override
+  String get aboutTeamTitle => 'فريق في متناولك';
+
+  @override
+  String get aboutTeamText =>
+      'هل لديك سؤال عن طلب أو منتج أو شراكة؟ يجيبك فريقنا عبر الهاتف أو واتساب أو البريد الإلكتروني.';
+
+  @override
+  String get aboutContactTitle => 'تحتاج مساعدة؟';
+
+  @override
+  String get aboutContactText =>
+      'اتصل بنا، أو راسلنا على واتساب أو بالبريد الإلكتروني.';
 }

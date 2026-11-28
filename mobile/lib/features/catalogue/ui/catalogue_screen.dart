@@ -18,6 +18,7 @@ import '../../offers/ui/offer_providers.dart';
 import '../../offers/ui/offer_screen.dart';
 import '../data/catalogue_models.dart';
 import 'catalogue_providers.dart';
+import 'filter_sheet.dart';
 import 'product_screen.dart';
 import 'widgets/product_card.dart';
 
@@ -69,7 +70,7 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
     final filter = ref.watch(catalogueFilterProvider);
     final products = ref.watch(productsProvider);
     final l10n = context.l10n;
-    final browsing = filter.query.isEmpty && filter.categoryId == null;
+    final browsing = filter.isBrowsing;
 
     return Scaffold(
       body: SafeArea(
@@ -88,26 +89,36 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
-                  child: TextField(
-                    controller: _search,
-                    onChanged: _onSearchChanged,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: l10n.searchHint,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _search.text.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                _search.clear();
-                                ref
-                                    .read(catalogueFilterProvider.notifier)
-                                    .search('');
-                                setState(() {});
-                              },
-                            ),
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _search,
+                          onChanged: _onSearchChanged,
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            hintText: l10n.searchHint,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _search.text.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      _search.clear();
+                                      ref
+                                          .read(
+                                            catalogueFilterProvider.notifier,
+                                          )
+                                          .search('');
+                                      setState(() {});
+                                    },
+                                  ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      _FilterButton(active: filter.refinementCount),
+                    ],
                   ),
                 ),
               ),
@@ -317,6 +328,60 @@ class _CartButton extends ConsumerWidget {
   }
 }
 
+/// The way into the filter sheet, beside the search field.
+///
+/// A badge rather than a filled icon: "something is filtering this list" is the thing a buyer
+/// needs to notice when the grid comes back shorter than they expected, and a number also
+/// says how much of it there is to undo.
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({required this.active});
+
+  final int active;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    alignment: Alignment.center,
+    children: [
+      Container(
+        width: 52,
+        height: 52,
+        decoration: AppTheme.card(radius: 14),
+        child: IconButton(
+          tooltip: context.l10n.filterSort,
+          icon: Icon(
+            Icons.tune,
+            color: active > 0 ? AppTheme.emeraldDark : AppTheme.ink,
+          ),
+          onPressed: () => showCatalogueFilterSheet(context),
+        ),
+      ),
+      if (active > 0)
+        PositionedDirectional(
+          top: 0,
+          end: 0,
+          child: Container(
+            width: 18,
+            height: 18,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppTheme.brass,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppTheme.cream, width: 2),
+            ),
+            child: Text(
+              '$active',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
 /// The shop window: this week's basket offers if there are any, otherwise the brand's promise.
 class _Showcase extends ConsumerWidget {
   const _Showcase();
@@ -426,6 +491,7 @@ class _OfferBanner extends StatelessWidget {
                   const Spacer(),
                   TrText(
                     offer.name,
+                    arabic: offer.nameAr,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTheme.display(
@@ -565,6 +631,7 @@ class _Categories extends ConsumerWidget {
                     final Category c = list[i - 1];
                     return _Chip(
                       label: c.name,
+                      arabic: c.nameAr,
                       selected: selected == c.id,
                       onTap: () => ref
                           .read(catalogueFilterProvider.notifier)
@@ -584,10 +651,15 @@ class _Chip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.arabic,
     this.icon,
   });
 
   final String label;
+
+  /// The category's own Arabic name, when the shop has written one. Null for the "Tout" chip,
+  /// which is one of the app's own words and is already translated by hand.
+  final String? arabic;
   final bool selected;
   final VoidCallback onTap;
   final IconData? icon;
@@ -616,6 +688,7 @@ class _Chip extends StatelessWidget {
               ],
               TrText(
                 label,
+                arabic: arabic,
                 style: TextStyle(
                   color: colour,
                   fontWeight: FontWeight.w600,
